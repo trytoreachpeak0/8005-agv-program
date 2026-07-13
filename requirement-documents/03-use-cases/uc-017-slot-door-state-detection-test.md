@@ -1,0 +1,110 @@
+---
+id: UC-017
+type: use-case
+title: "Slot Door Open/Close State Detection Test 仓门开关状态识别测试"
+status: draft
+priority: medium
+created_by: "ZhengyuShao 邵正宇"
+updated_by: "ZhengyuShao 邵正宇"
+created: 2026-07-09
+updated: 2026-07-09
+primary_actor: "TBD 待定（推测为设备/电气维护人员 R-11，本次未最终确认，见 Notes）"
+secondary_actor: "None 无（本 UC 只读取 IO 模块的门状态 DI 信号，不涉及 MES/RIOT）"
+frequency: "TBD 待定，预期与 [[uc-015-slot-door-unlock-open-test|UC-015]] 同量级，可在同一次维护巡检中连续进行"
+related_uc: ["UC-001", "UC-004", "UC-005", "UC-010", "UC-014", "UC-015", "UC-018"]
+related_br: []
+aliases: ["UC-017"]
+---
+
+# UC-017 Slot Door Open/Close State Detection Test 仓门开关状态识别测试
+
+## Description 描述
+
+维护人员打开目标仓位仓门（可衔接 [[uc-015-slot-door-unlock-open-test|UC-015]] 的开门操作），核对系统读取的该仓位门状态 DI 信号是否正确变为"开启"；随后关闭仓门，核对系统读取的门状态是否正确变为"关闭"。本 UC 只验证"门实际物理开合状态"与"系统读取的门状态 DI 信号"是否一致，不涉及开锁指令本身是否使门弹开（见 UC-015）或光幕遮挡检测（见 [[uc-016-slot-light-curtain-function-test|UC-016]]）。The maintenance engineer opens the target slot's door (following on from the open operation in [[uc-015-slot-door-unlock-open-test|UC-015]]) and checks whether the system's door-state DI reading correctly changes to "open"; the door is then closed, and the reading is checked to confirm it correctly changes to "closed". This UC only verifies whether the door's actual physical open/closed state matches the door-state DI signal read by the system; it does not cover whether the unlock command itself causes the door to pop open (UC-015) or light-curtain obstruction detection (UC-016).
+
+## Trigger 触发条件
+
+维护人员需要验证某仓位门状态识别是否准确，可紧接 [[uc-015-slot-door-unlock-open-test|UC-015]] 的开关门动作一起测试，也可单独针对已开启/关闭的仓门发起。The maintenance engineer needs to verify whether a slot's door-state detection is accurate; this can be performed right after the open/close actions in UC-015, or initiated independently.
+
+## Precondition 前置条件
+
+**System & Interface 系统与接口**
+
+1. 本地服务器与 IO 模块之间通信正常，可正常读取该仓位门状态 DI 信号。The local server and the IO module communicate normally, so the slot's door-state DI signal can be read.
+
+**Task & Data 任务与数据**
+
+2. 建议测试前先通过 [[uc-014-enable-disable-slot|UC-014]] 将目标仓位标记为"已禁用"，避免测试期间该仓位被业务流程意外分配使用（非强制，处理方式同 UC-015/UC-016）。It is recommended to first disable the target slot via [[uc-014-enable-disable-slot|UC-014]] before testing (not mandatory, same treatment as UC-015/UC-016).
+
+**Personnel & Authorization 人员与权限**
+
+3. 维护人员具备操作该仓位仓门、查看其门状态 DI 信号的权限（具体角色待定，见 Notes）。The maintenance engineer has permission to operate the slot's door and view its door-state DI signal (the specific role is TBD, see Notes).
+
+## Postcondition 后置条件
+
+**Task & Data 任务与数据**
+
+1. 若测试正常：该仓位在开启/关闭两种物理状态下，系统读取的门状态 DI 信号均与实际一致。If the test passes: the slot's door-state DI readings match the actual physical open/closed state in both cases.
+2. 若测试异常：该仓位被标记为"异常锁定"或"测试未通过"，暂停对该仓位的后续业务分配，等待维护人员进一步排查（见 Exception Flow E2.1/E4.1）。If the test fails: the slot is marked as "Exception-locked" or "test failed", suspending further business assignment pending further troubleshooting (see Exception Flow E2.1/E4.1).
+3. 本次测试结果（维护人员、仓位号、测试类型：门状态识别测试、结果：正常/异常、时间戳）被记录到本地数据库，用于追溯。This test result (engineer, slot number, test type: door-state detection test, result: pass/fail, timestamp) is logged in the local database for traceability.
+
+## Assumption 假设
+
+1. 本 UC 假定维护人员在测试过程中对仓门的实际物理开合状态判断是准确的（即测试基准本身可信），系统读取的 DI 信号是被核验的对象，而不是反过来用系统信号去验证维护人员的判断。This UC assumes the maintenance engineer's judgment of the door's actual physical open/closed state during the test is accurate (i.e. the test baseline itself is trustworthy); the system's DI reading is the object being verified, not the other way around.
+
+## Normal Flow 正常流程
+
+### 17.0 Slot Door Open/Close State Detection Test
+
+1. 维护人员在维护界面中选择目标仓位
+2. 维护人员打开该仓位仓门（可通过 [[uc-015-slot-door-unlock-open-test|UC-015]] 的开锁操作，或该门本身已处于开启状态）
+3. 系统读取该仓位门状态 DI 信号
+   3.1 维护人员核验该状态是否已正确变为"开启"（见 Exception Flow E3.1）
+4. 维护人员关闭该仓位仓门
+5. 系统读取该仓位门状态 DI 信号
+   5.1 维护人员核验该状态是否已正确变为"关闭"（见 Exception Flow E5.1）
+6. 系统记录本次测试结果（维护人员、仓位号、结果：正常/异常、时间戳）
+
+## Alternative Flow 备选流程
+
+不存在需要区分的备选流程：无论维护人员测试单个仓位还是在同一次巡检中依次测试多个仓位，均按 Normal Flow 相同的步骤逐一执行。No alternative flow is needed: whether testing a single slot or multiple slots in sequence, each slot follows the same steps described in the Normal Flow.
+
+## Exception Flow 异常流程
+
+以下每条异常均以 `E<步骤号>` 编号，与 Normal Flow 中触发该异常的具体步骤一一对应：
+
+* E3.1 仓门已实际打开，但系统读取的门状态信号仍显示"关闭"
+* E5.1 仓门已实际关闭，但系统读取的门状态信号仍显示"开启"
+
+### E3.1 仓门已实际打开，但系统读取的门状态信号仍显示"关闭"
+
+1. 维护人员按第 2 步打开仓门
+2. 维护人员按第 3.1 步核验，发现该仓位门状态 DI 信号未变化，仍显示"关闭"，与门实际已打开的物理状态不一致
+3. 判定该仓位门状态传感器/反馈信号异常，系统将该仓位标记为"异常锁定"或"测试未通过"，暂停对该仓位的业务分配，记录本次测试结果
+4. 维护人员排查并修复门状态传感器/接线故障（必要时联系设备供应商）后，重新发起本测试，直至测试通过
+
+### E5.1 仓门已实际关闭，但系统读取的门状态信号仍显示"开启"
+
+1. 维护人员按第 4 步关闭仓门
+2. 维护人员按第 5.1 步核验，发现该仓位门状态 DI 信号未变化，仍显示"开启"，与门实际已关闭的物理状态不一致
+3. 判定该仓位门状态传感器/反馈信号异常，系统将该仓位标记为"异常锁定"或"测试未通过"，暂停对该仓位的业务分配，记录本次测试结果
+4. 维护人员排查并修复门状态传感器/接线故障（必要时联系设备供应商）后，重新发起本测试，直至测试通过
+
+## Notes 备注
+
+* 本 UC 是用户提出的新场景"测试仓门是否能正确识别关上和打开的状态"，与仓门机械开关（[[uc-015-slot-door-unlock-open-test|UC-015]]）、光幕遮挡检测（[[uc-016-slot-light-curtain-function-test|UC-016]]）是三个独立的硬件测试环节，分别成文；三者可在同一次维护巡检中对同一仓位连续进行。
+* 维护角色本次不做最终确定，先留 TBD，推测候选为 R-11 设备/电气维护人员，处理方式与 UC-015/UC-016 一致。
+* 待补充（TBD）事项：
+  1. 维护操作角色（`primary_actor`）最终确定。
+  2. 门状态信号具体来源于电子锁自带的开关反馈还是独立的门磁传感器，本 UC 暂不区分具体硬件形式，统称"门状态 DI 信号"，待与设备供应商确认后可能需要细化。
+
+## Related Use Cases 关联用例
+
+* [[uc-015-slot-door-unlock-open-test|UC-015]]：本 UC 的测试动作（开门/关门）可衔接该 UC 的操作一并进行。
+* [[uc-016-slot-light-curtain-function-test|UC-016]]：与本 UC 同属仓门相关的硬件测试系列，但验证的是光幕遮挡检测而非门状态反馈信号，两者独立进行。
+* [[uc-001-load-completed-lot-into-slot|UC-001]]、[[uc-004-slot-door-safety-interlock|UC-004]]、[[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]、[[uc-010-unload-completed-lot-at-destination-station|UC-010]]：这些业务流程依赖门状态信号判断仓门是否已正常打开/关闭（如各自 Exception Flow 中的开锁/关门核验），本 UC 是对该硬件基础能力的独立验证，不改变、也不依赖这些 UC 的业务状态。
+* [[uc-014-enable-disable-slot|UC-014]]：建议测试前后配合该 UC 完成"禁用→测试→启用"的操作闭环。
+* [[uc-018-io-point-mapping-verification-test|UC-018]]：该 UC 验证的是 IO 点位映射配置本身的正确性，是本 UC 能够正常工作的更底层前提。
+
+## Other Information 其他信息
+

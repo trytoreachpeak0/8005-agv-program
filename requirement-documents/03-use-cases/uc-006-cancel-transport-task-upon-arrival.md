@@ -1,0 +1,109 @@
+---
+id: UC-006
+type: use-case
+title: "Cancel Transport Task upon Arrival 到站后取消运送任务"
+status: draft
+priority: medium
+created_by: "ZhengyuShao 邵正宇"
+updated_by: "ZhengyuShao 邵正宇"
+created: 2026-07-09
+updated: 2026-07-09
+primary_actor: "Production Operator 生产操作员"
+secondary_actor: "None 无（本操作只涉及本地数据库状态变更，不需要同步至 MES）"
+frequency: "TBD 待定，预期低于 UC-001 的装载频率（同 UC-005 同级的异常/分支场景）"
+related_uc: ["UC-001", "UC-003", "UC-005", "UC-008", "UC-011"]
+related_br: []
+aliases: ["UC-006"]
+---
+
+# UC-006 Cancel Transport Task upon Arrival 到站后取消运送任务
+
+## Description 描述
+
+After the multi-slot AGV arrives at a station (see [[uc-003-agv-arrives-at-designated-station|UC-003]]) but before the production operator starts loading (see [[uc-001-load-completed-lot-into-slot|UC-001]]), the operator may discover that the transport task which caused the AGV to arrive at this station is no longer needed (e.g. the product has already been moved away by other means). In this case, the operator selects that task from the station's pending task list and clicks "Cancel Transport"; the system marks the task as "Cancelled" in the local database so it no longer appears as loadable, without requiring team leader approval or MES synchronization. 多仓位AGV到达站点后（见 [[uc-003-agv-arrives-at-designated-station|UC-003]]），生产操作员在开始装载（见 [[uc-001-load-completed-lot-into-slot|UC-001]]）之前，若发现促使AGV到达本站点的某个搬运任务已经不需要执行（例如产品已经通过其他方式被送走），可从该站点的待处理任务列表中选择该任务，点击"取消运送"，系统将该任务在本地数据库中标记为"已取消"，使其不再出现在可装载列表中；该操作不需要班组长审批，也不需要同步给MES。
+
+## Trigger 触发条件
+
+After the AGV arrives at the station, the production operator determines that a pending transport task at this station is no longer needed, and selects it from the pending task list and clicks "Cancel Transport". AGV到站后，生产操作员判断该站点某个待处理搬运任务已不再需要执行，从待处理任务列表中选中该任务并点击"取消运送"按钮
+
+## Precondition 前置条件
+
+**Task & Data 任务与数据**
+
+1. The target task's current status is "New" or "Executing" (not yet "Done" or "Cancelled"). 目标任务当前状态为"新建（New）"或"进行中（Executing）"，尚未处于"已完成（Done）"或"已取消（Cancelled）"状态
+2. No slot is currently occupied by this task, i.e. the operator has not yet loaded any product into any slot for this task via [[uc-001-load-completed-lot-into-slot|UC-001]]. 该任务当前没有任何仓位处于"已占用"状态，即操作员尚未通过 [[uc-001-load-completed-lot-into-slot|UC-001]] 为该任务装载任何产品
+
+**Personnel & Authorization 人员与权限**
+
+3. The production operator has permission to cancel a transport task. 生产操作员具备"取消运送"操作权限
+
+> 经与用户确认：本操作由生产操作员自行发起并完成，不需要班组长（R-09）审批。这与 [[stakeholders-and-user-classes|干系人与用户角色清单]] 中 R-09 "任务取消审批"的既有职责描述存在差异，具体是否需要回头调整 R-09 的职责描述，留待后续与用户进一步协调确认，本 UC 暂不改动该清单。
+
+## Postcondition 后置条件
+
+**Task & Data 任务与数据**
+
+1. The target task's status changes to "Cancelled" in the local database, and it no longer appears in the station's pending/loadable task list. 目标任务状态在本地数据库中变为"已取消（Cancelled）"，不再出现在该站点的待处理/可装载任务列表中
+2. The cancellation operation (operator, task, sublot, timestamp) is logged in the local database for traceability. 本次取消操作（操作员、任务、子批号、时间戳）被记录到本地数据库，用于追溯
+
+> The cancellation result does not need to be synced/reported back to MES; this is a local-database-only operation, consistent with [[uc-002-confirm-task-completion|UC-002]]. 本次取消结果不需要同步/回写给 MES，只在本地数据库处理，与 [[uc-002-confirm-task-completion|UC-002]] 的处理方式一致。
+
+## Assumption 假设
+
+1. The operator is responsible for confirming that the product genuinely no longer needs to be transported by this AGV (e.g. it has actually been moved away) before clicking "Cancel Transport"; the system does not verify the actual whereabouts of the product, and the truthfulness of the cancellation reason is not within this UC's verification scope. 操作员在点击"取消运送"之前，需自行确认该产品确实不再需要由本AGV运送（如确实已被另行送走）；系统不核验产品的实际下落，取消原因的真实性不在本 UC 的核验范围内。
+
+## Normal Flow 正常流程
+
+### 6.0 Cancel Transport Task upon Arrival
+
+1. 生产操作员在AGV到站后的装卸操作界面中，查看当前站点的待处理任务列表
+2. 生产操作员选中促使AGV到达本站点的某个任务，点击"取消运送"按钮
+   2.1 系统核验该任务当前状态是否为"新建"或"进行中"（尚未完成、尚未取消）（见 Exception Flow E2.1）
+   2.2 系统核验该任务名下是否尚未有任何仓位处于"已占用"状态（见 Exception Flow E2.2）
+3. 系统将该任务状态由"新建/进行中"更新为"已取消（Cancelled）"，并将其从该站点的待处理/可装载任务列表中移除
+4. 系统记录本次取消操作（操作员、任务、子批号、时间戳）
+
+## Alternative Flow 备选流程
+
+不存在需要区分的备选流程：无论该站点待处理任务列表中有一个还是多个任务，生产操作员每次只针对单个任务点击"取消运送"，逐一处理，不需要也不支持批量取消多个任务的备选路径。 No alternative flow is needed: regardless of how many pending tasks exist in the station's list, the operator cancels one task at a time; batch cancellation is neither required nor supported.
+
+## Exception Flow 异常流程
+
+以下每条异常均以 `E<步骤号>` 编号，与 Normal Flow 中触发该异常的具体步骤（或子步骤）一一对应：
+
+* E2.1 该任务状态不满足核验条件（已完成/已取消）
+* E2.2 该任务已装载部分或全部仓位
+
+### E2.1 该任务状态不满足核验条件
+
+1. 生产操作员选中任务，点击"取消运送"按钮
+2. 系统按第 2.1 步核验，发现该任务已经是"已完成（Done）"或"已取消（Cancelled）"状态（如与其他操作员的操作存在时序差异、当前界面列表未及时刷新等）
+3. 系统提示"该任务当前状态不可取消"，拒绝本次取消请求，并刷新待处理任务列表
+4. 生产操作员重新核对刷新后的任务列表，确认是否还需要取消其他任务
+
+### E2.2 该任务已装载部分或全部仓位
+
+1. 生产操作员选中任务，点击"取消运送"按钮
+2. 系统按第 2.2 步核验，发现该任务名下已有一个或多个仓位处于"已占用"状态（即已通过 [[uc-001-load-completed-lot-into-slot|UC-001]] 装载了部分或全部产品）
+3. 系统提示"该任务已装载产品，不能直接取消"，拒绝本次取消请求
+4. 生产操作员若确认该任务确实不再需要运送，需先执行 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 取出已装载的产品，待该任务名下所有仓位恢复"空闲"后，再回到本 UC 重新发起取消请求；若并非不需要运送、只是发现存错，可直接执行 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 取出产品后重新正确装载，不必执行本 UC
+
+## Notes 备注
+
+* 本 UC 是用户提出的、从 [[uc-001-load-completed-lot-into-slot|UC-001]] 拆分出的分支场景：在 AGV 到站、装载开始之前，若操作员发现促使 AGV 到达本站点的任务已经不需要运送，可通过本 UC 直接取消，不需要走完 UC-001 的装载流程后再另行处理。
+* 经与用户确认：取消操作不做物理删除，而是将任务状态更新为 [[terminology-glossary|术语表]] 第 4 节已定义的"已取消（Cancelled/CANCELLED）"状态，记录保留在本地数据库中用于追溯，与 UC-001/UC-002/UC-005 的记录处理风格一致。
+* 经与用户确认：取消的对象是"促使 AGV 移动到本站点的任务"，操作员在到站后的界面中直接从该站点的待处理任务列表中选择目标任务即可发起取消，不需要先扫码/输入子批号。
+* 经与用户确认：本操作不需要班组长（R-09）审批，生产操作员可自行发起并完成——这与 [[stakeholders-and-user-classes|干系人与用户角色清单]] 中 R-09 "任务取消审批"的既有描述存在差异，是否需要回头调整该清单，留待后续协调确认（见 Precondition 备注）。
+* 经与用户确认：取消结果不需要同步/回写给 MES，只在本地数据库处理，与 [[uc-002-confirm-task-completion|UC-002]] 的处理方式一致。
+* 与 [[terminology-glossary|术语表]]中"任务状态：缺失（Missing/MISSING）"的边界区分：Missing 是系统/操作员在到站核验时发现"应搬物料实际不存在"所触发的状态判定，走的是不同的系统判定路径；本 UC 是操作员主动判断"不再需要运送"后自行取消，触发方式与最终状态（Cancelled）均不同于 Missing。两者是否需要进一步统一或明确边界，TBD 待后续补充。
+
+## Related Use Cases 关联用例
+
+* [[uc-001-load-completed-lot-into-slot|UC-001]]：本 UC 是该 UC 装载流程开始前的分支场景，处理"任务已不需要运送"的情形；若任务已经装载了部分/全部仓位，需先转 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 取出产品后再回到本 UC。
+* [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 的 Trigger 依赖该 UC 完成到站后的界面跳转。
+* [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]：若目标任务已装载部分/全部仓位，需先执行该 UC 取出产品、使仓位恢复"空闲"，才能回到本 UC 取消任务；本 UC 本身不处理已装载仓位中产品的取出。
+* [[uc-008-dispatch-move-order-to-riot|UC-008]]：本 UC 取消的任务若已由 UC-008 下发为 RIOT 移动任务，取消后是否需要联动向 RIOT 下发取消指令、以及取消后 RIOT 任务队列如何清零，TBD 待补充——本 UC 当前的 Postcondition 只描述本地数据库状态变更，未涉及 RIOT 侧操作，留待后续与 UC-008 协调确认。
+* [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取消任务后的任务状态变化，会体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
+
+## Other Information 其他信息
+

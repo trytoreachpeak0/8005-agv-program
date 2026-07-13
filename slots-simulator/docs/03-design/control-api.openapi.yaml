@@ -1,0 +1,362 @@
+openapi: 3.1.0
+info:
+  title: Slots Simulator Control API
+  version: 0.1.0-template
+  description: |
+    自动化测试和 WPF 共用的控制 API 模板。
+    API 只模拟人工/环境动作，不提供开锁；开锁必须由被测主系统通过 Modbus DO 发起。
+servers:
+  - url: http://localhost:5080
+    description: 本机开发默认地址
+tags:
+  - name: System
+  - name: Slots
+  - name: Faults
+paths:
+  /health/live:
+    get:
+      tags: [System]
+      operationId: getLiveness
+      summary: 进程存活检查
+      responses:
+        "200":
+          description: 进程存活
+  /health/ready:
+    get:
+      tags: [System]
+      operationId: getReadiness
+      summary: API 与全部启用模块就绪检查
+      responses:
+        "200":
+          description: 全部就绪
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Readiness"
+        "503":
+          description: 尚未就绪
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Readiness"
+  /api/v1/state:
+    get:
+      tags: [System]
+      operationId: getSimulatorState
+      summary: 获取模拟器完整状态快照
+      responses:
+        "200":
+          description: 当前状态
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulatorState"
+  /api/v1/reset:
+    post:
+      tags: [System]
+      operationId: resetSimulator
+      summary: 执行完整原子 reset
+      responses:
+        "204":
+          description: 重置成功
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/slots/{slotId}:
+    get:
+      tags: [Slots]
+      operationId: getSlot
+      summary: 获取单个仓位状态
+      parameters:
+        - $ref: "#/components/parameters/SlotId"
+      responses:
+        "200":
+          description: 仓位状态
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SlotState"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/slots/{slotId}/actions/open-door:
+    post:
+      tags: [Slots]
+      operationId: openDoor
+      summary: 模拟人工开门
+      parameters:
+        - $ref: "#/components/parameters/SlotId"
+      responses:
+        "200":
+          $ref: "#/components/responses/SlotActionSucceeded"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/slots/{slotId}/actions/close-door:
+    post:
+      tags: [Slots]
+      operationId: closeDoor
+      summary: 模拟人工关门
+      parameters:
+        - $ref: "#/components/parameters/SlotId"
+      responses:
+        "200":
+          $ref: "#/components/responses/SlotActionSucceeded"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/slots/{slotId}/actions/place-cargo:
+    post:
+      tags: [Slots]
+      operationId: placeCargo
+      summary: 模拟放料
+      parameters:
+        - $ref: "#/components/parameters/SlotId"
+      responses:
+        "200":
+          $ref: "#/components/responses/SlotActionSucceeded"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/slots/{slotId}/actions/remove-cargo:
+    post:
+      tags: [Slots]
+      operationId: removeCargo
+      summary: 模拟取出
+      parameters:
+        - $ref: "#/components/parameters/SlotId"
+      responses:
+        "200":
+          $ref: "#/components/responses/SlotActionSucceeded"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/test-fixtures/obstructions:
+    put:
+      tags: [Slots]
+      operationId: setObstructions
+      summary: 批量设置实际光幕遮挡
+      description: 用于构造测试前置状态；占用状态由更新后的光幕 DI 推导。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [slotId, obstructed]
+                    properties:
+                      slotId:
+                        type: string
+                      obstructed:
+                        type: boolean
+      responses:
+        "200":
+          description: 原子更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulatorState"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/test-fixtures/all-clear:
+    post:
+      tags: [Slots]
+      operationId: clearAllObstructions
+      summary: 将全部仓位实际光幕遮挡设为无遮挡
+      responses:
+        "204":
+          description: 设置成功
+  /api/v1/faults:
+    get:
+      tags: [Faults]
+      operationId: listFaults
+      summary: 查询当前故障
+      responses:
+        "200":
+          description: 当前故障列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Fault"
+    post:
+      tags: [Faults]
+      operationId: injectFault
+      summary: 注入仓位或模块故障
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InjectFaultRequest"
+      responses:
+        "201":
+          description: 故障已注入
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fault"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/faults/{faultId}:
+    delete:
+      tags: [Faults]
+      operationId: clearFault
+      summary: 显式清除一个故障
+      parameters:
+        - name: faultId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: 已清除，并按当前物理事实重建反馈
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  parameters:
+    SlotId:
+      name: slotId
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Readiness:
+      type: object
+      required: [ready, modules]
+      properties:
+        ready:
+          type: boolean
+        modules:
+          type: array
+          items:
+            type: object
+            required: [moduleId, ready]
+            properties:
+              moduleId:
+                type: string
+              ready:
+                type: boolean
+              reason:
+                type: [string, "null"]
+    SimulatorState:
+      type: object
+      required: [agvId, slots]
+      properties:
+        agvId:
+          type: string
+        slots:
+          type: array
+          items:
+            $ref: "#/components/schemas/SlotState"
+    SlotState:
+      type: object
+      required:
+        - slotId
+        - lockCommand
+        - lockState
+        - doorState
+        - lightCurtainObstructed
+        - occupied
+      properties:
+        slotId:
+          type: string
+        lockCommand:
+          type: boolean
+        lockState:
+          type: string
+          enum: [locked, unlocked]
+        doorState:
+          type: string
+          enum: [closed, open]
+        lightCurtainObstructed:
+          type: boolean
+        occupied:
+          type: boolean
+          description: 始终由 lightCurtainObstructed 推导
+    Fault:
+      type: object
+      required: [faultId, type, targetId]
+      properties:
+        faultId:
+          type: string
+        type:
+          type: string
+          enum:
+            - lock-di-detached
+            - light-curtain-di-detached
+            - module-disconnected
+            - module-no-response
+        targetId:
+          type: string
+        forcedValue:
+          type: [boolean, "null"]
+    InjectFaultRequest:
+      type: object
+      required: [type, targetId]
+      properties:
+        type:
+          type: string
+          enum:
+            - lock-di-detached
+            - light-curtain-di-detached
+            - module-disconnected
+            - module-no-response
+        targetId:
+          type: string
+        forcedValue:
+          type: [boolean, "null"]
+      description: TODO：后续用 oneOf 细化不同故障类型的必填参数。
+    ApiError:
+      type: object
+      required: [code, message, traceId]
+      properties:
+        code:
+          type: string
+          example: SLOT_NOT_UNLOCKED
+        message:
+          type: string
+        traceId:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+  responses:
+    SlotActionSucceeded:
+      description: 动作成功
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SlotState"
+    BadRequest:
+      description: 请求格式或参数无效
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    NotFound:
+      description: 目标不存在
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    Conflict:
+      description: 当前状态不允许该动作，状态保持不变
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
