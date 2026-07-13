@@ -9,14 +9,24 @@ requirement-documents/
 ├─ .obsidian/                     Obsidian 配置与插件（已内置 Dataview、Templater）
 ├─ _templates/                    Templater 笔记模板（新建 UC/BR/FR/TC 时自动套用）
 ├─ _attachments/                  图片等附件统一存放位置
-├─ 00-vision/                     愿景与范围文档（未改动）
+├─ 00-vision/                     愿景、范围与系统上下文
+│  ├─ vision-and-scope.md         业务愿景、范围与限制
+│  └─ system-context.md           系统上下文图及外部交互边界
 ├─ 01-stakeholders/               干系人与角色清单（未改动）
-├─ 02-business-rules/             业务规则 BR-001、BR-002 ...（骨架已建好，内容待补充）
-├─ 03-use-cases/                  用例 UC-001 ~ UC-005（本次已migrate完成）
+├─ 02-business-rules/             业务规则 BR-001 ~ BR-007
+├─ 03-use-cases/                  用例 UC-001 ~ UC-037，按业务领域拆分到 6 个子文件夹（uc-template-guide.md 仍放在根目录）
+│  ├─ 01-site-operations/         站点作业与任务执行（UC-001~006、009、010）
+│  ├─ 02-slot-and-hardware/       仓位与格口硬件（UC-011、014~018）
+│  ├─ 03-agv-fleet-and-dispatch/  AGV 车队调度与充电（UC-007、008、012、013、019~024、037）
+│  ├─ 04-workflow-engine/         流程模板与工作流引擎（UC-025~029）
+│  ├─ 05-user-and-access/         用户与权限管理（UC-030~033）
+│  └─ 06-logs-and-audit/          日志、追溯与审计（UC-034~036）
 ├─ 04-functional-requirements/    功能需求 FR-001、FR-002 ...（骨架已建好，内容待补充）
 ├─ 05-test-cases/                 测试用例 TC-001、TC-002 ...（骨架已建好，内容待补充）
 └─ 06-traceability/               追溯矩阵总览（Dataview 自动生成）
 ```
+
+建议首次阅读时先查看 [[vision-and-scope|愿景与范围]]，再查看 [[system-context|系统上下文与边界]]；后者用于快速了解本系统与 MES、RCS/RIOT、AGV、IO 模块及现场用户之间的交互关系。
 
 ## 2. ID 与命名规范
 
@@ -95,6 +105,10 @@ requirement-documents/
   - `uc-005-retrieve-mis-stored-product-from-slot.md`
 - 原文内容未做实质性改动，只做了三类替换：① 编号 `UC-1`→`UC-001`（以此类推）；② 反引号文件名引用 → wikilink；③ 补充 frontmatter。
 - 检查过 `00-vision/vision-and-scope.md`、`01-stakeholders/stakeholders-and-user-classes.md`、`user case.md`，均未引用过旧的 UC 文件名，因此未做改动。
+- `03-use-cases` 下 UC-001 ~ UC-037 已按业务领域拆分到 6 个子文件夹（见第 1 节目录结构），仅移动文件位置，不改动任何正文内容或 frontmatter。之所以不需要同步修正其他文档里的双链引用或 Dataview 查询，是因为：
+  1. `.obsidian/app.json` 中 `newLinkFormat: "shortest"`，`[[uc-001-xxx|UC-001]]` 这类链接按"全局唯一文件名"解析，与文件夹路径无关；
+  2. `06-traceability/traceability-matrix.md` 里 Dataview 的 `from "03-use-cases"` 查询默认递归包含子文件夹；
+  3. Templater 的 `folder_templates` 里 `"folder": "03-use-cases"` 对子文件夹同样按路径前缀生效，之后在子文件夹里新建笔记仍会自动套用 `template-use-case.md`。
 
 ## 8. 模板复用：子项目如何使用本目录的模板
 

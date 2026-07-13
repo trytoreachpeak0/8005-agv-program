@@ -84,6 +84,12 @@
 | --- | --- | --- | --- |
 | 搬运任务 | transport task / handling task | `transportTask` | 从 MES 生成本地任务后下发 RIOT |
 | 移动任务 | move order / move task | `moveOrder` | 下发给 RIOT 的 AGV 移动指令 |
+| 流程模板 | workflow template | `workflowTemplate` | 从 [[workflow-step-catalog|预置流程步骤目录]] 选择步骤形成的受限顺序编排；由 [[uc-025-maintain-workflow-template|UC-025]] 维护，不是脚本或任意 API |
+| 流程模板版本 | workflow template version | `workflowTemplateVersion` | 按 [[br-005-workflow-template-versioning|BR-005]] 发布的不可变版本；新实例绑定快照，后续发布或停用不改写历史实例 |
+| 流程实例 | workflow instance | `workflowInstance` | 任务候选经 [[uc-026-select-template-and-create-workflow-instance|UC-026]] 创建的模板快照执行记录；状态表示流程进度，独立于搬运任务的业务状态 |
+| 步骤实例 | workflow step instance | `workflowStepInstance` | [[uc-027-execute-workflow-steps|UC-027]] 按快照执行的单个预置步骤记录，包含输入输出、幂等键、尝试、等待、结果和审计 |
+| 条件跳过 | conditional skip | `conditionalSkip` | 按 [[br-006-workflow-step-execution|BR-006]] 用预置只读条件决定执行或跳过当前可跳过步骤；不是任意分支，不能跳过强制安全步骤 |
+| 人工覆盖 | manual override | `manualOverride` | R-12/R-13 在专项权限、二次认证、填写原因并审计后，对单实例执行的受限匹配或异常处置；见 [[br-004-workflow-template-matching|BR-004]]、[[uc-028-handle-workflow-step-exception|UC-028]]，不得绕过安全约束 |
 | 任务状态：新建 | New | `NEW` | 已创建，待派车 |
 | 任务状态：执行中 | Executing | `EXECUTING` | 已派车，执行中 |
 | 任务状态：完成 | Done | `DONE` | 搬运完成 |
@@ -92,6 +98,8 @@
 | 任务状态：已取消 | Cancelled | `CANCELLED` | 人工取消 |
 | 去重 | deduplication | `deduplication` | 按 `productLot + machineNo + finishTime` 或 MES 事务 ID |
 | 轮询 | polling | `polling` | 服务器定时查询 MES 待搬运数据 |
+
+> 流程实例/步骤实例状态用于描述编排执行进度，并由 [[uc-029-view-workflow-instance-progress|UC-029]] 只读展示；搬运任务状态用于描述物料搬运业务阶段。流程完成、失败、等待或暂停均不自动映射为同名业务任务状态，业务任务状态只能由预置业务能力按既有状态机改变。
 
 ---
 

@@ -1,67 +1,67 @@
 ---
 id: UC-008
 type: use-case
-title: "Dispatch Move Order to RIOT 向RIOT下发移动任务"
+title: "向RIOT下发移动任务"
 status: draft
 priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-09
 updated: 2026-07-09
-primary_actor: "Local Server 本地服务器（系统内部过程，非人工角色）"
+primary_actor: "本地服务器（系统内部过程，非人工角色）"
 secondary_actor: RIOT
-frequency: "TBD 待定：与该AGV完成当前移动任务/该任务被取消的频率一致——理论上每次AGV完成一次移动任务或该任务被取消后，都会触发一次本UC的执行"
+frequency: "待定：与该AGV完成当前移动任务/该任务被取消的频率一致——理论上每次AGV完成一次移动任务或该任务被取消后，都会触发一次本UC的执行"
 related_uc: ["UC-001", "UC-003", "UC-006", "UC-007", "UC-009", "UC-012", "UC-013"]
 related_br: ["BR-001"]
 aliases: ["UC-008"]
 ---
 
-# UC-008 Dispatch Move Order to RIOT 向RIOT下发移动任务
+# UC-008 向RIOT下发移动任务
 
-## Description 描述
+## 描述
 
 本地服务器持续监测每台多仓位AGV在RIOT侧的移动任务队列状态：RIOT侧每台AGV的任务队列只允许同时存在0个或1个移动任务（move order），不允许挤压多个——所有待处理的搬运任务全部积压在本地数据库中，而不是积压在RIOT侧，以避免"RIOT已有排队任务时若需调整顺序，只能先取消再重新下发"的低效问题。当本地服务器检测到某台AGV当前在RIOT侧的移动任务已执行完成（AGV确实完成了本次收料/发料动作）或该移动任务已被取消，使其RIOT任务队列数量变为0（即空闲）时，系统从本地数据库中"新建（New）"状态的待处理任务中确定本次要下发的任务(集合)（具体范围划分规则见 [[br-001-dispatch-task-range|BR-001]]，本UC假设该集合已确定，不在本UC中展开），调用RIOT接口为该AGV创建新的移动任务，并将涉及的本地搬运任务状态由"新建（New）"更新为"进行中（Executing）"。
 
 > 本UC只覆盖"AGV的RIOT任务队列清空后，本地服务器如何确定并下发下一个移动任务给RIOT、更新本地任务状态"这一过程本身，不包含"本次派车任务范围具体如何划分"（见 [[br-001-dispatch-task-range|BR-001]]）、下发之后持续轮询等待到站（见 [[uc-009-monitor-move-order-until-arrival|UC-009]]）、AGV导航移动、到站感知（见 [[uc-003-agv-arrives-at-designated-station|UC-003]]）等下游过程。
 
-## Trigger 触发条件
+## 触发条件
 
 该AGV当前在RIOT侧的移动任务执行完成（AGV确实完成本次收料/发料动作）或被取消，使其在RIOT任务队列中的任务数量变为0（即空闲，无正在执行的移动任务）。
 
-## Precondition 前置条件
+## 前置条件
 
-**System & Interface 系统与接口**
+**系统与接口**
 
-1. RIOT接口在线可用。RIOT interface is online and reachable.
-2. 该AGV当前在RIOT任务队列中的任务数量确实为0（核验其队列已清空，避免向仍有任务的AGV重复下发）。The AGV's RIOT task queue is confirmed to be empty (0 tasks), to avoid dispatching to an AGV that still has an active move order.
+1. RIOT接口在线可用。
+2. 该AGV当前在RIOT任务队列中的任务数量确实为0（核验其队列已清空，避免向仍有任务的AGV重复下发）。
 
-**Task & Data 任务与数据**
+**任务与数据**
 
-3. 本地数据库中存在至少一个"新建（New）"状态、可分配给该AGV下发的待处理搬运任务。At least one transport task with status "New" exists in the local database and is eligible to be dispatched to this AGV.
-4. 本次待下发的任务(集合)/派车范围已经确定（具体划分规则见 [[br-001-dispatch-task-range|BR-001]]，TBD待补充，本UC不展开）。The set of task(s) to be dispatched this round (i.e. the dispatch task range) has already been determined; the specific range-determination rule is TBD, see [[br-001-dispatch-task-range|BR-001]] and is out of scope for this UC.
-5. 该AGV当前未处于"已禁用"或"禁用待生效"状态（见 [[uc-013-enable-disable-agv|UC-013]]）。The AGV is not currently in "Disabled" or "Disable Pending" status (see [[uc-013-enable-disable-agv|UC-013]]).
+3. 本地数据库中存在至少一个"新建（New）"状态、可分配给该AGV下发的待处理搬运任务。
+4. 本次待下发的任务(集合)/派车范围已经确定（具体划分规则见 [[br-001-dispatch-task-range|BR-001]]，TBD待补充，本UC不展开）。
+5. 该AGV当前未处于"已禁用"或"禁用待生效"状态（见 [[uc-013-enable-disable-agv|UC-013]]）。
 
 > 若本地数据库中不存在任何可分配给该AGV的"新建"状态任务，或该AGV当前处于"已禁用"/"禁用待生效"状态，则不满足Precondition第3/5条，本UC不会被触发执行，该AGV保持空闲等待，不视为异常（见 Normal Flow 第2步）。
 
-## Postcondition 后置条件
+## 后置条件
 
-**System & Interface 系统与接口**
+**系统与接口**
 
-1. 该AGV在RIOT侧新增一个移动任务，其RIOT任务队列数量由0变为1。A new move order is created for the AGV on the RIOT side; its RIOT task queue count changes from 0 to 1.
+1. 该AGV在RIOT侧新增一个移动任务，其RIOT任务队列数量由0变为1。
 
-**Task & Data 任务与数据**
+**任务与数据**
 
-2. 本次下发涉及的本地搬运任务状态由"新建（New）"更新为"进行中（Executing）"。The local transport task(s) involved in this dispatch have their status updated from "New" to "Executing".
-3. 本次下发记录（AGV、任务、moveType、目标站点、RIOT移动任务ID、时间戳）被记录到本地数据库，用于追溯。This dispatch (AGV, task(s), moveType, target station(s), RIOT move order ID, timestamp) is logged in the local database for traceability.
+2. 本次下发涉及的本地搬运任务状态由"新建（New）"更新为"进行中（Executing）"。The local transport task(s)
+3. 本次下发记录（AGV、任务、moveType、目标站点、RIOT移动任务ID、时间戳）被记录到本地数据库，用于追溯。
 
-## Assumption 假设
+## 假设
 
-1. 本次待下发任务(集合)的具体选取/范围划分算法（即"本次派车任务范围"如何生成）不在本UC讨论范围内，本UC假设该集合已由对应机制确定完毕，只描述"确定后如何调用RIOT接口下发、更新本地状态"这一段动作本身；具体划分规则见 [[br-001-dispatch-task-range|BR-001]]，该规则本身仍标注TBD。The specific algorithm for selecting/determining the dispatch task range is out of scope for this UC and is assumed to already be resolved by the time this UC runs; see [[br-001-dispatch-task-range|BR-001]] (still TBD).
-2. RIOT对每台AGV只维护一个活跃移动任务的队列语义（即任意时刻至多0或1个），本UC依赖这一假设设计其下发时机；若后续与RIOT对接后发现实际支持/需要多任务排队，需回来调整本UC的Trigger与Normal Flow。RIOT is assumed to maintain at most one active move order per AGV at any time (0 or 1); this UC's dispatch timing depends on this assumption. If actual RIOT integration reveals a different queueing model, this UC's Trigger and Normal Flow will need revisiting.
+1. 本次待下发任务(集合)的具体选取/范围划分算法（即"本次派车任务范围"如何生成）不在本UC讨论范围内，本UC假设该集合已由对应机制确定完毕，只描述"确定后如何调用RIOT接口下发、更新本地状态"这一段动作本身；具体划分规则见 [[br-001-dispatch-task-range|BR-001]]，该规则本身仍标注TBD。
+2. RIOT对每台AGV只维护一个活跃移动任务的队列语义（即任意时刻至多0或1个），本UC依赖这一假设设计其下发时机；若后续与RIOT对接后发现实际支持/需要多任务排队，需回来调整本UC的Trigger与Normal Flow。
 
-## Normal Flow 正常流程
+## 正常流程
 
-### 8.0 Dispatch Move Order to RIOT
+### 8.0
 
 1. 系统检测到该AGV当前在RIOT侧的移动任务执行完成或被取消，其RIOT任务队列数量变为0
 2. 系统核验本地数据库中是否存在可分配给该AGV下发的"新建（New）"状态任务（若不存在，该AGV保持空闲等待，不视为异常，本轮处理结束）
@@ -71,16 +71,16 @@ aliases: ["UC-008"]
 5. 系统将本次下发涉及的本地搬运任务状态由"新建（New）"更新为"进行中（Executing）"
 6. 系统记录本次下发日志（AGV、任务、moveType、目标站点、RIOT移动任务ID、时间戳）
 
-## Alternative Flow 备选流程
+## 备选流程
 
-不存在需要区分的备选流程：无论本次下发的任务(集合)涵盖一个还是多个相邻站点的搬运任务，系统均按Normal Flow执行同样的确定、下发、状态更新、记录步骤，不存在触发方式或步骤不同的分支路径。No alternative flow is needed: regardless of how many adjacent stations' tasks are covered by this dispatch, the system follows the same determine/dispatch/update/log steps described in the Normal Flow.
+不存在需要区分的备选流程：无论本次下发的任务(集合)涵盖一个还是多个相邻站点的搬运任务，系统均按Normal Flow执行同样的确定、下发、状态更新、记录步骤，不存在触发方式或步骤不同的分支路径。
 
-## Exception Flow 异常流程
+## 异常流程
 
 以下每条异常均以 `E<步骤号>` 编号，与 Normal Flow 中触发该异常的具体步骤（或核验点）一一对应：
 
 * E1 队列核验异常：触发时检测到该AGV的RIOT任务队列实际并非0（数据不一致）
-* E4.1 RIOT接口下发失败/超时
+* 接口下发失败/超时
 
 ### E1 队列核验异常
 
@@ -89,7 +89,7 @@ aliases: ["UC-008"]
 3. 系统不执行本次下发，记录该异常情况（AGV、当前RIOT任务队列状态、时间戳），供IT/软件维护人员（R-12）排查（如轮询时序差异、状态同步延迟等原因）
 4. 待该AGV的RIOT任务队列确认清空后，本UC按正常触发条件重新执行
 
-### E4.1 RIOT接口下发失败/超时
+接口下发失败/超时
 
 1. 系统按第4步向RIOT发起创建移动任务的请求
 2. 系统按第4.1步核验，发现本次请求通信异常、超时，或RIOT返回下发失败
@@ -98,7 +98,7 @@ aliases: ["UC-008"]
 5. 本地搬运任务状态保持"新建（New）"，不会被误更新为"进行中（Executing）"，避免与实际未下发成功的状态不一致
 6. IT/软件维护人员或AGV运维/调度管理员排查并修复RIOT接口/网络异常后，后续可正常下发
 
-## Notes 备注
+## 备注
 
 * 本UC是从 [[uc-003-agv-arrives-at-designated-station|UC-003]]、[[uc-007-sync-transport-task-from-mes|UC-007]]、[[br-001-dispatch-task-range|BR-001]] 中一直被明确排除、标注"不在本UC范围"的"RIOT下发移动任务"环节拆分出来的独立UC：UC-003的Trigger起点已经是"AGV已到站"，Notes中明确"不包含RIOT下发移动任务、AGV导航移动的过程"；UC-007只覆盖"MES数据如何转换为本地任务记录"，Related Use Cases备注中提到"本UC生成的任务是RIOT/调度系统下发移动任务…的前提数据基础，但本UC本身不涉及派车下发与导航过程"；这些描述长期指向同一个尚未成文的环节，因此拆分为本UC。
 * 经与用户确认：RIOT侧每台AGV的任务队列只允许同时存在0个或1个移动任务，不允许挤压多个——所有待处理的搬运任务都积压在本地数据库中，而不是积压在RIOT侧。这一设计约束的原因是：若向RIOT下发了多个排队任务，之后若需要调整任务顺序，只能先取消已下发的任务再重新下发，无法直接修改已下发到RIOT的任务内容；保持"0或1个"可以避免这一低效场景，让本地服务器始终掌握任务顺序调整的灵活性。
@@ -106,7 +106,7 @@ aliases: ["UC-008"]
 * 经与用户确认：本UC不负责"本次派车任务范围具体如何划分"这一算法本身（如哪些相邻站点的任务会被打包进同一次下发），该问题继续留在 [[br-001-dispatch-task-range|BR-001]] 中作TBD；本UC假设"待下发的任务(集合)"已经由对应机制确定完毕，只描述"确定后如何调用RIOT接口下发、更新本地任务状态"这一段动作本身。两者分工边界与UC-007/BR-001既有的"生成阶段 vs 分配阶段"分工方式一致，本UC进一步覆盖"分配之后、正式下发"的阶段。
 * 若该移动任务在下发之后、AGV到站/完成之前被人工取消（见 [[uc-006-cancel-transport-task-upon-arrival|UC-006]]），是否需要本UC同步向RIOT下发取消指令、以及取消后RIOT任务队列如何清零，TBD待补充，留待后续与UC-006协调确认——UC-006当前的Postcondition未涉及RIOT侧操作，仅描述本地数据库状态变更。
 
-## Related Use Cases 关联用例
+## 关联用例
 
 * [[uc-007-sync-transport-task-from-mes|UC-007]]：本UC下发的任务来源于该UC从MES同步生成的本地任务记录（状态"新建 New"）；本UC正是UC-007 Related Use Cases备注中提到的"RIOT/调度系统下发移动任务"这一下游过程。
 * [[uc-009-monitor-move-order-until-arrival|UC-009]]：本UC完成下发后，AGV按RIOT规划的路径导航移动期间，由该UC持续轮询RIOT监听移动任务状态，直到确认AGV到站；本UC本身不涉及导航/轮询过程，UC-009是本UC下发之后的直接下一步。
@@ -117,5 +117,5 @@ aliases: ["UC-008"]
 * [[uc-012-manually-dispatch-agv-to-charge|UC-012]]：本UC与该UC是对"该AGV当前RIOT任务队列变为空"这一同一触发窗口的两个竞争消费者——本UC自动派发本地待处理搬运任务，UC-012由AGV运维/调度管理员（R-13）主动争取该窗口派发充电任务；两者不做互相抢占，谁先执行谁获胜，若UC-012发起充电请求时窗口已被本UC消费，则该次充电请求会被UC-012自身的Exception Flow（E2.1）拒绝。
 * [[uc-013-enable-disable-agv|UC-013]]：本UC新增的Precondition第5条依赖该UC维护的"已禁用"/"禁用待生效"状态——处于该状态的AGV不会被本UC自动派发新的搬运任务；若该AGV在本UC下发之后才被禁用（"禁用待生效"），当前已下发的移动任务不受影响，仍会正常执行完成。
 
-## Other Information 其他信息
+## 其他信息
 

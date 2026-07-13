@@ -1,14 +1,14 @@
 ---
 id: UC-009
 type: use-case
-title: "Monitor Move Order until AGV Arrival 持续监听移动任务直到AGV到站"
+title: "持续监听移动任务直到AGV到站"
 status: draft
 priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-09
 updated: 2026-07-09
-primary_actor: "Local Server 本地服务器（系统内部过程，非人工角色）"
+primary_actor: "本地服务器（系统内部过程，非人工角色）"
 secondary_actor: RIOT
 frequency: "与 UC-008 下发频率一致：每次 UC-008 完成一次下发，都会触发本 UC 开始一轮持续轮询，直到检测到该 AGV 到站或轮询异常需人工介入"
 related_uc: ["UC-003", "UC-008"]
@@ -16,51 +16,51 @@ related_br: []
 aliases: ["UC-009"]
 ---
 
-# UC-009 Monitor Move Order until AGV Arrival 持续监听移动任务直到AGV到站
+# UC-009 持续监听移动任务直到AGV到站
 
-## Description 描述
+## 描述
 
 [[uc-008-dispatch-move-order-to-riot|UC-008]] 完成向 RIOT 下发移动任务后，本地服务器持续轮询 RIOT 获取该 AGV 的移动任务执行状态，直至检测到该 AGV 已到达目标站点，随即将该到站事件交由 [[uc-003-agv-arrives-at-designated-station|UC-003]] 处理后续的本地状态更新与界面跳转。
 
 > 本 UC 只覆盖"移动任务下发之后，本地服务器如何持续监听、等待到站"这一段轮询/等待过程本身，不包含到站之后如何更新本地状态、触发界面跳转（后者见 [[uc-003-agv-arrives-at-designated-station|UC-003]]），也不包含如何确定/下发移动任务内容（见 [[uc-008-dispatch-move-order-to-riot|UC-008]]）。
 
-## Trigger 触发条件
+## 触发条件
 
 [[uc-008-dispatch-move-order-to-riot|UC-008]] 完成向 RIOT 下发该 AGV 的移动任务。
 
-## Precondition 前置条件
+## 前置条件
 
-**System & Interface 系统与接口**
+**系统与接口**
 
-1. RIOT 接口在线可用。RIOT interface is online and reachable.
-2. 该 AGV 存在一个刚由 [[uc-008-dispatch-move-order-to-riot|UC-008]] 下发、正在 RIOT 侧执行中的移动任务。The AGV has a move order that was just dispatched by UC-008 and is currently executing on the RIOT side.
+1. RIOT 接口在线可用。
+2. 该 AGV 存在一个刚由 [[uc-008-dispatch-move-order-to-riot|UC-008]] 下发、正在 RIOT 侧执行中的移动任务。
 
-## Postcondition 后置条件
+## 后置条件
 
-**System & Interface 系统与接口**
+**系统与接口**
 
-1. 系统确认该 AGV 已到达目标站点，并将该到站事件传递给 [[uc-003-agv-arrives-at-designated-station|UC-003]]，交由其处理后续的状态更新与界面跳转。The system confirms the AGV has arrived at the target station and hands off this arrival event to UC-003 for subsequent state update and UI navigation.
-2. 若轮询过程中发生异常（如通信中断），系统触发告警，等待人工介入；在异常解除前，不视为该 AGV 已到站。If an exception occurs during polling (e.g. communication loss), the system raises an alert and waits for manual intervention; the AGV is not considered arrived until the exception is resolved.
+1. 系统确认该 AGV 已到达目标站点，并将该到站事件传递给 [[uc-003-agv-arrives-at-designated-station|UC-003]]，交由其处理后续的状态更新与界面跳转。
+2. 若轮询过程中发生异常（如通信中断），系统触发告警，等待人工介入；在异常解除前，不视为该 AGV 已到站。
 
-## Assumption 假设
+## 假设
 
-1. AGV 到站/停稳的判定由 AGV 本体自主完成、RIOT 可读取该状态，本 UC 不核验该判定算法本身是否准确。The arrival/settling determination is made autonomously by the AGV itself and is readable via RIOT; this UC does not verify the accuracy of that determination algorithm.
-2. AGV 导航路径规划的正确性由 RIOT 保证，本 UC 不核验路径本身是否最优。The correctness of AGV navigation/path planning is guaranteed by RIOT; this UC does not verify whether the path itself is optimal.
+1. AGV 到站/停稳的判定由 AGV 本体自主完成、RIOT 可读取该状态，本 UC 不核验该判定算法本身是否准确。
+2. AGV 导航路径规划的正确性由 RIOT 保证，本 UC 不核验路径本身是否最优。
 
-## Normal Flow 正常流程
+## 正常流程
 
-### 9.0 Monitor Move Order until AGV Arrival
+### 9.0
 
 1. [[uc-008-dispatch-move-order-to-riot|UC-008]] 完成下发后，系统开始持续轮询 RIOT 获取该 AGV 移动任务的执行状态
    1.1 系统核验本次轮询/通信是否正常（见 Exception Flow E1.1）
 2. 系统持续轮询，直到读取到该 AGV 状态变为"已到达目标站点"
 3. 系统将到站事件传递给 [[uc-003-agv-arrives-at-designated-station|UC-003]]，交由其处理后续的状态更新与界面跳转
 
-## Alternative Flow 备选流程
+## 备选流程
 
-不存在需要区分的备选流程：无论本次移动任务涵盖一个还是多个相邻站点（见 [[br-001-dispatch-task-range|BR-001]]），系统均按Normal Flow持续轮询、等待到站，不存在触发方式或步骤不同的分支路径。No alternative flow is needed: regardless of how many stations are covered by this move order, the system polls and waits for arrival following the same steps described in the Normal Flow.
+不存在需要区分的备选流程：无论本次移动任务涵盖一个还是多个相邻站点（见 [[br-001-dispatch-task-range|BR-001]]），系统均按Normal Flow持续轮询、等待到站，不存在触发方式或步骤不同的分支路径。
 
-## Exception Flow 异常流程
+## 异常流程
 
 以下异常以 `E<步骤号>` 编号，与 Normal Flow 中触发该异常的具体步骤一一对应：
 
@@ -74,16 +74,16 @@ aliases: ["UC-009"]
 4. IT/软件维护人员或 AGV 运维/调度管理员排查并修复 RIOT 接口/网络异常后，轮询恢复正常，继续等待该 AGV 到站
 5. 在通信恢复、确认到站之前，该 AGV 的本地状态保持"移动中"，不会被误更新为"已到站"
 
-## Notes 备注
+## 备注
 
 * 本 UC 是从 [[uc-003-agv-arrives-at-designated-station|UC-003]] 中拆分出来的：UC-003 原先的 Trigger（"本地服务器轮询 RIOT，读取到该 AGV 的状态已变为已到达目标站点"）以及 Normal Flow 前两步、Exception Flow E2.1（轮询/通信异常）实际描述的正是"下发之后持续监听、等待到站"这一段过程，与 UC-003 关注的"到站事件确认之后如何更新状态、触发界面跳转"是两个不同阶段，因此拆分为独立的 UC-009，UC-003 相应精简，只保留到站事件确认之后的处理。
 * 经与用户确认：本 UC 与 UC-003 的分界点是"到站事件是否已确认"——本 UC 负责"持续轮询直到确认到站"，UC-003 负责"确认到站之后做什么"，两者是前后衔接关系，不重叠。
 * 本 UC 的 Trigger 直接衔接 [[uc-008-dispatch-move-order-to-riot|UC-008]] 的 Postcondition（该 AGV 在 RIOT 侧新增一个移动任务），构成"UC-007 生成任务 → UC-008 下发移动任务 → UC-009 持续监听 → UC-003 到站处理 → UC-001 装载"的完整链路。
 
-## Related Use Cases 关联用例
+## 关联用例
 
 * [[uc-008-dispatch-move-order-to-riot|UC-008]]：本 UC 的 Trigger 依赖该 UC 完成向 RIOT 下发移动任务；本 UC 是该 UC 下发之后的直接下一步。
 * [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 确认到站后，将到站事件传递给该 UC 处理后续的状态更新与界面跳转；本 UC 是从该 UC 中拆分出来的前置监听阶段。
 
-## Other Information 其他信息
+## 其他信息
 

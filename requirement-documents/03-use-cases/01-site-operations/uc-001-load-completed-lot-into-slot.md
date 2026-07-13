@@ -1,50 +1,50 @@
 ---
 id: UC-001
 type: use-case
-title: "Load Completed Sublot into Slot 放入子批次完工产品到仓位"
+title: "放入子批次完工产品到仓位"
 status: draft
 priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-08
 updated: 2026-07-09
-primary_actor: "Production Operator 生产操作员（按场景引用 R-01~R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
+primary_actor: "生产操作员（按场景引用 R-01~R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
 secondary_actor: MES
-frequency: "Depending on the production speed of the products in the factory and the number of multi-slot AGVs, generally there will be multiple instances within an hour. 根据工厂里产品生产速度和多仓位AGV的数量决定，一般来说一个小时内会有多次"
+frequency: "根据工厂里产品生产速度和多仓位AGV的数量决定，一般来说一个小时内会有多次"
 related_uc: ["UC-002", "UC-003", "UC-004", "UC-005", "UC-006", "UC-007", "UC-010", "UC-011", "UC-014"]
 related_br: ["BR-001"]
 aliases: ["UC-001"]
 ---
 
-# UC-001 Load Completed Lot into Slot 放入完工批次产品到仓位
+# UC-001 放入完工批次产品到仓位
 
-## Description 描述
+## 描述
 
-The production operator scans the sublot barcode on the work order or manually enters the sublot. The multi-slot AGV opens the available slot(s) required to store this batch of completed products (one or more). After placing the products into the slot(s), the production operator manually closes the slot door(s). 生产操作员扫描工单上的子批号条形码或者手动输入子批号，多仓位AGV打开存放这批完工产品所需空闲仓位（一个或多个），生产操作员存放产品后手动关闭仓位仓门。
+生产操作员扫描工单上的子批号条形码或者手动输入子批号，多仓位AGV打开存放这批完工产品所需空闲仓位（一个或多个），生产操作员存放产品后手动关闭仓位仓门。
 
-## Trigger 触发条件
+## 触发条件
 
-The multi-slot AGV arrives at the designated station, and the production operator needs to transport the completed sublot products to the specified destination. 多仓位AGV到达指定站点，且生产操作员需要运送子批次完工产品到指定位置
+多仓位AGV到达指定站点，且生产操作员需要运送子批次完工产品到指定位置
 
-## Precondition 前置条件
+## 前置条件
 
-**System & Interface 系统与接口**
+**系统与接口**
 
-1. MES is online. MES 在线
-2. The multi-slot AGV has available slot(s). 多仓位 AGV 存在空闲仓位
+1. MES 在线
+2. 多仓位 AGV 存在空闲仓位
 
-**Equipment & Hardware 设备与硬件**
+**设备与硬件**
 
-3. The IO module is communicating normally. IO 模块通信正常
-4. All slot doors are in the closed state. 所有仓位仓门均处于关闭状态
+3. IO 模块通信正常
+4. 所有仓位仓门均处于关闭状态
 
-**Task & Data 任务与数据**
+**任务与数据**
 
-5. At least one transport task exists for this station and has been synced from MES into the local database — this is the reason the multi-slot AGV arrived here. The specific sublot is not yet known at this point; it will be identified after the operator scans or enters it. 该站点存在至少一个已从 MES 同步到本地数据库的搬运任务（多仓位 AGV 正是因为该任务才到达此站点），此时尚不确定具体是哪个子批号，需等操作员扫码/输入后才能确定
+5. 该站点存在至少一个已从 MES 同步到本地数据库的搬运任务（多仓位 AGV 正是因为该任务才到达此站点），此时尚不确定具体是哪个子批号，需等操作员扫码/输入后才能确定
 
-**Personnel & Authorization 人员与权限**
+**人员与权限**
 
-6. The production operator has permission to scan and load. 生产操作员具备扫码/装料操作权限
+6. 生产操作员具备扫码/装料操作权限
 
 > 目标仓位的电子锁是否关闭、光幕是否无遮挡，需要在确定目标仓位后才能判断（到站时尚不知道具体仓位），因此不作为本 UC 的 Precondition，而是在 Normal Flow 中"打开仓位"步骤里作为系统开锁前的检查项。
 
@@ -54,26 +54,26 @@ The multi-slot AGV arrives at the designated station, and the production operato
 
 > "MES 在线"为何仍是本 UC 的 Precondition：本地数据库需要持续从 MES 读取最新数据以保持同步更新（如任务、子批号状态等），若 MES 掉线，本地数据库中的任务数据会逐渐变旧、无法反映 MES 侧最新状态，操作员基本无法继续可靠地执行装载任务。这与 [[uc-002-confirm-task-completion|UC-002]] 不同："确认完成"只操作本地数据库、不依赖 MES 实时在线，两者对 MES 在线的依赖程度不一样。
 
-## Postcondition 后置条件
+## 后置条件
 
-**Equipment & Hardware 设备与硬件**
+**设备与硬件**
 
-1. The electronic lock of the target slot returns to the locked state after the door is closed. 目标仓位电子锁在仓门关闭后恢复锁闭状态
-2. The light curtain confirms that the door is closed and the slot is occupied, consistent with the system record. 光幕检测确认仓门已关闭且仓位内确有产品，占用状态与系统记录一致
+1. 目标仓位电子锁在仓门关闭后恢复锁闭状态
+2. 光幕检测确认仓门已关闭且仓位内确有产品，占用状态与系统记录一致
 
-**Task & Data 任务与数据**
+**任务与数据**
 
-3. The target slot status changes from "Idle" to "Occupied", and the slot–sublot mapping is recorded. 目标仓位状态由“空闲”变为“已占用”，并记录该仓位与子批号的对应关系
-4. The load operation (operator, sublot, slot number, timestamp) is logged in the local database for traceability. 本次装载操作（操作员、子批号、仓位号、时间戳）被记录到本地数据库，用于后续追溯
-5. After the slot door is closed, the task status remains in progress and is not automatically marked as completed. Final completion of the task is triggered separately by [[uc-002-confirm-task-completion|UC-002]]; if the operator needs to retrieve a mis-stored product before confirming, that is handled by [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]. 仓门关闭后，任务状态保持进行中，不会自动标记为完成；任务的最终完成由 [[uc-002-confirm-task-completion|UC-002]] 单独触发，若操作员在确认完成前需要取出存错的产品，则由 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 处理
+3. 目标仓位状态由“空闲”变为“已占用”，并记录该仓位与子批号的对应关系
+4. 本次装载操作（操作员、子批号、仓位号、时间戳）被记录到本地数据库，用于后续追溯
+5. 仓门关闭后，任务状态保持进行中，不会自动标记为完成；任务的最终完成由 [[uc-002-confirm-task-completion|UC-002]] 单独触发，若操作员在确认完成前需要取出存错的产品，则由 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 处理
 
-## Assumption 假设
+## 假设
 
-1. The production operator will only place the corresponding completed product(s) into the slot after scanning the barcode or manually entering the sublot; non-product items will not be placed into the slot. 生产操作员扫码（或手动输入子批号）后，仅会将对应的完工产品存放到仓位中，不会放入非产品类的其他东西。
+1. 生产操作员扫码（或手动输入子批号）后，仅会将对应的完工产品存放到仓位中，不会放入非产品类的其他东西。
 
-## Normal Flow 正常流程
+## 正常流程
 
-### 1.0 Load Completed Lot into Slot by SubSlot Barcode 
+### 1.0
 1. 生产操作员扫描工单上的子批号完工产品条形码
    1.1 系统核验该子批号是否存在对应的、尚未完成也未被取消的任务记录：若在本地数据库（含服务器同步的 MES 数据）中查不到该子批号、识别到手动输入格式错误，或该子批号对应的任务已经是"已完成（Done）"或"已取消（Cancelled）"状态，均判定核验不通过（见 Exception Flow E1.1）
    1.2 系统核验该任务是否属于本次 AGV 派车所关联的任务范围：不要求任务的目标站点严格等于操作员当前所在的物理站点（同一次派车可能涵盖多个相邻站点的任务），但若该任务完全不属于本次派车范围（如实际是距离较远、未被分配进本次派车的其他站点任务），也判定核验不通过（见 Exception Flow E1.2）
@@ -89,9 +89,9 @@ The multi-slot AGV arrives at the designated station, and the production operato
 
 
 
-## Alternative Flow 备选流程
+## 备选流程
 
-### 1.1 Load Completed Lot into Slot by keyboard input
+### 1.1
 1. 生产操作员手动输入子批号
    1.1 系统核验该子批号是否存在对应的、尚未完成也未被取消的任务记录：若在本地数据库（含服务器同步的 MES 数据）中查不到该子批号、识别到手动输入格式错误，或该子批号对应的任务已经是"已完成（Done）"或"已取消（Cancelled）"状态，均判定核验不通过（见 Exception Flow E1.1）
    1.2 系统核验该任务是否属于本次 AGV 派车所关联的任务范围：不要求任务的目标站点严格等于操作员当前所在的物理站点（同一次派车可能涵盖多个相邻站点的任务），但若该任务完全不属于本次派车范围（如实际是距离较远、未被分配进本次派车的其他站点任务），也判定核验不通过（见 Exception Flow E1.2）
@@ -107,7 +107,7 @@ The multi-slot AGV arrives at the designated station, and the production operato
 
 > 与 `1.0` 正常流程相比，本备选流程仅第 1 步的输入方式不同（手动输入子批号，而非扫描条形码），其余步骤及系统检查点完全一致。
 
-## Exception Flow 异常流程
+## 异常流程
 
 以下每条异常均以 `E<步骤号>` 编号，与 Normal Flow / Alternative Flow 中触发该异常的具体步骤一一对应（例如 `E1.3` 对应第 1.3 步"核验空闲仓位数量"失败的情形）：
 
@@ -177,14 +177,14 @@ The multi-slot AGV arrives at the designated station, and the production operato
 
 ---
 
-## Notes 备注
+## 备注
 
-* `1.0` represents the **Normal Flow**. `1.0` 表示**正常流程**。
-* `1.1` represents an **Alternative Flow** branching from the normal flow. `1.1` 表示从正常流程分支出的**备选流程**。
-* Each Exception Flow is labeled `E<step number>`, corresponding one-to-one with the specific Normal/Alternative Flow step (or sub-step) whose failure triggers it (e.g. `E1.2` corresponds to the failure of step 1.2). 每条 Exception Flow 均以 `E<步骤号>` 编号，与触发该异常的具体 Normal/Alternative Flow 步骤（或子步骤）一一对应（如 `E1.2` 对应第 1.2 步核验失败的情形）。
+* `1.0` 表示**正常流程**。
+* `1.1` 表示从正常流程分支出的**备选流程**。
+* 每条 Exception Flow 均以 `E<步骤号>` 编号，与触发该异常的具体 Normal/Alternative Flow 步骤（或子步骤）一一对应（如 `E1.2` 对应第 1.2 步核验失败的情形）。
 * 「任务确认完成」与「取出存错产品」已从本 UC 的 Postcondition 中拆出，分别独立为 [[uc-002-confirm-task-completion|UC-002]] 和 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]：这两者都是由操作员另外主动发起、有各自独立触发条件和流程的场景，而"到站期间继续扫描其他子批号装载其他仓位"则视为本 UC 在同一次到站期间的重复执行，不单独建 UC。
 
-## Related Use Cases 关联用例
+## 关联用例
 
 * [[uc-002-confirm-task-completion|UC-002]]：本 UC 完成一次装载（关闭仓门）后，任务并不会自动完成，需操作员另外执行该 UC 手动确认完成。
 * [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 的 Trigger 依赖 AGV 到达并停稳，具体到站过程见该 UC。
