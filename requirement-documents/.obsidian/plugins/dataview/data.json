@@ -1,0 +1,8 @@
+{
+  "renderNullAs": "-",
+  "warnOnEmptyResult": true,
+  "refreshEnabled": true,
+  "refreshInterval": 2500,
+  "tableIdColumnName": "File",
+  "taskCompletionTracking": false
+}

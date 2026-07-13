@@ -1,0 +1,138 @@
+---
+id: UC-010
+type: use-case
+title: "Unload Completed Lot at Destination Station 终点站取出产品存料"
+status: draft
+priority: high
+created_by: "ZhengyuShao 邵正宇"
+updated_by: "ZhengyuShao 邵正宇"
+created: 2026-07-09
+updated: 2026-07-09
+primary_actor: "Destination Station Operator 终点站操作员（按场景引用 R-02/R-03/R-04/R-06/R-07/R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
+secondary_actor: "MES（是否需要回传完成结果 TBD 待确认，见 Notes）"
+frequency: "Same order of magnitude as UC-001, since every sublot loaded via UC-001 is eventually unloaded once via this UC. 与 UC-001 同量级，每一个经 UC-001 装载的子批号最终都会通过本 UC 被取出一次"
+related_uc: ["UC-001", "UC-002", "UC-003", "UC-004", "UC-011"]
+related_br: []
+aliases: ["UC-010"]
+---
+
+# UC-010 Unload Completed Lot at Destination Station 终点站取出产品存料
+
+## Description 描述
+
+After the multi-slot AGV arrives at a destination station, the system automatically identifies all slots on the AGV that are "Occupied" and whose associated task's target (delivery) station matches the current station, then opens those slot(s) directly for the destination station operator — no barcode scan is required, since the product is already on the AGV and its task is already known. The operator removes the product(s) from the slot(s) and stores them at the station's local location (e.g. oven, nitrogen cabinet, or equipment). 多仓位AGV到达终点站后，系统自动找出AGV上所有"已占用"且其关联任务目标（交货）站点与当前站点一致的仓位，直接为终点站操作员打开这些仓位（不需要扫码，因为产品已经在AGV上、任务已经明确），操作员从仓位中取出产品，存放到该站点现场位置（如烘烤炉、氮气柜、机台等）。
+
+> 本 UC 与 [[uc-001-load-completed-lot-into-slot|UC-001]] 是方向相反的一对：UC-001 是起点站"扫码装入仓位"，本 UC 是终点站"系统自动开仓、取出存料"，两者共享同一批次产品、同一次 AGV 行程，但触发站点、Actor、系统核验方式均不同（详见 Related Use Cases）。
+
+## Trigger 触发条件
+
+The multi-slot AGV arrives at a station (see [[uc-003-agv-arrives-at-designated-station|UC-003]]), and at least one "Occupied" slot on the AGV has an associated task whose target (delivery) station equals the current station. 多仓位AGV到达某站点（见 [[uc-003-agv-arrives-at-designated-station|UC-003]]），且该AGV上存在至少一个"已占用"仓位，其关联任务的目标（交货）站点与当前站点一致
+
+## Precondition 前置条件
+
+**System & Interface 系统与接口**
+
+1. The IO module is communicating normally, so the target slot(s) can be unlocked and door/light-curtain status read. IO 模块通信正常，可正常对目标仓位执行开锁及门状态/光幕读取操作
+
+**Equipment & Hardware 设备与硬件**
+
+2. The target slot door(s) are currently in the closed state before this UC begins. 目标仓位仓门在本 UC 开始前均处于关闭状态
+
+**Task & Data 任务与数据**
+
+3. At least one slot on the AGV is "Occupied", and its associated task's target station equals the current station, with the task currently in "Executing" status. AGV 上至少存在一个"已占用"仓位，其关联任务的目标站点与当前站点一致，且该任务当前状态为"进行中（Executing）"
+
+**Personnel & Authorization 人员与权限**
+
+4. The destination station operator has permission to receive/unload product. 终点站操作员具备取料/收料操作权限
+
+> 与 [[uc-001-load-completed-lot-into-slot|UC-001]] 不同，本 UC 不需要核验"该任务是否属于本次派车范围"（对应 [[br-001-dispatch-task-range|BR-001]]）：任务此时已经装载在AGV上、正跟车运行，其目标站点在装载时已经确定，不存在"扫错、扫到不属于本次派车范围的子批号"的问题，因此本 UC 的仓位识别可以完全由系统自动完成，不需要操作员扫码核验。
+
+## Postcondition 后置条件
+
+**Equipment & Hardware 设备与硬件**
+
+1. The electronic lock of the target slot returns to the locked state after the door is closed. 目标仓位电子锁在仓门关闭后恢复锁闭状态
+2. The light curtain confirms the door is closed and the slot is actually empty, consistent with the system record. 光幕检测确认仓门已关闭且仓位内确实已清空，与系统记录一致
+
+**Task & Data 任务与数据**
+
+3. The target slot status changes from "Occupied" to "Idle", and the slot–sublot mapping is cleared. 目标仓位状态由"已占用"变为"空闲"，仓位-子批号映射关系被清除
+4. The unload operation (operator, sublot, slot number, station, timestamp) is logged in the local database for traceability. 本次取出操作（操作员、子批号、仓位号、站点、时间戳）被记录到本地数据库，用于后续追溯
+5. After the slot door is closed, the task status remains "Executing" and is not automatically marked as completed. Final completion is triggered separately by [[uc-002-confirm-task-completion|UC-002]] (generalized to cover both loaded and unloaded slots), because a station may act as both a delivery point and a pickup point in the same visit, and the operator may still need to continue loading via [[uc-001-load-completed-lot-into-slot|UC-001]] before finishing this station visit. 仓门关闭后，任务状态保持"进行中"，不会自动标记为完成；最终完成由 [[uc-002-confirm-task-completion|UC-002]]（已泛化为同时覆盖装载与取出两侧）单独触发，原因是同一站点在同一次到站中可能既是交货点又是取料点，操作员可能还需要继续执行 [[uc-001-load-completed-lot-into-slot|UC-001]] 装载其他任务才算完成本次到站的全部操作
+
+## Assumption 假设
+
+1. The operator will correctly store the removed product at the station's intended local location (e.g. oven, nitrogen cabinet, equipment) after taking it out of the slot; the system does not verify where the product physically ends up after removal. 操作员从仓位取出产品后，会将其正确存放到该站点预期的现场位置（如烘烤炉、氮气柜、机台等），系统不核验产品取出后的实际去向是否正确。
+2. The target station of a task (i.e. where it should eventually be unloaded) is correctly determined and recorded no later than when the task is dispatched/loaded onto the AGV; this UC does not verify how that target station was determined. 任务的目标站点（即最终应在哪个站点被取出）最迟在任务下发/装载上AGV时已被正确确定并记录，本 UC 不核验该目标站点本身的判定过程是否正确。
+
+## Normal Flow 正常流程
+
+### 10.0 Unload Completed Lot at Destination Station
+
+1. AGV到站后（见 [[uc-003-agv-arrives-at-designated-station|UC-003]]），系统自动识别该AGV上所有"目标站点=当前站点"且状态为"已占用"的仓位，在界面上列出本次到站待取料的仓位/任务清单
+2. 系统自动打开这些仓位的仓门（不需要操作员扫码）
+   2.1 系统核验仓门是否已正常打开（见 Exception Flow E2.1）
+   2.2 操作员核验该仓位内是否确实存放有对应产品，与系统记录一致（见 Exception Flow E2.2）
+3. 操作员从仓位中取出产品，存放到该站点现场位置
+4. 操作员关闭该仓位
+   4.1 系统通过光幕检测确认该仓位内确实已清空，若光幕仍检测到产品残留，则转异常处理（见 Exception Flow E4.1）
+5. 若本次到站还存在其他待取料的仓位，操作员重复第 2~4 步，逐个取出
+6. 操作员确认本次到站所有待取料仓位均已取出且现场存放完毕后，点击"确认完成"按钮（衔接 [[uc-002-confirm-task-completion|UC-002]]，该 UC 已泛化为一次性确认本次到站涉及的全部装载与取出任务），系统将对应任务状态更新为"已完成"
+
+## Alternative Flow 备选流程
+
+不存在需要区分的备选流程：无论本次到站涉及一个还是多个待取料仓位/任务，系统均按 Normal Flow 逐个自动打开、供操作员取出，不存在触发方式或步骤不同的分支路径；若本次到站同时还有需要装载的任务，装载部分改由 [[uc-001-load-completed-lot-into-slot|UC-001]] 处理，不在本 UC 内重复描述。 No alternative flow is needed: regardless of how many slots need to be unloaded during this station visit, the system opens them one by one following the same steps described in the Normal Flow; if this station visit also involves loading tasks, those are handled separately by [[uc-001-load-completed-lot-into-slot|UC-001]].
+
+## Exception Flow 异常流程
+
+以下每条异常均以 `E<步骤号>` 编号，与 Normal Flow 中触发该异常的具体步骤（或子步骤）一一对应：
+
+* E2.1 仓门开锁失败（电子锁/机械故障）
+* E2.2 打开仓门后发现仓位内实际无产品，或产品与系统记录不符
+* E4.1 关门后光幕检测仓位内仍有产品残留
+
+### E2.1 仓门开锁失败
+
+1. 系统在 Normal Flow 第 2 步下发目标仓位开锁指令
+2. 系统按第 2.1 步核验仓门状态，发现该仓位仓门未能在规定时间内正常打开
+3. 系统提示该仓位开锁异常，将该仓位标记为"异常锁定"，暂停对该仓位的后续操作
+4. 系统提示终点站操作员联系设备/电气维护人员（R-11）处理；该AGV上其他待取料仓位不受影响，仍按计划打开
+5. 设备/电气维护人员排查并修复电子锁/机械故障后，解除该仓位的"异常锁定"状态，操作员重新尝试取出
+
+### E2.2 打开仓门后发现仓位内实际无产品，或产品与系统记录不符
+
+1. 系统打开系统记录中为"已占用"状态的目标仓位
+2. 操作员按第 2.2 步核验，发现该仓位内实际没有产品，或存放的产品与系统记录的子批号不符
+3. 操作员上报该仓位状态异常，暂停从该仓位取出
+4. 系统将该仓位标记为"异常锁定"，暂停对该仓位的后续操作，等待核实该仓位实际情况与系统记录不一致的原因（如 [[uc-001-load-completed-lot-into-slot|UC-001]] 装载环节记录有误、途中产品遗失等）；该AGV上其他待取料仓位不受影响
+5. 核实并处理完毕（更正系统记录或按异常流程处理该批次）后，方可解除该仓位的"异常锁定"
+
+### E4.1 关门后光幕检测仓位内仍有产品残留
+
+1. 操作员关闭仓位仓门
+2. 系统按第 4.1 步通过光幕检测该仓位，发现该仓位内仍检测到产品残留
+3. 系统提示该仓位取出未完成，要求操作员重新打开该仓位确认
+4. 操作员重新打开该仓位，取出残留产品后再次关闭仓门
+5. 系统重新执行"关门→光幕核验"检查（即重新执行第 4.1 步），直至该仓位光幕确认已清空
+
+## Notes 备注
+
+* 本 UC 是从 `user case.md` 中原始记录的场景（如"装片完工送烘烤：R-01 → R-02""氮气柜送焊线/键合机台：R-03 → R-06/R-07"）拆分出来的：这些场景此前只有起点站"装载"部分被写成 [[uc-001-load-completed-lot-into-slot|UC-001]]，终点站"取出存料"部分一直没有独立成文，因此新增本 UC 补齐。
+* 经与用户确认：终点站操作员不需要扫码识别待取仓位——AGV到站后，系统直接根据"仓位已占用 + 关联任务目标站点=当前站点"自动判定并打开对应仓位，这与 UC-001 起点站"先扫码、系统再判定分配仓位"的顺序相反，原因是本 UC 场景下产品已经在AGV上、任务归属已经明确，不存在"扫错子批号"的问题。
+* 经与用户确认：取出关门后仍需要操作员另外点击"确认完成"才算任务终态完成，不能仅凭关门+光幕核验就自动完成，原因是同一站点可能同时是"存料站点"和"取料站点"（如氮气柜场景），操作员可能在同一次到站期间既要取出交货，又要继续装载其他任务，因此需要一个统一的"确认完成"动作来收尾本次到站的全部操作，而不是取出即完成。为此，[[uc-002-confirm-task-completion|UC-002]] 需要相应泛化其措辞与核验范围，使其同时覆盖"已装载"与"已取出"两类待确认仓位，本 UC 不单独实现一套确认逻辑。
+* 待补充事项（TBD）：
+  1. 任务最终确认完成后，是否需要将完成结果回传给 MES？`vision-and-scope.md` 主要特性清单第 9 项列有"任务/明细完成回传"，但 [[uc-002-confirm-task-completion|UC-002]] 目前明确"不回传"；两者是否一致、本 UC（作为任务的最终终点）是否需要单独回传，需进一步与用户/MES-IT 侧确认。
+  2. 若操作员确认完成后才发现拿错/漏拿，是否需要类似 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 的"重新打开纠错"流程？与 UC-005 不同的是，本 UC 场景下产品可能已经离开AGV现场（如已放入烘烤炉），纠错方式可能需要另行设计，暂不在本 UC 范围内展开。
+  3. 是否存在"该站点是取料站点，但操作员发现此次不需要收这批货"的取消场景（类比 [[uc-006-cancel-transport-task-upon-arrival|UC-006]]）？初步判断该场景发生概率低（产品已经在AGV上、通常是必然要交付的），暂标注 TBD，不深入展开。
+
+## Related Use Cases 关联用例
+
+* [[uc-001-load-completed-lot-into-slot|UC-001]]：本 UC 与该 UC 是方向相反的一对——UC-001 是起点站"扫码装入仓位"，本 UC 是终点站"系统自动开仓、取出存料"；两者共享同一批次产品、同一次 AGV 行程的前后两端，若同一次到站既要取出交货又要装载新任务，操作员可分别执行本 UC 与 UC-001，最后统一通过 UC-002 确认完成。
+* [[uc-002-confirm-task-completion|UC-002]]：本 UC 完成一次取出（关闭仓门）后，任务并不会自动完成，需操作员另外执行该 UC（已泛化为同时覆盖装载与取出两侧）手动确认完成。
+* [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 的 Trigger 依赖 AGV 到达并停稳，具体到站过程见该 UC。
+* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 取出产品过程中"AGV 是否移动"的安全联锁检查，由该 UC 统一处理，不在本 UC 的 Precondition 中重复定义。
+* [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取出产品、仓位恢复"空闲"的过程，以及 Exception Flow（E2.1/E2.2）产生的"异常锁定"状态，均会实时体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
+
+## Other Information 其他信息
+
