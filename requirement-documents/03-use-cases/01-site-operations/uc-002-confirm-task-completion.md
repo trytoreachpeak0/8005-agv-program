@@ -1,62 +1,62 @@
 ---
 id: UC-002
 type: use-case
-title: "Confirm Task Completion 确认任务完成"
+title: "确认任务完成"
 status: draft
 priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-08
 updated: 2026-07-09
-primary_actor: "Production Operator / Destination Station Operator 生产操作员/终点站操作员（按场景引用 R-01~R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
-secondary_actor: "None 无（任务完成结果不需要同步给 MES，本 UC 不涉及次要参与者）"
-frequency: "Same order of magnitude as UC-001/UC-010, since one confirmation typically follows one or more loads and/or unloads at a station visit. 与 UC-001/UC-010 同量级，通常一次到站的一次或多次装载/取出后对应一次确认"
+primary_actor: "生产操作员/终点站操作员（按场景引用 R-01~R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
+secondary_actor: "无（任务完成结果不需要同步给 MES，本 UC 不涉及次要参与者）"
+frequency: "与 UC-001/UC-010 同量级，通常一次到站的一次或多次装载/取出后对应一次确认"
 related_uc: ["UC-001", "UC-005", "UC-010"]
 related_br: []
 aliases: ["UC-002"]
 ---
 
-# UC-002 Confirm Task Completion 确认任务完成
+# UC-002 确认任务完成
 
-## Description 描述
+## 描述
 
-After finishing all the load and/or unload operations the operator intends to perform at the current station visit (loading via [[uc-001-load-completed-lot-into-slot|UC-001]] and/or unloading via [[uc-010-unload-completed-lot-at-destination-station|UC-010]], each possibly executed multiple times for different sublots/slots), the operator manually clicks a "Confirm Complete" button to explicitly mark the corresponding transport task(s) as completed. A single station visit may involve both directions at once — a station can be a delivery point for some tasks and a pickup point for others in the same visit — so this UC's confirmation covers all qualifying slots regardless of direction. The system does not automatically complete a task merely because its slot has changed state (loaded and door closed, or unloaded and door closed), because the operator may still need to reopen a loaded slot to retrieve a mis-stored product (see [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]), or may still have other loads/unloads left to perform, before finishing this station visit. 生产/终点站操作员在当前 AGV 到站期间完成一个或多个子批号的装载（可能多次执行 [[uc-001-load-completed-lot-into-slot|UC-001]]）和/或取出（可能多次执行 [[uc-010-unload-completed-lot-at-destination-station|UC-010]]）后，手动点击"确认完成"按钮，显式地将对应搬运任务标记为完成。同一次到站可能同时涉及两个方向——同一站点在同一次到站中可能既是部分任务的交货点，又是另一些任务的取料点——因此本 UC 的确认动作不区分方向，一次性覆盖本次到站所有满足条件的仓位。系统不会仅因仓位状态发生变化（装载并关闭仓门，或取出并关闭仓门）就自动判定任务完成，因为操作员在最终确认前可能还需要重新打开已装载的仓位取出存错的产品（见 UC-005），或者本次到站还有其他装载/取出操作尚未完成。
+生产/终点站操作员在当前 AGV 到站期间完成一个或多个子批号的装载（可能多次执行 [[uc-001-load-completed-lot-into-slot|UC-001]]）和/或取出（可能多次执行 [[uc-010-unload-completed-lot-at-destination-station|UC-010]]）后，手动点击"确认完成"按钮，显式地将对应搬运任务标记为完成。同一次到站可能同时涉及两个方向——同一站点在同一次到站中可能既是部分任务的交货点，又是另一些任务的取料点——因此本 UC 的确认动作不区分方向，一次性覆盖本次到站所有满足条件的仓位。系统不会仅因仓位状态发生变化（装载并关闭仓门，或取出并关闭仓门）就自动判定任务完成，因为操作员在最终确认前可能还需要重新打开已装载的仓位取出存错的产品（见 UC-005），或者本次到站还有其他装载/取出操作尚未完成。
 
-## Trigger 触发条件
+## 触发条件
 
-The operator determines that all loads and/or unloads intended for this station visit have been completed, and clicks the "Confirm Complete" button. 操作员认为当前到站期间需要完成的装载和/或取出操作已全部完成，点击"确认完成"按钮
+操作员认为当前到站期间需要完成的装载和/或取出操作已全部完成，点击"确认完成"按钮
 
-## Precondition 前置条件
+## 前置条件
 
-**Task & Data 任务与数据**
+**任务与数据**
 
-1. At this station, at least one slot has changed state pending confirmation — either loaded with its door closed (via [[uc-001-load-completed-lot-into-slot|UC-001]]) or unloaded with its door closed (via [[uc-010-unload-completed-lot-at-destination-station|UC-010]]). 该站点至少存在一个仓位状态发生变化、等待确认完成——即至少有一个仓位已完成装载并关闭仓门（见 UC-001），或已完成取出并关闭仓门（见 UC-010）
+1. 该站点至少存在一个仓位状态发生变化、等待确认完成——即至少有一个仓位已完成装载并关闭仓门（见 UC-001），或已完成取出并关闭仓门（见 UC-010）
 
-**Personnel & Authorization 人员与权限**
+**人员与权限**
 
-2. The production operator has permission to confirm task completion. 生产操作员具备"确认完成"操作权限
+2. 生产操作员具备"确认完成"操作权限
 
-> MES is not required to be online for this confirmation — the confirmation only operates on the local database and does not need to interact with MES in real time. 本 UC 的确认动作不要求 MES 在线，"确认完成"只操作本地数据库，不需要与 MES 实时交互。
+> 本 UC 的确认动作不要求 MES 在线，"确认完成"只操作本地数据库，不需要与 MES 实时交互。
 
 > 本 UC 不单独核验"该站点是否存在搬运任务"：AGV 既然已经到达该站点，就必然存在对应的搬运任务（见 [[uc-001-load-completed-lot-into-slot|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station|UC-010]] 的 Precondition），因此不需要在确认完成这一步重复核验任务是否存在；本 UC 只关心"仓位是否已实际发生装载或取出的状态变化"。任务在装载/取出与确认过程中不会被取消或状态变更，由其他机制保证（见下方 Assumption）。
 
-## Postcondition 后置条件
+## 后置条件
 
-**Task & Data 任务与数据**
+**任务与数据**
 
-1. The confirmed task(s)' status changes from "Executing" to "Completed" in the local database. 被确认的任务状态在本地数据库中由"进行中"变为"已完成"
-2. A confirmation record (operator, task, slot(s), timestamp) is logged for traceability. 确认操作记录（操作员、任务、仓位、时间戳）被记录，用于追溯
+1. 被确认的任务状态在本地数据库中由"进行中"变为"已完成"
+2. 确认操作记录（操作员、任务、仓位、时间戳）被记录，用于追溯
 
-> The task completion result does not need to be synced/reported to MES. 任务完成结果不需要同步上报给 MES。
+> 任务完成结果不需要同步上报给 MES。
 
-## Assumption 假设
+## 假设
 
-1. The operator can confirm, before clicking "Confirm Complete", that they have already correctly placed all the products that needed to be loaded, and correctly removed and stored all the products that needed to be unloaded, during this station visit. 操作员能够确认自己在点击"确认完成"之前，已经正确存放完本次到站需要装载的所有产品，也已经正确取出并存放完本次到站需要取出的所有产品。
-2. The transport task(s) at this station will not be cancelled or have their status changed by other means during the loading/unloading/confirmation process; this is guaranteed by other mechanisms and is not verified within this UC. 该站点当前的搬运任务在装载/取出与确认完成的过程中不会被取消或状态变更，由其他机制保证，不在本 UC 的核验范围内。
+1. 操作员能够确认自己在点击"确认完成"之前，已经正确存放完本次到站需要装载的所有产品，也已经正确取出并存放完本次到站需要取出的所有产品。
+2. 该站点当前的搬运任务在装载/取出与确认完成的过程中不会被取消或状态变更，由其他机制保证，不在本 UC 的核验范围内。
 
-## Normal Flow 正常流程
+## 正常流程
 
-### 2.0 Confirm Task Completion
+### 2.0
 1. 操作员完成本次到站所需的全部装载（见 [[uc-001-load-completed-lot-into-slot|UC-001]]）和/或取出（见 [[uc-010-unload-completed-lot-at-destination-station|UC-010]]）操作后，点击"确认完成"按钮
 2. 系统核验该站点是否存在已装载或已取出（仓门均已关闭）、状态发生变化待确认的仓位
    2.1 若该站点当前没有任何已装载或已取出的仓位，判定核验不通过（见 Exception Flow E2.1）
@@ -65,11 +65,11 @@ The operator determines that all loads and/or unloads intended for this station 
    3.1 若确认完成后操作员发现误确认（实际还有产品未装载或未取出），系统不支持撤销（见 Exception Flow E3.1）
 4. 系统记录本次确认操作
 
-## Alternative Flow 备选流程
+## 备选流程
 
-不存在需要区分的备选流程：无论本次到站涉及一个还是多个搬运任务/子批号，也无论是装载、取出还是两者兼有，操作员只需点击一次"确认完成"，系统即会一次性确认该站点当前所有满足条件（已装载或已取出、仓门已关闭）的进行中任务，不需要、也不支持逐个任务分别确认。 No alternative flow is needed: regardless of whether this station visit involves one or multiple transport tasks/sublots, or a mix of loads and unloads, the operator only needs to click "Confirm Complete" once; the system confirms all qualifying "Executing" tasks at this station in a single action, rather than confirming them one by one.
+不存在需要区分的备选流程：无论本次到站涉及一个还是多个搬运任务/子批号，也无论是装载、取出还是两者兼有，操作员只需点击一次"确认完成"，系统即会一次性确认该站点当前所有满足条件（已装载或已取出、仓门已关闭）的进行中任务，不需要、也不支持逐个任务分别确认。
 
-## Exception Flow 异常流程
+## 异常流程
 
 以下每条异常均以 `E<步骤号>` 编号，与 Normal Flow 中触发该异常的具体步骤（或子步骤）一一对应（例如 `E2.1` 对应第 2.1 步核验失败的情形）：
 
@@ -94,7 +94,7 @@ The operator determines that all loads and/or unloads intended for this station 
 2. 系统不支持撤销确认操作，因为任务确认完成后 AGV 即会准备移动至下一站点，撤销与"AGV 是否已经/即将移动"存在冲突
 3. 操作员需联系班组长，通过后续补充处理（如另行安排剩余产品的搬运任务、必要时在 MES 侧修正）来处理误确认造成的影响
 
-## Notes 备注
+## 备注
 
 * 本 UC 从 [[uc-001-load-completed-lot-into-slot|UC-001]] 的 Postcondition 拆分而来：原本描述为"任务完成需要操作员额外点击确认按钮"，因其触发条件、流程都独立于装载动作本身，拆分为本 UC。
 * 操作员如需取出已存入的产品（如发现存错），应先执行 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]，再回到本 UC 确认完成。
@@ -106,11 +106,11 @@ The operator determines that all loads and/or unloads intended for this station 
 * Normal Flow / Exception Flow 已按 [[uc-001-load-completed-lot-into-slot|UC-001]] 和 [[uc-template-guide|UC 模板说明]] 的约定重新组织：Normal Flow 步骤下用 `.1`/`.2` 子编号列出系统核验点并注明对应的 `E<步骤号>`；Exception Flow 开头列出所有异常编号及摘要，再逐条以 `### E<步骤号>` 展开详细处理流程。
 * 经与用户确认（新增，因 [[uc-010-unload-completed-lot-at-destination-station|UC-010]] 拆分而泛化本 UC）：本 UC 原本只覆盖"装载确认"，措辞限定为"已装载仓位"；由于 UC-010 补齐了终点站"取出存料"场景，且同一站点在同一次到站中可能既是交货点又是取料点，操作员可能需要在同一次到站里既装载又取出，因此本 UC 泛化为统一覆盖"已装载"与"已取出"两类待确认仓位，不再区分方向，一次"确认完成"点击即可同时确认两侧的进行中任务。本 UC 不因此拆分为两个独立的确认 UC，因为确认动作本身（核验仓门/光幕状态 → 批量更新任务状态 → 记录）在两个方向上完全一致，只是待核验的仓位集合来源不同。
 
-## Related Use Cases 关联用例
+## 关联用例
 
 * [[uc-001-load-completed-lot-into-slot|UC-001]]：本 UC 的 Precondition 可依赖 UC-001 已完成至少一次装载（或依赖 UC-010 已完成至少一次取出，两者任一即可满足）。
 * [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]：若操作员在确认完成前发现存错产品，需先执行该 UC 取出产品，再回到本 UC 确认完成；任务一旦经本 UC 确认完成，UC-005 便不再适用。
 * [[uc-010-unload-completed-lot-at-destination-station|UC-010]]：本 UC 已泛化为同时覆盖该 UC 的取出确认——终点站操作员完成取出（关闭仓门）后，同样需要执行本 UC 才能使任务终态变为"已完成"；若同一次到站同时涉及 UC-001 的装载与本 UC-010 的取出，操作员分别完成后只需点击一次"确认完成"即可一并确认。
 
-## Other Information 其他信息
+## 其他信息
 
