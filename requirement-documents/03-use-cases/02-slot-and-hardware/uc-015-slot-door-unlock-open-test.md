@@ -108,7 +108,7 @@ aliases: ["UC-015"]
 ## 关联用例
 
 * [[uc-001-load-completed-lot-into-slot|UC-001]]、[[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]、[[uc-010-unload-completed-lot-at-destination-station|UC-010]]：本 UC 的开锁/开门操作独立于这些业务流程的核验逻辑之外，不复用、也不受它们的业务核验约束。
-* [[uc-004-slot-door-safety-interlock|UC-004]]：该 UC 针对的是业务流程开门期间 AGV 移动的安全联锁；本 UC 属于维护场景，通常在 AGV 静止/停用状态下进行，暂不要求联动该 UC 的安全联锁检查，具体是否需要联动待后续确认。
+* [[uc-004-slot-door-safety-interlock|UC-004]]：该 UC 是跨场景的通用仓门-移动安全联锁，包含开门前核验 AGV 是否移动（Flow A）与门开启期间的持续移动监控（Flow B）；本 UC 属于维护场景，通常在 AGV 静止/停用状态下进行，暂不要求联动该 UC 的任一 Flow，具体是否需要联动待后续确认。
 * [[uc-014-enable-disable-slot|UC-014]]：本 UC 是该 UC Assumption 第 3 条遗留能力的具体落地；同时建议测试前后配合该 UC 完成"禁用→测试→启用"的操作闭环。
 * [[uc-016-slot-light-curtain-function-test|UC-016]]：该 UC 的光幕功能测试需要以本 UC 的开门动作为前提。
 * [[uc-017-slot-door-state-detection-test|UC-017]]：该 UC 的门状态识别测试需要以本 UC 的开关门动作为前提。

@@ -6,7 +6,7 @@ status: draft
 created: 2026-07-13
 updated: 2026-07-13
 related_uc: ["UC-012", "UC-037"]
-related_br: []
+related_br: ["BR-009"]
 aliases: ["BR-007"]
 ---
 
@@ -63,3 +63,4 @@ RIOT 只负责车辆导航和运动执行，不掌握本系统维护的"每台�
 - [[uc-037-maintain-agv-charging-strategy-configuration|UC-037]]：维护本规则依赖的候选充电桩集合及触发/完成阈值配置；本规则不重复定义这些配置项本身。
 - [[uc-012-manually-dispatch-agv-to-charge|UC-012]]：手动发起充电时，实际选桩与排队结果须遵循本规则，不再假设由 RIOT 自主选桩。
 - 未来的"低电量自动回充"执行类用例（尚未建 UC，见 [[uc-037-maintain-agv-charging-strategy-configuration|UC-037]] Notes）：系统检测到 AGV 电量到达触发阈值后自动创建充电请求，也须遵循本规则完成选桩与排队，待该 UC 建立后在此补充引用。
+- [[br-009-parking-point-allocation-and-queueing|BR-009]]：结构对称的另一套排队规则，用于"空闲返回停靠点"场景，采用 FIFO 而非本规则的"电量优先"；两者是同一类"多车竞争有限站点资源"问题在不同场景下的独立规则，不合并、不复用彼此的排序算法。

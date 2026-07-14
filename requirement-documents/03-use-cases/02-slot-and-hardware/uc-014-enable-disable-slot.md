@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "待定（本次未确定禁用/启用仓位的操作角色，见 Notes）"
 secondary_actor: "无（本 UC 只操作本地数据库中的仓位调度开关状态，不涉及硬件层禁用、不联动 RIOT）"
 frequency: "待定，预期为低频的人工维护类操作，与 [[uc-013-enable-disable-agv|UC-013]] 同量级或更低"
-related_uc: ["UC-001", "UC-005", "UC-010", "UC-011", "UC-013", "UC-015"]
+related_uc: ["UC-001", "UC-005", "UC-010", "UC-011", "UC-013", "UC-015", "UC-038"]
 related_br: []
 aliases: ["UC-014"]
 ---
@@ -75,7 +75,7 @@ aliases: ["UC-014"]
 
 ## 备选流程
 
-不存在需要区分的备选流程：无论操作人员选中的是单个仓位还是多个仓位，系统均按 Normal Flow 相同的"逐一核验 → 逐一处理 → 汇总结果"逻辑处理，单个仓位操作只是批量大小为 1 的特例，不构成触发方式或步骤不同的分支路径（写法参照 [[uc-011-view-slot-monitoring-dashboard|UC-011]]、[[uc-004-slot-door-safety-interlock|UC-004]] 中"不需要额外区分备选流程"的处理方式）。
+不存在需要区分的备选流程：无论操作人员选中的是单个仓位还是多个仓位，系统均按 Normal Flow 相同的"逐一核验 → 逐一处理 → 汇总结果"逻辑处理，单个仓位操作只是批量大小为 1 的特例，不构成触发方式或步骤不同的分支路径（写法参照 [[uc-011-view-slot-monitoring-dashboard|UC-011]] 中"不需要额外区分备选流程"的处理方式）。
 
 ## 异常流程
 
@@ -118,6 +118,7 @@ aliases: ["UC-014"]
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 产生的"已禁用"仓位状态是否需要在该监控看板中展示，待补充（TBD，见 Notes）。
 * [[uc-013-enable-disable-agv|UC-013]]：本 UC 与该 UC 是同一类"本地调度开关"设计模式在不同粒度（仓位 vs AGV）上的应用，写法风格保持一致；两者对"目标对象当前有未完成工作时如何处理"的设计不同——本 UC 直接拒绝对"已占用"仓位的禁用请求，UC-013 则对有任务的 AGV 采用"禁用待生效"过渡状态。
 * [[uc-015-slot-door-unlock-open-test|UC-015]]：本 UC Assumption 第 3 条中"维护人员可通过自己界面开关仓门"的能力，由该 UC 具体落地实现；建议在该 UC 及 [[uc-016-slot-light-curtain-function-test|UC-016]]、[[uc-017-slot-door-state-detection-test|UC-017]]、[[uc-018-io-point-mapping-verification-test|UC-018]] 等硬件测试前后，配合本 UC 完成"禁用→测试→启用"的操作闭环。
+* [[uc-038-maintain-agv-slot-model|UC-038]]：本 UC 操作的仓位实例（编号、位置、规格）来源于该 UC 发布的多仓位 AGV 模型版本，在 AGV 接入（UC-019）时生成；本 UC 只维护启停开关，不涉及仓位结构本身。
 
 ## 其他信息
 

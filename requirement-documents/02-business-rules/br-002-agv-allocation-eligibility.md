@@ -5,8 +5,8 @@ title: "AGV Allocation Eligibility AGV 可分配条件"
 status: draft
 created: 2026-07-13
 updated: 2026-07-13
-related_uc: ["UC-008", "UC-013", "UC-019", "UC-020", "UC-021", "UC-022", "UC-023", "UC-027", "UC-028", "UC-029"]
-related_br: ["BR-001", "BR-003", "BR-004", "BR-005", "BR-006"]
+related_uc: ["UC-004", "UC-008", "UC-013", "UC-019", "UC-020", "UC-021", "UC-022", "UC-023", "UC-027", "UC-028", "UC-029", "UC-038"]
+related_br: ["BR-001", "BR-003", "BR-004", "BR-005", "BR-006", "BR-008"]
 aliases: ["BR-002"]
 ---
 
@@ -24,7 +24,7 @@ aliases: ["BR-002"]
 6. 光幕、门锁、IO 通信及其他阻止移动的安全/设备状态均正常。
 7. 当前电量不低于该车配置的最低接单电量阈值。
 8. 车辆配置的服务区域/站点覆盖本次任务集合。
-9. 可用仓位数量、仓位规格和载重满足本次任务集合的装载要求。
+9. 可用仓位数量、仓位规格和载重满足本次任务集合的装载要求（该车的仓位数量/位置/规格来自其接入时绑定的多仓位 AGV 模型版本快照，见 [[uc-038-maintain-agv-slot-model|UC-038]]、[[br-008-agv-slot-model-versioning|BR-008]]）。
 
 “RCS/RIOT 任务队列为空”只说明车辆没有移动任务，不代表本地业务已经完成。AGV 停在站点等待装料或取料时，即使 RCS/RIOT 显示空闲，仍不得参与新任务分配。
 
@@ -69,11 +69,13 @@ RCS/RIOT 负责车辆导航和运动执行，但其“空闲”通常只表示�
 
 ## Related Use Cases 关联用例
 
+- [[uc-004-slot-door-safety-interlock|UC-004]]：本规则第 5/6 条"所有仓门关闭、移动安全联锁状态正常"是派发新任务前、AGV 维度的检查点；该 UC 的 Flow A（开门前核验）、Flow B（门已开期间监控）是更细粒度、"门-移动"这一对状态本身的检查，覆盖该 AGV 已有任务、正在跟车运行的场景，与本规则检查时机不同、互不重复。
 - [[uc-022-view-agv-fleet-and-availability|UC-022]]：按本规则展示可分配结论和原因。
 - [[uc-023-allocate-transport-tasks-to-agv|UC-023]]：按本规则过滤和排序候选车辆。
 - [[uc-008-dispatch-move-order-to-riot|UC-008]]：正式下发前再次核验关键安全条件。
 - [[uc-013-enable-disable-agv|UC-013]]：维护本规则所依赖的本地启停状态。
 - [[uc-019-register-agv-from-rcs|UC-019]]、[[uc-020-maintain-agv-dispatch-profile|UC-020]]、[[uc-021-archive-agv|UC-021]]：维护本规则所需的车辆档案、配置和归档状态。
+- [[uc-038-maintain-agv-slot-model|UC-038]]、[[br-008-agv-slot-model-versioning|BR-008]]：定义本规则第 9 条所依赖的仓位数量、位置、规格数据来源（模型版本快照）及其不可变、不可更换规则。
 - [[uc-027-execute-workflow-steps|UC-027]]：在预置选车/复核步骤中调用本规则，并将完成、失败或等待状态恢复结果回传流程引擎。
 - [[uc-028-handle-workflow-step-exception|UC-028]]：处理安全状态未知、资格不满足或重试耗尽，不能跳过本规则。
 - [[uc-029-view-workflow-instance-progress|UC-029]]：只读展示资格核验输入、不可分配原因和步骤审计。

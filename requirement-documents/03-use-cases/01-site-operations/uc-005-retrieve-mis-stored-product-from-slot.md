@@ -66,6 +66,7 @@ TBD 待补充
 2. 生产操作员选择该子批号，发起"取出"请求
    2.1 系统核验该子批号关联的全部仓位是否均为"已占用"状态，且对应任务尚未被 [[uc-002-confirm-task-completion|UC-002]] 确认完成（见 Exception Flow E2.1）
 3. 系统一次性打开该子批号关联的全部仓位仓门（不支持只打开/取出其中部分仓位）
+   3.0 系统按 [[uc-004-slot-door-safety-interlock|UC-004]] Flow A 核验该 AGV 当前是否处于移动状态，只有核验通过（未在移动）才允许下发开锁指令，否则拒绝本次开门（见该 UC Exception Flow EA1.1）
    3.1 系统核验各仓位仓门是否均已正常打开（见 Exception Flow E3.1）
    3.2 生产操作员核验各仓位内是否确实存放有产品，与系统记录一致（见 Exception Flow E3.2）
 4. 生产操作员从全部仓位中取出产品
@@ -129,7 +130,7 @@ TBD 待补充
 
 * [[uc-001-load-completed-lot-into-slot|UC-001]]：本 UC 处理的是 UC-001 装载完成后、任务被确认完成前的纠错场景。
 * [[uc-002-confirm-task-completion|UC-002]]：任务一旦通过该 UC 确认完成，本 UC 便不再适用。
-* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 打开仓门期间的 AGV 移动安全联锁检查，由该 UC 统一处理，不在本 UC 的 Precondition 中重复定义。
+* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 第 3 步"打开仓门"下发开锁指令前，需先经过该 UC Flow A 核验 AGV 当前是否移动（移动中则拒绝开门）；仓门开启期间"AGV 是否移动"的持续监控由该 UC Flow B 统一处理。两条 Flow 均不在本 UC 的 Precondition 中重复定义。
 * [[uc-006-cancel-transport-task-upon-arrival|UC-006]]：本 UC 取出产品、使仓位恢复"空闲"后，若确认该任务确实不再需要运送，可转该 UC 取消任务；UC-006 要求目标任务尚未装载任何仓位，因此已装载的任务需先经本 UC 处理完毕才能被取消。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取出纠错、仓位回滚为"空闲"的过程，以及 Exception Flow（E3.1/E3.2）产生的"异常锁定"状态，均会实时体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
 

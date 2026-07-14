@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "生产操作员"
 secondary_actor: "无（本操作只涉及本地数据库状态变更，不需要同步至 MES）"
 frequency: "待定，预期低于 UC-001 的装载频率（同 UC-005 同级的异常/分支场景）"
-related_uc: ["UC-001", "UC-003", "UC-005", "UC-008", "UC-011"]
+related_uc: ["UC-001", "UC-003", "UC-005", "UC-008", "UC-011", "UC-042"]
 related_br: []
 aliases: ["UC-006"]
 ---
@@ -104,6 +104,7 @@ aliases: ["UC-006"]
 * [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]：若目标任务已装载部分/全部仓位，需先执行该 UC 取出产品、使仓位恢复"空闲"，才能回到本 UC 取消任务；本 UC 本身不处理已装载仓位中产品的取出。
 * [[uc-008-dispatch-move-order-to-riot|UC-008]]：本 UC 取消的任务若已由 UC-008 下发为 RIOT 移动任务，取消后是否需要联动向 RIOT 下发取消指令、以及取消后 RIOT 任务队列如何清零，TBD 待补充——本 UC 当前的 Postcondition 只描述本地数据库状态变更，未涉及 RIOT 侧操作，留待后续与 UC-008 协调确认。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取消任务后的任务状态变化，会体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
+* [[uc-042-handle-agv-fault-and-reassign-or-terminate-tasks|UC-042]]：本 UC 只覆盖"到站后、装货前"的取消场景；若任务已经开始装货、且是因为承运 AGV 本身发生故障才需要处理，属于 UC-042 覆盖的"已装货在途"场景，不适用本 UC。
 
 ## 其他信息
 
