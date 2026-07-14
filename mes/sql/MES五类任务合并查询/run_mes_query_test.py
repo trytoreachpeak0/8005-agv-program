@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 MES五类任务合并查询自动化测试脚本
-目标环境：Python 3.14.6 + oracledb thin 模式（Windows）
+目标环境：Python 3.14.6 + oracledb（Windows）
+默认尝试 Thick 模式（兼容 Oracle 11g 及更早库）；也可配置为 Thin 模式。
 全程只读：仅执行预置 SELECT。
 """
 
@@ -11,6 +12,7 @@ from __future__ import annotations
 import argparse
 import configparser
 import csv
+import os
 import re
 import sys
 import time
@@ -108,6 +110,42 @@ def assert_readonly_sql(sql_text: str, source_name: str) -> str:
     return cleaned
 
 
+def init_oracle_client_if_needed(cfg: configparser.ConfigParser, oracledb_module) -> str:
+    """
+    MES 库若为 Oracle 11.2 或更早，Thin 模式会报 DPY-3010，必须启用 Thick 模式。
+    返回实际连接模式：thick / thin
+    """
+    section = cfg["oracle"]
+    mode = section.get("mode", "thick").strip().lower()
+    if mode in {"thin", "default"}:
+        return "thin"
+    if mode not in {"thick", "auto"}:
+        raise SystemExit(f"config.ini [oracle] mode 无效：{mode}（支持 thin/thick/auto）")
+
+    lib_dir = section.get("instant_client_dir", "").strip()
+    if not lib_dir:
+        lib_dir = os.environ.get("ORACLE_CLIENT_LIB_DIR", "").strip()
+
+    try:
+        if lib_dir:
+            oracledb_module.init_oracle_client(lib_dir=lib_dir)
+        else:
+            # Windows 上若 Instant Client 已在 PATH，可不传 lib_dir
+            oracledb_module.init_oracle_client()
+    except Exception as exc:
+        raise SystemExit(
+            "启用 oracledb Thick 模式失败。\n"
+            "原因：当前 MES 库版本通常需要 Oracle Instant Client（Thick 模式）。\n"
+            "处理步骤：\n"
+            "1) 安装 Oracle Instant Client（建议 19c Basic / Basic Light）\n"
+            "2) 在 config.ini 设置 instant_client_dir=解压目录\n"
+            "   例如：instant_client_dir=C:\\oracle\\instantclient_19_26\n"
+            "3) 或将该目录加入系统 PATH 后重试\n"
+            f"原始错误：{exc}"
+        ) from exc
+    return "thick"
+
+
 def connect_oracle(cfg: configparser.ConfigParser):
     try:
         import oracledb
@@ -118,20 +156,36 @@ def connect_oracle(cfg: configparser.ConfigParser):
 
     section = cfg["oracle"]
     timeout = int(section.get("timeout_seconds", "30"))
+    mode = init_oracle_client_if_needed(cfg, oracledb)
     dsn = oracledb.makedsn(
         section["host"].strip(),
         int(section["port"]),
         service_name=section["service_name"].strip(),
     )
-    conn = oracledb.connect(
-        user=section["user"].strip(),
-        password=section["password"],
-        dsn=dsn,
-        tcp_connect_timeout=timeout,
-    )
+    try:
+        conn = oracledb.connect(
+            user=section["user"].strip(),
+            password=section["password"],
+            dsn=dsn,
+            tcp_connect_timeout=timeout,
+        )
+    except Exception as exc:
+        err_text = str(exc)
+        if "DPY-3010" in err_text:
+            raise SystemExit(
+                "连接失败：DPY-3010（Thin 模式不支持该 Oracle 版本）。\n"
+                "请改用 Thick 模式：安装 Instant Client，并在 config.ini 设置\n"
+                "mode=thick 与 instant_client_dir=... 后重试。"
+            ) from exc
+        raise
     # 只读意图：禁止隐式提交写操作；本脚本也只执行 SELECT。
     conn.autocommit = False
-    return conn, timeout
+    actual_thin = oracledb.is_thin_mode()
+    client_label = (
+        f"python-oracledb {'thin' if actual_thin else 'thick'} (config mode={mode})"
+    )
+    print(f"Oracle 连接模式={mode}  is_thin={actual_thin}")
+    return conn, timeout, client_label
 
 
 def cell_to_text(value: Any) -> str:
@@ -304,20 +358,26 @@ def quality_check(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def write_phase1_record(path: Path, result: QueryResult) -> None:
+def write_phase1_record(path: Path, result: QueryResult, client_label: str) -> None:
     lines = [
         f"查询开始时间：{result.started_at.strftime('%Y-%m-%d %H:%M:%S')}",
         f"查询完成时间：{result.finished_at.strftime('%Y-%m-%d %H:%M:%S')}",
         f"查询耗时：{result.elapsed_seconds:.2f}s",
         f"返回总行数：{result.row_count}",
         f"Oracle错误：{result.error or '无'}",
-        "使用的Oracle客户端：python-oracledb thin",
+        f"使用的Oracle客户端：{client_label}",
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def phase1(conn, timeout: int, base: Path, output: Path) -> tuple[QueryResult, dict[str, Any]]:
+def phase1(
+    conn,
+    timeout: int,
+    base: Path,
+    output: Path,
+    client_label: str,
+) -> tuple[QueryResult, dict[str, Any]]:
     sql_path = base / "MES五类任务合并查询.sql"
     sql_text = assert_readonly_sql(sql_path.read_text(encoding="utf-8"), sql_path.name)
     print(f"[阶段1] 执行合并SQL：{sql_path.name}")
@@ -328,12 +388,14 @@ def phase1(conn, timeout: int, base: Path, output: Path) -> tuple[QueryResult, d
         expected_columns=EXPECTED_COLUMNS,
     )
     if not result.success:
-        write_phase1_record(output / "MES五类任务合并查询测试记录.md", result)
+        write_phase1_record(
+            output / "MES五类任务合并查询测试记录.md", result, client_label
+        )
         raise SystemExit(f"阶段1失败：{result.error}")
 
     csv_path = output / "MES五类任务合并查询result.csv"
     write_csv(csv_path, result.rows, EXPECTED_COLUMNS)
-    write_phase1_record(output / "MES五类任务合并查询测试记录.md", result)
+    write_phase1_record(output / "MES五类任务合并查询测试记录.md", result, client_label)
     quality = quality_check(result.rows)
     print(
         f"[阶段1] 完成：行数={result.row_count}，耗时={result.elapsed_seconds:.2f}s，"
@@ -601,7 +663,7 @@ def main() -> None:
         timeout = int(cfg["oracle"].get("timeout_seconds", "30"))
 
     print(f"Python={sys.version.split()[0]}  timeout={timeout}s  phase={args.phase}")
-    conn, _ = connect_oracle(cfg)
+    conn, _, client_label = connect_oracle(cfg)
     try:
         phase1_result: QueryResult | None = None
         quality: dict[str, Any] | None = None
@@ -611,7 +673,9 @@ def main() -> None:
 
         if args.phase in ("1", "all", "2"):
             # 阶段2需要合并数量；若只跑2，也先跑一次阶段1统计。
-            phase1_result, quality = phase1(conn, timeout, base, output)
+            phase1_result, quality = phase1(
+                conn, timeout, base, output, client_label
+            )
             merged_counts = quality["counts"]
 
         if args.phase in ("2", "all"):

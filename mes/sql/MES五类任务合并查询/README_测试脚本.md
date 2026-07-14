@@ -4,7 +4,7 @@
 
 - 操作系统：Windows
 - Python：**必须是 3.14.x，目标版本 3.14.6**
-- 依赖：`oracledb` thin 模式（通常无需安装 Oracle Instant Client）
+- 依赖：`oracledb`（MES 若为 Oracle 11g，必须用 Thick 模式 + Instant Client）
 - 权限：仅 SELECT，脚本会拒绝非只读 SQL
 
 ## 2. 拷贝到远程机
@@ -46,6 +46,30 @@ py -3.14 -m pip install -r requirements.txt
 py -3.14 run_mes_query_test.py
 ```
 
+### 3.1 若报 DPY-3010（必须装 Instant Client）
+
+报错含义：当前 MES Oracle 版本偏旧（常见 11.2），`oracledb` 默认 Thin 模式不支持，需要 Thick 模式。
+
+1. 下载 Oracle Instant Client（Windows x64，建议 **19c Basic** 或 Basic Light）
+2. 解压到固定目录，例如：`C:\oracle\instantclient_19_26`
+3. 确认目录里有 `oci.dll`
+4. 在 `config.ini` 配置：
+
+```ini
+mode = thick
+instant_client_dir = C:\oracle\instantclient_19_26
+```
+
+也可把该目录加入系统 PATH，然后只保留 `mode=thick`。
+
+验证 Thick 模式：
+
+```bat
+python -c "import oracledb; oracledb.init_oracle_client(lib_dir=r'C:\oracle\instantclient_19_26'); print('thin=', oracledb.is_thin_mode())"
+```
+
+期望输出：`thin= False`
+
 ## 4. 配置连接
 
 ```bat
@@ -62,6 +86,8 @@ service_name = SQMES
 user = fwmes
 password = fwmes
 timeout_seconds = 30
+mode = thick
+instant_client_dir = C:\oracle\instantclient_19_26
 ```
 
 ## 5. 运行

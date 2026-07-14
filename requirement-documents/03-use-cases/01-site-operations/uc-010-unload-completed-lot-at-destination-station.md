@@ -72,6 +72,7 @@ aliases: ["UC-010"]
 
 1. AGV到站后（见 [[uc-003-agv-arrives-at-designated-station|UC-003]]），系统自动识别该AGV上所有"目标站点=当前站点"且状态为"已占用"的仓位，在界面上列出本次到站待取料的仓位/任务清单
 2. 系统自动打开这些仓位的仓门（不需要操作员扫码）
+   2.0 系统按 [[uc-004-slot-door-safety-interlock|UC-004]] Flow A 核验该 AGV 当前是否处于移动状态，只有核验通过（未在移动）才允许下发开锁指令，否则拒绝本次开门（见该 UC Exception Flow EA1.1）
    2.1 系统核验仓门是否已正常打开（见 Exception Flow E2.1）
    2.2 操作员核验该仓位内是否确实存放有对应产品，与系统记录一致（见 Exception Flow E2.2）
 3. 操作员从仓位中取出产品，存放到该站点现场位置
@@ -131,7 +132,7 @@ aliases: ["UC-010"]
 * [[uc-001-load-completed-lot-into-slot|UC-001]]：本 UC 与该 UC 是方向相反的一对——UC-001 是起点站"扫码装入仓位"，本 UC 是终点站"系统自动开仓、取出存料"；两者共享同一批次产品、同一次 AGV 行程的前后两端，若同一次到站既要取出交货又要装载新任务，操作员可分别执行本 UC 与 UC-001，最后统一通过 UC-002 确认完成。
 * [[uc-002-confirm-task-completion|UC-002]]：本 UC 完成一次取出（关闭仓门）后，任务并不会自动完成，需操作员另外执行该 UC（已泛化为同时覆盖装载与取出两侧）手动确认完成。
 * [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 的 Trigger 依赖 AGV 到达并停稳，具体到站过程见该 UC。
-* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 取出产品过程中"AGV 是否移动"的安全联锁检查，由该 UC 统一处理，不在本 UC 的 Precondition 中重复定义。
+* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 第 2 步"打开仓门"下发开锁指令前，需先经过该 UC Flow A 核验 AGV 当前是否移动（移动中则拒绝开门）；取出产品过程中仓门开启期间"AGV 是否移动"的持续监控由该 UC Flow B 统一处理。两条 Flow 均不在本 UC 的 Precondition 中重复定义。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取出产品、仓位恢复"空闲"的过程，以及 Exception Flow（E2.1/E2.2）产生的"异常锁定"状态，均会实时体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
 
 ## 其他信息

@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "待定（推测为设备/电气维护人员 R-11，本次未最终确认，见 Notes）"
 secondary_actor: "软件维护人员（R-12，仅在发现映射配置错误需要修正配置时介入，见 Exception Flow）"
 frequency: "待定，预期低于 [[uc-015-slot-door-unlock-open-test|UC-015]]/[[uc-016-slot-light-curtain-function-test|UC-016]]/[[uc-017-slot-door-state-detection-test|UC-017]]，通常只在设备安装、改线或新增仓位后进行"
-related_uc: ["UC-014", "UC-015", "UC-016", "UC-017"]
+related_uc: ["UC-014", "UC-015", "UC-016", "UC-017", "UC-038"]
 related_br: []
 aliases: ["UC-018"]
 ---
@@ -53,7 +53,7 @@ aliases: ["UC-018"]
 
 ## 假设
 
-1. 本 UC 假定"仓位—DO/DI 点位映射表"是系统中已存在的一份配置数据（无论以何种形式存储），本 UC 只负责核对其正确性，不负责该配置最初如何生成/录入，也不提供批量自动生成映射的能力。
+1. 本 UC 假定"仓位—DO/DI 点位映射表"是系统中已存在的一份配置数据（无论以何种形式存储），本 UC 只负责核对其正确性，不负责该配置最初如何生成/录入，也不提供批量自动生成映射的能力。仓位实例本身（编号、位置、规格）的存在，来自 [[uc-038-maintain-agv-slot-model|UC-038]] 型号版本在 AGV 接入（UC-019）时的自动生成，但仓位到具体 DO/DI 点位的映射关系仍需另行配置，不由 UC-038/UC-019 一并生成。
 2. 方向一（DO→观察物理仓位）依赖维护人员现场目视判断"是哪个仓位有反应"，方向二（触发物理仓位→读取软件 DI）依赖维护人员准确记住/确认自己触发的是哪个物理仓位；两个方向都依赖人工判断的准确性，系统本身无法独立交叉验证。Direction one (DO → observe physical slot) relies on the engineer's on-site visual judgment of which slot reacted; direction two (trigger physical slot → read software DI)
 
 ## 正常流程

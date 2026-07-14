@@ -13,14 +13,19 @@ requirement-documents/
 │  ├─ vision-and-scope.md         业务愿景、范围与限制
 │  └─ system-context.md           系统上下文图及外部交互边界
 ├─ 01-stakeholders/               干系人与角色清单（未改动）
-├─ 02-business-rules/             业务规则 BR-001 ~ BR-007
-├─ 03-use-cases/                  用例 UC-001 ~ UC-037，按业务领域拆分到 6 个子文件夹（uc-template-guide.md 仍放在根目录）
-│  ├─ 01-site-operations/         站点作业与任务执行（UC-001~006、009、010）
-│  ├─ 02-slot-and-hardware/       仓位与格口硬件（UC-011、014~018）
-│  ├─ 03-agv-fleet-and-dispatch/  AGV 车队调度与充电（UC-007、008、012、013、019~024、037）
-│  ├─ 04-workflow-engine/         流程模板与工作流引擎（UC-025~029）
-│  ├─ 05-user-and-access/         用户与权限管理（UC-030~033）
-│  └─ 06-logs-and-audit/          日志、追溯与审计（UC-034~036）
+├─ 02-business-rules/             业务规则 BR-001 ~ BR-008
+├─ 03-use-cases/                  用例 UC-001 ~ UC-038，按业务领域拆分到 10 个子文件夹（uc-template-guide.md 仍放在根目录）
+│  ├─ 01-site-operations/         站点作业与任务执行（UC-001~003、005、006、010）
+│  ├─ 02-slot-and-hardware/       仓位与格口硬件（UC-011、014~018、039）
+│  ├─ 03-agv-fleet-management/    AGV 车辆管理：多仓位模型、接入、启停、配置、归档、车队看板（UC-013、019~022、038）
+│  ├─ 04-transport-task-dispatch/ 搬运任务分发：MES 同步、任务分配、下发 RIOT、持续监听到站（UC-007、008、009、023）
+│  ├─ 05-agv-charging/            AGV 充电：充电策略配置与手动派车充电（UC-012、037）
+│  ├─ 06-area-station-mapping/    AREA—地图站点映射维护（UC-024）
+│  ├─ 07-workflow-engine/         流程模板与工作流引擎（UC-025~029）
+│  ├─ 08-user-and-access/         用户与权限管理（UC-030~033）
+│  ├─ 09-logs-and-audit/          日志、追溯与审计（UC-034~036）
+│  ├─ 10-safety-and-interlock/    跨场景安全联锁（UC-004，贯穿 AGV 全生命周期，不局限于某一具体站点操作）
+│  └─ 11-agv-parking/             AGV 空闲返回停靠点（UC-040、041），结构参照 05-agv-charging 单独成组
 ├─ 04-functional-requirements/    功能需求 FR-001、FR-002 ...（骨架已建好，内容待补充）
 ├─ 05-test-cases/                 测试用例 TC-001、TC-002 ...（骨架已建好，内容待补充）
 └─ 06-traceability/               追溯矩阵总览（Dataview 自动生成）
@@ -105,10 +110,22 @@ requirement-documents/
   - `uc-005-retrieve-mis-stored-product-from-slot.md`
 - 原文内容未做实质性改动，只做了三类替换：① 编号 `UC-1`→`UC-001`（以此类推）；② 反引号文件名引用 → wikilink；③ 补充 frontmatter。
 - 检查过 `00-vision/vision-and-scope.md`、`01-stakeholders/stakeholders-and-user-classes.md`、`user case.md`，均未引用过旧的 UC 文件名，因此未做改动。
-- `03-use-cases` 下 UC-001 ~ UC-037 已按业务领域拆分到 6 个子文件夹（见第 1 节目录结构），仅移动文件位置，不改动任何正文内容或 frontmatter。之所以不需要同步修正其他文档里的双链引用或 Dataview 查询，是因为：
+- `03-use-cases` 下 UC-001 ~ UC-037 已按业务领域拆分到子文件夹（见第 1 节目录结构），仅移动文件位置，不改动任何正文内容或 frontmatter。之所以不需要同步修正其他文档里的双链引用或 Dataview 查询，是因为：
   1. `.obsidian/app.json` 中 `newLinkFormat: "shortest"`，`[[uc-001-xxx|UC-001]]` 这类链接按"全局唯一文件名"解析，与文件夹路径无关；
   2. `06-traceability/traceability-matrix.md` 里 Dataview 的 `from "03-use-cases"` 查询默认递归包含子文件夹；
   3. Templater 的 `folder_templates` 里 `"folder": "03-use-cases"` 对子文件夹同样按路径前缀生效，之后在子文件夹里新建笔记仍会自动套用 `template-use-case.md`。
+- 2026-07-13：原 `03-agv-fleet-and-dispatch/`（UC-007、008、012、013、019~024、037）按用户要求进一步拆分为 4 个子文件夹，原 `04-workflow-engine/`~`07-safety-and-interlock/` 依次顺移为 `07-workflow-engine/`~`10-safety-and-interlock/`：
+  - `03-agv-fleet-management/`（车辆管理）：UC-013、019、020、021、022——AGV 本体档案、启停、配置、归档、车队看板。
+  - `04-transport-task-dispatch/`（任务分发）：UC-007、008、023——搬运任务从 MES 同步、分配到具体 AGV、下发 RIOT 的业务流转。
+- 2026-07-13：`UC-009 持续监听移动任务直到AGV到站` 由 `01-site-operations/` 移入 `04-transport-task-dispatch/`——该 UC 是本地服务器内部轮询 RIOT 移动任务状态的过程，直接衔接 `UC-008` 下发之后、`UC-003` 到站处理之前的阶段，属于任务分发链路的一部分，而非现场人员的站点作业。
+  - `05-agv-charging/`（充电相关）：UC-012、037——充电策略配置与手动派车充电；经与用户确认单独成组，不并入车辆管理或任务分发。
+  - `06-area-station-mapping/`（地图相关）：UC-024——AREA—地图站点映射维护；经与用户确认单独成组，不并入任务分发。
+- 2026-07-13：新增 `UC-038 维护多仓位AGV模型`（放入 `03-agv-fleet-management/`）与 `BR-008 AGV Slot Model Versioning`，解决"接入 AGV 时未定义多仓位类型"的问题；型号支持多版本（发布不可变、AGV 接入时绑定快照、接入后不允许更换型号，做法参照 `BR-005` 流程模板版本），并同步修订了 `UC-019`（接入时改为选择模型版本、自动生成仓位实例）、`UC-020`（仓位结构改为只读展示，移除编辑入口）、`BR-002`（补充仓位数据来源说明）。
+- 2026-07-13：新增 `UC-039 维护仓位—IO点位映射配置`（放入 `02-slot-and-hardware/`），解决 `UC-018` 自述"不负责映射配置最初如何生成/录入"留下的缺口——此前没有任何 UC 覆盖仓位到 DO/DI 点位映射数据本身的创建/修改/删除，只有测试/核对类 UC；本次补齐配置录入环节，作为 `UC-015`/`UC-016`/`UC-017`/`UC-018` 的更底层前提。
+- 2026-07-13：经用户确认，删除 `vision-and-scope.md` 原 2.1 节"主要特性 Major features"整段功能树（含"驻点发料""补料"等未确认属于本项目范围的内容），该节内容与本项目实际确认需求不符；后续如需重新梳理主要特性清单，应以已确认的 UC/BR 为准逐条重建，不再保留旧版功能树。经用户进一步确认：驻点发料、补料两项能力本项目不做，不建 UC；"低电量自动回充""AGV 空闲返回停靠点"仍属于本项目范围，分别处理如下两条。
+- 2026-07-13：新增 `UC-040 维护 AGV 停靠点配置`、`UC-041 空闲AGV自动返回停靠点`（均放入新建的 `11-agv-parking/`）与 `BR-009 停靠点分配与排队规则`，解决 `vision-and-scope.md` 原功能树"系统辅助任务：……返回驻点……"此前无任何 UC 落地的缺口；结构参照 `UC-037`/`BR-007`充电桩配置与选桩排队的既有拆分方式（配置类 UC + 执行类 UC + 排队 BR）。经确认：触发时机为 AGV 一空闲即立即判断；停靠点选择采用候选集合 + FIFO 排队（区别于充电桩的电量优先）；本 UC 与 `UC-008`（自动派车）、`UC-012`（手动充电）竞争同一个"AGV 空闲"触发窗口，优先级最低，不做抢占。
+- 2026-07-13：新增 `UC-042 处理AGV途中故障并改派或终止关联任务`（放入 `04-transport-task-dispatch/`），解决"AGV 已装货在途、中途报障或离线，车上任务如何安全收尾"此前无任何 UC 覆盖的缺口——`UC-006` 只覆盖装货前取消，`UC-028` 只覆盖流程步骤层面的通用异常处置。本 UC 当前仅为初稿骨架，TBD 事项较多（故障状态机、终止后产品如何继续送达、应急开锁权限等），需要后续与用户逐项确认。
+- 2026-07-13："服务器/系统重启后，本地任务—AGV绑定—仓位占用—RCS/RIOT在途任务的整体对账恢复"经确认属于可以按 UC 建模的场景（参照 `UC-009` 系统内部过程作为 primary_actor 的先例），但内容涉及面广，经用户确认暂缓，先记录缺口，留待后续与其他子系统设计稳定后再补建 UC。
 
 ## 8. 模板复用：子项目如何使用本目录的模板
 

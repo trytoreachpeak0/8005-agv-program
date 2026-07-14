@@ -40,9 +40,9 @@ aliases: ["BR-004"]
 1. `moveType` 精确匹配优先于 `ANY`。
 2. `taskSource` 精确匹配优先于 `ANY`。
 3. `materialType` 精确匹配优先于 `ANY`。
-4. 起点和终点的站点编号均精确匹配。
-5. 仅起点站点编号精确匹配。
-6. 仅终点站点编号精确匹配。
+4. 起点和终点的站点（`station_name`）均精确匹配。
+5. 仅起点站点（`station_name`）精确匹配。
+6. 仅终点站点（`station_name`）精确匹配。
 7. 起点和终点的站点类型均精确匹配。
 8. 仅起点站点类型精确匹配。
 9. 仅终点站点类型精确匹配。
@@ -53,15 +53,15 @@ aliases: ["BR-004"]
 (moveTypeExact,
  taskSourceExact,
  materialTypeExact,
- bothStationIdsExact,
- sourceStationIdExact,
- targetStationIdExact,
+ bothStationNamesExact,
+ sourceStationNameExact,
+ targetStationNameExact,
  bothStationTypesExact,
  sourceStationTypeExact,
  targetStationTypeExact)
 ```
 
-每一项取 `1` 或 `0`，按从左到右的字典序降序比较。站点编号精确匹配后，站点类型仍必须与实际站点类型一致或为 `ANY`；精确站点配置不能借此绕过站点类型约束。
+每一项取 `1` 或 `0`，按从左到右的字典序降序比较。站点（`station_name`）精确匹配后，站点类型仍必须与实际站点类型一致或为 `ANY`；精确站点配置不能借此绕过站点类型约束。
 
 模板名称、创建时间、数据库主键、版本号及配置顺序不得作为运行时消除并列的隐含排序条件。发布校验应尽量阻止可导致同一上下文并列的规则同时生效，但运行时仍必须执行唯一性检查。
 

@@ -39,7 +39,7 @@ aliases: ["Workflow Step Catalog", "预置步骤目录"]
 
 | 步骤类型 | 可跳过 | 可重试 | 输入 | 输出 | 关联 UC/BR | 安全边界 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `DISPATCH_RESOLVE_AREA_STATION` AREA 映射 | 否 | 是 | 冻结 AREA/EQP、映射有效时刻 | 起终点站点、站点类型、映射版本或位置异常 | [[uc-024-maintain-area-station-mapping\|UC-024]]、[[br-003-area-station-mapping\|BR-003]] | 映射缺失、停用、异常或站点无效时进入位置异常；不得任选站点。已冻结任务不得被新映射改写。 |
+| `DISPATCH_RESOLVE_AREA_STATION` AREA 解析 | 否 | 是 | 冻结 AREA/EQP、地图同步与显式覆盖记录快照 | 起终点 station_name、命中的 area_code、位置异常或数据冲突 | [[uc-024-maintain-area-station-mapping\|UC-024]]、[[br-003-area-station-mapping\|BR-003]] | AREA 格式不符、反查不到 station_name、反查命中多个 station_name 或站点已失效时进入位置异常/数据冲突；不得任选站点。已冻结任务不得被新解析结果改写。 |
 | `DISPATCH_BUILD_TASK_SCOPE` 任务范围 | 否 | 是 | 可调度任务、冻结起终点、依赖关系、容量需求 | 本次派车任务集合及范围 ID | [[uc-023-allocate-transport-tasks-to-agv\|UC-023]]、[[br-001-dispatch-task-range\|BR-001]] | 位置异常、依赖未满足或不合法取货点的任务不得进入范围；不得靠合并任务绕过校验。 |
 | `DISPATCH_SELECT_AGV` 选车 | 否（安全） | 是 | 任务范围、车辆实时状态、能力/电量/仓位配置 | 唯一 AGV 或不可分配原因 | [[uc-022-view-agv-fleet-and-availability\|UC-022]]、[[uc-023-allocate-transport-tasks-to-agv\|UC-023]]、[[br-002-agv-allocation-eligibility\|BR-002]] | 强制安全步骤。在线、空闲、仓门、光幕、电量或本地作业任一未知即不可分配。 |
 | `DISPATCH_SUBMIT_RCS_MOVE` RCS 下发 | 否（安全） | 是（先对账） | AGV、任务范围、固定站点序列、稳定幂等键、预置接口配置引用 | RCS/RIOT 移动任务 ID、受理状态 | [[uc-008-dispatch-move-order-to-riot\|UC-008]]、[[br-002-agv-allocation-eligibility\|BR-002]] | 强制安全步骤。下发前复核移动联锁；超时结果未知时先按业务键查询，不得盲目重发；不得配置任意 URL/API。 |

@@ -79,6 +79,7 @@ aliases: ["UC-001"]
    1.2 系统核验该任务是否属于本次 AGV 派车所关联的任务范围：不要求任务的目标站点严格等于操作员当前所在的物理站点（同一次派车可能涵盖多个相邻站点的任务），但若该任务完全不属于本次派车范围（如实际是距离较远、未被分配进本次派车的其他站点任务），也判定核验不通过（见 Exception Flow E1.2）
    1.3 系统核验是否存在满足数量要求的空闲仓位：已通过 [[uc-014-enable-disable-slot|UC-014]] 禁用的仓位不计入可分配的空闲仓位范围（见 Exception Flow E1.3）
 2. 多仓位AGV打开其空闲仓位
+   2.0 系统按 [[uc-004-slot-door-safety-interlock|UC-004]] Flow A 核验该 AGV 当前是否处于移动状态，只有核验通过（未在移动）才允许下发开锁指令，否则拒绝本次开门（见该 UC Exception Flow EA1.1）
    2.1 系统核验仓门是否已正常打开（见 Exception Flow E2.1）
    2.2 系统/生产操作员核验该仓位是否确实为空，与系统记录的"空闲"状态一致（见 Exception Flow E2.2）
 3. 生产操作员放入子批号完工产品
@@ -97,6 +98,7 @@ aliases: ["UC-001"]
    1.2 系统核验该任务是否属于本次 AGV 派车所关联的任务范围：不要求任务的目标站点严格等于操作员当前所在的物理站点（同一次派车可能涵盖多个相邻站点的任务），但若该任务完全不属于本次派车范围（如实际是距离较远、未被分配进本次派车的其他站点任务），也判定核验不通过（见 Exception Flow E1.2）
    1.3 系统核验是否存在满足数量要求的空闲仓位：已通过 [[uc-014-enable-disable-slot|UC-014]] 禁用的仓位不计入可分配的空闲仓位范围（见 Exception Flow E1.3）
 2. 多仓位AGV打开其空闲仓位
+   2.0 系统按 [[uc-004-slot-door-safety-interlock|UC-004]] Flow A 核验该 AGV 当前是否处于移动状态，只有核验通过（未在移动）才允许下发开锁指令，否则拒绝本次开门（见该 UC Exception Flow EA1.1）
    2.1 系统核验仓门是否已正常打开（见 Exception Flow E2.1）
    2.2 系统/生产操作员核验该仓位是否确实为空，与系统记录的"空闲"状态一致（见 Exception Flow E2.2）
 3. 生产操作员放入子批号完工产品
@@ -189,7 +191,7 @@ aliases: ["UC-001"]
 * [[uc-002-confirm-task-completion|UC-002]]：本 UC 完成一次装载（关闭仓门）后，任务并不会自动完成，需操作员另外执行该 UC 手动确认完成。
 * [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 的 Trigger 依赖 AGV 到达并停稳，具体到站过程见该 UC。
 * [[br-001-dispatch-task-range|BR-001]]：本 UC 中"子批号核验需限定在本次派车所关联的任务范围内"（见 Precondition 备注、Normal Flow 第 1.2 条）所依赖的"本次派车任务范围"如何生成与判定（如一次派车是否可涵盖多个相邻站点），由该业务规则定义。
-* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 装卸过程中"AGV 是否移动"的安全联锁检查，由该 UC 统一处理，不在本 UC 的 Precondition 中重复定义。
+* [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 第 2 步"打开仓位"下发开锁指令前，需先经过该 UC Flow A 核验 AGV 当前是否移动（移动中则拒绝开门）；仓门开启期间"AGV 是否移动"的持续监控由该 UC Flow B 统一处理。两条 Flow 均不在本 UC 的 Precondition 中重复定义。
 * [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]：若操作员在确认任务完成前发现存错产品需要取出，由该 UC 处理，不在本 UC 范围内。
 * [[uc-006-cancel-transport-task-upon-arrival|UC-006]]：若操作员在开始本 UC 的装载流程之前，发现促使 AGV 到达本站点的任务已经不需要运送，应转该 UC 取消任务，不需要走完本 UC 的装载流程。
 * [[uc-007-sync-transport-task-from-mes|UC-007]]：本 UC Precondition 第 5 条依赖的"已从 MES 同步到本地数据库的搬运任务"（及其 moveType 标记），正是由该 UC 生成；本 UC 扫码核验环节不重复核验 MES 工序/任务类型，正是因为已由 UC-007 在生成时完成校验。

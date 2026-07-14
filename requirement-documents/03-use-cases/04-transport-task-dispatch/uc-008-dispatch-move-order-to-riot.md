@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "本地服务器（系统内部过程，非人工角色）"
 secondary_actor: RIOT
 frequency: "待定：与该AGV完成当前移动任务/该任务被取消的频率一致——理论上每次AGV完成一次移动任务或该任务被取消后，都会触发一次本UC的执行"
-related_uc: ["UC-001", "UC-003", "UC-006", "UC-007", "UC-009", "UC-012", "UC-013"]
+related_uc: ["UC-001", "UC-003", "UC-006", "UC-007", "UC-009", "UC-012", "UC-013", "UC-041"]
 related_br: ["BR-001"]
 aliases: ["UC-008"]
 ---
@@ -115,6 +115,7 @@ aliases: ["UC-008"]
 * [[uc-006-cancel-transport-task-upon-arrival|UC-006]]：若任务在本UC下发之前被取消，则不会进入本UC的待下发任务集合；若任务在本UC下发之后被取消，是否需要联动向RIOT下发取消指令，见Notes中的TBD事项。
 * [[br-001-dispatch-task-range|BR-001]]：本UC假设的"待下发任务(集合)"，其具体划分规则由该业务规则定义（TBD）；本UC与BR-001、UC-007共同构成"任务生成（UC-007）→ 范围划分（BR-001）→ 正式下发（本UC）"的完整链路。
 * [[uc-012-manually-dispatch-agv-to-charge|UC-012]]：本UC与该UC是对"该AGV当前RIOT任务队列变为空"这一同一触发窗口的两个竞争消费者——本UC自动派发本地待处理搬运任务，UC-012由AGV运维/调度管理员（R-13）主动争取该窗口派发充电任务；两者不做互相抢占，谁先执行谁获胜，若UC-012发起充电请求时窗口已被本UC消费，则该次充电请求会被UC-012自身的Exception Flow（E2.1）拒绝。
+* [[uc-041-return-idle-agv-to-parking-point|UC-041]]：该UC是"AGV空闲"触发窗口的第三个竞争消费者，优先级低于本UC和UC-012——本UC若先完成派车，UC-041会放弃本次返回停靠点判断，不排队、不抢占（见 [[br-009-parking-point-allocation-and-queueing|BR-009]] 第4节）。
 * [[uc-013-enable-disable-agv|UC-013]]：本UC新增的Precondition第5条依赖该UC维护的"已禁用"/"禁用待生效"状态——处于该状态的AGV不会被本UC自动派发新的搬运任务；若该AGV在本UC下发之后才被禁用（"禁用待生效"），当前已下发的移动任务不受影响，仍会正常执行完成。
 
 ## 其他信息

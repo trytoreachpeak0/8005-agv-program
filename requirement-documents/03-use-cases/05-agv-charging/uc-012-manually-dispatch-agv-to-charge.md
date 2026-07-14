@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "运维/调度管理员（R-13），见 [[stakeholders-and-user-classes|干系人与用户角色清单]]"
 secondary_actor: RIOT
 frequency: "待定，预期为低频的人工维护类操作，与 R-13 的日常调度巡检节奏相关，远低于 UC-001 等业务操作类 UC 的发生频率"
-related_uc: ["UC-008", "UC-009", "UC-013", "UC-037"]
+related_uc: ["UC-008", "UC-009", "UC-013", "UC-037", "UC-041"]
 related_br: ["BR-007"]
 aliases: ["UC-012"]
 ---
@@ -140,6 +140,7 @@ AGV 运维/调度管理员在界面上选中一台当前空闲（RIOT 任务队�
 ## 关联用例
 
 * [[uc-008-dispatch-move-order-to-riot|UC-008]]：本 UC 与该 UC 是对"该 AGV 当前 RIOT 任务队列变为空"这一同一触发窗口的两个竞争消费者——AGV 空闲后，UC-008 会尝试自动派发本地待处理搬运任务，本 UC 则由 R-13 主动争取该窗口派发充电任务；两者不做互相抢占，谁先执行谁获胜，若本 UC 请求时窗口已被 UC-008 消费，则本次充电请求被拒绝（见 Exception Flow E2.1）。
+* [[uc-041-return-idle-agv-to-parking-point|UC-041]]：该 UC 是同一"AGV 空闲"触发窗口的第三个竞争消费者，优先级低于本 UC——本 UC 若先完成充电下发，UC-041 会放弃本次返回停靠点判断，不排队、不抢占（见 [[br-009-parking-point-allocation-and-queueing|BR-009]] 第4节）。
 * [[uc-009-monitor-move-order-until-arrival|UC-009]]：本 UC 下发充电任务后，AGV 移动至充电桩的导航过程是否需要复用该 UC 的轮询监听逻辑，TBD 待补充，本 UC 暂不展开该过程本身。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：该看板当前只展示仓位相关状态，是否需要扩展展示 AGV 的"充电中"状态，TBD 待补充，见 Notes。
 * [[uc-013-enable-disable-agv|UC-013]]：本 UC 新增的 Precondition 第 4 条依赖该 UC 维护的"已禁用"/"禁用待生效"状态——处于该状态的 AGV 无法被本 UC 手动派发充电任务（见 Exception Flow E2.3）；若需要为已禁用的 AGV 发起充电，需先通过该 UC 将其启用。
