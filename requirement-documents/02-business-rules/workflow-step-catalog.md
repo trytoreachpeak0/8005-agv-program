@@ -41,7 +41,7 @@ aliases: ["Workflow Step Catalog", "预置步骤目录"]
 | --- | --- | --- | --- | --- | --- | --- |
 | `DISPATCH_RESOLVE_AREA_STATION` AREA 解析 | 否 | 是 | 冻结 AREA/EQP、地图同步与显式覆盖记录快照 | 起终点 station_name、命中的 area_code、位置异常或数据冲突 | [[uc-024-maintain-area-station-mapping\|UC-024]]、[[br-003-area-station-mapping\|BR-003]] | AREA 格式不符、反查不到 station_name、反查命中多个 station_name 或站点已失效时进入位置异常/数据冲突；不得任选站点。已冻结任务不得被新解析结果改写。 |
 | `DISPATCH_BUILD_TASK_SCOPE` 任务范围 | 否 | 是 | 可调度任务、冻结起终点、依赖关系、容量需求 | 本次派车任务集合及范围 ID | [[uc-023-allocate-transport-tasks-to-agv\|UC-023]]、[[br-001-dispatch-task-range\|BR-001]] | 位置异常、依赖未满足或不合法取货点的任务不得进入范围；不得靠合并任务绕过校验。 |
-| `DISPATCH_SELECT_AGV` 选车 | 否（安全） | 是 | 任务范围、车辆实时状态、能力/电量/仓位配置 | 唯一 AGV 或不可分配原因 | [[uc-022-view-agv-fleet-and-availability\|UC-022]]、[[uc-023-allocate-transport-tasks-to-agv\|UC-023]]、[[br-002-agv-allocation-eligibility\|BR-002]] | 强制安全步骤。在线、空闲、仓门、光幕、电量或本地作业任一未知即不可分配。 |
+| `DISPATCH_SELECT_AGV` 选车 | 否（安全） | 是 | 任务范围、车辆实时状态、能力/电量/仓位配置、有效路网快照（可选，用于路径成本） | 唯一 AGV 或不可分配原因 | [[uc-022-view-agv-fleet-and-availability\|UC-022]]、[[uc-023-allocate-transport-tasks-to-agv\|UC-023]]、[[br-002-agv-allocation-eligibility\|BR-002]]、[[br-015-path-cost-and-dispatch-ranking\|BR-015]]、[[uc-045-sync-map-topology-from-riot\|UC-045]] | 强制安全步骤。在线、空闲、仓门、光幕、电量或本地作业任一未知即不可分配。排序可含基于路网的最短路径成本；路网不可用时按 BR-015 降级，不得伪装已按路网计费。路径成本不得压过已确认硬优先。 |
 | `DISPATCH_SUBMIT_RCS_MOVE` RCS 下发 | 否（安全） | 是（先对账） | AGV、任务范围、固定站点序列、稳定幂等键、预置接口配置引用 | RCS/RIOT 移动任务 ID、受理状态 | [[uc-008-dispatch-move-order-to-riot\|UC-008]]、[[br-002-agv-allocation-eligibility\|BR-002]] | 强制安全步骤。下发前复核移动联锁；超时结果未知时先按业务键查询，不得盲目重发；不得配置任意 URL/API。 |
 
 ## 4. 移动步骤
@@ -56,7 +56,7 @@ aliases: ["Workflow Step Catalog", "预置步骤目录"]
 
 | 步骤类型 | 可跳过 | 可重试 | 输入 | 输出 | 关联 UC/BR | 安全边界 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `HUMAN_AUTHENTICATE_AUTHORIZE` 认证与授权 | 否（安全） | 是 | 工牌/个人身份凭据引用、所需角色/权限、操作上下文 | 操作人 ID、授权结论、认证时间 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-025-maintain-workflow-template\|UC-025]] | 强制安全步骤。不得使用共享账号；认证失败、权限不足或身份未知时阻断危险操作，不记录明文凭据。 |
+| `HUMAN_AUTHENTICATE_AUTHORIZE` 认证与授权 | 否（安全） | 是 | 工牌/个人身份凭据引用、所需角色/权限、操作上下文 | 操作人 ID、授权结论、认证时间 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-025-maintain-workflow-template\|UC-025]]、[[uc-043-verify-identity-and-manage-operation-session\|UC-043]] | 强制安全步骤。不得使用共享账号；认证失败、权限不足或身份未知时阻断危险操作，不记录明文凭据。现场工牌场景（UC-001/UC-010）的认证结论来自 [[uc-043-verify-identity-and-manage-operation-session\|UC-043]] 建立的当前有效操作会话，同一会话内不需要每次重新认证；管理配置端场景（UC-025）仍按其自身的二次认证要求独立执行。 |
 | `HUMAN_SCAN_MATERIAL` 扫码 | 是 | 是 | 扫描设备、预期编码类型、任务/站点上下文 | 原始扫描摘要、标准化 SUBLOT/物料标识、匹配结论 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]] | 仅非扫码业务模板可跳过；受控物料或模板要求核验时不得跳过。抖动去重不得虚构第二篮。 |
 | `HUMAN_LOAD_UNLOAD_MATERIAL` 装取料 | 否 | 否 | 已授权人员、任务、仓位、物料、作业方向 | 装/取料事实、数量/花篮序号、仓位占用结果 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-004-slot-door-safety-interlock\|UC-004]] | 必须在正确站点和已授权仓位执行；不得在门锁/光幕/任务范围未知时开始，也不得仅凭按钮点击认定物理动作完成。 |
 | `HUMAN_CONFIRM_OPERATION` 人工确认 | 是 | 否 | 待确认动作、任务/仓位、提示内容、操作人 | 确认/拒绝、原因、时间 | [[uc-002-confirm-task-completion\|UC-002]]、[[uc-006-cancel-transport-task-upon-arrival\|UC-006]]、[[uc-027-execute-workflow-steps\|UC-027]] | 不得用普通人工确认替代传感器、安全联锁、二次认证或未授权审批；高风险确认必须使用专门权限和原因。 |

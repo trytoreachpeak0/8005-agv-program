@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "生产操作员"
 secondary_actor: "无（本操作只涉及本地数据库回滚，不需要 MES 参与）"
 frequency: "待定，预期远低于 UC-001 的装载频率"
-related_uc: ["UC-001", "UC-002", "UC-004", "UC-006", "UC-011"]
+related_uc: ["UC-001", "UC-002", "UC-004", "UC-006", "UC-011", "UC-043"]
 related_br: []
 aliases: ["UC-005"]
 ---
@@ -38,7 +38,7 @@ aliases: ["UC-005"]
 
 **人员与权限**
 
-3. 生产操作员具备"开仓纠错取出"操作权限
+3. 生产操作员已通过 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 建立本次到站的有效操作会话，不需要在本 UC 中单独重复验证身份；本 UC 是使该会话进入"仓门操作已锁定"阶段的操作之一
 
 > 经与用户确认：本操作不需要班组长（R-09）审批，生产操作员具备该权限后可自行发起并完成取出，不需要额外的二次确认流程。
 
@@ -133,6 +133,7 @@ TBD 待补充
 * [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 第 3 步"打开仓门"下发开锁指令前，需先经过该 UC Flow A 核验 AGV 当前是否移动（移动中则拒绝开门）；仓门开启期间"AGV 是否移动"的持续监控由该 UC Flow B 统一处理。两条 Flow 均不在本 UC 的 Precondition 中重复定义。
 * [[uc-006-cancel-transport-task-upon-arrival|UC-006]]：本 UC 取出产品、使仓位恢复"空闲"后，若确认该任务确实不再需要运送，可转该 UC 取消任务；UC-006 要求目标任务尚未装载任何仓位，因此已装载的任务需先经本 UC 处理完毕才能被取消。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取出纠错、仓位回滚为"空闲"的过程，以及 Exception Flow（E3.1/E3.2）产生的"异常锁定"状态，均会实时体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
+* [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：本 UC 的执行前提是操作员已通过该 UC 建立本次到站的有效操作会话；本 UC 的开门动作是使该会话进入"仓门操作已锁定"阶段的操作之一。
 
 ## 其他信息
 

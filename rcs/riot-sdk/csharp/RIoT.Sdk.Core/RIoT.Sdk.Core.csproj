@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RIoT.Sdk.Core</RootNamespace>
+    <Description>Hand-written RIoT auth and shared HTTP helpers.</Description>
+  </PropertyGroup>
+
+</Project>

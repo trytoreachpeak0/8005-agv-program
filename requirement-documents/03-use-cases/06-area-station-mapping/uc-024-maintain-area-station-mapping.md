@@ -11,8 +11,8 @@ updated: 2026-07-13
 primary_actor: "软件维护人员（R-12）/ AGV 运维/调度管理员（R-13）"
 secondary_actor: "RCS/RIOT"
 frequency: "低频；项目上线、机台移位、地图调整、命名不规范或解析异常时执行"
-related_uc: ["UC-007", "UC-008", "UC-023"]
-related_br: ["BR-001", "BR-003"]
+related_uc: ["UC-007", "UC-008", "UC-023", "UC-045"]
+related_br: ["BR-001", "BR-003", "BR-015"]
 aliases: ["UC-024"]
 ---
 
@@ -124,6 +124,8 @@ IT/软件维护人员或 AGV 运维/调度管理员查看并维护 `MES AREA →
 - [[uc-007-sync-transport-task-from-mes|UC-007]]：创建任务时按本 UC 维护的解析结果（自动派生 + 生效的显式覆盖记录）冻结起终点 `station_name`。
 - [[uc-023-allocate-transport-tasks-to-agv|UC-023]]：只分配起终点已有效解析并冻结的任务。
 - [[uc-008-dispatch-move-order-to-riot|UC-008]]：下发前使用冻结的 `station_name` 现查 `station_id`，不在下发时重新解释 AREA。
+- [[uc-045-sync-map-topology-from-riot|UC-045]]：同步站点之间的可通行路径（路网）；可与本 UC 的表 A 站点同步共用同一次 RIOT 拉取，但 AREA 解析与显式覆盖仍只由本 UC / BR-003 负责。
 - [[br-003-area-station-mapping|BR-003]]：定义两表解析模型、显式覆盖记录的唯一性、来源、版本和生效规则。
+- [[br-015-path-cost-and-dispatch-ranking|BR-015]]：派车路径成本依赖路网节点与已同步有效站点对齐。
 
 ## 其他信息

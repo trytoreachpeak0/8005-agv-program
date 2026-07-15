@@ -1,0 +1,69 @@
+from __future__ import annotations
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from kiota_abstractions.serialization import AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
+from typing import Any, Optional, TYPE_CHECKING, Union
+
+if TYPE_CHECKING:
+    from .agv import Agv
+
+@dataclass
+class U7edfu8ba1u63a5u53d7Object(AdditionalDataHolder, Parsable):
+    """
+    统计接受对象
+    """
+    # Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.
+    additional_data: dict[str, Any] = field(default_factory=dict)
+
+    # agv效率分析,刷选的agv
+    agv_infos: Optional[list[Agv]] = None
+    # agv效率分析:分析维度=>(1.按照订单数量,2.按订单执行时长);agv效率分析:分析维度=>(1.按照订单数量,2.按订单执行时长)
+    dimension: Optional[str] = None
+    # 结束时间
+    end_time: Optional[str] = None
+    # 开始
+    start_time: Optional[str] = None
+    
+    @staticmethod
+    def create_from_discriminator_value(parse_node: ParseNode) -> U7edfu8ba1u63a5u53d7Object:
+        """
+        Creates a new instance of the appropriate class based on discriminator value
+        param parse_node: The parse node to use to read the discriminator value and create the object
+        Returns: U7edfu8ba1u63a5u53d7Object
+        """
+        if parse_node is None:
+            raise TypeError("parse_node cannot be null.")
+        return U7edfu8ba1u63a5u53d7Object()
+    
+    def get_field_deserializers(self,) -> dict[str, Callable[[ParseNode], None]]:
+        """
+        The deserialization information for the current model
+        Returns: dict[str, Callable[[ParseNode], None]]
+        """
+        from .agv import Agv
+
+        from .agv import Agv
+
+        fields: dict[str, Callable[[Any], None]] = {
+            "agvInfos": lambda n : setattr(self, 'agv_infos', n.get_collection_of_object_values(Agv)),
+            "dimension": lambda n : setattr(self, 'dimension', n.get_str_value()),
+            "endTime": lambda n : setattr(self, 'end_time', n.get_str_value()),
+            "startTime": lambda n : setattr(self, 'start_time', n.get_str_value()),
+        }
+        return fields
+    
+    def serialize(self,writer: SerializationWriter) -> None:
+        """
+        Serializes information the current object
+        param writer: Serialization writer to use to serialize this model
+        Returns: None
+        """
+        if writer is None:
+            raise TypeError("writer cannot be null.")
+        writer.write_collection_of_object_values("agvInfos", self.agv_infos)
+        writer.write_str_value("dimension", self.dimension)
+        writer.write_str_value("endTime", self.end_time)
+        writer.write_str_value("startTime", self.start_time)
+        writer.write_additional_data_value(self.additional_data)
+    
+

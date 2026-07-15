@@ -1,0 +1,4 @@
+  File "<string>", line 9
+    print(f'{m.upper():6} {p}  -- {op.get(\
+                                         ^
+SyntaxError: '(' was never closed
