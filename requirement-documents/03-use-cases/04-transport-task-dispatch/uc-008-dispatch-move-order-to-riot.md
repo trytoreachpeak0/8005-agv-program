@@ -7,12 +7,12 @@ priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-14
 primary_actor: "本地服务器（系统内部过程，非人工角色）"
 secondary_actor: RIOT
 frequency: "待定：与该AGV完成当前移动任务/该任务被取消的频率一致——理论上每次AGV完成一次移动任务或该任务被取消后，都会触发一次本UC的执行"
-related_uc: ["UC-001", "UC-003", "UC-006", "UC-007", "UC-009", "UC-012", "UC-013", "UC-041"]
-related_br: ["BR-001"]
+related_uc: ["UC-001", "UC-003", "UC-006", "UC-007", "UC-009", "UC-012", "UC-013", "UC-023", "UC-041", "UC-045"]
+related_br: ["BR-001", "BR-015"]
 aliases: ["UC-008"]
 ---
 
@@ -58,6 +58,7 @@ aliases: ["UC-008"]
 
 1. 本次待下发任务(集合)的具体选取/范围划分算法（即"本次派车任务范围"如何生成）不在本UC讨论范围内，本UC假设该集合已由对应机制确定完毕，只描述"确定后如何调用RIOT接口下发、更新本地状态"这一段动作本身；具体划分规则见 [[br-001-dispatch-task-range|BR-001]]，该规则本身仍标注TBD。
 2. RIOT对每台AGV只维护一个活跃移动任务的队列语义（即任意时刻至多0或1个），本UC依赖这一假设设计其下发时机；若后续与RIOT对接后发现实际支持/需要多任务排队，需回来调整本UC的Trigger与Normal Flow。
+3. 向 RIOT 创建移动任务时**只能指定目标站点（目的地）**，不能指定前往目的地的中间途经路程；实际路径由 RIOT 规划（通常为最短或等价最优路径）。本系统在 [[uc-023-allocate-transport-tasks-to-agv|UC-023]] / [[br-015-path-cost-and-dispatch-ranking|BR-015]] 中估算的路径成本仅用于分配前排序，不通过本 UC 下发给 RIOT。
 
 ## 正常流程
 
@@ -66,7 +67,7 @@ aliases: ["UC-008"]
 1. 系统检测到该AGV当前在RIOT侧的移动任务执行完成或被取消，其RIOT任务队列数量变为0
 2. 系统核验本地数据库中是否存在可分配给该AGV下发的"新建（New）"状态任务（若不存在，该AGV保持空闲等待，不视为异常，本轮处理结束）
 3. 系统确定本次要下发的任务(集合)（具体范围划分规则见 [[br-001-dispatch-task-range|BR-001]]，本UC假设该集合已确定）
-4. 系统调用RIOT接口，为该AGV创建新的移动任务（指定目标站点/路径等信息）
+4. 系统调用RIOT接口，为该AGV创建新的移动任务（**仅指定目标站点/目的地**，不指定途经中间路程；见 Assumption 第 3 条）
    4.1 系统核验RIOT是否正常接收本次下发请求（见 Exception Flow E4.1）
 5. 系统将本次下发涉及的本地搬运任务状态由"新建（New）"更新为"进行中（Executing）"
 6. 系统记录本次下发日志（AGV、任务、moveType、目标站点、RIOT移动任务ID、时间戳）

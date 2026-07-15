@@ -1,22 +1,22 @@
 ---
 id: UC-033
 type: use-case
-title: "登录管理配置端"
+title: "登录与会话管理"
 status: draft
 priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-13
-updated: 2026-07-13
+updated: 2026-07-14
 primary_actor: "管理配置端用户"
 secondary_actor: "本地服务器"
 frequency: "每位管理配置端用户按班次或会话到期后执行"
 related_uc: ["UC-030", "UC-031", "UC-032", "UC-034"]
-related_br: []
+related_br: ["BR-011"]
 aliases: ["UC-033"]
 ---
 
-# UC-033 登录管理配置端
+# UC-033 登录与会话管理
 
 ## 描述
 
@@ -46,7 +46,7 @@ aliases: ["UC-033"]
 
 ## 假设
 
-1. 本地账号凭据的复杂度、保存、轮换和找回遵守部署时确定的安全策略。
+1. 本地账号凭据的具体格式（长度、复杂度、保留标识等）遵循 [[br-011-account-and-password-format|BR-011]]；凭据的保存、轮换和找回遵守部署时确定的安全策略。
 2. 浏览器或管理终端本身的恶意软件防护不属于本 UC。
 3. 用户不共享账号；所有管理操作应追溯到登录的个人账号。
 
@@ -129,8 +129,9 @@ aliases: ["UC-033"]
 ## 关联用例
 
 - [[uc-030-maintain-user-account|UC-030]]：提供启用中的本地个人账号，并在停用时撤销会话。
-提供登录后用于鉴权的当前角色与权限。
-查询登录成功、失败、锁定、超时和注销审计。
+- [[uc-031-maintain-role-and-permission|UC-031]]、[[uc-032-assign-user-roles|UC-032]]：提供登录后用于鉴权的当前角色与权限。
+- [[uc-034-query-and-export-audit-logs|UC-034]]：查询登录成功、失败、锁定、超时和注销审计。
 - [[uc-025-maintain-workflow-template|UC-025]]、[[uc-028-handle-workflow-step-exception|UC-028]]：登录后仍需专项权限和二次认证的高风险用例。
+- [[br-011-account-and-password-format|BR-011]]：定义登录凭据比对时所依据的登录名与密码格式规则，本 UC 只校验"是否匹配"，不重复定义格式。
 
 ## 其他信息

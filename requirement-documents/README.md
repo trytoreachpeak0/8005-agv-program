@@ -1,13 +1,13 @@
 # 需求文档 Obsidian Vault 使用说明
 
-本目录已按 Obsidian vault 的方式重新组织，用来承载完整的 `Business Rule → Use Case → Functional Requirement → Test Case` 需求追溯链。首次使用请先看第 5 节「首次打开步骤」。
+本目录已按 Obsidian vault 的方式重新组织，用来承载完整的 `Business Rule → Use Case → Functional Requirement → Test Case` 需求追溯链，以及横切约束 FR 的 `Non-Functional Requirement`。首次使用请先看第 5 节「首次打开步骤」。
 
 ## 1. 目录结构
 
 ```
 requirement-documents/
 ├─ .obsidian/                     Obsidian 配置与插件（已内置 Dataview、Templater）
-├─ _templates/                    Templater 笔记模板（新建 UC/BR/FR/TC 时自动套用）
+├─ _templates/                    Templater 笔记模板（新建 UC/BR/FR/NFR/TC 时自动套用）
 ├─ _attachments/                  图片等附件统一存放位置
 ├─ 00-vision/                     愿景、范围与系统上下文
 │  ├─ vision-and-scope.md         业务愿景、范围与限制
@@ -20,16 +20,31 @@ requirement-documents/
 │  ├─ 03-agv-fleet-management/    AGV 车辆管理：多仓位模型、接入、启停、配置、归档、车队看板（UC-013、019~022、038）
 │  ├─ 04-transport-task-dispatch/ 搬运任务分发：MES 同步、任务分配、下发 RIOT、持续监听到站（UC-007、008、009、023）
 │  ├─ 05-agv-charging/            AGV 充电：充电策略配置与手动派车充电（UC-012、037）
-│  ├─ 06-area-station-mapping/    AREA—地图站点映射维护（UC-024）
+│  ├─ 06-area-station-mapping/    AREA—地图站点映射维护与 RIOT 路网同步（UC-024、UC-045）
 │  ├─ 07-workflow-engine/         流程模板与工作流引擎（UC-025~029）
 │  ├─ 08-user-and-access/         用户与权限管理（UC-030~033）
 │  ├─ 09-logs-and-audit/          日志、追溯与审计（UC-034~036）
 │  ├─ 10-safety-and-interlock/    跨场景安全联锁（UC-004，贯穿 AGV 全生命周期，不局限于某一具体站点操作）
 │  └─ 11-agv-parking/             AGV 空闲返回停靠点（UC-040、041），结构参照 05-agv-charging 单独成组
-├─ 04-functional-requirements/    功能需求 FR-001、FR-002 ...（骨架已建好，内容待补充）
-├─ 05-test-cases/                 测试用例 TC-001、TC-002 ...（骨架已建好，内容待补充）
-└─ 06-traceability/               追溯矩阵总览（Dataview 自动生成）
+├─ 04-functional-requirements/    功能需求 FR-001、FR-002 ...（含 fr-template-guide），按 03-use-cases 同名的 11 个业务领域拆到子文件夹
+│  ├─ 01-site-operations/         FR-001~014
+│  ├─ 02-slot-and-hardware/       FR-015~021
+│  └─ 03-agv-fleet-management/ ~ 11-agv-parking/  暂空（占位 README，待对应 UC 拆出 FR）
+├─ 05-test-cases/                 测试用例 TC-001、TC-002 ...，按其验证的 FR 所在业务领域拆到子文件夹
+│  ├─ 01-site-operations/         TC-001~041
+│  ├─ 02-slot-and-hardware/       TC-042~063
+│  └─ 03-agv-fleet-management/ ~ 11-agv-parking/  暂空（占位 README，待对应领域补充 FR/TC）
+├─ 06-traceability/               追溯矩阵总览（Dataview 自动生成）、FR/NFR/TC 分类规则
+├─ 07-customer-deliverables/      面向客户的需求讨论稿（中文 Markdown 源与 Word）
+├─ 08-non-functional-requirements/ 非功能需求 NFR-001、NFR-002 ...（含 nfr-template-guide），按质量属性 category 拆到 11 个子文件夹
+│  ├─ availability/               NFR-001
+│  ├─ auditability/               NFR-002
+│  └─ performance/ ~ operability/ 其余 9 个质量属性类别，暂空（占位 README）
 ```
+
+> `04-functional-requirements`、`05-test-cases`、`08-non-functional-requirements` 的分类规则、完整映射表见 [[classification-rules|06-traceability/classification-rules.md]]。
+
+> 说明：`08-non-functional-requirements/` 文件夹名较长，上方对齐略有压缩，仅为排版限制，不影响实际路径。
 
 建议首次阅读时先查看 [[vision-and-scope|愿景与范围]]，再查看 [[system-context|系统上下文与边界]]；后者用于快速了解本系统与 MES、RCS/RIOT、AGV、IO 模块及现场用户之间的交互关系。
 
@@ -40,6 +55,7 @@ requirement-documents/
 | Business Rule 业务规则 | `BR-001` | `br-001-xxx.md` | `br-001-用户培训有效性.md` |
 | Use Case 用例 | `UC-001` | `uc-001-xxx.md` | `uc-001-load-completed-lot-into-slot.md` |
 | Functional Requirement 功能需求 | `FR-001` | `fr-001-xxx.md` | `fr-001-xxx.md` |
+| Non-Functional Requirement 非功能需求 | `NFR-001` | `nfr-001-xxx.md` | `nfr-001-xxx.md` |
 | Test Case 测试用例 | `TC-001` | `tc-001-xxx.md` | `tc-001-xxx.md` |
 | Decision Record 决策记录 | `DR-001` | `dr-001-xxx.md` | `dr-001-tech-stack.md` |
 
@@ -57,11 +73,12 @@ requirement-documents/
 
 显示效果只有 `UC-002`，点击后跳转到对应文件。所有 5 篇 UC 文档中原本的"关联用例""正文引用其他 UC"处均已替换为这种写法。
 
-后续新增 BR/FR/TC 时，Origin/Related/Verification 等字段也统一用这种写法，例如：
+后续新增 BR/FR/NFR/TC 时，Origin/Related/Verification 等字段也统一用这种写法，例如：
 
 ```markdown
 **Origin:** [[br-001-xxx|BR-001]]
 **Related Use Case:** [[uc-002-confirm-task-completion|UC-002]]
+**Related NFR:** [[nfr-001-service-availability|NFR-001]]
 **Verification:** [[tc-001-xxx|TC-001]]
 ```
 
@@ -72,10 +89,11 @@ requirement-documents/
 | 字段 | 说明 |
 | --- | --- |
 | `id` | 唯一编号，如 `UC-001` |
-| `type` | 固定值：`use-case` / `business-rule` / `functional-requirement` / `test-case` |
+| `type` | 固定值：`use-case` / `business-rule` / `functional-requirement` / `non-functional-requirement` / `test-case` |
 | `title` | 中英文标题 |
 | `status` | `draft`（草稿）/ `reviewed`（已评审）/ `approved`（已确认），可自行扩展 |
-| `related_uc` / `related_br` / `related_fr` / `related_tc` | 关联的其他条目 ID 数组，例如 `["UC-002", "UC-003"]` |
+| `category` | 仅 NFR：质量属性类别（如 `availability` / `auditability`） |
+| `related_uc` / `related_br` / `related_fr` / `related_nfr` / `related_tc` | 关联的其他条目 ID 数组，例如 `["UC-002", "UC-003"]` |
 | `aliases` | 别名，固定填 ID 本身，方便快速链接和搜索 |
 
 **只要这些字段维护正确，`06-traceability/traceability-matrix.md` 里的表格会自动更新，不需要手工同步。**
@@ -95,7 +113,7 @@ requirement-documents/
 | 能力 | 依赖插件 | 类型 | 说明 |
 | --- | --- | --- | --- |
 | Wikilink 点击跳转、Backlinks 反向引用面板、Graph View 关系图谱 | 无需额外插件 | Obsidian 核心（`backlink`、`graph`、`outgoing-link`） | 已在 `.obsidian/core-plugins.json` 中启用 |
-| 新建笔记时套用模板、按目录自动匹配模板、弹窗填写编号 | **Templater** (`templater-obsidian`) | 第三方社区插件 | 已下载安装到 `.obsidian/plugins/templater-obsidian/`，模板文件夹已指向 `_templates/`，并按目录（02/03/04/05）自动关联对应模板 |
+| 新建笔记时套用模板、按目录自动匹配模板、弹窗填写编号 | **Templater** (`templater-obsidian`) | 第三方社区插件 | 已下载安装到 `.obsidian/plugins/templater-obsidian/`，模板文件夹已指向 `_templates/`，并按目录（02/03/04/05/08）自动关联对应模板 |
 | 追溯矩阵表格自动生成、覆盖率检查查询 | **Dataview** (`dataview`) | 第三方社区插件 | 已下载安装到 `.obsidian/plugins/dataview/` |
 | （暂缓，未启用）Canvas 可视化追溯链 | Obsidian 内置 Canvas 核心插件 | Obsidian 核心 | 按你的要求本次先不做，需要时随时可加 |
 | （暂缓，未启用）块级引用 `^blockid` 精确定位段落 | 无需插件，Obsidian 核心能力 | - | 按你的要求本次先不做 |
@@ -126,6 +144,14 @@ requirement-documents/
 - 2026-07-13：新增 `UC-040 维护 AGV 停靠点配置`、`UC-041 空闲AGV自动返回停靠点`（均放入新建的 `11-agv-parking/`）与 `BR-009 停靠点分配与排队规则`，解决 `vision-and-scope.md` 原功能树"系统辅助任务：……返回驻点……"此前无任何 UC 落地的缺口；结构参照 `UC-037`/`BR-007`充电桩配置与选桩排队的既有拆分方式（配置类 UC + 执行类 UC + 排队 BR）。经确认：触发时机为 AGV 一空闲即立即判断；停靠点选择采用候选集合 + FIFO 排队（区别于充电桩的电量优先）；本 UC 与 `UC-008`（自动派车）、`UC-012`（手动充电）竞争同一个"AGV 空闲"触发窗口，优先级最低，不做抢占。
 - 2026-07-13：新增 `UC-042 处理AGV途中故障并改派或终止关联任务`（放入 `04-transport-task-dispatch/`），解决"AGV 已装货在途、中途报障或离线，车上任务如何安全收尾"此前无任何 UC 覆盖的缺口——`UC-006` 只覆盖装货前取消，`UC-028` 只覆盖流程步骤层面的通用异常处置。本 UC 当前仅为初稿骨架，TBD 事项较多（故障状态机、终止后产品如何继续送达、应急开锁权限等），需要后续与用户逐项确认。
 - 2026-07-13："服务器/系统重启后，本地任务—AGV绑定—仓位占用—RCS/RIOT在途任务的整体对账恢复"经确认属于可以按 UC 建模的场景（参照 `UC-009` 系统内部过程作为 primary_actor 的先例），但内容涉及面广，经用户确认暂缓，先记录缺口，留待后续与其他子系统设计稳定后再补建 UC。
+- 2026-07-14：将 `mes/AGV系统业务与MES任务模型.md`（及接口确认文档）中已确认的 MES 业务规则正式融入本 vault 追溯体系，不修改 `mes/` 原始文件：
+  - 新增 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]（幂等键、固定延迟轮询、字段冻结、消失对账、`PAUSED_ZERO_DROP`、重启基线、只读安全）、[[br-013-multi-basket-loading|BR-013]]（多花篮两层模型与重复扫码新增一篮）、[[br-014-transport-task-types-and-fixed-stations|BR-014]]（五类任务类型与四个固定区域站点）。
+  - 重写 [[uc-007-sync-transport-task-from-mes|UC-007]]，用上述 BR 替换原 TBD；[[uc-001-load-completed-lot-into-slot|UC-001]] 增加备选流程 1.2；[[uc-010-unload-completed-lot-at-destination-station|UC-010]] 关闭“是否回传 MES”TBD 并引用 BR-013/014；[[br-001-dispatch-task-range|BR-001]] 补充复合停靠与上下游等待；[[br-002-agv-allocation-eligibility|BR-002]] / [[uc-023-allocate-transport-tasks-to-agv|UC-023]] 补充第 5 类最高优先级与无响应升级。
+  - [[br-003-area-station-mapping|BR-003]] 两表模型已与 mes 文档第 10 节一致，无需结构性改写。
+  - 同日新增 `07-customer-deliverables/`，产出面向客户的中文需求讨论稿（Markdown 源 + Word）。
+- 2026-07-14：新增 [[br-015-path-cost-and-dispatch-ranking|BR-015]]（路径成本与派车排序权衡）与 [[uc-045-sync-map-topology-from-riot|UC-045]]（从 RIOT 同步地图路网）：本系统只读缓存站点+可通行路径，用最短路径成本作为派车排序因子之一（与紧急度/等待时长等一并权衡）；向 RIOT 下发仍只指定目的地。同步修订 [[br-002-agv-allocation-eligibility|BR-002]] 候选排序第 4 条、[[uc-023-allocate-transport-tasks-to-agv|UC-023]]、[[uc-008-dispatch-move-order-to-riot|UC-008]] Assumption，以及 [[system-context|system-context]] 边界说明。
+- 2026-07-14：定稿 FR/NFR 文档规范（Karl 可验证写法 + Obsidian Templater/Dataview 惯例）：更新 `_templates/template-functional-requirement.md`（含 Rationale、GWT、`related_nfr`），新建 `_templates/template-non-functional-requirement.md` 与目录 `08-non-functional-requirements/`；新增 [[fr-template-guide|FR 模板说明]]、[[nfr-template-guide|NFR 模板说明]]；黄金样例 [[fr-001-sublot-task-validity-and-dispatch-range-check|FR-001]] / [[fr-002-slot-unlock-occupancy-confirm-and-state-persist|FR-002]]（自 UC-001）、[[nfr-001-service-availability|NFR-001]] / [[nfr-002-audit-completeness-and-retention|NFR-002]]；追溯矩阵增加 NFR 总览与覆盖率查询。
+- 2026-07-14：将 `04-functional-requirements`、`05-test-cases`、`08-non-functional-requirements` 由单层平铺目录改为按分类拆子文件夹：FR/TC 按 `related_uc`/`related_fr` 归属的 UC 业务领域拆到与 `03-use-cases` 同名的 11 个子文件夹（现有 21 篇 FR、63 篇 TC 全部落在 `01-site-operations`、`02-slot-and-hardware` 两域，其余 9 域暂空占位）；NFR 按 `category` 质量属性拆到 11 个子文件夹（现有 2 篇 NFR 分别落在 `availability`、`auditability`）。分类规则、完整映射表新增于 [[classification-rules|06-traceability/classification-rules.md]]。三处 `README.md`（04/05/08 各自根目录）与本文件目录结构一并更新；因 wikilink 按文件名短路径解析、Dataview `from` 查询递归包含子文件夹，本次搬动未修改任何链接或查询语句。
 
 ## 8. 模板复用：子项目如何使用本目录的模板
 
@@ -136,6 +162,7 @@ requirement-documents/
 
 ## 9. 尚未处理，留待后续
 
-- `02-business-rules`、`04-functional-requirements`、`05-test-cases` 三个目录目前只有说明性 `README.md`，没有真实内容——因为这些业务规则/功能需求/测试用例目前还不存在，需要你后续补充实际内容后才能让追溯矩阵有东西可展示。
+- `05-test-cases` 目前只有说明性 `README.md` 与 Templater 骨架，尚无真实 TC；FR/NFR 黄金样例的 `related_tc` 仍为空，待补测试后再回填。
+- `04-functional-requirements` / `08-non-functional-requirements` 目前仅有模板、指南与黄金样例，其余 UC 尚未批量拆 FR/NFR。
 - `01-stakeholders/stakeholders-and-user-classes.md` 里有一处引用写的是 `01-vision-scope.md`，但实际文件名是 `vision-and-scope.md`（历史遗留的文件名不一致），本次未涉及 UC 迁移范围，故未修改，但转成 wikilink 后 Obsidian 会明显提示这是"未解析链接"，建议后续顺手修一下。
 - `user case.md`（根目录下的早期草稿）里的 `UC-01` 编号体系和正式 `03-use-cases` 里的编号是两套东西，目前未做统一，如果要统一建议后续单独讨论。

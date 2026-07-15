@@ -33,7 +33,7 @@ aliases: ["UC-034"]
 
 ## 前置条件
 
-1. 用户已通过 [[uc-033-login-to-management-console|UC-033]] 登录，并具有目标数据域的审计查看权限。
+1. 用户已通过 [[uc-033-login-and-session-management|UC-033]] 登录，并具有目标数据域的审计查看权限。
 2. 执行导出时，用户另具有审计导出权限。
 3. 用户的数据访问范围已确定，审计查询服务可读取追加写入的记录。
 4. 系统具有统一时间基准，并能区分事件时间、系统接收时间和记录时间。
@@ -140,10 +140,12 @@ aliases: ["UC-034"]
 
 ## 关联用例
 
-产生账号、角色权限及授权变更审计。
-- [[uc-033-login-to-management-console|UC-033]]：产生登录、失败、锁定、注销和会话撤销审计。
+- [[uc-030-maintain-user-account|UC-030]]、[[uc-031-maintain-role-and-permission|UC-031]]、[[uc-032-assign-user-roles|UC-032]]：产生账号、角色权限及授权变更审计。
+- [[uc-033-login-and-session-management|UC-033]]：产生登录、失败、锁定、注销和会话撤销审计。
 - [[uc-029-view-workflow-instance-progress|UC-029]]：提供流程实例专域的进度与审计查看；本 UC 负责跨域统一检索。
 - [[uc-025-maintain-workflow-template|UC-025]]、[[uc-028-handle-workflow-step-exception|UC-028]]：产生高风险配置和人工异常处置审计。
 - [[uc-001-load-completed-lot-into-slot|UC-001]]、[[uc-002-confirm-task-completion|UC-002]]、[[uc-006-cancel-transport-task-upon-arrival|UC-006]]、[[uc-010-unload-completed-lot-at-destination-station|UC-010]]：产生现场工牌身份、物料操作和任务处置记录。
+- [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：产生现场工牌身份核验、操作会话开始/阶段切换/结束的记录，是"操作员工牌校验"审计域的主要来源。
+- [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]]：产生取料关门后检测到残留、重新打开处理的记录。
 
 ## 其他信息

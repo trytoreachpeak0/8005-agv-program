@@ -7,12 +7,12 @@ priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-08
-updated: 2026-07-09
+updated: 2026-07-14
 primary_actor: "生产操作员（按场景引用 R-01~R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
 secondary_actor: MES
 frequency: "根据工厂里产品生产速度和多仓位AGV的数量决定，一般来说一个小时内会有多次"
-related_uc: ["UC-002", "UC-003", "UC-004", "UC-005", "UC-006", "UC-007", "UC-010", "UC-011", "UC-014"]
-related_br: ["BR-001"]
+related_uc: ["UC-002", "UC-003", "UC-004", "UC-005", "UC-006", "UC-007", "UC-010", "UC-011", "UC-014", "UC-043"]
+related_br: ["BR-001", "BR-012", "BR-013", "BR-014"]
 aliases: ["UC-001"]
 ---
 
@@ -44,7 +44,7 @@ aliases: ["UC-001"]
 
 **人员与权限**
 
-6. 生产操作员具备扫码/装料操作权限
+6. 生产操作员已通过 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 建立本次到站的有效操作会话，不需要在本 UC 中单独重复验证身份；本 UC 是使该会话进入"仓门操作已锁定"阶段的操作之一
 
 > 目标仓位的电子锁是否关闭、光幕是否无遮挡，需要在确定目标仓位后才能判断（到站时尚不知道具体仓位），因此不作为本 UC 的 Precondition，而是在 Normal Flow 中"打开仓位"步骤里作为系统开锁前的检查项。
 
@@ -108,6 +108,20 @@ aliases: ["UC-001"]
    4.2 若生产操作员关门后发现产品放错或数量不符，需重新打开该仓位处理（见 Exception Flow E4.2，转 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]）
 
 > 与 `1.0` 正常流程相比，本备选流程仅第 1 步的输入方式不同（手动输入子批号，而非扫描条形码），其余步骤及系统检查点完全一致。
+
+### 1.2 重复扫码确认新增一篮（同一 SUBLOT 多花篮）
+
+> 适用前提：IT 未提供花篮数量/标识接口时的现场兜底；规则见 [[br-013-multi-basket-loading|BR-013]]。不提供独立的“新增一篮”按钮。
+
+1. 生产操作员已通过 `1.0` 或 `1.1` 完成该 SUBLOT 至少一篮的装载（已成功关门并生成花篮序号），且该任务尚未点击“该 SUBLOT 装载完成”
+2. 生产操作员再次扫描（或手动输入）同一 SUBLOT
+   2.1 系统核验该 SUBLOT 仍对应本次派车范围内、未完成/未取消的同一运输任务（核验失败见 E1.1 / E1.2）
+   2.2 系统弹出“确认新增一篮”提示；未确认则不计第二篮（防抖，避免扫码枪抖动误计）
+3. 生产操作员确认后，系统核验仍有可用空闲仓位（见 E1.3），分配下一仓位并开锁（步骤同正常流程第 2～4 步，含 UC-004 安全联锁与光幕核验）
+4. 成功关门后生成递增的花篮序号（装载明细键 = 运输任务ID + 花篮序号）
+5. 生产操作员可继续重复本备选流程新增更多篮，或通过界面确认“该 SUBLOT 装载完成”结束本次装载；任务最终完成仍由 [[uc-002-confirm-task-completion|UC-002]] 触发
+
+> 该任务第一个仓门成功打开后，即进入 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]] 定义的“开始装货”边界：即使 MES 记录随后消失，也不再自动取消本任务。
 
 ## 异常流程
 
@@ -198,6 +212,10 @@ aliases: ["UC-001"]
 * [[uc-010-unload-completed-lot-at-destination-station|UC-010]]：本 UC 与该 UC 是方向相反的一对——本 UC 是起点站"扫码装入仓位"，UC-010 是终点站"系统自动开仓、取出存料"，两者共享同一批次产品、同一次 AGV 行程的前后两端；若同一次到站既要装载新任务又要取出已到货的任务，操作员可分别执行本 UC 与 UC-010，最后统一通过 [[uc-002-confirm-task-completion|UC-002]] 确认完成。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 装载完成后记录的仓位-子批号映射关系、以及 Exception Flow（E2.1/E2.2）产生的"异常锁定"状态，均会实时体现在该 UC 提供的仓位监控看板中，供班组长/生产管理者查看；该 UC 为纯只读展示，不影响本 UC 的流程本身。
 * [[uc-014-enable-disable-slot|UC-014]]：本 UC 第 1.3 步核验"是否存在满足数量要求的空闲仓位"时，需排除已被该 UC 禁用的仓位，不将其计入可分配范围；若因仓位被禁用导致空闲仓位不足，转 Exception Flow E1.3 处理。
+* [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：本 UC 的执行前提是操作员已通过该 UC 建立本次到站的有效操作会话；本 UC 的开门动作是使该会话进入"仓门操作已锁定"阶段的操作之一。
+* [[br-013-multi-basket-loading|BR-013]]：同一 SUBLOT 多花篮装载、重复扫码确认新增一篮、装载明细与任务分层。
+* [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]：第一个仓门打开后的 MES 消失对账边界。
+* [[br-014-transport-task-types-and-fixed-stations|BR-014]]：任务类型与合法取货起点。
 
 ## Other Information 其他信息
 

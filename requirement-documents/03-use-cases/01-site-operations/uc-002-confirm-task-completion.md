@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "生产操作员/终点站操作员（按场景引用 R-01~R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
 secondary_actor: "无（任务完成结果不需要同步给 MES，本 UC 不涉及次要参与者）"
 frequency: "与 UC-001/UC-010 同量级，通常一次到站的一次或多次装载/取出后对应一次确认"
-related_uc: ["UC-001", "UC-005", "UC-010"]
+related_uc: ["UC-001", "UC-005", "UC-010", "UC-043"]
 related_br: []
 aliases: ["UC-002"]
 ---
@@ -34,7 +34,7 @@ aliases: ["UC-002"]
 
 **人员与权限**
 
-2. 生产操作员具备"确认完成"操作权限
+2. 生产操作员已通过 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 建立本次到站的有效操作会话，不需要在本 UC 中单独重复验证身份；本 UC 是该会话进入"仓门操作已锁定"阶段后唯一的正常结束方式
 
 > 本 UC 的确认动作不要求 MES 在线，"确认完成"只操作本地数据库，不需要与 MES 实时交互。
 
@@ -46,6 +46,7 @@ aliases: ["UC-002"]
 
 1. 被确认的任务状态在本地数据库中由"进行中"变为"已完成"
 2. 确认操作记录（操作员、任务、仓位、时间戳）被记录，用于追溯
+3. 若本次到站的操作会话（见 [[uc-043-verify-identity-and-manage-operation-session|UC-043]]）已处于"仓门操作已锁定"阶段，本次确认完成同时结束该会话，界面恢复为"未验证"状态
 
 > 任务完成结果不需要同步上报给 MES。
 
@@ -111,6 +112,7 @@ aliases: ["UC-002"]
 * [[uc-001-load-completed-lot-into-slot|UC-001]]：本 UC 的 Precondition 可依赖 UC-001 已完成至少一次装载（或依赖 UC-010 已完成至少一次取出，两者任一即可满足）。
 * [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]：若操作员在确认完成前发现存错产品，需先执行该 UC 取出产品，再回到本 UC 确认完成；任务一旦经本 UC 确认完成，UC-005 便不再适用。
 * [[uc-010-unload-completed-lot-at-destination-station|UC-010]]：本 UC 已泛化为同时覆盖该 UC 的取出确认——终点站操作员完成取出（关闭仓门）后，同样需要执行本 UC 才能使任务终态变为"已完成"；若同一次到站同时涉及 UC-001 的装载与本 UC-010 的取出，操作员分别完成后只需点击一次"确认完成"即可一并确认。
+* [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：若本次到站的操作会话已因执行 UC-001/UC-005/UC-010/UC-044 进入"仓门操作已锁定"阶段，本 UC 是该会话唯一的正常结束方式；确认完成的同时会话随之结束。
 
 ## 其他信息
 

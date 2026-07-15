@@ -5,9 +5,9 @@ type: traceability
 
 # 需求追溯矩阵 Traceability Matrix
 
-> 本页面使用 Dataview 插件自动从各类需求文档的 frontmatter 字段生成，不需要手工维护。只要在对应文档的 frontmatter 里正确填写 `related_uc` / `related_br` / `related_fr` / `related_tc` 等字段，下方表格会自动更新。
+> 本页面使用 Dataview 插件自动从各类需求文档的 frontmatter 字段生成，不需要手工维护。只要在对应文档的 frontmatter 里正确填写 `related_uc` / `related_br` / `related_fr` / `related_nfr` / `related_tc` 等字段，下方表格会自动更新。
 >
-> 追溯方向：`Business Rule 业务规则 → Use Case 用例 → Functional Requirement 功能需求 → Test Case 测试用例`
+> 追溯方向：`Business Rule 业务规则 → Use Case 用例 → Functional Requirement 功能需求 → Test Case 测试用例`；`Non-Functional Requirement 非功能需求` 横切约束 FR（及必要时 UC），并可由 TC 验证。
 
 ## 1. Business Rules 业务规则总览
 
@@ -43,13 +43,29 @@ table
   priority as "优先级",
   related_br as "关联业务规则",
   related_uc as "关联用例",
+  related_nfr as "关联非功能需求",
   related_tc as "关联测试用例"
 from "04-functional-requirements"
 where type = "functional-requirement"
 sort id asc
 ```
 
-## 4. Test Cases 测试用例总览
+## 4. Non-Functional Requirements 非功能需求总览
+
+```dataview
+table
+  status as "状态",
+  priority as "优先级",
+  category as "质量属性类别",
+  related_fr as "关联功能需求",
+  related_uc as "关联用例",
+  related_tc as "关联测试用例"
+from "08-non-functional-requirements"
+where type = "non-functional-requirement"
+sort id asc
+```
+
+## 5. Test Cases 测试用例总览
 
 ```dataview
 table
@@ -61,7 +77,7 @@ where type = "test-case"
 sort id asc
 ```
 
-## 5. 覆盖率检查 Coverage Check
+## 6. 覆盖率检查 Coverage Check
 
 以下查询用于找出"尚未被任何 Use Case 关联"的业务规则，便于评审时发现遗漏：
 
@@ -77,4 +93,12 @@ where type = "business-rule" and (related_uc = null or length(related_uc) = 0)
 list
 from "04-functional-requirements"
 where type = "functional-requirement" and (related_tc = null or length(related_tc) = 0)
+```
+
+以下查询用于找出"尚未关联任何 Test Case"的非功能需求：
+
+```dataview
+list
+from "08-non-functional-requirements"
+where type = "non-functional-requirement" and (related_tc = null or length(related_tc) = 0)
 ```

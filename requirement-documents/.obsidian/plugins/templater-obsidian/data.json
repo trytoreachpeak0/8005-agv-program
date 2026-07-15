@@ -29,6 +29,10 @@
     {
       "folder": "05-test-cases",
       "template": "_templates/template-test-case.md"
+    },
+    {
+      "folder": "08-non-functional-requirements",
+      "template": "_templates/template-non-functional-requirement.md"
     }
   ],
   "enable_file_templates": false,

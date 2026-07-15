@@ -26,6 +26,8 @@
 | 多仓位 AGV | multi-slot AGV | `multiSlotAgv` | 项目核心设备；8 个仓位。英文统一写作 **multi-slot AGV**，与「slot（仓位）」术语一致 |
 | 工控机 | industrial PC | `industrialPc` | 触控屏 Win10 工控机，负责现场操作与 IO 控制；原称「上位机」，不再使用 |
 | 服务器 | server | `server` | 负责任务管理、MES 对接、RIOT 调度 |
+| 管理配置端 | management console | `managementConsole` | 服务器提供的 Web 管理后台，供技术支持/管理类角色登录使用；各角色职责范围不同，不互相代管：IT/软件维护人员（R-12）在此维护本地账号、角色权限（仅限本系统）及流程模板，AGV 运维/调度管理员（R-13）在此维护 AGV 本地调度配置、启停、归档状态及流程模板（仅限 RCS/RIOT 相关配置），生产管理者/车间主任（R-10）等角色按各自被授予的权限查看日志审计；登录见 [[uc-033-login-and-session-management|UC-033]]。与工控机上现场操作界面（扫码装卸料等）是不同入口，不共用登录方式 |
+| 本地认证服务 | local authentication service | `localAuthService` | 服务器内部负责账号校验、会话建立与鉴权的模块，不是独立的第三方系统；使用 [[uc-030-maintain-user-account|UC-030]] 维护的本地个人账号及 [[uc-031-maintain-role-and-permission|UC-031]]/[[uc-032-assign-user-roles|UC-032]] 维护的角色权限。与 MES 校验现场工牌身份/岗位权限的路径互相独立，不共用账号体系 |
 | RIOT | RIOT | `riot` | 斯坦德 AGV 调度平台；通过 HTTP 接口调用 |
 | RCS | RCS (Robot Control System) | `rcs` | 机器人调度/控制系统统称；本项目具体实例为 RIOT |
 | MES | MES (Manufacturing Execution System) | `mes` | 制造执行系统；任务来源与状态核验、回写 |
@@ -196,6 +198,8 @@
 | --- | --- | --- |
 | 2026-07-07 | 初始版本，整理系统、设备、MES、任务、场景、角色等核心术语 | — |
 | 2026-07-07 | 「弹匣/弹夹」与「弹匣盒」合并为弹匣盒，代码统一 `magazineBox` | — |
+| 2026-07-14 | 新增「管理配置端」「本地认证服务」术语，明确与工控机现场操作界面、MES 工牌校验路径的边界 | ZhengyuShao 邵正宇 |
+| 2026-07-14 | 「管理配置端」备注改为按角色分别说明职责范围（R-12 仅本系统账号/角色/流程模板，R-13 仅 RCS/RIOT 调度配置，R-10 按授权查看审计），避免笼统列举角色导致职责范围混淆 | ZhengyuShao 邵正宇 |
 
 ---
 

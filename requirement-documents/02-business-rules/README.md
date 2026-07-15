@@ -7,3 +7,7 @@
 - 命名规范、ID 规则、跨文档引用方式见 `../README.md`。
 
 - [[br-001-dispatch-task-range|BR-001 派车任务范围定义]]：定义"本次派车任务范围"的判定标准，供 [[uc-001-load-completed-lot-into-slot|UC-001]]、[[uc-003-agv-arrives-at-designated-station|UC-003]] 引用。
+- [[br-012-mes-task-idempotency-and-reconciliation|BR-012 MES任务幂等与轮询对账]]：MES 合并查询、去重、消失对账与只读约束。
+- [[br-013-multi-basket-loading|BR-013 多花篮装载]]：任务与装载明细两层模型及重复扫码新增一篮。
+- [[br-014-transport-task-types-and-fixed-stations|BR-014 五类任务与固定站点]]：五类搬运类型与四个固定区域站点配置。
+- [[br-015-path-cost-and-dispatch-ranking|BR-015 路径成本与派车排序权衡]]：基于 RIOT 路网最短路径成本参与派车排序；与紧急度等时间指标一并权衡；不替代 RIOT 导航。

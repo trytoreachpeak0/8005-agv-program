@@ -1,0 +1,8 @@
+{
+  "baseUrl": "http://<host>:<port>",
+  "username": "<username>",
+  "password": "<password>",
+  "testVehicleKey": "<device-key-of-the-only-test-vehicle>",
+  "testVehicleOnline": true,
+  "notes": "Copy to environment.local.json and fill real values. environment.local.json is gitignored via *.local.json."
+}

@@ -7,12 +7,12 @@ priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-14
 primary_actor: "终点站操作员（按场景引用 R-02/R-03/R-04/R-06/R-07/R-08，见 [[stakeholders-and-user-classes|干系人与用户角色清单]]）"
-secondary_actor: "是否需要回传完成结果 TBD 待确认，见 Notes）"
+secondary_actor: "当前阶段不回传 MES（见 Notes）"
 frequency: "与 UC-001 同量级，每一个经 UC-001 装载的子批号最终都会通过本 UC 被取出一次"
-related_uc: ["UC-001", "UC-002", "UC-003", "UC-004", "UC-011"]
-related_br: []
+related_uc: ["UC-001", "UC-002", "UC-003", "UC-004", "UC-011", "UC-043", "UC-044"]
+related_br: ["BR-013", "BR-014"]
 aliases: ["UC-010"]
 ---
 
@@ -44,7 +44,7 @@ aliases: ["UC-010"]
 
 **人员与权限**
 
-4. 终点站操作员具备取料/收料操作权限
+4. 终点站操作员已通过 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 建立本次到站的有效操作会话，不需要在本 UC 中单独重复验证身份；本 UC 是使该会话进入"仓门操作已锁定"阶段的操作之一
 
 > 与 [[uc-001-load-completed-lot-into-slot|UC-001]] 不同，本 UC 不需要核验"该任务是否属于本次派车范围"（对应 [[br-001-dispatch-task-range|BR-001]]）：任务此时已经装载在AGV上、正跟车运行，其目标站点在装载时已经确定，不存在"扫错、扫到不属于本次派车范围的子批号"的问题，因此本 UC 的仓位识别可以完全由系统自动完成，不需要操作员扫码核验。
 
@@ -77,7 +77,7 @@ aliases: ["UC-010"]
    2.2 操作员核验该仓位内是否确实存放有对应产品，与系统记录一致（见 Exception Flow E2.2）
 3. 操作员从仓位中取出产品，存放到该站点现场位置
 4. 操作员关闭该仓位
-   4.1 系统通过光幕检测确认该仓位内确实已清空，若光幕仍检测到产品残留，则转异常处理（见 Exception Flow E4.1）
+   4.1 系统通过光幕检测确认该仓位内确实已清空，若光幕仍检测到产品残留，则转 [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]] 处理（见 Exception Flow E4.1）
 5. 若本次到站还存在其他待取料的仓位，操作员重复第 2~4 步，逐个取出
 6. 操作员确认本次到站所有待取料仓位均已取出且现场存放完毕后，点击"确认完成"按钮（衔接 [[uc-002-confirm-task-completion|UC-002]]，该 UC 已泛化为一次性确认本次到站涉及的全部装载与取出任务），系统将对应任务状态更新为"已完成"
 
@@ -91,7 +91,7 @@ aliases: ["UC-010"]
 
 * E2.1 仓门开锁失败（电子锁/机械故障）
 * E2.2 打开仓门后发现仓位内实际无产品，或产品与系统记录不符
-* E4.1 关门后光幕检测仓位内仍有产品残留
+* E4.1 关门后光幕检测仓位内仍有产品残留，转 [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]] 处理
 
 ### E2.1 仓门开锁失败
 
@@ -113,19 +113,21 @@ aliases: ["UC-010"]
 
 1. 操作员关闭仓位仓门
 2. 系统按第 4.1 步通过光幕检测该仓位，发现该仓位内仍检测到产品残留
-3. 系统提示该仓位取出未完成，要求操作员重新打开该仓位确认
-4. 操作员重新打开该仓位，取出残留产品后再次关闭仓门
-5. 系统重新执行"关门→光幕核验"检查（即重新执行第 4.1 步），直至该仓位光幕确认已清空
+3. 系统转 [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]] 处理：要求操作员重新打开该仓位、取出残留产品后再次关闭，直至光幕确认已清空为止，具体流程见该 UC，本 UC 不重复描述
+4. UC-044 处理完毕、仓位恢复"空闲"后，流程返回本 UC 继续（若本次到站还有其他待取料仓位，回到第 2～4 步逐个处理）
 
 ## 备注
 
 * 本 UC 是从 `user case.md` 中原始记录的场景（如"装片完工送烘烤：R-01 → R-02""氮气柜送焊线/键合机台：R-03 → R-06/R-07"）拆分出来的：这些场景此前只有起点站"装载"部分被写成 [[uc-001-load-completed-lot-into-slot|UC-001]]，终点站"取出存料"部分一直没有独立成文，因此新增本 UC 补齐。
 * 经与用户确认：终点站操作员不需要扫码识别待取仓位——AGV到站后，系统直接根据"仓位已占用 + 关联任务目标站点=当前站点"自动判定并打开对应仓位，这与 UC-001 起点站"先扫码、系统再判定分配仓位"的顺序相反，原因是本 UC 场景下产品已经在AGV上、任务归属已经明确，不存在"扫错子批号"的问题。
 * 经与用户确认：取出关门后仍需要操作员另外点击"确认完成"才算任务终态完成，不能仅凭关门+光幕核验就自动完成，原因是同一站点可能同时是"存料站点"和"取料站点"（如氮气柜场景），操作员可能在同一次到站期间既要取出交货，又要继续装载其他任务，因此需要一个统一的"确认完成"动作来收尾本次到站的全部操作，而不是取出即完成。为此，[[uc-002-confirm-task-completion|UC-002]] 需要相应泛化其措辞与核验范围，使其同时覆盖"已装载"与"已取出"两类待确认仓位，本 UC 不单独实现一套确认逻辑。
+* 2026-07-14 已确认：当前阶段不做 MES 回写；任务完成状态保存在本系统（见 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]）。原“是否回传 MES”TBD 关闭。
 * 待补充事项（TBD）：
-  1. 任务最终确认完成后，是否需要将完成结果回传给 MES？`vision-and-scope.md` 主要特性清单第 9 项列有"任务/明细完成回传"，但 [[uc-002-confirm-task-completion|UC-002]] 目前明确"不回传"；两者是否一致、本 UC（作为任务的最终终点）是否需要单独回传，需进一步与用户/MES-IT 侧确认。
-  2. 若操作员确认完成后才发现拿错/漏拿，是否需要类似 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 的"重新打开纠错"流程？与 UC-005 不同的是，本 UC 场景下产品可能已经离开AGV现场（如已放入烘烤炉），纠错方式可能需要另行设计，暂不在本 UC 范围内展开。
-  3. 是否存在"该站点是取料站点，但操作员发现此次不需要收这批货"的取消场景（类比 [[uc-006-cancel-transport-task-upon-arrival|UC-006]]）？初步判断该场景发生概率低（产品已经在AGV上、通常是必然要交付的），暂标注 TBD，不深入展开。
+  1. 若操作员确认完成后才发现拿错/漏拿，是否需要类似 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 的"重新打开纠错"流程？与 UC-005 不同的是，本 UC 场景下产品可能已经离开AGV现场（如已放入烘烤炉），纠错方式可能需要另行设计，暂不在本 UC 范围内展开。
+  2. 是否存在"该站点是取料站点，但操作员发现此次不需要收这批货"的取消场景（类比 [[uc-006-cancel-transport-task-upon-arrival|UC-006]]）？初步判断该场景发生概率低（产品已经在AGV上、通常是必然要交付的），暂标注 TBD，不深入展开。
+* 经与用户确认：本 UC 原 Exception Flow E4.1（"关门后光幕检测仓位内仍有产品残留"）的具体处理流程已拆分为独立的 [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]]，写法上参照 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 相对 [[uc-001-load-completed-lot-into-slot|UC-001]] 的拆分方式；本 UC 只保留触发关系，不重复描述重新打开的细节。
+* 经与用户确认：本 UC 的操作员身份验证与"是否需要重复验证"机制已由新增的 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 统一定义，本 UC 前置条件不再单独描述权限校验细节，改为引用该 UC 建立的操作会话。
+* 卸货按仓位（花篮装载明细）开门与关门确认，与 [[br-013-multi-basket-loading|BR-013]] 一致：同一运输任务可对应多条装载明细/多仓位；系统区分“卸货关门”并更新仓位占用。合法终点由 [[br-014-transport-task-types-and-fixed-stations|BR-014]] 与任务冻结站点决定。
 
 ## 关联用例
 
@@ -134,6 +136,10 @@ aliases: ["UC-010"]
 * [[uc-003-agv-arrives-at-designated-station|UC-003]]：本 UC 的 Trigger 依赖 AGV 到达并停稳，具体到站过程见该 UC。
 * [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 第 2 步"打开仓门"下发开锁指令前，需先经过该 UC Flow A 核验 AGV 当前是否移动（移动中则拒绝开门）；取出产品过程中仓门开启期间"AGV 是否移动"的持续监控由该 UC Flow B 统一处理。两条 Flow 均不在本 UC 的 Precondition 中重复定义。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取出产品、仓位恢复"空闲"的过程，以及 Exception Flow（E2.1/E2.2）产生的"异常锁定"状态，均会实时体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
+* [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：本 UC 的执行前提是操作员已通过该 UC 建立本次到站的有效操作会话；本 UC 的开门/取料动作是使该会话进入"仓门操作已锁定"阶段的操作之一。
+* [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]]：本 UC 第 4.1 步/Exception Flow E4.1（关门后光幕检测到残留产品）的具体处理流程已拆分到该 UC，本 UC 只保留触发关系，不重复描述重新打开的细节。
+* [[br-013-multi-basket-loading|BR-013]]：多花篮/多仓位装载明细与开关门确认语义。
+* [[br-014-transport-task-types-and-fixed-stations|BR-014]]：五类任务终点（含固定区域站点）定义。
 
 ## 其他信息
 

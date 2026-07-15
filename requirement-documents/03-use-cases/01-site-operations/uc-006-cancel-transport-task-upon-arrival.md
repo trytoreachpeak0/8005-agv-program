@@ -11,7 +11,7 @@ updated: 2026-07-09
 primary_actor: "生产操作员"
 secondary_actor: "无（本操作只涉及本地数据库状态变更，不需要同步至 MES）"
 frequency: "待定，预期低于 UC-001 的装载频率（同 UC-005 同级的异常/分支场景）"
-related_uc: ["UC-001", "UC-003", "UC-005", "UC-008", "UC-011", "UC-042"]
+related_uc: ["UC-001", "UC-003", "UC-005", "UC-008", "UC-011", "UC-042", "UC-043"]
 related_br: []
 aliases: ["UC-006"]
 ---
@@ -35,7 +35,7 @@ aliases: ["UC-006"]
 
 **人员与权限**
 
-3. 生产操作员具备"取消运送"操作权限
+3. 生产操作员已通过 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 建立本次到站的有效操作会话，不需要在本 UC 中单独重复验证身份；本 UC 不打开任何仓门，不会使会话进入"仓门操作已锁定"阶段，也不会结束会话——无论会话当前处于哪个阶段，执行本 UC 均不改变会话状态
 
 > 经与用户确认：本操作由生产操作员自行发起并完成，不需要班组长（R-09）审批。这与 [[stakeholders-and-user-classes|干系人与用户角色清单]] 中 R-09 "任务取消审批"的既有职责描述存在差异，具体是否需要回头调整 R-09 的职责描述，留待后续与用户进一步协调确认，本 UC 暂不改动该清单。
 
@@ -105,6 +105,7 @@ aliases: ["UC-006"]
 * [[uc-008-dispatch-move-order-to-riot|UC-008]]：本 UC 取消的任务若已由 UC-008 下发为 RIOT 移动任务，取消后是否需要联动向 RIOT 下发取消指令、以及取消后 RIOT 任务队列如何清零，TBD 待补充——本 UC 当前的 Postcondition 只描述本地数据库状态变更，未涉及 RIOT 侧操作，留待后续与 UC-008 协调确认。
 * [[uc-011-view-slot-monitoring-dashboard|UC-011]]：本 UC 取消任务后的任务状态变化，会体现在该 UC 提供的仓位监控看板中；该 UC 为纯只读展示，不影响本 UC 的流程本身。
 * [[uc-042-handle-agv-fault-and-reassign-or-terminate-tasks|UC-042]]：本 UC 只覆盖"到站后、装货前"的取消场景；若任务已经开始装货、且是因为承运 AGV 本身发生故障才需要处理，属于 UC-042 覆盖的"已装货在途"场景，不适用本 UC。
+* [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：本 UC 的执行前提是操作员已通过该 UC 建立本次到站的有效操作会话；执行本 UC 不会结束会话、也不会使会话进入"仓门操作已锁定"阶段——若操作员本次到站只需要取消任务、不涉及任何装卸，可在会话仍处于"未开始仓门操作"阶段时另行通过该 UC 的"提前结束会话"退出。
 
 ## 其他信息
 
