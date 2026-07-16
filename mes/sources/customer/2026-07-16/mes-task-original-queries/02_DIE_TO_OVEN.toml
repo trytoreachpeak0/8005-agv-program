@@ -1,0 +1,8 @@
+id = "CUSTOMER_BASELINE_DIE_TO_OVEN"
+title = "客户基线：装片到烘箱"
+sql = "02_DIE_TO_OVEN.sql"
+readonly = true
+requires_approval = true
+promote_sample = false
+parameters = []
+expected_columns = ["SUBLOT", "AREA", "EQP", "STEP", "DATES", "PACKAGE"]

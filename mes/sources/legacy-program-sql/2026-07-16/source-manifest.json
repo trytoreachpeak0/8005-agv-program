@@ -1,0 +1,268 @@
+{
+  "files": [
+    {
+      "bytes": 404,
+      "kind": "supporting",
+      "path": "清洗间送焊线.txt",
+      "sha256": "b501121429f08f8049c64f65d31253fa97ef1e9f574abb9d9ee885f907936037"
+    },
+    {
+      "bytes": 2325,
+      "kind": "supporting",
+      "path": "烘箱完工送焊线氮气柜/HKSPEC/HKSPEC.md",
+      "sha256": "ab725d2b661eccd53d9c3762c4f63a9576471f5d6c627ef4351057ebaaaeace5"
+    },
+    {
+      "bytes": 787,
+      "kind": "sql",
+      "path": "烘箱完工送焊线氮气柜/HKSPEC/HKSPEC.sql",
+      "sha256": "aa15991a180dbacb8207c216430815a14d64c39318ea16993f4213d65babf19e"
+    },
+    {
+      "bytes": 3466,
+      "kind": "supporting",
+      "path": "烘箱完工送焊线氮气柜/RecodByLoc/RecodByLoc.md",
+      "sha256": "8fe5abf1f6b0af305011015b954c6f1a978e5c4f8afa95c1720bb06a2580f213"
+    },
+    {
+      "bytes": 847,
+      "kind": "sql",
+      "path": "烘箱完工送焊线氮气柜/RecodByLoc/RecodByLoc.sql",
+      "sha256": "dde5c3a5ed79071ef067ba7b0494527d9fff87eb2921203414c3307783d47322"
+    },
+    {
+      "bytes": 5220,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/CallAGV2ZPEQP/CallAGV2ZPEQP.md",
+      "sha256": "8bab198bf50f25d10fecb838954d0b1d432dcf69e8911b18853f713273ceb1db"
+    },
+    {
+      "bytes": 1870,
+      "kind": "sql",
+      "path": "装片完工送烘箱/CallAGV2ZPEQP/CallAGV2ZPEQP.sql",
+      "sha256": "adad14d8623ae91d3f9f83ec996ce8b7c04b756f051d927564a75f02e9a4287b"
+    },
+    {
+      "bytes": 4991,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/CancelQXJOB_Click_1/CancelQXJOB_Click_1.md",
+      "sha256": "88aa5b1a02af6901519797d27698175bc589d2b5f10a97643155eabf2fe020c4"
+    },
+    {
+      "bytes": 1780,
+      "kind": "sql",
+      "path": "装片完工送烘箱/CancelQXJOB_Click_1/CancelQXJOB_Click_1.sql",
+      "sha256": "83aa71b035968e21a39f374ad65a82bbd1bb6fa12b32defaaa30a036aedd7932"
+    },
+    {
+      "bytes": 1585,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/CheckDFNLOT/CheckDFNLOT.md",
+      "sha256": "b0616b4363be286b1d08e47f7a4574cc1b5b7979a42d2b674f4befd76fa64c21"
+    },
+    {
+      "bytes": 178,
+      "kind": "sql",
+      "path": "装片完工送烘箱/CheckDFNLOT/CheckDFNLOT.sql",
+      "sha256": "d258019ba0f3f16c8f2e0ba2a0a17ac519cfc572c73c817dcd96366028d27237"
+    },
+    {
+      "bytes": 1258,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/GetEqpNoByZPSubLot/GetEqpNoByZPSubLot.md",
+      "sha256": "04b41b418b72e4f2d6f73e66c9f6cc43c50d855a9db61714878acfcd267acf34"
+    },
+    {
+      "bytes": 107,
+      "kind": "sql",
+      "path": "装片完工送烘箱/GetEqpNoByZPSubLot/GetEqpNoByZPSubLot.sql",
+      "sha256": "323bebc61883b126d9969e6d6f491a73fbffff46049841785889425c5349ec9f"
+    },
+    {
+      "bytes": 2421,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/GetZPAreaList/GetZPAreaList.md",
+      "sha256": "845c24f79b4e5c8a249be2b3a3d6855af8c494fe08503ceee254911e8cbdae7f"
+    },
+    {
+      "bytes": 779,
+      "kind": "sql",
+      "path": "装片完工送烘箱/GetZPAreaList/GetZPAreaList.sql",
+      "sha256": "a3337f826668c55bb4e53759e123f758a48f01d07ef0f92ea9aace92424a1d84"
+    },
+    {
+      "bytes": 2016,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/UpZP_Finish_TAG_BySublots/UpZP_Finish_TAG_BySublots.md",
+      "sha256": "bbbee092c448e1e520eb9b4676a4b594bcaf73a31a761abfe1700227a594fd47"
+    },
+    {
+      "bytes": 132,
+      "kind": "sql",
+      "path": "装片完工送烘箱/UpZP_Finish_TAG_BySublots/UpZP_Finish_TAG_BySublots.sql",
+      "sha256": "bd068ac0317e315b9ac7452fc20287f79684d594255a1f2795e081a84384c68d"
+    },
+    {
+      "bytes": 3676,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/UpZPFinish_TAG_ByAreaNo/UpZPFinish_TAG_ByAreaNo.md",
+      "sha256": "17ff262e64c057e945062944ad128d70e486257b1454be39f58c790f6e9164a9"
+    },
+    {
+      "bytes": 1828,
+      "kind": "sql",
+      "path": "装片完工送烘箱/UpZPFinish_TAG_ByAreaNo/UpZPFinish_TAG_ByAreaNo.sql",
+      "sha256": "55eaf948527e6a4577dfee055ced5b697b3b338cab4e04c8cc12fae1e53a9c79"
+    },
+    {
+      "bytes": 0,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/UpZPFinish_TAG_ByAreaNo/重复的条目.fuck",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3100,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/ZPMatFinishedCount/ZPMatFinishedCount.md",
+      "sha256": "1d505a1e6584769d67592c21c81128e1132bfba9da6bed1496582b45a44ff1ad"
+    },
+    {
+      "bytes": 1793,
+      "kind": "sql",
+      "path": "装片完工送烘箱/ZPMatFinishedCount/ZPMatFinishedCount.sql",
+      "sha256": "0bfc5dca1807b6fb5a4709501db526bf0b3f971af080f8f9e637ffd277bd22e0"
+    },
+    {
+      "bytes": 0,
+      "kind": "supporting",
+      "path": "装片完工送烘箱/ZPMatFinishedCount/重复的条目.fuck",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3708,
+      "kind": "supporting",
+      "path": "送引线框架/GetEQPList/GetEQPList.md",
+      "sha256": "9505a786c90664e0bb858f972db85b7997476d07119679147af5176258c8db7c"
+    },
+    {
+      "bytes": 875,
+      "kind": "sql",
+      "path": "送引线框架/GetEQPList/GetEQPList.sql",
+      "sha256": "5ebb9b937714a767342ee4a870493c47acff8b1becde676020b32a3bae658f1e"
+    },
+    {
+      "bytes": 2340,
+      "kind": "supporting",
+      "path": "送引线框架/GetEqpNoByMaterial/GetEqpNoByMaterial.md",
+      "sha256": "67af288b24fd2160ab1702beda28630dfd00ca5cfd2293a2f5819fc785d7c152"
+    },
+    {
+      "bytes": 200,
+      "kind": "sql",
+      "path": "送引线框架/GetEqpNoByMaterial/GetEqpNoByMaterial.sql",
+      "sha256": "aa90e34f881cc95e626eaf02b7b541e39d5a77713d39b4a966144fe990a28126"
+    },
+    {
+      "bytes": 2000,
+      "kind": "supporting",
+      "path": "送引线框架/LoadDGVByZPEQP/LoadDGVByZPEQP.md",
+      "sha256": "98a5a323b5f0f248803713b0c6f53e463d2f5843f0b32dd0f39f8af681cd7f09"
+    },
+    {
+      "bytes": 255,
+      "kind": "sql",
+      "path": "送引线框架/LoadDGVByZPEQP/LoadDGVByZPEQP.sql",
+      "sha256": "5b024935b8c5fc9f4d68055d523782e5c54b056b4124b6fd6e28ce929dd44ba8"
+    },
+    {
+      "bytes": 1239,
+      "kind": "supporting",
+      "path": "送引线框架/Pro2FCAreaMissionCount/Pro2FCAreaMissionCount.md",
+      "sha256": "5f51a402f3c13f780d5855724bf9b2ff7b696a29d3cfac19ad4189107e6cf958"
+    },
+    {
+      "bytes": 256,
+      "kind": "sql",
+      "path": "送引线框架/Pro2FCAreaMissionCount/Pro2FCAreaMissionCount.sql",
+      "sha256": "3fa170626fc36805bcd94bbb8afeddeac53625359e92425dce9bad8445d0ff85"
+    },
+    {
+      "bytes": 1351,
+      "kind": "supporting",
+      "path": "送引线框架/Pro2TRAreaMissionCount/Pro2TRAreaMissionCount.md",
+      "sha256": "15ed052110addcc5439421ee93050df8cc6ee45ce50ad412d1d2e86552756340"
+    },
+    {
+      "bytes": 278,
+      "kind": "sql",
+      "path": "送引线框架/Pro2TRAreaMissionCount/Pro2TRAreaMissionCount.sql",
+      "sha256": "79f80c44cbb7924c19ff3efb22af065ac27a7a6ed2285a76873a12a894a02f66"
+    },
+    {
+      "bytes": 1285,
+      "kind": "supporting",
+      "path": "送引线框架/Pro2ZPAreaMissionCount/Pro2ZPAreaMissionCount.md",
+      "sha256": "bdd375e4e2c5edab8b63e8753d62a0e1228453156511117ce71399fa19b84aaa"
+    },
+    {
+      "bytes": 278,
+      "kind": "sql",
+      "path": "送引线框架/Pro2ZPAreaMissionCount/Pro2ZPAreaMissionCount.sql",
+      "sha256": "03d8a8dea632a9644862275afba12eecc91288387b473164881fade48166ccd1"
+    },
+    {
+      "bytes": 1351,
+      "kind": "supporting",
+      "path": "送引线框架/RecordIntoMesHistory/RecordIntoMesHistory.md",
+      "sha256": "d3b855d840c9663f47f3f66fb5ac83990962fee9f419fdc83340534e24921b1d"
+    },
+    {
+      "bytes": 164,
+      "kind": "sql",
+      "path": "送引线框架/RecordIntoMesHistory/RecordIntoMesHistory.sql",
+      "sha256": "d3b86d4b7114cb18758a636e6e786fe213f0028a01c484d8381fe42d5fb491d8"
+    },
+    {
+      "bytes": 1604,
+      "kind": "supporting",
+      "path": "送引线框架/updateAGVZPFlagByEQP/updateAGVZPFlagByEQP.md",
+      "sha256": "244a9ce047d9479986d717b42fca1207dcd9cedd7460d76ffd51ff1ea62a8e3b"
+    },
+    {
+      "bytes": 229,
+      "kind": "sql",
+      "path": "送引线框架/updateAGVZPFlagByEQP/updateAGVZPFlagByEQP.sql",
+      "sha256": "f758a316411b3ed412c2557e61dee2d6fb0a1406bfc0b7971f0b912d98f906f5"
+    },
+    {
+      "bytes": 1237,
+      "kind": "supporting",
+      "path": "通用查询/GetEqpnoByArea/GetEqpnoByArea.md",
+      "sha256": "25f0a5c9c1d0fc2eb5ee158a4a9c0b4a2c18ca1fbcd97a191e17982b6be258f1"
+    },
+    {
+      "bytes": 129,
+      "kind": "sql",
+      "path": "通用查询/GetEqpnoByArea/GetEqpnoByArea.sql",
+      "sha256": "4eaee07989a0e2e9d3b7c296c8148c16a807cd52eae2dc100a0784c5787f78b0"
+    },
+    {
+      "bytes": 1049,
+      "kind": "supporting",
+      "path": "通用查询/GetMESLocIDByEQP/GetMESLocIDByEQP.md",
+      "sha256": "c7f5e9502d8f061b0030e339a0198f2ad4a577c336da839aa62232ab409b3864"
+    },
+    {
+      "bytes": 113,
+      "kind": "sql",
+      "path": "通用查询/GetMESLocIDByEQP/GetMESLocIDByEQP.sql",
+      "sha256": "6dffbf5aef281db718fcbc7878fe0bae483ff688d86fafab1daeb0394f889211"
+    }
+  ],
+  "kind": "legacy-program-sql-source-snapshot",
+  "migrated_at": "2026-07-16T08:50:21.938578+00:00",
+  "schema_version": 1,
+  "source_file_count": 43,
+  "source_label": "旧程序sql访问代码",
+  "sql_count": 20
+}
