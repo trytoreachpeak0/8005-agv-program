@@ -24,3 +24,10 @@ RIoT 是 RobotInternet of Things 的缩写，以下简称为“RIoT”。RIoT �
 2. 可看RIoT的swagger(RIoT所在ip+端口号8888/swagger-ui/index.html#/)
 例如http://172.19.206.222:8888/swagger-ui/index.html#/
 
+## 本仓库相关资料
+
+- [`riot_swagger/`](./riot_swagger/)：RIoT OpenAPI 原始快照，用于查询静态接口契约。
+- [`riot_ithing_model/`](./riot_ithing_model/)：设备物模型快照，用于查询属性、事件、服务和枚举。
+- [`riot-sdk/`](./riot-sdk/)：C# / Python 调用客户端。
+- [`riot-behavior-lab/`](./riot-behavior-lab/)：通过现场实验验证真实接口行为、可观测状态变化和异常语义。
+
