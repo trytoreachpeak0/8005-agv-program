@@ -1,0 +1,32 @@
+{
+  "at": "2026-07-21T16:48:02.9230642+08:00",
+  "name": "电镀顶升AGV1",
+  "movementState": "MT_WAIT_FOR_CHECKPOINT",
+  "actionState": "AT_FINISHED",
+  "controlState": "CONTROL_STATE_OK",
+  "locationState": "LOCATION_STATE_RUNNING",
+  "station": 0,
+  "currentNode": 0,
+  "curPathNo": 11,
+  "curCheckPointNo": 11,
+  "noStation": true,
+  "noNode": true,
+  "procState": "PROCESSING_ORDER",
+  "processingOrder": true,
+  "processingOrderId": null,
+  "allMoveRelated": {
+    "curCheckPointNo": 11,
+    "curPathNo": 11,
+    "noStation": true,
+    "currentNode": 0,
+    "paused": false,
+    "movementState": "MT_WAIT_FOR_CHECKPOINT",
+    "moveTaskNo": 14329,
+    "noNode": true,
+    "fleetMode": "FLEET_MODE_OFFLINE",
+    "currentStation": 0,
+    "speed": 0.0,
+    "startPauseTime": 0,
+    "actionTaskNo": 14265
+  }
+}

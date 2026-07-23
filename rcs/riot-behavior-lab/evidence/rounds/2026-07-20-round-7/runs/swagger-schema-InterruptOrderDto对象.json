@@ -1,0 +1,28 @@
+{
+  "title": "InterruptOrderDto对象",
+  "required": [
+    "missions",
+    "orderId"
+  ],
+  "type": "object",
+  "properties": {
+    "missions": {
+      "type": "array",
+      "description": "默认mission",
+      "items": {
+        "$ref": "#/components/schemas/MissionDTO"
+      }
+    },
+    "orderId": {
+      "type": "string",
+      "description": "订单的key",
+      "example": "order-1581891583043829760"
+    },
+    "pause": {
+      "type": "boolean",
+      "description": "是否暂停车辆",
+      "example": false
+    }
+  },
+  "description": "InterruptOrderDto对象"
+}

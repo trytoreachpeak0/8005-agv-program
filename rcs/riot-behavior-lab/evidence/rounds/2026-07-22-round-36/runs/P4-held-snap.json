@@ -1,0 +1,17 @@
+{
+    "at":  "2026-07-22 13:07:49.315",
+    "station":  0,
+    "movementState":  "MT_PAUSED",
+    "controlState":  "CONTROL_STATE_ERR",
+    "emergencyState":  "OK",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "procState":  "USER_FORCE_IDLE",
+    "processingOrder":  true,
+    "orderState":  7,
+    "orderId":  "order-2079795943712096256",
+    "numericId":  489324,
+    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "progress":  20,
+    "failReason":  ""
+}

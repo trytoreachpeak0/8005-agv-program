@@ -2,13 +2,14 @@ using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Http.HttpClientLibrary;
 using RIoT.Sdk.Core;
 using GenDeviceClient = RIoT.Sdk.Generated.Device.DeviceClient;
+using GenImapClient = RIoT.Sdk.Generated.Imap.ImapClient;
 using GenOrderClient = RIoT.Sdk.Generated.Order.OrderClient;
 using GenTaskClient = RIoT.Sdk.Generated.TaskApi.TaskClient;
 
 namespace RIoT.Sdk.Facade;
 
 /// <summary>
-/// Shared session: login once, then reuse token across Device/Task/Order facades.
+/// Shared session: default CallApiKey Bearer, or AdminLogin backup; reuse across facades.
 /// </summary>
 public sealed class RiotSession : IAsyncDisposable, IDisposable
 {
@@ -18,13 +19,22 @@ public sealed class RiotSession : IAsyncDisposable, IDisposable
 
     public RiotSession(RiotOptions options, HttpClient? httpClient = null)
     {
+        ArgumentNullException.ThrowIfNull(options);
         Options = options;
         TokenProvider = new RiotTokenProvider();
+
+        // ADR-0001: CallApiKey is the default Bearer credential; AdminLogin is optional.
+        if (!string.IsNullOrWhiteSpace(options.CallApiKey))
+        {
+            TokenProvider.SetAccessToken(options.CallApiKey);
+        }
+
         _auth = new RiotAuthClient(options, httpClient);
         _ownsAuth = true;
 
         var authProvider = new BaseBearerTokenAuthenticationProvider(new KiotaAccessTokenProvider(TokenProvider));
-        _adapter = new HttpClientRequestAdapter(authProvider)
+        // Inject HttpClient when provided so Facade unit tests can mock at the HTTP boundary.
+        _adapter = new HttpClientRequestAdapter(authProvider, httpClient: httpClient)
         {
             BaseUrl = options.BaseUrl.TrimEnd('/'),
         };
@@ -32,6 +42,7 @@ public sealed class RiotSession : IAsyncDisposable, IDisposable
         Device = new DeviceClient(this);
         Tasks = new TaskClient(this);
         Order = new OrderClient(this);
+        Maps = new MapClient(this);
     }
 
     public RiotOptions Options { get; }
@@ -40,6 +51,7 @@ public sealed class RiotSession : IAsyncDisposable, IDisposable
     /// <summary>Task-module facade (named Tasks to avoid clashing with System.Threading.Tasks.Task).</summary>
     public TaskClient Tasks { get; }
     public OrderClient Order { get; }
+    public MapClient Maps { get; }
 
     internal HttpClientRequestAdapter Adapter => _adapter;
 
@@ -61,6 +73,7 @@ public sealed class RiotSession : IAsyncDisposable, IDisposable
     internal GenDeviceClient CreateGeneratedDeviceClient() => new(_adapter);
     internal GenTaskClient CreateGeneratedTaskClient() => new(_adapter);
     internal GenOrderClient CreateGeneratedOrderClient() => new(_adapter);
+    internal GenImapClient CreateGeneratedImapClient() => new(_adapter);
 
     public void Dispose()
     {

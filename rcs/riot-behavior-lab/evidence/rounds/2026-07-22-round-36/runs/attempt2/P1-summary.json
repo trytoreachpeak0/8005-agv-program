@@ -1,0 +1,25 @@
+{
+    "uid":  "riot-behavior-lab-R36-P1-20260722-125922",
+    "heldCode":  "0",
+    "contCode":  "0",
+    "afterHeldOrder":  7,
+    "hitSuccess":  false,
+    "hitHang":  true,
+    "final":  {
+                  "at":  "2026-07-22 13:02:14.969",
+                  "station":  0,
+                  "movementState":  "MT_FINISHED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "procState":  "INNER_FORCE_IDLE",
+                  "processingOrder":  true,
+                  "orderState":  9,
+                  "orderId":  "order-2079793840235085824",
+                  "numericId":  489316,
+                  "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "progress":  40,
+                  "failReason":  "订单被取消,导致订单挂起"
+              }
+}

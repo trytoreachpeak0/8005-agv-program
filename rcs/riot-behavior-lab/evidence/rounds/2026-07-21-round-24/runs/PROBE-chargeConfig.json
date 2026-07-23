@@ -1,0 +1,33 @@
+{
+  "code": "0",
+  "message": "成功",
+  "msgDetail": "",
+  "result": [
+    {
+      "batteryLevelCritical": 40,
+      "batteryLevelFullyRecharged": 85,
+      "batteryLevelSufficientlyRecharged": 50,
+      "deviceKeys": [
+        "BROKERX-7cfc7a2757674e56907162cb2f95c746",
+        "BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4"
+      ],
+      "enableBatteryMaintenance": false,
+      "enableIdleCharge": true,
+      "groupIdList": [
+        "7"
+      ],
+      "groupIds": "7",
+      "groupNames": {
+        "7": "测试"
+      },
+      "id": 2,
+      "idleChargeFrequency": 120,
+      "incrementBattery": 30,
+      "keepRechargingUntilFullyCharged": false,
+      "name": "新潮尊阳测试",
+      "priority": 1,
+      "stopChargeWaitTime": 0
+    }
+  ],
+  "tid": ""
+}

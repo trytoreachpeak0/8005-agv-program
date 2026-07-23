@@ -1,0 +1,39 @@
+{
+    "tag":  "E",
+    "uid":  "riot-behavior-lab-R27-E-20260721-192457",
+    "mode":  "plain",
+    "beforeOrder":  9,
+    "beforeEmerg":  "OK",
+    "beforeBreak":  "MOVABLE",
+    "continueCode":  "0",
+    "continueMessage":  "成功",
+    "afterContinueOrder":  3,
+    "afterContinueEmerg":  "OK",
+    "jumpCode":  "100021",
+    "jumpMessage":  "由于车辆原因订单无法跳过或者继续",
+    "afterJumpOrder":  3,
+    "continueRecovered":  true,
+    "steps":  [
+                  {
+                      "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                      "orderId":  "order-2079528484346134528",
+                      "code":  "0",
+                      "message":  "成功",
+                      "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                  },
+                  {
+                      "step":  "snap-after-CONTINUE",
+                      "orderState":  3,
+                      "emergencyState":  "OK",
+                      "procState":  "PROCESSING_ORDER",
+                      "movementState":  "MT_RUNNING"
+                  },
+                  {
+                      "commandType":  "CMD_ORDER_JUMP_FROM_HANG",
+                      "orderId":  "order-2079528484346134528",
+                      "code":  "100021",
+                      "message":  "由于车辆原因订单无法跳过或者继续",
+                      "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}"
+                  }
+              ]
+}

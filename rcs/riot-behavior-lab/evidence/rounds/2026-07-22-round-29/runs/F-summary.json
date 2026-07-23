@@ -1,0 +1,16 @@
+{
+    "tag":  "F",
+    "uid":  "riot-behavior-lab-R29-F-20260722-085805",
+    "beforeEmerg":  "OK",
+    "beforeBreak":  "UNMOVABLE",
+    "beforeProc":  "IDLE",
+    "createCode":  "0",
+    "hitExec":  false,
+    "stayedQueueing":  true,
+    "finalOrderState":  1,
+    "finalExecKey":  "--",
+    "finalEmerg":  "OK",
+    "finalBreak":  "UNMOVABLE",
+    "finalProc":  "IDLE",
+    "watchSec":  90
+}

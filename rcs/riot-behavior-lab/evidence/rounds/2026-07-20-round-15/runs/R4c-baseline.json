@@ -1,0 +1,8 @@
+{
+    "station":  0,
+    "mapName":  "api测试",
+    "proc":  "IDLE",
+    "enable":  true,
+    "il":  "ON_LINE",
+    "move":  "MT_FINISHED"
+}

@@ -1,0 +1,9 @@
+{
+  "req": "{\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"]}",
+  "message": "Not Found",
+  "code": "404",
+  "msgDetail": "null",
+  "http": 404,
+  "n": "T-path-ON_LINE",
+  "url": "http://172.10.1.72:8888/api/task/vehicles/updateVehicleIntegrationLevel/ON_LINE"
+}

@@ -1,0 +1,24 @@
+{
+    "hitHang":  true,
+    "uid":  "riot-behavior-lab-R38-H1-20260722-135632",
+    "last":  {
+                 "at":  "2026-07-22 13:57:13.399",
+                 "station":  0,
+                 "movementState":  "MT_FINISHED",
+                 "controlState":  "CONTROL_STATE_OK",
+                 "emergencyState":  "OK",
+                 "breakSwitchState":  "MOVABLE",
+                 "locationState":  "LOCATION_STATE_RUNNING",
+                 "speed":  0.0,
+                 "procState":  "INNER_FORCE_IDLE",
+                 "processingOrder":  true,
+                 "orderState":  9,
+                 "orderId":  "order-2079808226223849472",
+                 "numericId":  489353,
+                 "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                 "progress":  20,
+                 "failReason":  "订单被取消,导致订单挂起",
+                 "m0_resultCode":  901,
+                 "m0_resultStr":  "订单被取消,导致订单挂起"
+             }
+}

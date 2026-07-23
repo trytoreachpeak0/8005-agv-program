@@ -1,0 +1,28 @@
+{
+    "hitExec":  true,
+    "uid":  "riot-behavior-lab-R31-Bsw-20260722-095006",
+    "last":  {
+                 "at":  "2026-07-22 09:50:08.231",
+                 "station":  0,
+                 "mapName":  "api测试2",
+                 "movementState":  "MT_RUNNING",
+                 "controlState":  "CONTROL_STATE_OK",
+                 "emergencyState":  "OK",
+                 "breakSwitchState":  "MOVABLE",
+                 "locationState":  "LOCATION_STATE_RUNNING",
+                 "speed":  0.0,
+                 "faultCodes":  "",
+                 "lastErrorCode":  0,
+                 "procState":  "PROCESSING_ORDER",
+                 "processingOrder":  true,
+                 "enable":  true,
+                 "orderState":  3,
+                 "orderId":  "order-2079746211249782784",
+                 "numericId":  489225,
+                 "failReason":  "",
+                 "progress":  11,
+                 "executingIndex":  0,
+                 "m0_resultCode":  0,
+                 "m0_resultStr":  ""
+             }
+}

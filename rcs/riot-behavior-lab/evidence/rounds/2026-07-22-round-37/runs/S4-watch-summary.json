@@ -1,0 +1,25 @@
+{
+    "uid":  "riot-behavior-lab-R37-OnboardPause-20260722-132036",
+    "final":  {
+                  "at":  "2026-07-22 13:24:13.612",
+                  "station":  2,
+                  "movementState":  "MT_FINISHED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "speed":  0.0,
+                  "faultCodes":  "",
+                  "lastErrorCode":  0,
+                  "procState":  "IDLE",
+                  "processingOrder":  false,
+                  "orderState":  5,
+                  "orderId":  "order-2079799184344612864",
+                  "numericId":  489335,
+                  "progress":  100,
+                  "failReason":  "",
+                  "m0_resultCode":  900,
+                  "m0_resultStr":  "订单完成"
+              },
+    "sampleCount":  66
+}

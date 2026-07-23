@@ -13,16 +13,19 @@
 | 类别 | 编号 | 测试项 | 只读/写 |
 |---|---|---|---|
 | A 鉴权连通性 | A1 | 登录拿 token | 只读 |
-| B 设备/车辆状态 | B1 | 设备列表查到测试车+在线状态字段 | 只读 |
+| A 鉴权连通性 | A2 | 调用密钥直接访问业务接口 | 只读 |
+| B 设备/车辆状态 | B1 | 车辆清单、非车过滤、名称→deviceKey | 只读 |
 | B 设备/车辆状态 | B2 | `getVehicleInfo`：位置/电量/任务状态 | 只读 |
 | C 地图/站点/路网 | C1 | 地图列表 `mapInfo/all` | 只读 |
-| C 地图/站点/路网 | C2 | 有效站点 `stations/{mapId}` | 只读 |
+| C 地图/站点/路网 | C2 | 单图站点 stations/{mapId} | 只读 |
 | C 地图/站点/路网 | C3 | 边/路网 `edges/{mapId}` | 只读 |
 | C 地图/站点/路网 | C4 | 地图关系 Map Relation | 只读 |
 | D 调度只读 | D1 | 路径成本 `getRouteCostsBy` | 只读 |
+| D 调度只读 | D2 | Route Controller 全套 GET/POST（禁 DELETE） | 只读/写-查询 |
 | E 移动订单 | E1 | 创建一个移动订单 | 写 |
 | E 移动订单 | E2 | 监控订单直到到站 | 只读（依赖 E1） |
 | E 移动订单 | E3 | 对进行中订单做 interrupt | 写 |
+| E 移动订单 | E4 | 按车查积压订单并清队后再派 | 写 |
 | F 充电调度 | F1 | 指定该车充电 | 写 |
 | G 停靠 | G1 | 空闲返停靠点 | 写 |
 | H 启停设备 | H1 | disable 测试车 | 写 |
@@ -36,7 +39,11 @@
 
 ```mermaid
 flowchart TB
-  A1 --> B1 --> B2
+  A2["A2 调用密钥直接访问"]
+  A1["A1 登录拿 token"]
+  A2 --> B1
+  A1 -.->|"备用鉴权路径"| B1
+  B1 --> B2
   B1 --> C1 --> C2
   C1 --> C3
   C1 --> C4
@@ -50,7 +57,7 @@ flowchart TB
   G1["G1 停靠（默认不接入主线，按需单独接上）"]
 ```
 
-**排序理由**：A/B/C/D 只读、互不影响，先摸清字段；E1 需要 C2 有效站点和 B2 车辆当前状态才能选安全目的地；E3 验证完后补一次不中断完整流程作对照；H 放最后，因为 disable 会挡住后续接单。F1/G1 默认不接入主线，是否本轮测由 `round-plan.md` 决定。
+**排序理由**：当前 P0 先确认 A2（调用密钥）能否替代每次登录；A1 保留为对照/备用。A/B/C/D 只读、互不影响，先摸清字段；E1 需要 C2 有效站点和 B2 车辆当前状态才能选安全目的地；E3 验证完后补一次不中断完整流程作对照；H 放最后，因为 disable 会挡住后续接单。F1/G1 默认不接入主线，是否本轮测由 `round-plan.md` 决定。
 
 ---
 
@@ -115,60 +122,99 @@ flowchart TB
 
 ---
 
-#### B1 设备列表查到测试车 + 在线状态
+#### A2 调用密钥直接访问业务接口
 
-- **测试意图**：在全局设备列表中唯一定位测试车，确认在线/启用相关字段，避免写操作打到别的车。
-- **前置条件**：A1 通过。
+- **测试意图**：验证 RIoT 网页「调用密钥设置」中的长期密钥，能否在**不调用** `POST /api/auth/v1/admin/login` 的前提下，以 `Authorization: Bearer <callApiKey>` 访问业务只读接口；对应假设 [`../hypotheses/open-questions.md`](../hypotheses/open-questions.md) Q-015。
+- **前置条件**：本机可访问 `baseUrl`；`environment.local.json` 中已配置 `callApiKey`（来自网页调用密钥，勿提交仓库）。
 - **测试程序**（只读）：
-  1. `GET {{baseUrl}}/api/device/v1/devices`（可分页）。
-  2. 在结果中按 `deviceKey == {{testVehicleKey}}` 过滤。
-  3. 可选：`GET /api/device/v1/runtime/status/{{testVehicleKey}}` 交叉确认在线。
-- **预期结果**：能查到该 key；记录在线/启用相关字段原值（字段名以实际返回为准，常见如 online / enable / status）；与 `environment.local.json` 中 `testVehicleOnline` 一致或可解释。
-- **反例/边界**：
-  1. 查一个不存在的 `deviceKey`（如拼错/随机字符串）→ 期待：空结果或明确"未找到"，不应 500，也不应模糊匹配到其它设备。
+  1. **正例**：不登录。对同一只读探针 `GET {{baseUrl}}/api/imap/v1/mapInfo/all` 设置头 `Authorization: Bearer {{callApiKey}}` 并请求。
+  2. **对照正例（可选）**：同一密钥再打 `GET {{baseUrl}}/api/device/v1/devices`（分页默认即可），确认不止地图模块可用。
+  3. **反例-无鉴权**：同一探针去掉 `Authorization`。
+  4. **反例-伪造密钥**：`Authorization: Bearer invalid-call-key-riot-behavior-lab`。
+  5. 全程禁止调用 `admin/login`；禁止任何写接口。
+- **预期结果**：
+  - 正例：HTTP 与业务层均表明鉴权通过（记录实际 `httpStatus`、业务 `code`、是否返回非空业务数据）。
+  - 反例：鉴权失败且无业务数据泄露；记录失败是 HTTP 401/403 还是 HTTP 200 + 业务失败码。
+- **反例/边界**：见测试程序步骤 3、4；本卡不测密钥刷新、权限范围差异、过期密钥（若后续需要另开实验卡）。
 - **风险等级**：只读
-- **人工干预**：可能需要：列表显示离线时，由用户现场确认车上电/联网，或更新 `environment.local.json` 的在线状态说明。
+- **人工干预**：可能需要：密钥已在网页侧禁用/轮换，或本机网络不通时由用户确认。
+
+---
+
+#### B1 车辆清单、非车过滤与名称→deviceKey
+
+- **测试意图**：弄清系统里有哪些**可调度车辆**；确认设备列表会混入非车设备；验证能否用车辆名解析到 `deviceKey`。对应 [`../hypotheses/open-questions.md`](../hypotheses/open-questions.md) Q-016 / Q-017。
+- **前置条件**：A2 或 A1 通过（优先 A2 调用密钥路径）。
+- **测试程序**（只读）：
+  1. `GET {{baseUrl}}/api/device/v1/devices?current=1&pageSize=100`（注意：本现场 `pageSize` 比 `size` 更可靠拉全量；`current+size` 翻页可能重复第 1 页）。
+  2. `GET {{baseUrl}}/api/task/vehicles/getAllVehicleKeys`
+  3. `GET {{baseUrl}}/api/task/vehicles/getAllVehicleSimpleInfo`（期望直接给出 `deviceName`↔`deviceKey`）
+  4. 对照：`GET {{baseUrl}}/api/task/vehicles/getAllTaskVehicles`（富对象；标识字段位置另行记录）
+  5. 交叉：device 列表 − task 车辆 key 集 = 非调度设备样本；记录其 `productKey` / `deviceType`。
+  6. 名称解析正例：用已知测试车 `deviceName` 在 simpleInfo 结果中精确匹配，得到 `deviceKey`，并与 `environment.local.json` 的 `testVehicleKey` 对照。
+  7. 名称解析反例：用不存在的车名匹配，期待 0 命中。
+- **预期结果**：
+  - 能得到可调度车辆集合（本现场观测口径：出现在 task 车辆接口中的 key）。
+  - 能证明 devices 接口含非车设备，不能直接当“车辆列表”。
+  - 能证明（或证伪）`deviceName → deviceKey` 在本现场可唯一解析。
+- **反例/边界**：
+  1. 不存在的车辆名 → 0 命中，不得模糊匹配到其它车。
+  2. （若出现重名）记录为重大契约风险：禁止只按名称派车。
+- **风险等级**：只读
+- **人工干预**：可能需要：用户确认测试车在网页上的显示名，或确认某台“像车”的设备是否应纳入调度。
 
 ---
 
 #### B2 getVehicleInfo：位置 / 电量 / 任务状态
 
-- **测试意图**：拿到调度视角下的车辆任务态与本体状态，供 E1 选目的地、判断是否空闲可接单。
-- **前置条件**：B1 通过；车已上线。
+- **测试意图**：拿到调度视角与设备物模型运行态，确认当前图/站/电量/任务态；对应 Round6 结论 BC-STATE-001。
+- **前置条件**：B1 通过；车已上线；优先 A2 调用密钥。
 - **测试程序**（只读）：
-  1. `GET {{baseUrl}}/api/task/v1/task/getVehicleInfo/{{testVehicleKey}}` → `VehicleTaskInfo`（重点：`procState`、`processingOrder`、`enable`、当前 `orderTask`/`orderSequence` 若有）。
-  2. 补充：`GET {{baseUrl}}/api/task/vehicles/getVehicleInfoByDeviceKey?deviceKey={{testVehicleKey}}`（或等价 query）→ 关注 `Vehicle`：`battery`、`currentStation`、`precisePosition`、`locationState`、`connected`/`aliveState`。
-- **预期结果**：`code == 0`；`procState` 为已知枚举之一（期望偏 `IDLE` / `AWAITING_ORDER`，若已是 `PROCESSING_ORDER` 须先记清当前订单再决定是否继续 E）；电量、当前站/坐标有可读值；记下 **map 相关线索**（若本接口无 mapId，则结合 C1 列表与车当前站所属地图再定 `appointMapId`）。
+  1. **调度面**：`GET {{baseUrl}}/api/task/v1/task/getVehicleInfo/{{testVehicleKey}}` → 关注 `vehicleTaskInfo.procState`、`vehicle.currentStation`、**`vehicle.previousState.mapName`**（不要只扫顶层）。
+  2. **物模型面**：`GET {{baseUrl}}/api/device/v1/runtime/properties/{{testVehicleKey}}` → 关注 `mapName`、`stationNo`、`sysState`、`movementState`、`multiLoadState`、`batteryPercentage`。
+  3. **不要**把 `GET /api/device/v1/runtime/status/{{testVehicleKey}}` 当主状态源（仅 online）。
+  4. 用 `mapName` 在 C1 地图清单中精确反查 `mapId`。
+  5. 记录在站/离站对照：若 `currentStation`/`stationNo` 为 **0** 且 `noStation=true`，记为离站（见 BC-STATE-002），同时仍应读到 `mapName` 与坐标。
+- **预期结果**：能读到地图名并解析出 mapId；能区分在站（正整数站号）与离站（0）；两面关键字段可对照。
 - **反例/边界**：
-  1. `getVehicleInfo/{deviceKey}` 传不存在的 key → 期待：业务失败码或空结果，绝不应返回其它车的信息（防串车）。
+  1. `getVehicleInfo/{deviceKey}` 传不存在的 key → 期待失败或空，不得串车。
+  2. `getVehicleInfoByDeviceKey` 本现场曾返回 `code=00002`，不作为主路径。
 - **风险等级**：只读
-- **人工干预**：可能需要：急停未复位、手自动模式不对、定位丢失、车非空闲且 API 无法安全收尾时，由用户改车态/UI 处置；完成后回复当前站与是否空闲。
+- **人工干预**：可能需要：急停未复位、手自动模式不对、定位丢失时由用户改车态。
 
 ---
 
 #### C1 地图列表 mapInfo/all
 
-- **测试意图**：拿到现场有效地图列表，确定测试车所在/可调度的 `mapId`。
-- **前置条件**：A1 通过（B1 建议已完成）。
-- **测试程序**（只读）：`GET {{baseUrl}}/api/imap/v1/mapInfo/all`。
-- **预期结果**：`code == 0`；至少一条有效地图；记录候选 `mapId` / 地图名列表，标注后续 E1 拟用的那一个。
+- **测试意图**：拿到现场有效地图清单（`mapId` ↔ 地图名），供后续选站与建单；对应 [`../hypotheses/open-questions.md`](../hypotheses/open-questions.md) Q-018。
+- **前置条件**：A2 或 A1 通过（优先 A2）；B1 建议已完成（便于对照测试车）。
+- **测试程序**（只读）：
+  1. `GET {{baseUrl}}/api/imap/v1/mapInfo/all`（证据中剥离 `mapJson` 几何，只保留 id/name 等摘要）。
+  2. 对照轻量接口（若可用）：`GET {{baseUrl}}/api/imap/v1/mapInfo/getALLMapInfoExcludeMapJson`。
+  3. 可选：用测试车 `deviceKey` 查只读车辆信息，记录地图相关字段（若有），作为“车当前在哪张图”的线索，不作为本卡唯一通过条件。
+- **预期结果**：`code == 0`；至少一条有效地图；产出完整 `mapId`/地图名列表。
 - **反例/边界**：
-  1. 不带 Authorization 直接请求 → 期待 `401`，验证地图数据不会被未鉴权请求读到。
+  1. 不带 Authorization 直接请求 → 期待 `401`（A2 已覆盖时可引用，不必每轮重打）。
 - **风险等级**：只读
-- **人工干预**：无
+- **人工干预**：可能需要：用户确认后续派车拟用的地图名/`mapId`（尤其多图现场）。
 
 ---
 
 #### C2 有效站点 stations/{mapId}
 
-- **测试意图**：为 E1 选出**安全、短距、不干扰产线**的目的站点；对应多仓位场景下「站点是否有效」的基础数据。
-- **前置条件**：C1 通过；已选定 `mapId`（优先与 B2 车辆当前站一致的地图）。
-- **测试程序**（只读）：`GET {{baseUrl}}/api/imap/v1/mapInfo/stations/{{mapId}}`。
-- **预期结果**：返回有效站点列表；从中选出 E1 目的站（建议：与当前站不同、同图、距离近、非充电/关键产线独占站——若无法从字段判断，选相邻空闲站并在执行日志注明选择理由）；记录 `stationId`（及名称若有）。
+- **测试意图**：读取单图有效站点清单（`stationId`↔站名等），作为建单目的地前置；对应 [`../hypotheses/open-questions.md`](../hypotheses/open-questions.md) Q-019。
+- **前置条件**：C1 通过；已有候选 `mapId`（用户指定，或按测试命名/历史线索选取，如本现场 26–29）。
+- **测试程序**（只读）：
+  1. `GET {{baseUrl}}/api/imap/v1/mapInfo/stations/{{mapId}}`，保存站点摘要（id/name/类型/坐标等标量；剥离超大嵌套）。
+  2. 可选：`GET {{baseUrl}}/api/imap/v1/mapInfo/{{mapId}}` 单图摘要（无 mapJson）。
+  3. 可选：`GET {{baseUrl}}/api/imap/v1/mapInfo/{{mapId}}/{{stationId}}` 单站探针。
+  4. 反例：不存在的 `mapId`（如 `0`）。
+  5. 若车辆有 `currentStation`，记录该站是否出现在候选图站点列表中（交叉线索，不单独定论绑图）。
+- **预期结果**：`code == 0`；得到可枚举的站点列表与字段结构；能说明如何用站名/站号选目的地。
 - **反例/边界**：
-  1. 传一个不存在的 `mapId`（如 `0` 或超大数字）→ 期待：空列表或业务失败码，不应报错崩溃、不应"默认兜底返回全部地图站点"。
+  1. 非法 `mapId` → 空列表或业务失败码，不应兜底返回其它地图站点。
 - **风险等级**：只读
-- **人工干预**：可能需要：无法从字段判断「是否干扰产线」时，由用户对候选目的站做最终安全拍板（回复可用的 stationId/站名）。
+- **人工干预**：可能需要：用户确认测试用 `mapId` 与安全目的站（写操作前必须拍板）。
 
 ---
 
@@ -201,35 +247,56 @@ flowchart TB
 
 #### D1 路径成本 getRouteCostsBy
 
-- **测试意图**：只读验证调度路由接口；为 E1 目的地选择提供成本参考（可选辅助）。
-- **前置条件**：B2、C2 通过；已知车辆 key 与目标站点。
-- **测试程序**（只读）：`POST {{baseUrl}}/api/task/v1/route/getRouteCostsBy`，body 按 swagger `获取车辆列表到达指定站点的代价` 填：包含测试车 key 与 C2 选定站点（字段名以 schema 为准，实测时把完整 body 记入执行日志）。
-- **预期结果**：`code == 0`；返回中能看到该车到目标站的代价/是否可达；若不可达则换 C2 另一站点并更新 E1 计划目的地。
-- **反例/边界**：
-  1. body 里车辆 key 或站点 id 传无效值 → 期待：明确"不可达"/业务失败，不应静默返回代价为 0 或伪造出一条可达路径。
+- **测试意图**：验证 `POST /api/task/v1/route/getRouteCostsBy` 为指定车到指定站给出代价/可达性。对应 Q-026 / BC-ROUTE-001。
+- **前置条件**：B2、C2 通过；已知车辆 key 与目标站点；`deviceKeys` 仅含测试车。
+- **测试程序**（只读）：body `{mapId, stationId, deviceKeys:[testVehicleKey]}`。
+- **预期结果**（Round15）：`code==0`；`deviceCostsList[].costs` 非负 mm + `ok`，或 `-1` + unreachable（跨图常见）。
+- **反例/边界**：跨图目的站 → `-1`；假 deviceKey 记录返回形态。
 - **风险等级**：只读
 - **人工干预**：无（若持续不可达，升级到 C2 的人工选站）
 
 ---
 
+#### D2 Route Controller GET/POST（禁 DELETE）
+
+- **测试意图**：摸清 Route 分组可读接口形态与业务场景；禁止 `DELETE dynamicRouteCost*`。对应 Q-026。
+- **前置条件**：用户指定研究地图（如 map28 新基测试2opt）；安全边界仅本车。
+- **测试程序**：
+  1. `GET /api/task/v1/route/`、`GET .../getCostUnit`
+  2. `POST getRouteCostsBy`（目标图多站 + 当前图对照）
+  3. `POST queryNearEnd` / `queryNearestStart`（目标图拓扑）
+  4. `GET curRemainCost/{orderKey}`（假单；可选 EXECUTING 采样）
+- **预期结果**（Round15）：Near* 不依赖车在图；costs 跨图 -1；动态 GET 可空；remain 未执行时为 MAX 哨兵。
+- **反例/边界**：Near* 空候选 → NPE；非法 map 可能 `result=null`。
+- **风险等级**：只读（查询类 POST）；若为 remain 临时建单则写-可逆（须 cancel）
+- **人工干预**：若需 EXECUTING remain，可能需把车放到目标图/站上。
+
+---
+
 #### E1 创建一个移动订单
 
-- **测试意图**：验证指定车辆创建 NORMAL 工作订单；确认 `appointVehicleKey` 生效、不会派到别的车。
-- **前置条件**：B2 车空闲或可接单（`procState` 为 `IDLE`/`AWAITING_ORDER` 等）；C2 已选定同图安全目的站；当轮写操作已获批准（见该轮 `round-plan.md`）。
-- **测试程序**（写）：
-  1. `POST {{baseUrl}}/api/task/v1/order`，body 为 `OrderDTO`，至少包含：
+- **测试意图**：验证指定车辆创建移动订单；确认 `appointVehicleKey` 生效、不会派到别的车。对应 Q-001 / Q-011；契约 BC-ORDER-001 / BC-ORDER-002。
+- **前置条件**：B2 车空闲可接单；**`integrationLevel=ON_LINE` 且 `enable=true`**；C2 已选定同图安全目的站；当轮写操作已获批准。
+- **测试程序**（写，Round7 已验证主路径）：
+  1. **主路径**：`POST {{baseUrl}}/api/order/v1/add/byDefaultMissions`，至少包含：
      - `appointVehicleKey`: `{{testVehicleKey}}`（必须）
-     - `appointMapId`: C1/C2 选定地图
-     - `orderType`: `NORMAL`（工作订单，对应 orderType=1）
-     - `mission`: 至少一段移动，`mapId` + `destination` = C2 站点 id（字段见 `MissionDTO`）
-     - `orderName` / `upperId`: 带可识别前缀如 `riot-behavior-lab-E1-{{timestamp}}`，便于事后检索
-  2. 记录返回的 `orderId` / orderKey。
-- **预期结果**：`code == 0`；拿到订单标识；随后用订单详情或 B2 复查，`executeVehicleKey`（或等价）为本测试车；`orderState` 进入 `1 QUEUEING` 或 `3 EXECUTING`；车侧 `procState` 趋向 `PROCESSING_ORDER` 或 `AWAITING_ORDER`（视调度节奏）。
+     - `isAppointEnable`: `1`
+     - `lockStatus`: `0`
+     - `mission`: `[{ "type":"move", "mapId": <mapId>, "destination": <stationId> }]`
+     - `orderName` / `upperId`: 前缀 `riot-behavior-lab-E1-{{timestamp}}`
+  2. **对照（本现场失败）**：`POST /api/task/v1/order` 多种 body 曾 NPE——不要当主路径，除非新证据翻案。
+  3. 记录返回的 `orderId`；用 `detailByUpperId` 复查。
+- **预期结果**：`code == 0`；`executeVehicleKey` 为本测试车；`orderState` 进入 `1` 或 `3`；车侧可出现 `PROCESSING_ORDER` / `MT_RUNNING`。
 - **反例/边界**（**安全边界核心验证**——预期都是"创建失败"，不产生真实副作用，风险实际很低）：
   1. `appointVehicleKey` 指向一个**不存在或已离线**的 key → 期待：创建失败/报错，**绝不能被系统"自动兜底"派给测试车之外任何其它在线车**（这是 `safety-boundaries.md` 第 1 条的直接验证，一旦系统真派了车，是严重发现，必须立刻记录并升级人工，不再继续 E 系列）。
   2. `appointMapId` 与 `mission` 里站点不属于同一地图 → 期待：创建失败，不应派车走错图。
-- **风险等级**：写-可逆（可用 cancel / interrupt 收尾；勿用全局清理接口）
-- **人工干预**：可能需要：发单前确认车旁无人/无障碍、车已自动模式；若车被非本轮订单占用且 API 取消失败，由用户在 UI 清障后再发；**若反例 1 真的派车给了别的车，立刻停止并等待人工介入**。
+- **反例/边界**（Round10 已测）：
+  1. 传**不存在**的 `appointVehicleKey` → **仍会 `code=0` 进 QUEUEING**（BC-ORDER-007）；必须立即 cancel，并视为安全边界发现。
+  2. **省略** `appointVehicleKey` → 同上会进队列；禁止业务依赖“系统拒绝”。
+  3. 非法 `mapId`/`destination` → `0660003` 目的地站点不存在，未落库。
+  4. 相同 `upperId` 重复提交 → `0610008` 订单已存在（BC-ORDER-004）。
+- **风险等级**：写-可逆（可用 cancel 收尾；勿用全局清理接口；**勿用 interrupt 当纯 move 暂停**）
+- **人工干预**：可能需要：发单前确认车旁无人/无障碍、车已自动模式；若车被非本轮订单占用且 API 取消失败，由用户在 UI 清障后再发；**若反例真的派车给了别的车，立刻停止并等待人工介入**。
 
 ---
 
@@ -263,12 +330,32 @@ flowchart TB
   3. 立即查订单详情 + `getVehicleInfo`，记录 `orderState`、`procState`。
   4. 若落入可恢复态，按需用 `POST /api/task/v1/order/command/{{orderKey}}` 发 `CMD_ORDER_CONTINUE_FROM_HELD` / `CMD_ORDER_CONTINUE_FROM_HANG` 或 `CMD_ORDER_CANCEL` 收尾，**避免车长期挂起**。
   5. E3 结束后：再跑一次**完整 E1→E2（不中断）**作对照，确认车恢复正常（见顺序图 `E1b`）。
-- **预期结果**：interrupt 调用 `code == 0`；状态变化被完整记录（这是本条通过的核心判据，而非事先猜死终态）。收尾后车回到可接单；对照 E1→E2 能再次 SUCCESS。
+- **预期结果**（Round9/10）：对**纯 move** 执行中，`interrupt`（`pause` true/false）均业务失败 `code=100036`，状态不变——须记实。需要暂停时改用 `CMD_ORDER_HELD` / `CONTINUE_FROM_HELD`（BC-ORDER-006）。取消用 `CMD_ORDER_CANCEL` 或 `order/v1/operate`。含 `act` 执行中的 interrupt 仍待测。
 - **反例/边界**：
   1. 对一个**已是终态**（SUCCESS/CANCELLED）的订单发 interrupt → 期待：业务失败，不应报成功、不应影响测试车当前其它订单。
   2. 传一个**不存在**的 `orderId` → 期待：报错，不应误中断测试车正在执行的其它订单。
 - **风险等级**：写-需人工复核（状态机语义以实测为准；必须善后）
 - **人工干预**：可能需要：interrupt/command 后车长期挂起或现场不安全时，由用户 UI/车端强制恢复；善后完成前不进入对照 E1→E2。
+
+---
+
+#### E4 按车查积压订单并清队后再派
+
+- **测试意图**：验证如何列出指定车的非终态订单（含 QUEUEING 积压），取消队列/挂起单后新单可生效。对应 Q-025；契约 BC-ORDER-013。
+- **前置条件**：测试车 `ON_LINE`；mapId=29 短距可跑；写操作已批准。
+- **测试程序**：
+  1. 建单 A 等到 `EXECUTING`，再连续建 B/C → 期望 B/C 为 `QUEUEING` 且 `executeVehicleKey="--"`。
+  2. 对照查询：
+     - `GET /api/order/v1/orderRecord?executeVehicleKey={{testVehicleKey}}&filterByState=1&filterByState=3&filterByState=7&filterByState=9`
+     - 同接口加 undoc `appointVehicleKey`（预期不可靠）
+     - `filterByState=1,3,7,9` 后客户端按本车 `appointVehicleKey`/`executeVehicleKey` 过滤
+  3. 可选：对 A `CMD_ORDER_HELD`。
+  4. 对 QUEUEING/HELD（按需含 EXECUTING）`CMD_ORDER_CANCEL`，等到 `IDLE`。
+  5. 再建新单 N，确认可进入 `EXECUTING`。
+- **预期结果**（Round14）：`executeVehicleKey` 过滤漏 QUEUEING；`appointVehicleKey` 查询参数不可靠；客户端过滤可检出积压；清队后新单可执行。
+- **反例/边界**：只依赖 `executeVehicleKey` 清队 → 会漏掉 `execute=--` 的队列单。
+- **风险等级**：写-可逆（cancel 收尾；只操作本车指定单）
+- **人工干预**：若清队后车长期非 IDLE，由用户 UI 确认现场后再继续。
 
 ---
 

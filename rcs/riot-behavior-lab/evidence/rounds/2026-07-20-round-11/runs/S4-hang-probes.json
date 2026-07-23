@@ -1,0 +1,64 @@
+{
+    "probes":  [
+                   {
+                       "cmd":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                       "code":  "100021",
+                       "message":  "由于车辆原因订单无法跳过或者继续",
+                       "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}",
+                       "snap":  {
+                                    "at":  "2026-07-20 13:25:53.340",
+                                    "station":  0,
+                                    "noStation":  true,
+                                    "procState":  "PROCESSING_ORDER",
+                                    "processingOrder":  true,
+                                    "movementState":  "MT_RUNNING",
+                                    "enable":  true,
+                                    "integrationLevel":  "ON_LINE",
+                                    "fleetMode":  "FLEET_MODE_OFFLINE",
+                                    "orderState":  3,
+                                    "missionState":  1,
+                                    "missionType":  "move",
+                                    "missionTypes":  [
+                                                         "move"
+                                                     ],
+                                    "executingIndex":  0,
+                                    "orderId":  "order-2079075643202600960",
+                                    "numericId":  488047,
+                                    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                    "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                    "upperId":  "riot-behavior-lab-R11-rejected-20260720-132533",
+                                    "progress":  100
+                                }
+                   },
+                   {
+                       "cmd":  "CMD_ORDER_JUMP_FROM_HANG",
+                       "code":  "100021",
+                       "message":  "由于车辆原因订单无法跳过或者继续",
+                       "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}",
+                       "snap":  {
+                                    "at":  "2026-07-20 13:25:53.516",
+                                    "station":  0,
+                                    "noStation":  true,
+                                    "procState":  "PROCESSING_ORDER",
+                                    "processingOrder":  true,
+                                    "movementState":  "MT_RUNNING",
+                                    "enable":  true,
+                                    "integrationLevel":  "ON_LINE",
+                                    "fleetMode":  "FLEET_MODE_OFFLINE",
+                                    "orderState":  3,
+                                    "missionState":  1,
+                                    "missionType":  "move",
+                                    "missionTypes":  [
+                                                         "move"
+                                                     ],
+                                    "executingIndex":  0,
+                                    "orderId":  "order-2079075643202600960",
+                                    "numericId":  488047,
+                                    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                    "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                    "upperId":  "riot-behavior-lab-R11-rejected-20260720-132533",
+                                    "progress":  100
+                                }
+                   }
+               ]
+}

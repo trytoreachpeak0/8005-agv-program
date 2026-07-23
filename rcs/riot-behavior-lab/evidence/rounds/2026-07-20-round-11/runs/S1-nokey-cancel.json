@@ -1,0 +1,42 @@
+{
+    "attempts":  [
+                     {
+                         "api":  "task/command",
+                         "orderId":  "order-2079073561783435264",
+                         "code":  "0",
+                         "message":  "成功",
+                         "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                     },
+                     {
+                         "api":  "order/operate",
+                         "orderId":  488040,
+                         "code":  "0",
+                         "message":  "成功",
+                         "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                     }
+                 ],
+    "final":  {
+                  "at":  "2026-07-20 13:17:22.784",
+                  "station":  0,
+                  "noStation":  true,
+                  "procState":  "IDLE",
+                  "processingOrder":  false,
+                  "movementState":  "MT_IN_CANCEL",
+                  "enable":  true,
+                  "integrationLevel":  "ON_LINE",
+                  "fleetMode":  "FLEET_MODE_OFFLINE",
+                  "orderState":  2,
+                  "missionState":  4,
+                  "missionType":  "move",
+                  "missionTypes":  [
+                                       "move"
+                                   ],
+                  "executingIndex":  0,
+                  "orderId":  "order-2079073561783435264",
+                  "numericId":  488040,
+                  "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "appointVehicleKey":  "",
+                  "upperId":  "riot-lab-R11-nokey-20260720-131717",
+                  "progress":  100
+              }
+}

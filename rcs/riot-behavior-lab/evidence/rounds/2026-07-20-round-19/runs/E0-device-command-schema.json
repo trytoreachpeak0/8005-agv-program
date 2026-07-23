@@ -1,0 +1,251 @@
+{
+  "DeviceCommandDto": {
+    "required": null,
+    "props": {
+      "thingsProperties": {
+        "type": "object",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "mqCallback": {
+        "type": null,
+        "ref": "#/components/schemas/MqCallback",
+        "desc": null,
+        "items": null
+      },
+      "messageId": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "httpCallback": {
+        "type": null,
+        "ref": "#/components/schemas/HttpCallback",
+        "desc": null,
+        "items": null
+      }
+    }
+  },
+  "SrlinkMessage": {
+    "required": null,
+    "props": {
+      "ftype": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "message": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "params": {
+        "type": "object",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "data": {
+        "type": "object",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "timestamp": {
+        "type": "integer",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "client": {
+        "type": null,
+        "ref": "#/components/schemas/Client",
+        "desc": null,
+        "items": null
+      },
+      "method": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "type": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "id": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "code": {
+        "type": "integer",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "subDevice": {
+        "type": "array",
+        "ref": null,
+        "desc": null,
+        "items": {
+          "$ref": "#/components/schemas/SrlinkMessage"
+        }
+      },
+      "sysInfo": {
+        "type": null,
+        "ref": "#/components/schemas/SysInfo",
+        "desc": null,
+        "items": null
+      }
+    }
+  },
+  "BatchServiceSetDto": {
+    "required": null,
+    "props": {
+      "deviceKeys": {
+        "type": "array",
+        "ref": null,
+        "desc": null,
+        "items": {
+          "type": "string"
+        }
+      },
+      "serviceId": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "deviceCommandDto": {
+        "type": null,
+        "ref": "#/components/schemas/DeviceCommandDto",
+        "desc": null,
+        "items": null
+      }
+    }
+  },
+  "ResponseMsg«Map«string,SrlinkMessage»»": {
+    "required": null,
+    "props": {
+      "message": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "code": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "result": {
+        "type": "object",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "tid": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "detail": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "msgDetail": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      }
+    }
+  },
+  "ResponseMsg«SrlinkMessage»": {
+    "required": null,
+    "props": {
+      "message": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "code": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "result": {
+        "type": null,
+        "ref": "#/components/schemas/SrlinkMessage",
+        "desc": null,
+        "items": null
+      },
+      "tid": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "detail": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      },
+      "msgDetail": {
+        "type": "string",
+        "ref": null,
+        "desc": null,
+        "items": null
+      }
+    }
+  },
+  "_syncServicePath": {
+    "summary": "syncServiceCall",
+    "params": [
+      {
+        "name": "deviceKey",
+        "in": "path",
+        "description": "deviceKey",
+        "required": true,
+        "style": "simple",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "serviceId",
+        "in": "path",
+        "description": "serviceId",
+        "required": true,
+        "style": "simple",
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/DeviceCommandDto"
+          }
+        }
+      }
+    }
+  }
+}

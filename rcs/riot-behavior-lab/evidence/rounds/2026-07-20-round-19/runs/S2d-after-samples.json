@@ -1,0 +1,12 @@
+{
+  "at": "2026-07-20 16:03:40.853",
+  "emergencyState": "OK",
+  "controlState": "CONTROL_STATE_ERR",
+  "breakSwitchState": "MOVABLE",
+  "movementState": "MT_FINISHED",
+  "procState": "IDLE",
+  "enable": true,
+  "integrationLevel": "ON_LINE",
+  "station": 2,
+  "propEmergency": 1
+}

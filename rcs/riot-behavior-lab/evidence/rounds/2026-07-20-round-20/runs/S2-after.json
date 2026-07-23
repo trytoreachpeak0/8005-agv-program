@@ -1,0 +1,23 @@
+{
+    "at":  "2026-07-20 16:14:41.939",
+    "statusOk":  true,
+    "statusHttp":  200,
+    "statusCode":  "0",
+    "statusType":  "offline",
+    "statusTs":  1784535317753,
+    "statusError":  null,
+    "vehicleOk":  true,
+    "vehicleHttp":  200,
+    "vehicleError":  null,
+    "station":  2,
+    "noStation":  false,
+    "mapName":  "api测试2",
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "movementState":  "MT_FINISHED",
+    "emergencyState":  "OK",
+    "controlState":  "CONTROL_STATE_OK",
+    "hardwareState":  "H_STATE_OK"
+}

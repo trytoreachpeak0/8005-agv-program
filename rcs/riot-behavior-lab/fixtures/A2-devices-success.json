@@ -1,0 +1,47 @@
+{
+  "scenario": "devices-success",
+  "transportError": null,
+  "forMock": {
+    "sdkModel": "Bearer callApiKey via Authorization header",
+    "clientMethod": "HttpClient with static callApiKey (no admin/login)",
+    "notes": "Cross-module check: device list also accepts callApiKey without admin/login."
+  },
+  "sourceEvidence": "evidence/rounds/2026-07-20-round-2/runs/A2-devices-success.json",
+  "url": "http://172.10.1.72:8888/api/device/v1/devices",
+  "responseSummary": {
+    "code": "0",
+    "message": "成功",
+    "hasResult": true
+  },
+  "requestBody": null,
+  "responseRaw": {
+    "code": "0",
+    "message": "成功",
+    "result": {
+      "type": "paged",
+      "recordsCount": 10,
+      "keys": [
+        "current",
+        "optimizeCountSql",
+        "orders",
+        "pages",
+        "records",
+        "searchCount",
+        "size",
+        "total"
+      ]
+    },
+    "_note": "result body trimmed in evidence; full payload not retained to avoid oversized device dump"
+  },
+  "requestHeaders": {
+    "Authorization": "Bearer eyJhbGciOiJIU...(redacted,len=178)"
+  },
+  "elapsedMs": 35,
+  "resultSummary": {
+    "type": "paged",
+    "recordsCount": 10
+  },
+  "at": "2026-07-20 10:01:17",
+  "method": "GET",
+  "httpStatus": 200
+}

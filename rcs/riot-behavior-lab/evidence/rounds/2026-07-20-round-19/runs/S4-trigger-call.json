@@ -1,0 +1,27 @@
+{
+  "req": "{\"messageId\":886875,\"mqCallback\":{\"tag\":\"string\",\"topic\":\"string\"},\"thingsProperties\":{}}",
+  "messageId": 886875,
+  "code": "0",
+  "message": "成功",
+  "result": {
+    "client": {
+      "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "productKey": "standard.oasis.300ul",
+      "productType": 1,
+      "thingModelVersion": "1"
+    },
+    "code": 200,
+    "data": {
+      "reason": "RESPONSE_PROCESSING",
+      "code": "RESULT_CODE_NONE",
+      "responseState": "RESPONSE_OK",
+      "state": "1",
+      "responseCode": "0"
+    },
+    "fType": "SERVICE_CALL_REPLY",
+    "id": "886875",
+    "timestamp": 1784534967178
+  },
+  "detail": null,
+  "preview": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"client\":{\"deviceKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"productKey\":\"standard.oasis.300ul\",\"productType\":1,\"thingModelVersion\":\"1\"},\"code\":200,\"data\":{\"reason\":\"RESPONSE_PROCESSING\",\"code\":\"RESULT_CODE_NONE\",\"responseState\":\"RESPONSE_OK\",\"state\":\"1\",\"responseCode\":\"0\"},\"fType\":\"SERVICE_CALL_REPLY\",\"id\":\"886875\",\"timestamp\":1784534967178},\"tid\":\"\"}"
+}

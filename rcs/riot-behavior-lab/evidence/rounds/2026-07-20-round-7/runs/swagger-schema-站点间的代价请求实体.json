@@ -1,0 +1,21 @@
+{
+  "title": "站点间的代价请求实体",
+  "type": "object",
+  "properties": {
+    "endStations": {
+      "type": "array",
+      "description": "终点站点列表",
+      "items": {
+        "$ref": "#/components/schemas/站点DTO"
+      }
+    },
+    "startStations": {
+      "type": "array",
+      "description": "起点站点列表",
+      "items": {
+        "$ref": "#/components/schemas/站点DTO"
+      }
+    }
+  },
+  "description": "站点间的代价请求实体"
+}

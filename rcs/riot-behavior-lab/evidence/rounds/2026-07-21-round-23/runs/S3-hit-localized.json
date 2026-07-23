@@ -1,0 +1,27 @@
+{
+    "hit":  true,
+    "last":  {
+                 "at":  "2026-07-21 08:45:46.464",
+                 "apiOk":  true,
+                 "statusType":  "online",
+                 "locationState":  "LOCATION_STATE_RUNNING",
+                 "confidence":  99,
+                 "prop_locationState":  3,
+                 "station":  0,
+                 "noStation":  true,
+                 "currentNode":  0,
+                 "mapName":  "api测试2",
+                 "prev_locationState":  3,
+                 "posX":  -671,
+                 "posY":  3325,
+                 "posConf":  99,
+                 "procState":  "IDLE",
+                 "enable":  true,
+                 "integrationLevel":  "ON_LINE",
+                 "controlState":  "CONTROL_STATE_OK",
+                 "movementState":  "MT_NA",
+                 "mode":  "MODE_AUTO",
+                 "connected":  true,
+                 "state":  "IDLE"
+             }
+}

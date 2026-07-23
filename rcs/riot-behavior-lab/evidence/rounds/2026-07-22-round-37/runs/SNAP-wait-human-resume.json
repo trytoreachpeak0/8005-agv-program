@@ -1,0 +1,21 @@
+{
+    "at":  "2026-07-22 13:15:41.137",
+    "station":  0,
+    "movementState":  "MT_PAUSED",
+    "controlState":  "CONTROL_STATE_OK",
+    "emergencyState":  "OK",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "speed":  0.0,
+    "faultCodes":  "",
+    "lastErrorCode":  0,
+    "procState":  "USER_FORCE_IDLE",
+    "processingOrder":  true,
+    "orderState":  7,
+    "orderId":  "order-2079797271662297088",
+    "numericId":  489332,
+    "progress":  20,
+    "failReason":  "",
+    "m0_resultCode":  0,
+    "m0_resultStr":  ""
+}

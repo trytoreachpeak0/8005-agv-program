@@ -1,0 +1,92 @@
+{
+  "scenario": "stations-overview",
+  "at": "2026-07-20 10:19:23",
+  "sourceEvidence": "evidence/rounds/2026-07-20-round-5/runs/C2-stations-overview.json",
+  "candidateMaps": [
+    {
+      "mapId": 29,
+      "mapName": "api测试",
+      "code": "0",
+      "count": 2,
+      "hasStation1": true,
+      "shape": "array"
+    },
+    {
+      "mapId": 26,
+      "mapName": "新基测试1",
+      "code": "0",
+      "count": 4,
+      "hasStation1": true,
+      "shape": "array"
+    },
+    {
+      "mapId": 27,
+      "mapName": "新基测试2",
+      "code": "0",
+      "count": 31,
+      "hasStation1": true,
+      "shape": "array"
+    },
+    {
+      "mapId": 28,
+      "mapName": "新基测试2opt",
+      "code": "0",
+      "count": 33,
+      "hasStation1": true,
+      "shape": "array"
+    }
+  ],
+  "mapsContainingStation1": [
+    29,
+    26,
+    27,
+    28
+  ],
+  "vehicleCurrentStationHint": 1,
+  "schemaSample": {
+    "mapId": 29,
+    "firstStationTopKeys": [
+      "check_pos.x",
+      "check_pos.y",
+      "check_pos.yaw",
+      "desc",
+      "dmcode_id",
+      "edge_id",
+      "enter_backward",
+      "enter_pos.x",
+      "enter_pos.y",
+      "enter_pos.yaw",
+      "exit_backward",
+      "exit_pos.x",
+      "exit_pos.y",
+      "exit_pos.yaw",
+      "id",
+      "name",
+      "no_rotate",
+      "param",
+      "pgv_offset.x",
+      "pgv_offset.y",
+      "pgv_offset.yaw",
+      "pos.x",
+      "pos.y",
+      "pos.yaw",
+      "pos_dynamic",
+      "station_offset",
+      "type",
+      "user_define_properties"
+    ],
+    "firstStationCompact": {
+      "id": 1,
+      "name": "站点1",
+      "type": 1,
+      "desc": "",
+      "dmcode_id": ""
+    }
+  },
+  "recommendedNext": "User confirms mapId + safe destination station before any order write.",
+  "invalidMap0": {
+    "code": "0",
+    "message": "成功",
+    "stationCount": 0
+  }
+}

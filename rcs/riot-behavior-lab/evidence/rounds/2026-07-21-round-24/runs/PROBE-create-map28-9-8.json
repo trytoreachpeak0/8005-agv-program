@@ -1,0 +1,6 @@
+{
+  "code": "10008",
+  "message": "充电订单缺少进入退出点",
+  "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+  "body": "{\"code\":\"10008\",\"detail\":\"code:[10008], msg:[charge.order.no.enter.exit]\",\"message\":\"充电订单缺少进入退出点\",\"msgDetail\":\"充电订单缺少进入退出点\",\"tid\":\"\"}"
+}

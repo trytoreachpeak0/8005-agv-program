@@ -1,0 +1,8 @@
+{
+    "uid":  "riot-behavior-lab-R38-Q1-20260722-133731",
+    "dest":  1,
+    "code":  "0",
+    "message":  "成功",
+    "destCost":  1590,
+    "req":  "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"mission\":[{\"destination\":1,\"mapId\":30,\"type\":\"move\"}],\"lockStatus\":0,\"upperId\":\"riot-behavior-lab-R38-Q1-20260722-133731\",\"orderName\":\"riot-behavior-lab-R38-Q1-20260722-133731\",\"isAppointEnable\":1}"
+}

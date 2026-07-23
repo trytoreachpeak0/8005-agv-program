@@ -1,0 +1,45 @@
+{
+    "before":  {
+                   "at":  "2026-07-20 13:58:59.262",
+                   "station":  0,
+                   "noStation":  true,
+                   "procState":  "PROCESSING_ORDER",
+                   "processingOrder":  true,
+                   "movementState":  "MT_FINISHED",
+                   "enable":  true,
+                   "integrationLevel":  "ON_LINE",
+                   "orderState":  3,
+                   "missionState":  1,
+                   "orderId":  "order-2079084042690625536",
+                   "numericId":  488075,
+                   "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                   "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                   "finalState":  false,
+                   "upperId":  "riot-behavior-lab-R14-N-after-clear-20260720-135855"
+               },
+    "cancel":  {
+                   "api":  "command",
+                   "orderId":  "order-2079084042690625536",
+                   "code":  "0",
+                   "message":  "成功",
+                   "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+               },
+    "after":  {
+                  "at":  "2026-07-20 13:59:02.459",
+                  "station":  0,
+                  "noStation":  true,
+                  "procState":  "IN_CANCEL",
+                  "processingOrder":  false,
+                  "movementState":  "MT_RUNNING",
+                  "enable":  true,
+                  "integrationLevel":  "ON_LINE",
+                  "orderState":  2,
+                  "missionState":  4,
+                  "orderId":  "order-2079084042690625536",
+                  "numericId":  488075,
+                  "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "finalState":  true,
+                  "upperId":  "riot-behavior-lab-R14-N-after-clear-20260720-135855"
+              }
+}

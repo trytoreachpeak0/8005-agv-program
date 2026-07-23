@@ -1,0 +1,25 @@
+{
+    "uid":  "riot-behavior-lab-R36-P1-20260722-124537",
+    "heldCode":  "0",
+    "contCode":  "0",
+    "afterHeldOrder":  7,
+    "hitSuccess":  false,
+    "hitHang":  false,
+    "final":  {
+                  "at":  "2026-07-22 12:50:51.834",
+                  "station":  null,
+                  "movementState":  null,
+                  "controlState":  null,
+                  "emergencyState":  null,
+                  "breakSwitchState":  null,
+                  "locationState":  null,
+                  "procState":  null,
+                  "processingOrder":  null,
+                  "orderState":  null,
+                  "orderId":  null,
+                  "numericId":  null,
+                  "executeVehicleKey":  null,
+                  "progress":  null,
+                  "failReason":  null
+              }
+}

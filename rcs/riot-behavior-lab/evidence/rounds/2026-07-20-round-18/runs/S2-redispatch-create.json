@@ -1,0 +1,7 @@
+{
+    "uid":  "riot-behavior-lab-R18-redispatch-20260720-154448",
+    "dest":  5,
+    "cost":  3120,
+    "code":  "0",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"appointVehicleGroupId\":0,\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"createTime\":\"2026-07-20 15:46:30\",\"createdBy\":\"api-test\",\"endStationName\":\"站点5\",\"endStationNo\":5,\"finalState\":false,\"id\":488135,\"isAppointEnable\":1,\"lockStatus\":0,\"missions\":[{\"actionId\":0,\"actionName\":\"\",\"actionParam1\":0,\"actionParam2\":0,\"actionParamStr\":\"\",\"createTime\":\"2026-07-20 15:46:30\",\"createType\":0,\"destination\":5,\"destinationName\":\"\",\"executingIndex\":0,\"failStrategy\":\"\",\"failValue\":\"\",\"functionKey\":\"\",\"id\":7417284,\"isDeleted\":0,\"length\":0,\"mapId\":30,\"mapName\":\"\",\"missionState\":0,\"orderId\":488135,\"orderUuid\":\"7463ea67-5987-4211-9102-d6334c5740e5\",\"resultCode\":0,\"resultStr\":\"\",\"speed\":0.0,\"successStrategy\":\"SUCCESS_STRATEGY_VOID\",\"type\":\"move\",\"updateTime\":\"2026-07-20 15:46:30\",\"width\":0}],\"modifiedBy\":\"api-test\",\"orderId\":\"order-2079110687765954560\",\"orderName\":\"riot-behavior-lab-R18-redispatch-20260720-154448\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"source\":\"FMS\",\"startEndStationNameDetail\":\"null null \u003e null null\",\"startStationName\":\"站点5\",\"startStationNo\":5,\"updateTime\":\"2026-07-20 15:46:30\",\"upperId\":\"riot-behavior-lab-R18-redispatch-20260720-154448\",\"userId\":0},\"tid\":\"\"}"
+}

@@ -1,0 +1,31 @@
+{
+    "uid":  "riot-behavior-lab-R36-P3-20260722-130726",
+    "contHeldWhileExec":  {
+                              "commandType":  "CMD_ORDER_CONTINUE_FROM_HELD",
+                              "code":  "100020",
+                              "message":  "订单不是暂停状态,订单无法继续执行",
+                              "body":  "{\"code\":\"100020\",\"detail\":\"code:[100020], msg:[order.state.is.not.held.order.could.not.continue]\",\"message\":\"订单不是暂停状态,订单无法继续执行\",\"msgDetail\":\"订单不是暂停状态,订单无法继续执行\",\"tid\":\"\"}"
+                          },
+    "orderAfterWrongHeld":  3,
+    "held":  {
+                 "commandType":  "CMD_ORDER_HELD",
+                 "code":  "0",
+                 "message":  "成功",
+                 "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+             },
+    "orderAfterHeld":  7,
+    "contHangWhileHeld":  {
+                              "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                              "code":  "100021",
+                              "message":  "由于车辆原因订单无法跳过或者继续",
+                              "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}"
+                          },
+    "orderAfterWrongHang":  7,
+    "contOk":  {
+                   "commandType":  "CMD_ORDER_CONTINUE_FROM_HELD",
+                   "code":  "0",
+                   "message":  "成功",
+                   "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+               },
+    "finalOrder":  2
+}

@@ -4,7 +4,7 @@
 
 ## 应维护的四类目录
 
-1. **操作目录**：模块、端点、请求模型、响应模型、鉴权方式和写操作风险。
+1. **操作目录**：模块、端点、请求模型、响应模型、鉴权方式和写操作风险。当前范围裁剪见 [`api-research-scope.md`](./api-research-scope.md)（永远不研究 / 以后可能需要 / 现在就需要）。
 2. **状态目录**：字段、静态取值、来源等级、已观测取值和业务可用性。
 3. **标识关系**：`upperId`、`orderId`、`orderKey`、`deviceKey`、`vehicleKey`、`mapId`、`stationId` 的产生与关联方式。
 4. **动作关系**：物模型 `service.identifier`、device API `serviceId`、order `functionKey` 和 task `actionId` 的映射。
@@ -20,5 +20,6 @@
 
 当前入口：
 
+- [`api-research-scope.md`](./api-research-scope.md)：接口研究范围（永远不研究 / 以后可能需要 / 现在就需要）。
 - [`identifiers.md`](./identifiers.md)：订单、车辆、地图和动作标识关系。
 - [`state-fields.md`](./state-fields.md)：各层状态字段及当前业务可用性。

@@ -1,0 +1,719 @@
+# 接口研究范围
+
+## 格式与判定规则
+
+1. 层级固定为：`研究分类 → OpenAPI 模块 → 接口分组（Controller）→ API`。
+2. API 使用 `` `HTTP_METHOD /path` — 接口摘要 `` 标识；判定身份时以 `HTTP_METHOD + /path` 为准，摘要只用于阅读。
+3. 接口分组下面**没有列出任何 API**时，表示该分组下的**全部 API**都属于当前研究分类。
+4. 接口分组下面列出了 API 时，只有列出的 API 属于当前研究分类；未列出的 API 视为**尚未归类**。
+5. 同一接口分组可以出现在多个研究分类中，但同一个 `HTTP_METHOD + /path` 只能出现一次。
+6. 新增或调整 API 时，应以 `../../riot_swagger/*.json` 中的 OpenAPI 定义为准。
+
+## 永远不需要进行研究
+
+### 1. configFile
+
+- **Config File Controller**（OpenAPI tag：`config-file-controller`）
+  - `GET /api/configFile/v1/recover` — 恢复初始化
+  - `POST /api/configFile/v1/update` — 配置文件内容
+  - `GET /api/configFile/v1/view` — 配置文件内容
+
+### 2. device
+
+- **Device Connect Controller**（OpenAPI tag：`device-connect-controller`）
+  - `GET /api/device/v1/connect/infos` — 分页查询连接记录
+
+### 3. fcs
+
+- **Biz Dict Controller**（OpenAPI tag：`业务字典`）
+  - `GET /api/fcs/v1/bizdict` — 字典数据分页
+  - `POST /api/fcs/v1/bizdict` — 创建字典数据
+  - `GET /api/fcs/v1/bizdict/types` — 字典类型
+  - `GET /api/fcs/v1/bizdict/types/{code}` — 字典类型
+  - `DELETE /api/fcs/v1/bizdict/{id}` — 删除单条创建字典
+- **Metadata Object Controller**（OpenAPI tag：`元数据对象`）
+  - `GET /api/fcs/v1/metadata/field/options` — 字段选项
+- **Material Stock In Out Bill Controller**（OpenAPI tag：`出入库单据`）
+  - `GET /api/fcs/v1/material/stock/bill` — 出入库单据数据分页
+  - `POST /api/fcs/v1/material/stock/bill` — 新增出入库单据
+  - `PUT /api/fcs/v1/material/stock/bill/{id}/close` — 关闭出入库单据
+  - `PUT /api/fcs/v1/material/stock/bill/{id}/confirm` — 确认出入库单据完成
+- **Action Rule Controller**（OpenAPI tag：`动作规则`）
+  - `GET /api/fcs/v1/actionRule` — 动作规则数据分页
+  - `POST /api/fcs/v1/actionRule` — 创建动作规则数据
+  - `GET /api/fcs/v1/actionRule/expression` — 解析表达式
+  - `GET /api/fcs/v1/actionRule/list` — 查询动作规则描述信息列表
+  - `PUT /api/fcs/v1/actionRule/template/{id}` — 是否设置为模板
+  - `GET /api/fcs/v1/actionRule/{id}` — 查询单条动作规则数据
+  - `PUT /api/fcs/v1/actionRule/{id}` — 修改动作规则详情
+  - `DELETE /api/fcs/v1/actionRule/{id}` — 删除单条动作规则数据
+- **Stock Preparation Controller**（OpenAPI tag：`备料记录`）
+  - `GET /api/fcs/v1/material/stock/preparat` — 备料记录数据分页
+  - `POST /api/fcs/v1/material/stock/preparat` — 创建叫料信息
+  - `GET /api/fcs/v1/material/stock/preparat/call/count` — 工作站点叫料数量
+  - `PUT /api/fcs/v1/material/stock/preparat/{id}` — 修改备料信息
+  - `PUT /api/fcs/v1/material/stock/preparat/{id}/cancel` — 取消
+  - `PUT /api/fcs/v1/material/stock/preparat/{id}/done` — 完成
+  - `PUT /api/fcs/v1/material/stock/preparat/{id}/lackIn` — 缺料
+  - `PUT /api/fcs/v1/material/stock/preparat/{id}/lackIn/recover` — 缺料恢复
+  - `PUT /api/fcs/v1/material/stock/preparat/{id}/sendIn` — 派料
+- **Foreign Controller**（OpenAPI tag：`对外接口`）
+  - `GET /api/fcs/v1/foreign/orders` — 订单分页查询
+  - `POST /api/fcs/v1/foreign/orders` — 创建订单
+  - `POST /api/fcs/v1/foreign/orders/byStation` — 根据工作站点创建订单
+  - `POST /api/fcs/v1/foreign/orders/flow/{flowId}` — 工艺流程下单
+  - `POST /api/fcs/v1/foreign/orders/operate` — 搬运订单操作
+  - `GET /api/fcs/v1/foreign/orders/{id}` — 查询单条订单数据
+- **Station Controller**（OpenAPI tag：`工作站点`）
+  - `GET /api/fcs/v1/station` — 工作站点列表分页
+  - `POST /api/fcs/v1/station` — 创建工作站点
+  - `GET /api/fcs/v1/station/batch` — 批量查询工作站点数据
+  - `DELETE /api/fcs/v1/station/batch` — 批量删除工作站点数据
+  - `PUT /api/fcs/v1/station/batch/material` — 批量修改工作站点物料
+  - `PUT /api/fcs/v1/station/batch/value` — 批量修改工作站点的属性值
+  - `GET /api/fcs/v1/station/detail` — 查询工作站点详情,所有属性及属性值
+  - `GET /api/fcs/v1/station/detail/byThirdPartyKey` — 查询工作站点详情,所有属性及属性值
+  - `GET /api/fcs/v1/station/export` — 工作站点导出
+  - `GET /api/fcs/v1/station/export/json` — 工作站点导出JSON
+  - `GET /api/fcs/v1/station/getAllStations` — 查询所有的工作站点
+  - `POST /api/fcs/v1/station/import/json` — 工作站点导入JSON
+  - `GET /api/fcs/v1/station/occupied` — 被占用的工作站点
+  - `GET /api/fcs/v1/station/occupied/byKey` — 根据第三方标识查询站点是否被占用
+  - `GET /api/fcs/v1/station/options` — 查询所有的工作站点
+  - `POST /api/fcs/v1/station/template/create` — 通过模板创建批量创建工作站点
+  - `GET /api/fcs/v1/station/template/down` — 下载工作站点模板
+  - `GET /api/fcs/v1/station/template/down/json` — 下载工作站点模板Json
+  - `GET /api/fcs/v1/station/ui/cardContent` — 工作站点UI字段卡片样式
+  - `PUT /api/fcs/v1/station/ui/cardContent` — 工作站点UI字段卡片样式
+  - `GET /api/fcs/v1/station/ui/fields` — 工作站点UI字段
+  - `POST /api/fcs/v1/station/update/stationValue` — 修改工作站点的属性值
+  - `PUT /api/fcs/v1/station/update/stationValue` — 修改工作站点的属性值
+  - `DELETE /api/fcs/v1/station/{id}` — 删除单条工作站点
+  - `PUT /api/fcs/v1/station/{id}/update` — 修改工作站点
+- **Station Properties Controller**（OpenAPI tag：`工作站点属性`）
+  - `GET /api/fcs/v1/properties` — 工作站点属性数据分页
+  - `POST /api/fcs/v1/properties` — 新建工作站点属性数据
+  - `GET /api/fcs/v1/properties/by/{key}` — 根据key查询单条工作站点属性
+  - `GET /api/fcs/v1/properties/{id}` — 根据id查询单条工作站点属性
+  - `DELETE /api/fcs/v1/properties/{id}` — 删除单条工作站点属性数据
+  - `PUT /api/fcs/v1/properties/{id}/update` — 修改工作站点属性数据
+- **Station Group Properties Controller**（OpenAPI tag：`工作站点组属性`）
+  - `GET /api/fcs/v1/station_group/properties` — 工作站点组属性数据分页
+  - `POST /api/fcs/v1/station_group/properties` — 新建工作站点组属性配置
+  - `PUT /api/fcs/v1/station_group/properties/{id}` — 修改工作站点组属性配置
+  - `DELETE /api/fcs/v1/station_group/properties/{id}` — 删除单条工作站点组属性配置
+  - `GET /api/fcs/v1/station_group/properties/{key}` — 根据key查询单条工作站点属性
+- **Station Group Controller**（OpenAPI tag：`工作站点组相关API`）
+  - `GET /api/fcs/v1/station_group` — 工作站点列表分页
+  - `POST /api/fcs/v1/station_group` — 创建工作站点组
+  - `DELETE /api/fcs/v1/station_group/batch` — 批量删除工作站点组
+  - `GET /api/fcs/v1/station_group/detail` — 查询工作站点详情
+  - `GET /api/fcs/v1/station_group/detail/byIdentify` — 查询工作站点详情
+  - `GET /api/fcs/v1/station_group/detail/byNames` — 查询工作站点详情
+  - `GET /api/fcs/v1/station_group/occupied` — 被占用的工作站点组
+  - `PUT /api/fcs/v1/station_group/priority/update` — 修改工作站点优先级
+  - `GET /api/fcs/v1/station_group/station_relation/{id}` — 查询工作站点组-站点关系
+  - `GET /api/fcs/v1/station_group/ui/cardContent` — 工作站点UI字段卡片样式
+  - `PUT /api/fcs/v1/station_group/ui/cardContent` — 工作站点UI字段卡片样式
+  - `GET /api/fcs/v1/station_group/ui/fields` — 工作站点UI字段
+  - `GET /api/fcs/v1/station_group/values` — 工作站点组属性值
+  - `DELETE /api/fcs/v1/station_group/{groupId}/batch` — 批量解除工作站点组里的工作站点
+  - `DELETE /api/fcs/v1/station_group/{id}` — 删除单条工作站点组
+  - `PUT /api/fcs/v1/station_group/{id}/update` — 修改工作站点
+- **Flow Controller**（OpenAPI tag：`工艺流程`）
+  - `GET /api/fcs/v1/flows` — 工艺流程数据分页
+  - `POST /api/fcs/v1/flows` — 创建工艺流程数据
+  - `GET /api/fcs/v1/flows/batch` — 批量查询工艺流程数据
+  - `GET /api/fcs/v1/flows/debug/flags` — 工艺流程标记
+  - `GET /api/fcs/v1/flows/{flowId}/relay` — 查询接力订单
+  - `PUT /api/fcs/v1/flows/{flowId}/relay/graph` — 修改接力工艺详情
+  - `GET /api/fcs/v1/flows/{flowId}/relay/subflows` — 查询接力工艺的子工艺
+  - `GET /api/fcs/v1/flows/{id}` — 查询单条工艺流程数据
+  - `PUT /api/fcs/v1/flows/{id}` — 更新工艺流程数据
+  - `DELETE /api/fcs/v1/flows/{id}` — 删除单条工艺流程数据
+  - `PUT /api/fcs/v1/flows/{id}/actions/abandon` — 弃用工艺流程
+  - `PUT /api/fcs/v1/flows/{id}/actions/start` — 运行工艺流程
+  - `PUT /api/fcs/v1/flows/{id}/actions/stop` — 停止工艺流程
+  - `GET /api/fcs/v1/flows/{id}/debug/logs` — 工艺流程日志
+  - `GET /api/fcs/v1/flows/{id}/debug/params` — 查询参数
+  - `PUT /api/fcs/v1/flows/{id}/debug/params` — 更新参数
+  - `GET /api/fcs/v1/flows/{id}/debug/params/definitions` — 参数信息
+  - `PUT /api/fcs/v1/flows/{id}/debug/start` — 验证工艺流程
+  - `PUT /api/fcs/v1/flows/{id}/graph` — 修改工艺流程节点详情
+  - `PUT /api/fcs/v1/flows/{id}/poolLane` — 修改泳道
+  - `GET /api/fcs/v1/flows/{id}/poolLane/graph` — 查看泳道描述
+- **Unsafe Controller**（OpenAPI tag：`强制处理`）
+  - `POST /api/fcs/v1/unsafe/qrtz/triggerTime/forceRepair` — 强制修复定时器触发时间
+  - `POST /api/fcs/v1/unsafe/station/forceCleanOccupied` — 强制清除搬运订单占用的工作站点
+  - `POST /api/fcs/v1/unsafe/station/group/{groupIdentify}/cleanOccupied` — 强制清除搬运订单占用的工作站点组
+  - `GET /api/fcs/v1/unsafe/station/ref` — 工作站点关联检查
+  - `POST /api/fcs/v1/unsafe/station/{stationIdentify}/cleanOccupied` — 强制清除搬运订单占用的工作站点
+- **Handling Entity Controller**（OpenAPI tag：`搬运实体`）
+  - `GET /api/fcs/v1/entity` — 搬运实体数据分页
+  - `POST /api/fcs/v1/entity` — 创建数据
+  - `GET /api/fcs/v1/entity/material/{materialId}/quantity` — 通过物料查询搬运实体物料数
+  - `GET /api/fcs/v1/entity/{id}` — 查询单条数据
+  - `PUT /api/fcs/v1/entity/{id}` — 更新数据
+  - `DELETE /api/fcs/v1/entity/{id}` — 删除单条数据
+- **Message Notify Controller**（OpenAPI tag：`消息通知`）
+  - `GET /api/fcs/v1/message_notify` — 消息通知数据分页
+  - `POST /api/fcs/v1/message_notify` — 创建数据
+  - `PUT /api/fcs/v1/message_notify/{id}` — 更新数据
+  - `DELETE /api/fcs/v1/message_notify/{id}` — 删除单条数据
+- **Stock In Out Record Controller**（OpenAPI tag：`物料出入库记录`）
+  - `GET /api/fcs/v1/material/stock/record` — 物料出入库记录数据分页
+- **Material Stock Controller**（OpenAPI tag：`物料库存`）
+  - `GET /api/fcs/v1/material/stock` — 物料档案数据分页
+  - `GET /api/fcs/v1/material/stock/stations` — 查询库位
+- **Material Record Controller**（OpenAPI tag：`物料档案`）
+  - `GET /api/fcs/v1/material/record` — 物料档案数据分页
+  - `POST /api/fcs/v1/material/record` — 创建物料档案
+  - `POST /api/fcs/v1/material/record/getStationMaterialRecordDetails/{id}` — 根据工作站点id获取物料档案
+  - `GET /api/fcs/v1/material/record/options` — 查询选项集
+  - `GET /api/fcs/v1/material/record/{id}` — 查询单条物料档案
+  - `PUT /api/fcs/v1/material/record/{id}` — 更新物料档案数据
+  - `DELETE /api/fcs/v1/material/record/{id}` — 删除单条物料档案
+- **Material Order Controller**（OpenAPI tag：`物料订单`）
+  - `POST /api/fcs/v1/material/order/called` — 叫料
+  - `POST /api/fcs/v1/material/order/calledStock` — 出库叫料
+  - `POST /api/fcs/v1/material/order/send` — 派料
+  - `POST /api/fcs/v1/material/order/sendStock` — 入库派料
+- **Third Match Controller**（OpenAPI tag：`第三方对接管理`）
+  - `GET /api/fcs/v1/third` — 建单规则数据分页
+  - `POST /api/fcs/v1/third` — 创建数据
+  - `GET /api/fcs/v1/third/{id}` — 查询单条数据
+  - `PUT /api/fcs/v1/third/{id}` — 更新数据
+  - `DELETE /api/fcs/v1/third/{id}` — 删除单条数据
+  - `DELETE /api/fcs/v1/third/{thirdMatchId}/rule/{id}` — 删除单条规则
+- **Sys Parameters Controller**（OpenAPI tag：`系统参数`）
+  - `GET /api/fcs/v1/sys/parameters` — 系统参数
+  - `GET /api/fcs/v1/sys/parameters/value` — 系统参数值
+  - `PUT /api/fcs/v1/sys/parameters/value` — 修改系统参数值
+- **Script Controller**（OpenAPI tag：`脚本`）
+  - `GET /api/fcs/v1/action` — 分页查询
+  - `POST /api/fcs/v1/action` — 创建API脚本配置
+  - `POST /api/fcs/v1/action/run` — 运行方法
+  - `POST /api/fcs/v1/action/runScript` — runScript
+  - `POST /api/fcs/v1/action/runScriptFile` — runScriptFile
+  - `PUT /api/fcs/v1/action/{id}` — 更新API脚本配置
+  - `DELETE /api/fcs/v1/action/{id}` — 删除单条数据
+  - `PUT /api/fcs/v1/action/{id}/script` — 上传API脚本
+- **Trigger Condition Controller**（OpenAPI tag：`触发条件`）
+  - `GET /api/fcs/v1/conditions` — 触发条件数据分页
+  - `POST /api/fcs/v1/conditions` — 创建触发条件数据
+  - `GET /api/fcs/v1/conditions/{id}` — 查询单条触发条件数据
+  - `PUT /api/fcs/v1/conditions/{id}` — 更新触发条件数据
+  - `DELETE /api/fcs/v1/conditions/{id}` — 删除单条触发条件数据
+- **Fcs Order Controller**（OpenAPI tag：`订单`）
+  - `POST /api/fcs/v1/order` — 创建订单
+  - `POST /api/fcs/v1/order/change_value` — 改值建单,修改工作站点属性值
+  - `POST /api/fcs/v1/order/change_value/{action}` — 改值建单,修改工作站点属性值
+  - `POST /api/fcs/v1/order/flow` — 工艺流程下单
+  - `POST /api/fcs/v1/order/only_change_value/{action}` — 仅改值,修改工作站点属性值
+  - `POST /api/fcs/v1/order/operateTransportOrder` — 订单操作
+  - `GET /api/fcs/v1/order/query/by/upper` — 工艺订单根据上层订单ID查询
+  - `GET /api/fcs/v1/order/queryByPage` — 工艺订单分页查询
+  - `GET /api/fcs/v1/order/queryByTransportOrderKey/{transportOrderKey}` — 根据搬运订单Key查询业务订单
+  - `POST /api/fcs/v1/order/{action}` — 根据映射规则创建订单
+- **Common Rule Controller**（OpenAPI tag：`通用规则`）
+  - `GET /api/fcs/v1/rule/common/station_device_style` — 查询工作站点设备样式规则
+  - `POST /api/fcs/v1/rule/common/station_device_style` — 添加工作站点设备样式规则
+  - `GET /api/fcs/v1/rule/common/station_device_style/{productKey}` — 查询工作站点设备样式规则
+  - `PUT /api/fcs/v1/rule/common/station_device_style/{productKey}` — 更新工作站点设备样式规则
+  - `DELETE /api/fcs/v1/rule/common/station_device_style/{productKey}` — 更新工作站点设备样式规则
+  - `GET /api/fcs/v1/rule/common/types` — 查询类型
+- **Object Extend Property Controller**（OpenAPI tag：`预设对象`）
+  - `POST /api/fcs/v1/object/add` — 添加自定义字段
+  - `GET /api/fcs/v1/object/getPropertyList` — 自定义字段列表查询
+  - `GET /api/fcs/v1/object/{id}` — 自定义字段详情
+  - `POST /api/fcs/v1/object/{id}/operate` — 自定义字段操作
+  - `POST /api/fcs/v1/object/{id}/update` — 更新自定义字段
+
+### 10. security
+
+- **Sys Company Info Controller**（OpenAPI tag：`企业信息`）
+  - `GET /api/auth/v1/enterprise/info` — 查询基本信息
+  - `PUT /api/auth/v1/enterprise/info` — 修改基本信息
+- **License Controller**（OpenAPI tag：`激活管理`）
+  - `GET /api/auth/v1/licence` — 获取激活信息
+  - `GET /api/auth/v1/licence/confirm` — 确认激活文件
+  - `POST /api/auth/v1/licence/file` — 上传激活文件
+  - `GET /api/auth/v1/licence/machine/info` — 获取机器码
+- **Inter Act Third Log Controller**（OpenAPI tag：`第三方交互日志管理`）
+  - `GET /api/auth/v1/interact/third/log/list` — 第三方交互日志列表
+- **Rbac Third Party Controller**（OpenAPI tag：`第三方应用权限`）
+  - `GET /api/auth/v1/thirdparty` — 分页获取应用列表
+  - `POST /api/auth/v1/thirdparty` — 创建应用
+  - `PUT /api/auth/v1/thirdparty/{id}` — 修改指定应用信息
+  - `DELETE /api/auth/v1/thirdparty/{id}` — 删除单条数据
+  - `PUT /api/auth/v1/thirdparty/{id}/refreshToken` — 刷新token
+- **Inter Act Device Log Controller**（OpenAPI tag：`设备交互日志管理`）
+  - `GET /api/auth/v1/interact/device/log/condition` — 查询条件筛选
+  - `GET /api/auth/v1/interact/device/log/list` — 设备交互日志列表
+
+### 13. tools
+
+- **Ping Controller**（OpenAPI tag：`ping工具`）
+  - `GET /api/tools/v1/ping` — 传入ip并执行ping命令
+- **Socket Controller**（OpenAPI tag：`socket工具`）
+  - `GET /api/tools/v1/socket/createTCPSocket` — 创建TCPSocket连接
+  - `GET /api/tools/v1/socket/createUDPSocket` — 创建UDPSocket连接
+  - `GET /api/tools/v1/socket/disConnectTCPSocket` — 断开TCPSocket连接
+  - `GET /api/tools/v1/socket/disConnectUDPSocket` — 断开UDPSocket连接
+  - `POST /api/tools/v1/socket/sendTCPSocket` — 发送TCP数据包
+  - `POST /api/tools/v1/socket/sendUDPSocket` — 发送UDP数据包
+  - `GET /api/tools/v1/socket/socketTCPInfo` — 查询当前TCP状态
+  - `GET /api/tools/v1/socket/socketUDPInfo` — 查询当前UDP状态
+
+### 14. version
+
+- **Version Controller**（OpenAPI tag：`version-controller`）
+  - `GET /api/version/v1/backups/{type}` — 版本备份信息,type类型为backend、frontend
+  - `GET /api/version/v1/infos` — 版本信息V1024
+  - `POST /api/version/v1/rollback` — 指定目录回滚
+  - `GET /api/version/v1/shutdown` — 关闭应用
+  - `POST /api/version/v1/upgrade` — 版本更新
+
+## 以后可能需要但是现在无需研究
+
+### 2. device
+
+- **Device Controller**（OpenAPI tag：`device-controller`）
+  - `DELETE /api/device/v1/devices/deleteAll` — 清空设备、后台调试使用
+  - `DELETE /api/device/v1/devices/deleteDeviceByDeviceKey/{deviceKey}` — deleteDeviceByDeviceKey
+  - `POST /api/device/v1/devices/excel/import` — createDeviceByExcel
+  - `GET /api/device/v1/devices/excel/template` — downloadExcelTemplate
+- **Device Group Controller**（OpenAPI tag：`device-group-controller`）
+  - `POST /api/device/v1/group` — addDeviceGroup
+  - `DELETE /api/device/v1/group/deleteDeviceGroupById/{id}` — deleteDeviceGroupById
+  - `GET /api/device/v1/group/queryDeviceGroupById` — queryDeviceGroupById
+  - `GET /api/device/v1/group/queryDeviceGroupsBydeviceKey` — queryDeviceGroupsBydeviceKey
+  - `GET /api/device/v1/group/queryDevicesGroups` — queryDevicesGroups
+
+### 4. ifttt
+
+- **Action Controller**（OpenAPI tag：`action`）
+  - `POST /api/ifttt/v1/action` — 动作创建
+  - `POST /api/ifttt/v1/action/context` — 来自上下文
+  - `GET /api/ifttt/v1/action/form/{type}` — 查询节点信息
+  - `POST /api/ifttt/v1/action/upload` — 上传自定义节点
+  - `PUT /api/ifttt/v1/action/{id}` — 条件修改
+  - `DELETE /api/ifttt/v1/action/{id}` — 条件删除
+  - `GET /api/ifttt/v1/action/{ruleId}` — 动作列表查询
+- **Action Flow Controller**（OpenAPI tag：`action_flow`）
+  - `POST /api/ifttt/v1/actionFlow` — 动作流保存
+  - `GET /api/ifttt/v1/actionFlow/{ruleId}` — 动作列表查询
+- **Condition Controller**（OpenAPI tag：`condition`）
+  - `POST /api/ifttt/v1/condition` — 条件创建
+  - `PUT /api/ifttt/v1/condition/{id}` — 条件修改
+  - `DELETE /api/ifttt/v1/condition/{id}` — 条件删除
+  - `GET /api/ifttt/v1/condition/{ruleId}` — 条件查询
+- **Event Controller**（OpenAPI tag：`event`）
+  - `POST /api/ifttt/v1/event` — 触发事件
+  - `GET /api/ifttt/v1/event/buildFlowParameter/{ruleId}` — 辅助构造事件触发参数
+  - `GET /api/ifttt/v1/event/cancel/{eventId}` — 事件取消
+  - `GET /api/ifttt/v1/event/state/{eventId}` — 事件执行状态查询
+  - `GET /api/ifttt/v1/event/states` — 分页事件执行状态查询
+  - `GET /api/ifttt/v1/event/states/{ruleId}` — 事件执行状态查询
+- **Relation Controller**（OpenAPI tag：`relation`）
+  - `POST /api/ifttt/v1/relation` — 动作关系创建
+  - `PUT /api/ifttt/v1/relation/{id}` — 动作关系修改
+  - `DELETE /api/ifttt/v1/relation/{id}` — 动作关系删除
+  - `GET /api/ifttt/v1/relation/{ruleId}` — 动作关系列表查询
+- **Rule Controller**（OpenAPI tag：`rule`）
+  - `GET /api/ifttt/v1/rules` — 分页规则列表查询
+  - `POST /api/ifttt/v1/rules` — 规则创建
+  - `GET /api/ifttt/v1/rules/list` — 规则列表
+  - `GET /api/ifttt/v1/rules/list/detail` — 规则详情列表
+  - `PUT /api/ifttt/v1/rules/{id}` — 规则修改
+  - `DELETE /api/ifttt/v1/rules/{id}` — 规则删除
+
+### 5. imap
+
+- **Map Info Controller**（OpenAPI tag：`地图信息`）
+  - `PUT /api/imap/v1/mapInfo/` — 修改地图信息
+  - `POST /api/imap/v1/mapInfo/deviceMapList` — 查询设备地图列表
+  - `POST /api/imap/v1/mapInfo/file/download/{mapId}` — 下载地图
+  - `GET /api/imap/v1/mapInfo/file/mapImage/download` — 查询地图图片
+  - `POST /api/imap/v1/mapInfo/file/pull` — 拉取地图
+  - `POST /api/imap/v1/mapInfo/file/push` — 推送地图
+  - `POST /api/imap/v1/mapInfo/file/push/progress/{mapSyncRecordId}` — 推送地图进度
+  - `POST /api/imap/v1/mapInfo/file/rePush` — 推送地图失败重试
+  - `POST /api/imap/v1/mapInfo/file/save` — 保存地图
+  - `POST /api/imap/v1/mapInfo/file/upload` — 上传地图
+  - `DELETE /api/imap/v1/mapInfo/{mapId}` — 删除地图信息
+- **Map Relation Controller**（OpenAPI tag：`地图关系`）
+  - `GET /api/imap/v1/mapRelation/` — 查询地图关系
+  - `POST /api/imap/v1/mapRelation/` — 新增地图关系
+  - `PUT /api/imap/v1/mapRelation/` — 修改地图关系
+  - `GET /api/imap/v1/mapRelation/all` — 所有地图关系
+  - `DELETE /api/imap/v1/mapRelation/{id}` — 删除地图关系
+- **Map Sync State Controller**（OpenAPI tag：`地图同步状态`）
+  - `POST /api/imap/v1/mapSyncState/checkAll` — 地图同步状态检查
+  - `POST /api/imap/v1/mapSyncState/checkResult` — 地图同步状态检查结果
+- **Map Push Device Record Controller**（OpenAPI tag：`地图同步记录`）
+  - `GET /api/imap/v1/mapSyncRecord/` — 查询地图同步信息
+  - `GET /api/imap/v1/mapSyncRecord/mapSyncSource` — 查询更新来源
+- **Map Resource Controller**（OpenAPI tag：`移除资源`）
+  - `PUT /api/imap/v1/mapResource/` — 编辑资源
+  - `GET /api/imap/v1/mapResource/removedEdge/all` — 所有移除边
+  - `GET /api/imap/v1/mapResource/removedEdge/{mapId}` — 查询移除边
+  - `GET /api/imap/v1/mapResource/removedEdgeDetail/{mapId}` — 查询移除边详情
+  - `GET /api/imap/v1/mapResource/removedStation/all` — 所有移除站点
+  - `GET /api/imap/v1/mapResource/removedStation/{mapId}` — 查询移除站点
+- **Map Edge Group Controller**（OpenAPI tag：`边组合`）
+  - `GET /api/imap/v1/mapEdgeGroup/` — 查询边组合
+  - `POST /api/imap/v1/mapEdgeGroup/` — 新增边组合
+  - `PUT /api/imap/v1/mapEdgeGroup/` — 修改边组合
+  - `DELETE /api/imap/v1/mapEdgeGroup/` — 删除边组合
+  - `GET /api/imap/v1/mapEdgeGroup/all` — 所有边组合
+
+### 6. ithings
+
+- **Product Controller**（OpenAPI tag：`产品`）
+  - `GET /api/ithings/v1/product` — 分页查询产品
+  - `POST /api/ithings/v1/product` — 创建单个产品
+  - `GET /api/ithings/v1/product/options` — 查询所有产品选项
+  - `GET /api/ithings/v1/product/{productKey}` — 查询单个产品
+  - `PUT /api/ithings/v1/product/{productKey}` — 更新产品
+  - `DELETE /api/ithings/v1/product/{productKey}` — 删除单个产品
+  - `POST /api/ithings/v1/product/{productKey}/cancel` — 取消指定产品的发布
+  - `POST /api/ithings/v1/product/{productKey}/release` — 发布指定产品
+  - `PUT /api/ithings/v1/product/{productKey}/type` — 产品添加类型
+- **Product Types Controller**（OpenAPI tag：`产品分类`）
+  - `GET /api/ithings/v1/product/types` — 查询类型
+  - `POST /api/ithings/v1/product/types` — 创建产品类型
+  - `PUT /api/ithings/v1/product/types/{id}` — 更新产品类型
+  - `DELETE /api/ithings/v1/product/types/{id}` — 删除产品类型
+- **Category Controller**（OpenAPI tag：`品类`）
+  - `GET /api/ithings/v1/category` — 分页查询品类
+  - `POST /api/ithings/v1/category` — 创建单个品类
+  - `GET /api/ithings/v1/category/function` — 标准功能分页查询
+  - `GET /api/ithings/v1/category/{categoryKey}` — 查询单个品类
+  - `DELETE /api/ithings/v1/category/{categoryKey}` — 删除单个品类
+  - `POST /api/ithings/v1/category/{categoryKey}/cancel` — 取消指定品类的发布
+  - `POST /api/ithings/v1/category/{categoryKey}/release` — 发布指定品类
+- **Dict Value Controller**（OpenAPI tag：`字典数据`）
+  - `GET /api/ithings/v1/dict` — 字典数据分页
+  - `POST /api/ithings/v1/dict` — 创建字典数据
+  - `GET /api/ithings/v1/dict/product` — 产品
+  - `GET /api/ithings/v1/dict/units` — 单位
+  - `GET /api/ithings/v1/dict/{id}` — 查询单条字典数据
+  - `PUT /api/ithings/v1/dict/{id}` — 更新字典数据
+  - `DELETE /api/ithings/v1/dict/{id}` — 删除单条字典数据
+- **Upload Controller**（OpenAPI tag：`文件`）
+  - `POST /api/ithings/v1/files/upload` — 文件上传(单个文件的上传)
+  - `GET /api/ithings/v1/files/{objectName}` — 获取文件对象
+  - `DELETE /api/ithings/v1/files/{objectName}` — 删除文件对象
+- **Template File Controller**（OpenAPI tag：`模版文件`）
+  - `POST /api/ithings/v1/template` — 创建模版
+  - `GET /api/ithings/v1/template/type` — 类型
+  - `PUT /api/ithings/v1/template/{id}` — 更新模版
+  - `DELETE /api/ithings/v1/template/{id}` — 删除单条模版数据
+  - `GET /api/ithings/v1/template/{type}` — 模版
+- **Model Controller**（OpenAPI tag：`物模型`）
+  - `GET /api/ithings/v1/model` — 查询模型列表
+  - `DELETE /api/ithings/v1/model` — 删除指定产品下物模型中的指定功能
+  - `POST /api/ithings/v1/model/block` — 创建物模型模块
+  - `PUT /api/ithings/v1/model/block/{id}` — 编辑物模型模块
+  - `DELETE /api/ithings/v1/model/block/{id}` — 删除物模型模块
+  - `POST /api/ithings/v1/model/copy` — 复制指定产品的物模型到目标产品
+  - `GET /api/ithings/v1/model/details` — 查询产品所有模块功能
+  - `POST /api/ithings/v1/model/function` — 添加物模型功能
+  - `POST /api/ithings/v1/model/function/copy` — 拷贝物模型功能
+  - `POST /api/ithings/v1/model/import` — 为指定产品导入物模型
+  - `POST /api/ithings/v1/model/release` — 发布指定产品的物模型
+  - `PUT /api/ithings/v1/model/release` — 发布指定产品的物模型
+  - `PUT /api/ithings/v1/model/release/{productKey}/cancel` — 取消指定产品物模型的发布
+  - `PUT /api/ithings/v1/model/release/{productKey}/rollback` — 回退指定产品的物模型发布
+  - `GET /api/ithings/v1/model/versions` — 获取指定产品的物模型版本列表
+  - `GET /api/ithings/v1/model/{functionBlockId}` — 查询模块功能
+  - `PUT /api/ithings/v1/model/{functionBlockId}/function` — 修改物模型模块功能
+- **Driver Wrap Controller**（OpenAPI tag：`驱动包`）
+  - `GET /api/ithings/v1/driverWrap` — 驱动包数据分页
+  - `POST /api/ithings/v1/driverWrap` — 创建驱动包
+  - `GET /api/ithings/v1/driverWrap/{id}` — 查询单条驱动包数据
+  - `PUT /api/ithings/v1/driverWrap/{id}` — 更新驱动包
+  - `DELETE /api/ithings/v1/driverWrap/{id}` — 删除单条驱动包数据
+
+### 7. logFile
+
+- **Log File Controller**（OpenAPI tag：`log-file-controller`）
+  - `GET /api/logFiles/v1/download/all` — 下载指定时间内的全部日志
+  - `GET /api/logFiles/v1/download/{fileId}` — 下载
+  - `GET /api/logFiles/v1/list` — 日志文件列表
+
+### 8. metric
+
+- **Metric Controller**（OpenAPI tag：`metric-controller`）
+  - `GET /performance/metric/clear/all` — clearAll
+  - `GET /performance/metric/remove/{name}` — removeByName
+  - `GET /performance/metric/report/all` — reportAll
+  - `GET /performance/metric/report/{name}` — reportByName
+
+### 9. order
+
+- **Order Controller**（OpenAPI tag：`order-controller`）
+  - `POST /api/order/v1/add/byDynamicTemplate` — 根据动态模板添加订单
+  - `POST /api/order/v1/add/byOrderGroup` — 根据订单组合添加订单
+  - `POST /api/order/v1/add/byStaticTemplate` — 根据静态模板添加订单
+  - `POST /api/order/v1/orderRecordChangeVehicle` — 订单换车执行
+  - `POST /api/order/v1/updateOrderTask` — 更新订单(未执行的订单子任务,采取直接替换的模式,新的订单替换未执行完的旧任务)
+- **Order Group Controller**（OpenAPI tag：`order-group-controller`）
+  - `GET /api/order/v1/orderGroup` — 分页查询订单组合列表
+  - `POST /api/order/v1/orderGroup` — 新增订单组合
+  - `PUT /api/order/v1/orderGroup` — 编辑订单组合
+  - `GET /api/order/v1/orderGroup/{id}` — 获取订单组合详情
+  - `DELETE /api/order/v1/orderGroup/{id}` — 删除订单组合
+- **Order Record Controller**（OpenAPI tag：`order-record-controller`）
+  - `GET /api/order/v1/orderRecord` — 筛选条件分页查询订单列表
+  - `POST /api/order/v1/orderRecord/agvEfficiencyStatistics` — agv效率分析
+  - `GET /api/order/v1/orderRecord/detailByOrderId/{orderId}` — 获取订单详情根据orderId
+  - `GET /api/order/v1/orderRecord/detailByUpperId/{upperId}` — 获取订单详情根据upperId
+  - `GET /api/order/v1/orderRecord/exportOrderRecord` — 分页导出订单记录
+  - `GET /api/order/v1/orderRecord/ids` — 批量获取订单详情
+  - `GET /api/order/v1/orderRecord/num` — 获取订单转状态对应的数量
+  - `GET /api/order/v1/orderRecord/old/exportOrderRecord` — 导出订单记录
+  - `POST /api/order/v1/orderRecord/orderCountStatistics` — 订单数量分析
+  - `POST /api/order/v1/orderRecord/orderEfficiencyStatistics` — 订单效率分析
+  - `GET /api/order/v1/orderRecord/orderIds` — 获取订单详情根据orderIds
+  - `GET /api/order/v1/orderRecord/{id}` — 获取订单详情
+- **Template Action Controller**（OpenAPI tag：`template-action-controller`）
+  - `GET /api/order/v1/templateAction` — 分页查询任务模板列表
+  - `POST /api/order/v1/templateAction` — 新增任务模板
+  - `GET /api/order/v1/templateAction/{id}` — 获取任务模板详情
+  - `PUT /api/order/v1/templateAction/{id}` — 编辑任务模板
+  - `DELETE /api/order/v1/templateAction/{id}` — 删除任务模板
+- **Template Order Controller**（OpenAPI tag：`template-order-controller`）
+  - `GET /api/order/v1/templateOrder` — 分页查询订单模板列表
+  - `POST /api/order/v1/templateOrder` — 新增订单模板
+  - `GET /api/order/v1/templateOrder/all` — 获取所有订单模板
+  - `GET /api/order/v1/templateOrder/{id}` — 获取订单模板详情
+  - `PUT /api/order/v1/templateOrder/{id}` — 编辑订单模板
+  - `DELETE /api/order/v1/templateOrder/{id}` — 删除订单模板
+- **Template Order Tag Controller**（OpenAPI tag：`template-order-tag-controller`）
+  - `GET /api/order/v1/templateOrderTag` — 查询订单模板标签列表
+  - `POST /api/order/v1/templateOrderTag` — 新增订单模板标签
+  - `PUT /api/order/v1/templateOrderTag` — 编辑订单模板标签
+  - `GET /api/order/v1/templateOrderTag/list` — 查询订单模板标签列表
+  - `GET /api/order/v1/templateOrderTag/{id}` — 获取订单模板标签详情
+  - `DELETE /api/order/v1/templateOrderTag/{id}` — 删除订单模板标签
+
+### 10. security
+
+- **Operation Log Controller**（OpenAPI tag：`操作日志管理`）
+  - `GET /api/auth/v1/operation/log/list` — 获取操作日志列表
+  - `GET /api/auth/v1/operation/log/type` — 操作日志类型
+- **Permission Controller**（OpenAPI tag：`权限管理`）
+  - `GET /api/auth/v1/permission` — 分页获取角色列表
+  - `POST /api/auth/v1/permission` — 创建角色
+  - `POST /api/auth/v1/permission/listRelationDataPermission` — 获取角色关联数据权限
+  - `GET /api/auth/v1/permission/menus` — 获取菜单列表
+  - `POST /api/auth/v1/permission/relationDataPermission` — 角色关联数据权限
+  - `PUT /api/auth/v1/permission/{id}` — 修改指定用户信息
+  - `DELETE /api/auth/v1/permission/{id}` — 删除单条角色
+- **Role Controller**（OpenAPI tag：`角色管理`）
+  - `GET /api/auth/v1/role` — 分页获取角色列表
+  - `POST /api/auth/v1/role` — 创建角色
+  - `PUT /api/auth/v1/role/{id}` — 修改指定用户信息
+  - `DELETE /api/auth/v1/role/{id}` — 删除单条角色
+  - `GET /api/auth/v1/role/{roleId}/permissions` — 角色的权限
+  - `POST /api/auth/v1/role/{roleId}/permissions` — 给角色分配权限
+  - `PUT /api/auth/v1/role/{roleId}/permissions` — 给角色修改菜单权限
+  - `DELETE /api/auth/v1/role/{roleId}/permissions` — 给角色删减权限
+  - `GET /api/auth/v1/role/{roleId}/users` — 角色的用户
+  - `POST /api/auth/v1/role/{roleId}/users` — 给角色分配用户
+  - `DELETE /api/auth/v1/role/{roleId}/users` — 给角色删减用户
+- **Admin Controller**（OpenAPI tag：`账号管理`）
+  - `DELETE /api/auth/v1/admin/delete/{id}` — 删除指定用户信息
+  - `GET /api/auth/v1/admin/info` — 获取当前登录用户信息
+  - `POST /api/auth/v1/admin/login` — 用户登录
+  - `DELETE /api/auth/v1/admin/logout` — 登出功能
+  - `PUT /api/auth/v1/admin/refreshToken` — 刷新token
+  - `POST /api/auth/v1/admin/register` — 用户注册
+  - `PUT /api/auth/v1/admin/updatePassword` — 修改指定用户密码
+  - `PUT /api/auth/v1/admin/updateStatus/{id}` — 修改帐号状态
+  - `POST /api/auth/v1/admin/user/batchSync` — 批量同步用户
+  - `GET /api/auth/v1/admin/user/{id}` — 获取指定用户信息
+  - `PUT /api/auth/v1/admin/user/{id}` — 修改指定用户信息
+  - `GET /api/auth/v1/admin/users` — 根据用户名或姓名分页获取用户列表
+  - `GET /api/auth/v1/admin/{userId}/roles` — 获取指定用户的角色
+  - `POST /api/auth/v1/admin/{userName}/roles` — 给用户分配角色
+  - `DELETE /api/auth/v1/admin/{userName}/roles` — 给用户分配角色
+
+### 11. system
+
+- **Sys Monitor Controller**（OpenAPI tag：`sys-monitor-controller`）
+  - `GET /api/system/v1/monitor` — 获取系统监控数据
+
+### 12. task
+
+- **AGVSROS Controller**（OpenAPI tag：`AGV单机操作SROS`）
+  - `POST /api/task/v1/sros/importBatch` — 批量导入配置到SROS
+  - `POST /api/task/v1/sros/restartSROSBatch` — 批量重启SROS系统
+- **AGV Log Controller**（OpenAPI tag：`agv日志`）
+  - `GET /api/task/v1/agvLog/downLoad` — 导出agv日志
+  - `GET /api/task/v1/agvLog/get/log` — 获取agv日志展示
+- **Task Problem Controller**（OpenAPI tag：`task问题排查控制类`）
+  - `GET /api/task/v1/task/clearAllVehicle` — 清除所有车辆相关的信息-问题排查
+  - `GET /api/task/v1/task/clearOrderSequence/{deviceKey}` — 清除车辆订单序列
+  - `GET /api/task/v1/task/clearVehicle/{deviceKey}` — 清除车辆相关的信息-问题排查
+  - `GET /api/task/v1/task/clearVehicleAndCancelOrderTask/{deviceKey}` — 清除车辆相关的信息并且发送取消订单指令-问题排查
+  - `GET /api/task/v1/task/execActionCommand/{deviceKey}/{actionId}/{param1}/{param2}` — 发送动作指令
+  - `POST /api/task/v1/task/testPlay/{deviceKey}` — 测试发送亮灯
+- **Order Task Controller**（OpenAPI tag：`任务调度`）
+  - `POST /api/task/v1/order/currentMapExistNotFinalOrderTask/{mapId}` — 查询当前的地图是否还存在未完成的订单
+  - `POST /api/task/v1/order/route/{vehicleKey}` — 订单轨迹
+- **Traffic Controller**（OpenAPI tag：`交管资源`）
+  - `DELETE /api/task/v1/traffic/` — 清除所有的资源缓存
+  - `GET /api/task/v1/traffic/allTrafficResource` — 所有交管的资源
+  - `GET /api/task/v1/traffic/allTrafficResourceDetail` — 所有交管的资源detail
+  - `GET /api/task/v1/traffic/appliedResource` — 所有等待的资源
+  - `GET /api/task/v1/traffic/checkFailDetail/{vehicleKey}` — 最近一次交管申请失败详情
+  - `GET /api/task/v1/traffic/dump` — dump交管数据
+  - `GET /api/task/v1/traffic/lockedResource` — 所有占用的资源
+  - `DELETE /api/task/v1/traffic/{vehicleKey}` — 清除资源占用
+- **Map Controller**（OpenAPI tag：`地图`）
+  - `PUT /api/task/v1/map` — 编辑地图
+  - `DELETE /api/task/v1/map/{mapId}` — 删除地图信息
+- **Vehicle Controller**（OpenAPI tag：`车辆服务`）
+  - `POST /api/task/vehicles/enterCleanWheelMode` — 车辆进入洗轮模式
+  - `POST /api/task/vehicles/exitCleanWheelMode` — 车辆退出洗轮模式
+  - `POST /api/task/vehicles/park` — 一键停靠
+  - `POST /api/task/vehicles/pass` — 车辆放行接口
+  - `GET /api/task/vehicles/setting/get` — 查询车的参数
+  - `PUT /api/task/vehicles/setting/update` — 更新车的参数
+  - `POST /api/task/vehicles/startLocation` — 车辆根据站点定位
+  - `POST /api/task/vehicles/stopLocation` — 车辆停止定位
+- **Vehicle Statistics Controller**（OpenAPI tag：`数据统计`）
+  - `POST /api/task/v1/statistics/chargeCount` — 统计AGV充电信息
+  - `POST /api/task/v1/statistics/chargeLocationCount` — 统计充电桩充电信息
+  - `POST /api/task/v1/statistics/exceptionStatistics` — 统计异常
+  - `POST /api/task/v1/statistics/exceptionStatisticsByDuty` — 车辆异常分班统计
+  - `GET /api/task/v1/statistics/mileageBattery` — 统计agv电池使用周期、里程
+  - `POST /api/task/v1/statistics/mileageBatteryByCondition` — 条件统计agv电池使用周期、里程
+  - `GET /api/task/v1/statistics/pageQueryStateDurationsByUpdateTime` — 车辆状态时长根据修改时间分页查询
+  - `POST /api/task/v1/statistics/stateCount` — 统计AGV实时状态数量
+  - `POST /api/task/v1/statistics/stateDurations` — 统计agv状态时长
+- **File Controller**（OpenAPI tag：`文件管理`）
+  - `GET /api/task/v1/file/getFileInfoList` — 获取文件信息
+  - `POST /api/task/v1/file/upload` — 文件上传
+- **System Log Controller**（OpenAPI tag：`系统日志`）
+  - `GET /api/task/systemLog/exportSystemlog` — 分页导出消息记录
+  - `POST /api/task/systemLog/page` — 分页查询系统日志
+  - `POST /api/task/systemLog/queryNotRead` — 查询未读的系统日志
+  - `POST /api/task/systemLog/read/{id}` — 修改系统日志已读状态
+  - `POST /api/task/systemLog/readAll` — 一键已读
+  - `POST /api/task/systemLog/unread/{id}` — 修改系统日志未读状态
+  - `POST /api/task/systemLog/updateStatus/{id}` — 修改系统日志的状态
+- **Custom Park Config Controller**（OpenAPI tag：`自定义停靠配置管理`）
+  - `GET /api/task/v1/parkConfig` — 查询配置列表
+  - `POST /api/task/v1/parkConfig` — 新增或者修改配置
+  - `POST /api/task/v1/parkConfig/delete/{id}` — 删除配置
+  - `GET /api/task/v1/parkConfig/getAgvGroup` — 获取默认的全局配置
+  - `GET /api/task/v1/parkConfig/getDefaultConfig` — 获取默认的全局配置
+  - `GET /api/task/v1/parkConfig/{id}` — 查询配置信息
+- **Custom Charge Config Controller**（OpenAPI tag：`自定义充电配置管理`）
+  - `GET /api/task/v1/chargeConfig` — 查询配置列表
+  - `POST /api/task/v1/chargeConfig` — 新增或者修改配置
+  - `POST /api/task/v1/chargeConfig/delete/{id}` — 删除配置
+  - `GET /api/task/v1/chargeConfig/getAgvGroup` — 获取默认的全局配置
+  - `GET /api/task/v1/chargeConfig/getDefaultConfig` — 获取默认的全局配置
+  - `GET /api/task/v1/chargeConfig/{id}` — 查询配置信息
+- **Vehicle Sync Task Controller**（OpenAPI tag：`车辆升级任务`）
+  - `POST /api/task/v1/vehicleSyncTask/SyncTasksExport` — 升级列表导出
+  - `GET /api/task/v1/vehicleSyncTask/allFileNames` — 所有版本号
+  - `POST /api/task/v1/vehicleSyncTask/batchAdd` — 车辆升级
+  - `GET /api/task/v1/vehicleSyncTask/queryCurSyncTasks` — 当前任务列表
+  - `POST /api/task/v1/vehicleSyncTask/queryDeviceByType` — 查询车辆升级信息
+  - `POST /api/task/v1/vehicleSyncTask/querySyncTasksByCondition` — 查询升级列表
+- **Config Controller**（OpenAPI tag：`配置管理`）
+  - `GET /api/task/v1/config` — 查询配置列表
+  - `PUT /api/task/v1/config` — 修改配置
+
+## 现在就需要进行研究
+
+### 2. device
+
+- **Device Command Controller**（OpenAPI tag：`device-command-controller`）
+  - `POST /api/device/v1/command/batchServiceSet` — batchServiceSet
+  - `POST /api/device/v1/command/properties/{deviceKey}` — propertiesSet
+  - `POST /api/device/v1/command/receive` — receiveAndNotify
+  - `POST /api/device/v1/command/service/{deviceKey}/{serviceId}` — serviceCall
+  - `POST /api/device/v1/command/sync/properties/{deviceKey}` — syncPropertiesSet
+  - `POST /api/device/v1/command/sync/service/{deviceKey}/{serviceId}` — syncServiceCall
+- **Device Controller**（OpenAPI tag：`device-controller`）
+  - `GET /api/device/v1/devices` — getDevices
+  - `POST /api/device/v1/devices` — createDevice
+  - `POST /api/device/v1/devices/bind/{parentDeviceKey}` — bind
+  - `GET /api/device/v1/devices/detail` — getDevicesDetail
+  - `POST /api/device/v1/devices/detail` — getDevicesDetail
+  - `POST /api/device/v1/devices/disable/{deviceKey}` — disable
+  - `POST /api/device/v1/devices/enable/{deviceKey}` — enable
+  - `GET /api/device/v1/devices/front/frontQueryDeviceProperties` — frontQueryDeviceProperties
+  - `POST /api/device/v1/devices/query` — getDevices
+  - `GET /api/device/v1/devices/queryDeviceByDeviceKey` — queryDeviceByDeviceKey
+  - `POST /api/device/v1/devices/queryDeviceByType` — queryDeviceByType
+  - `GET /api/device/v1/devices/queryDevicesProperties` — queryDevicesProperties
+  - `GET /api/device/v1/devices/statisticalVehicle` — statisticalVehicle
+  - `GET /api/device/v1/devices/statistics/status` — getStatistics
+  - `POST /api/device/v1/devices/unbind/{deviceKey}` — unbind
+  - `GET /api/device/v1/devices/{id}` — getDevice
+  - `PUT /api/device/v1/devices/{id}` — updateDevice
+  - `DELETE /api/device/v1/devices/{id}` — deleteDevice
+- **Device Runtime Controller**（OpenAPI tag：`device-runtime-controller`）
+  - `POST /api/device/v1/runtime/events/getBatchAllProperties` — getBatchAllProperties
+  - `GET /api/device/v1/runtime/events/{deviceKey}` — getAllEvent
+  - `GET /api/device/v1/runtime/events/{deviceKey}/{type}` — getEvent
+  - `GET /api/device/v1/runtime/properties/{deviceKey}` — getProperties
+  - `GET /api/device/v1/runtime/properties/{deviceKey}/{type}` — getPropertiesByType
+  - `GET /api/device/v1/runtime/status/{deviceKey}` — getStauts
+
+### 5. imap
+
+- **Map Info Controller**（OpenAPI tag：`地图信息`）
+  - `GET /api/imap/v1/mapInfo/` — 查询地图信息
+  - `GET /api/imap/v1/mapInfo/all` — 所有有效地图
+  - `GET /api/imap/v1/mapInfo/edges/{mapId}` — 有效边信息
+  - `GET /api/imap/v1/mapInfo/getALLMapInfoExcludeMapJson` — 获取所有的地图信息,不包含MapJson
+  - `GET /api/imap/v1/mapInfo/getEdgeGroupCustomAttributes/{mapId}` — 获取边组合
+  - `GET /api/imap/v1/mapInfo/getStationCustomAttributes/{mapId}` — 获取站点自定义属性
+  - `GET /api/imap/v1/mapInfo/mapInfoFromFile/{mapId}` — 根据地图id查询地图原始数据
+  - `GET /api/imap/v1/mapInfo/stations/{mapId}` — 有效站点信息
+  - `GET /api/imap/v1/mapInfo/{mapId}` — 内部接口,根据地图id返回地图信息
+  - `GET /api/imap/v1/mapInfo/{mapId}/{stationId}` — 内部接口,查询地图站点
+
+### 9. order
+
+- **Order Controller**（OpenAPI tag：`order-controller`）
+  - `POST /api/order/v1/add/byDefaultMissions` — 根据默认mission添加订单
+  - `POST /api/order/v1/operate` — 操作订单
+  - `POST /api/order/v1/orderRecordPriorityExec` — 订单优先执行
+
+### 12. task
+
+- **Task Problem Controller**（OpenAPI tag：`task问题排查控制类`）
+  - `GET /api/task/v1/task/getVehicleInfo/{deviceKey}` — 查询车辆的任务信息和执行信息-问题排查
+- **Order Task Controller**（OpenAPI tag：`任务调度`）
+  - `POST /api/task/v1/order` — 创建订单
+  - `POST /api/task/v1/order/charge/{vehicleKey}` — 指定车辆充电
+  - `POST /api/task/v1/order/command/{orderKey}` — 订单指令
+  - `POST /api/task/v1/order/edit` — 更新订单
+  - `POST /api/task/v1/order/interrupt` — 中断当前子任务并更新后续子任务
+- **Route Controller**（OpenAPI tag：`路由`）
+  - `GET /api/task/v1/route/` — 查询动态路由代价
+  - `GET /api/task/v1/route/curRemainCost/{orderKey}` — 获取订单当前移动任务的剩余路径代价
+  - `DELETE /api/task/v1/route/dynamicRouteCost` — 清除动态路由代价
+  - `DELETE /api/task/v1/route/dynamicRouteCostByVehicle` — 清除车辆动态路由代价
+  - `GET /api/task/v1/route/getCostUnit` — 查询动态路由代价单元
+  - `POST /api/task/v1/route/getRouteCostsBy` — 获取车辆列表到达指定站点的代价
+  - `POST /api/task/v1/route/queryNearEnd` — 查询最近的终点
+  - `POST /api/task/v1/route/queryNearestStart` — 查询最近的起点
+- **Vehicle Controller**（OpenAPI tag：`车辆服务`）
+  - `GET /api/task/vehicles` — 分页查询车辆信息
+  - `GET /api/task/vehicles/getAllTaskVehicles` — 获取调度所有车辆
+  - `GET /api/task/vehicles/getAllVehicleKeys` — 获取所有的车辆key集合
+  - `GET /api/task/vehicles/getAllVehicleSimpleInfo` — 订单统计,获取车辆信息
+  - `GET /api/task/vehicles/getVehicleInfoByDeviceKey` — 根据车辆的key查询车辆信息
+  - `GET /api/task/vehicles/queryVehicleNotAssignOrder/{deviceKey}/{orderKey}` — 订单模拟分配
+  - `POST /api/task/vehicles/updateVehicleIntegrationLevel` — 批量更新车辆调度状态

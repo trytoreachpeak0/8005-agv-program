@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Normalize OpenAPI specs and regenerate C# / Python Kiota clients for device/task/order.
+  Normalize OpenAPI specs and regenerate C# / Python Kiota clients for device/task/order/imap.
 #>
 [CmdletBinding()]
 param(
@@ -23,7 +23,8 @@ $normalizedDir = Join-Path $specsDir ".normalized"
 $modules = @(
   @{ Name = "device"; Client = "DeviceClient"; CsNs = "RIoT.Sdk.Generated.Device"; PyNs = "riot_sdk.generated.device"; CsOut = "csharp/RIoT.Sdk.Generated/Device"; PyOut = "python/riot_sdk/generated/device" },
   @{ Name = "task";   Client = "TaskClient";   CsNs = "RIoT.Sdk.Generated.TaskApi"; PyNs = "riot_sdk.generated.task";   CsOut = "csharp/RIoT.Sdk.Generated/TaskApi"; PyOut = "python/riot_sdk/generated/task" },
-  @{ Name = "order";  Client = "OrderClient";  CsNs = "RIoT.Sdk.Generated.Order";  PyNs = "riot_sdk.generated.order";  CsOut = "csharp/RIoT.Sdk.Generated/Order";  PyOut = "python/riot_sdk/generated/order" }
+  @{ Name = "order";  Client = "OrderClient";  CsNs = "RIoT.Sdk.Generated.Order";  PyNs = "riot_sdk.generated.order";  CsOut = "csharp/RIoT.Sdk.Generated/Order";  PyOut = "python/riot_sdk/generated/order" },
+  @{ Name = "imap";   Client = "ImapClient";   CsNs = "RIoT.Sdk.Generated.Imap";   PyNs = "riot_sdk.generated.imap";   CsOut = "csharp/RIoT.Sdk.Generated/Imap";   PyOut = "python/riot_sdk/generated/imap" }
 )
 
 $inputs = @()
@@ -68,7 +69,8 @@ $initPaths = @(
   (Join-Path $RepoRoot "python/riot_sdk/generated/__init__.py"),
   (Join-Path $RepoRoot "python/riot_sdk/generated/device/__init__.py"),
   (Join-Path $RepoRoot "python/riot_sdk/generated/task/__init__.py"),
-  (Join-Path $RepoRoot "python/riot_sdk/generated/order/__init__.py")
+  (Join-Path $RepoRoot "python/riot_sdk/generated/order/__init__.py"),
+  (Join-Path $RepoRoot "python/riot_sdk/generated/imap/__init__.py")
 )
 foreach ($p in $initPaths) {
   if (-not (Test-Path $p)) {
@@ -76,4 +78,4 @@ foreach ($p in $initPaths) {
   }
 }
 
-Write-Host "==> Done. Regenerated device/task/order for C# and Python."
+Write-Host "==> Done. Regenerated device/task/order/imap for C# and Python."

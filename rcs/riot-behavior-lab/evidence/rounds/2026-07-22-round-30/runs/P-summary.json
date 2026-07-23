@@ -1,0 +1,23 @@
+{
+    "tag":  "P",
+    "uid":  "riot-behavior-lab-R30-P-20260722-093619",
+    "beforeLoc":  "LOCATION_STATE_RUNNING",
+    "beforeStation":  0,
+    "beforeXY":  [
+                     null,
+                     null
+                 ],
+    "dest":  3,
+    "destCost":  7791,
+    "createCode":  "0",
+    "hitExec":  false,
+    "hitHang":  false,
+    "hitTerminal":  false,
+    "stayedQueueing":  true,
+    "finalOrderState":  1,
+    "finalExecKey":  "--",
+    "finalLoc":  "LOCATION_STATE_RUNNING",
+    "finalProc":  "IDLE",
+    "finalFail":  "",
+    "watchSec":  90
+}

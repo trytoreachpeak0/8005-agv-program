@@ -2,8 +2,30 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from riot_sdk.core.dispatchable_vehicles import DispatchableVehicle, resolve_device_key
+from riot_sdk.core.exceptions import RiotApiException
+from riot_sdk.core.route_cost import RouteCost
+from riot_sdk.generated.task.models.batch_vehicle_operation import BatchVehicleOperation
+from riot_sdk.generated.task.models.order_command_d_t_o_object import OrderCommandDTOObject
+from riot_sdk.generated.task.models.order_command_d_t_o_object_command_type import (
+    OrderCommandDTOObject_commandType,
+)
+from riot_sdk.generated.task.models.u627eu6700u8fd1u7684u7ec8u70b9u53c2u6570_object import (
+    U627eu6700u8fd1u7684u7ec8u70b9u53c2u6570Object,
+)
+from riot_sdk.generated.task.models.u627eu6700u8fd1u7684u8d77u70b9u53c2u6570_object import (
+    U627eu6700u8fd1u7684u8d77u70b9u53c2u6570Object,
+)
+from riot_sdk.generated.task.models.u7533u8bf7u8f66u8f86u5217u8868u5230u8fbeu7ad9u70b9u4ee3u4ef7 import (
+    U7533u8bf7u8f66u8f86u5217u8868u5230u8fbeu7ad9u70b9u4ee3u4ef7,
+)
+
 if TYPE_CHECKING:
     from riot_sdk.facade.session import RiotSession
+
+
+def _is_success_code(code: str | None) -> bool:
+    return not code or code in {"0", "200", "OK", "ok", "success", "SUCCESS"}
 
 
 class TaskClient:
@@ -11,6 +33,253 @@ class TaskClient:
 
     def __init__(self, session: RiotSession) -> None:
         self._session = session
+
+    async def get_dispatchable_vehicles(self) -> list[DispatchableVehicle]:
+        """GET /api/task/vehicles/getAllVehicleSimpleInfo (BC-VEH-002 / ADR-0006)."""
+        client = self._session.create_generated_task_client()
+        response = await client.api.task.vehicles.get_all_vehicle_simple_info.get()
+        if response is None:
+            raise RiotApiException("getAllVehicleSimpleInfo returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+        result = response.result or []
+        return [
+            DispatchableVehicle(device_key=v.device_key, device_name=v.device_name)
+            for v in result
+            if v.device_key and v.device_name
+        ]
+
+    async def resolve_device_key(self, device_name: str) -> str:
+        """Exact deviceName → deviceKey via getAllVehicleSimpleInfo (BC-VEH-002)."""
+        vehicles = await self.get_dispatchable_vehicles()
+        return resolve_device_key(vehicles, device_name)
+
+    async def get_route_cost(
+        self,
+        map_id: int,
+        station_id: int,
+        device_key: str,
+    ) -> RouteCost:
+        """POST /api/task/v1/route/getRouteCostsBy (BC-ROUTE-001 / ADR-0006)."""
+        if not device_key or not device_key.strip():
+            raise ValueError("device_key is required")
+
+        client = self._session.create_generated_task_client()
+        body = U7533u8bf7u8f66u8f86u5217u8868u5230u8fbeu7ad9u70b9u4ee3u4ef7(
+            map_id=map_id,
+            station_id=station_id,
+            device_keys=[device_key],
+        )
+        response = await client.api.task.v1.route.get_route_costs_by.post(body)
+        if response is None:
+            raise RiotApiException("getRouteCostsBy returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+
+        costs_list = (response.result.device_costs_list if response.result else None) or []
+        entry = next((c for c in costs_list if c.device_key == device_key), None)
+        if entry is None or entry.costs is None:
+            raise RiotApiException(
+                f"getRouteCostsBy returned no costs for deviceKey={device_key}.",
+                business_code="route-cost-missing",
+            )
+        return RouteCost(costs_mm=int(entry.costs))
+
+    async def query_nearest_end(
+        self,
+        map_id: int,
+        start_station_id: int,
+        end_station_ids: list[int],
+    ) -> int:
+        """POST /api/task/v1/route/queryNearEnd — nearest end stationId (NearStationQuery)."""
+        if not end_station_ids:
+            raise ValueError("end_station_ids must not be empty")
+
+        client = self._session.create_generated_task_client()
+        body = U627eu6700u8fd1u7684u7ec8u70b9u53c2u6570Object(
+            map_id=map_id,
+            start_station_id=start_station_id,
+            end_station_ids=list(end_station_ids),
+        )
+        response = await client.api.task.v1.route.query_near_end.post(body)
+        if response is None:
+            raise RiotApiException("queryNearEnd returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+        if response.result is None:
+            raise RiotApiException(
+                "queryNearEnd returned null result.",
+                business_code="near-end-missing",
+            )
+        return int(response.result)
+
+    async def query_nearest_start(
+        self,
+        map_id: int,
+        end_station_id: int,
+        start_station_ids: list[int],
+    ) -> int:
+        """POST /api/task/v1/route/queryNearestStart — nearest start stationId (NearStationQuery)."""
+        if not start_station_ids:
+            raise ValueError("start_station_ids must not be empty")
+
+        client = self._session.create_generated_task_client()
+        body = U627eu6700u8fd1u7684u8d77u70b9u53c2u6570Object(
+            map_id=map_id,
+            end_station_id=end_station_id,
+            start_station_ids=list(start_station_ids),
+        )
+        response = await client.api.task.v1.route.query_nearest_start.post(body)
+        if response is None:
+            raise RiotApiException("queryNearestStart returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+        if response.result is None:
+            raise RiotApiException(
+                "queryNearestStart returned null result.",
+                business_code="near-start-missing",
+            )
+        return int(response.result)
+
+    async def cancel_order(self, order_id: str, reason: str | None = None) -> None:
+        """POST /api/task/v1/order/command/{orderId} CMD_ORDER_CANCEL (BC-ORDER-003)."""
+        if not order_id or not order_id.strip():
+            raise ValueError("order_id is required")
+
+        client = self._session.create_generated_task_client()
+        body = OrderCommandDTOObject(
+            command_type=OrderCommandDTOObject_commandType.CMD_ORDER_CANCEL,
+            disable_vehicle=False,
+            reason=reason,
+        )
+        response = await client.api.task.v1.order.command.by_order_key(order_id).post(body)
+        if response is None:
+            raise RiotApiException("CMD_ORDER_CANCEL returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+
+    async def order_hold(self, order_id: str, reason: str | None = None) -> None:
+        """POST /api/task/v1/order/command/{orderId} CMD_ORDER_HELD (BC-ORDER-006)."""
+        if not order_id or not order_id.strip():
+            raise ValueError("order_id is required")
+
+        client = self._session.create_generated_task_client()
+        body = OrderCommandDTOObject(
+            command_type=OrderCommandDTOObject_commandType.CMD_ORDER_HELD,
+            disable_vehicle=False,
+            reason=reason,
+        )
+        response = await client.api.task.v1.order.command.by_order_key(order_id).post(body)
+        if response is None:
+            raise RiotApiException("CMD_ORDER_HELD returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+
+    async def order_continue(self, order_id: str, reason: str | None = None) -> None:
+        """POST /api/task/v1/order/command/{orderId} CMD_ORDER_CONTINUE_FROM_HELD (BC-ORDER-006)."""
+        if not order_id or not order_id.strip():
+            raise ValueError("order_id is required")
+
+        client = self._session.create_generated_task_client()
+        body = OrderCommandDTOObject(
+            command_type=OrderCommandDTOObject_commandType.CMD_ORDER_CONTINUE_FROM_HELD,
+            disable_vehicle=False,
+            reason=reason,
+        )
+        response = await client.api.task.v1.order.command.by_order_key(order_id).post(body)
+        if response is None:
+            raise RiotApiException("CMD_ORDER_CONTINUE_FROM_HELD returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+
+    async def hang_continue(self, order_id: str, reason: str | None = None) -> None:
+        """POST /api/task/v1/order/command/{orderId} CMD_ORDER_CONTINUE_FROM_HANG (BC-ORDER-015)."""
+        if not order_id or not order_id.strip():
+            raise ValueError("order_id is required")
+
+        client = self._session.create_generated_task_client()
+        body = OrderCommandDTOObject(
+            command_type=OrderCommandDTOObject_commandType.CMD_ORDER_CONTINUE_FROM_HANG,
+            disable_vehicle=False,
+            reason=reason,
+        )
+        response = await client.api.task.v1.order.command.by_order_key(order_id).post(body)
+        if response is None:
+            raise RiotApiException("CMD_ORDER_CONTINUE_FROM_HANG returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+
+    async def dispatch_enable(self, device_key: str) -> None:
+        """POST updateVehicleIntegrationLevel serviceId=enable (BC-VEH-003)."""
+        if not device_key or not device_key.strip():
+            raise ValueError("device_key is required")
+
+        client = self._session.create_generated_task_client()
+        body = BatchVehicleOperation(
+            device_keys=[device_key],
+            service_id="enable",
+        )
+        response = await client.api.task.vehicles.update_vehicle_integration_level.post(body)
+        if response is None:
+            raise RiotApiException("DispatchEnable returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
+
+    async def dispatch_disable(self, device_key: str) -> None:
+        """POST updateVehicleIntegrationLevel serviceId=disable (BC-VEH-003)."""
+        if not device_key or not device_key.strip():
+            raise ValueError("device_key is required")
+
+        client = self._session.create_generated_task_client()
+        body = BatchVehicleOperation(
+            device_keys=[device_key],
+            service_id="disable",
+        )
+        response = await client.api.task.vehicles.update_vehicle_integration_level.post(body)
+        if response is None:
+            raise RiotApiException("DispatchDisable returned empty response.")
+        if not _is_success_code(response.code):
+            raise RiotApiException(
+                f"RIoT business failure code={response.code} message={response.message}",
+                status_code=200,
+                business_code=response.code,
+            )
 
     @property
     def raw(self):

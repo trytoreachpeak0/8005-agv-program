@@ -1,0 +1,24 @@
+{
+    "uid":  "riot-behavior-lab-R38-M1-20260722-135149",
+    "hitExec":  true,
+    "final":  {
+                  "at":  "2026-07-22 13:55:59.308",
+                  "station":  0,
+                  "movementState":  "MT_RUNNING",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "speed":  0.0,
+                  "procState":  "PROCESSING_ORDER",
+                  "processingOrder":  true,
+                  "orderState":  3,
+                  "orderId":  "order-2079807038921244672",
+                  "numericId":  489352,
+                  "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "progress":  100,
+                  "failReason":  "",
+                  "m0_resultCode":  0,
+                  "m0_resultStr":  ""
+              }
+}

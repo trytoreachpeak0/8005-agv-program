@@ -1,0 +1,13 @@
+{
+    "url":  "http://172.10.1.72:8888/api/task/v1/route/getCostUnit",
+    "status":  200,
+    "code":  "0",
+    "message":  "成功",
+    "summary":  {
+                    "mapCount":  0,
+                    "samples":  [
+
+                                ]
+                },
+    "bodyPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{},\"tid\":\"\"}"
+}

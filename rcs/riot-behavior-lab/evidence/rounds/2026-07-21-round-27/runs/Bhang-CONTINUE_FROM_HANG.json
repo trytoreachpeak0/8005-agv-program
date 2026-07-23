@@ -1,0 +1,7 @@
+{
+    "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+    "orderId":  "order-2079526911670878208",
+    "code":  "0",
+    "message":  "成功",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+}

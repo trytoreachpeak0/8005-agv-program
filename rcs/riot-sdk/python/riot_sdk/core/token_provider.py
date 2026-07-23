@@ -26,6 +26,6 @@ class RiotTokenProvider:
         async with self._lock:
             if not self._access_token:
                 raise RuntimeError(
-                    "No access token. Call RiotSession.login() before invoking API clients."
+                    "No bearer credential. Set RiotOptions.call_api_key or call RiotSession.login()."
                 )
             return self._access_token

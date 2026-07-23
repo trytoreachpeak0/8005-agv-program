@@ -1,0 +1,7 @@
+{
+  "req": "{\"messageId\":329244,\"mqCallback\":{\"tag\":\"string\",\"topic\":\"string\"},\"thingsProperties\":{}}",
+  "code": "05007",
+  "message": "请求超时没有收到响应",
+  "result": null,
+  "preview": "{\"code\":\"05007\",\"detail\":\"code:[05007], msg:[command_request_error]\",\"message\":\"请求超时没有收到响应\",\"msgDetail\":\"请求超时没有收到响应\",\"tid\":\"\"}"
+}

@@ -1,0 +1,22 @@
+{
+    "before":  {
+                   "id":  488071,
+                   "orderId":  "order-2079081676830539776",
+                   "upperId":  "",
+                   "orderName":  "iiiii",
+                   "orderState":  9,
+                   "finalState":  false,
+                   "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                   "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                   "executeVehicleName":  "新基测试300c协作1",
+                   "createTime":  "2026-07-20 13:51:14",
+                   "endStationNo":  1
+               },
+    "cancel":  {
+                   "api":  "command",
+                   "orderId":  "order-2079081676830539776",
+                   "code":  "0",
+                   "message":  "成功",
+                   "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+               }
+}

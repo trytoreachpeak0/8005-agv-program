@@ -1,0 +1,22 @@
+{
+    "at":  "2026-07-20 15:44:06.048",
+    "station":  0,
+    "noStation":  true,
+    "mapName":  "api测试2",
+    "procState":  "PROCESSING_ORDER",
+    "processingOrder":  true,
+    "movementState":  "MT_RUNNING",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  null,
+    "missionState":  null,
+    "missionResultCode":  null,
+    "progress":  null,
+    "orderId":  null,
+    "numericId":  null,
+    "executeVehicleKey":  null,
+    "finalState":  null,
+    "remainCost":  null,
+    "remainCode":  null,
+    "upperId":  ""
+}

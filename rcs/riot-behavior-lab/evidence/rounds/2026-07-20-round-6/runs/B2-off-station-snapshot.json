@@ -1,0 +1,100 @@
+{
+  "at": "2026-07-20 10:34:26",
+  "scenario": "off-station-status-snapshot",
+  "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "deviceName": "新基测试300c协作1",
+  "observation": "Vehicle not at a named station; station fields read as 0 while mapName and coordinates remain populated.",
+  "getVehicleInfo": {
+    "url": "http://172.10.1.72:8888/api/task/v1/task/getVehicleInfo/BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "httpStatus": 200,
+    "currentStation": 0,
+    "currentNode": 0,
+    "noStation": true,
+    "noNode": true,
+    "mapName": "api测试",
+    "previousState_stationNo": 0,
+    "plantModel": "api测试",
+    "precisePosition": {
+      "x": 133.0,
+      "y": -258.0
+    },
+    "locationState": "LOCATION_STATE_RUNNING",
+    "movementState": "MT_FINISHED",
+    "connected": true,
+    "battery": 34,
+    "procState": "IDLE",
+    "enable": false
+  },
+  "runtimeProperties": {
+    "url": "http://172.10.1.72:8888/api/device/v1/runtime/properties/BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "httpStatus": 200,
+    "mapName": "api测试",
+    "stationNo": 0,
+    "currentPosition": {
+      "confidence": 94,
+      "roll": 0,
+      "x": 133,
+      "y": -258,
+      "z": 0,
+      "pitch": 0,
+      "yaw": -1578
+    },
+    "locationState": 3,
+    "sysState": 2,
+    "movementState": {
+      "no": 2,
+      "dstStationType": 0,
+      "remainTime": 0,
+      "stations": [
+        1
+      ],
+      "taskResult": 1,
+      "avoidPolicy": 0,
+      "type": 0,
+      "curCheckpointNo": 0,
+      "curPathNo": 0,
+      "remainDistance": 0,
+      "paths": [
+        {
+          "sx": 150,
+          "sy": -480,
+          "pathType": 4,
+          "rotateAngle": 4712,
+          "ex": 0,
+          "dx": 0,
+          "ey": 0,
+          "cx": 0,
+          "dy": 0,
+          "cy": 0,
+          "limitW": 0,
+          "radius": 0,
+          "limitV": 0,
+          "direction": 0
+        }
+      ],
+      "state": 5,
+      "poses": [],
+      "totalDistance": 0
+    },
+    "multiLoadState": 0
+  },
+  "contrastWithOnStation": {
+    "earlierSameDay": "Round6 earlier snapshot: currentStation=1, stationNo=1, mapName=api测试, on 站点1",
+    "now": "currentStation=0, stationNo=0, currentNode=0, mapName still api测试, coordinates still present"
+  },
+  "interpretation": {
+    "stationFieldZeroMeans": "Not currently attributed to a station (off-station / between stations), NOT mapId and NOT an error by itself",
+    "stillReadable": [
+      "mapName",
+      "precisePosition/currentPosition",
+      "procState",
+      "battery",
+      "connected"
+    ],
+    "doNotTreatZeroAs": [
+      "station named 站点0",
+      "missing map",
+      "API failure"
+    ]
+  }
+}

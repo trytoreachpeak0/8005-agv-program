@@ -26,7 +26,7 @@ public sealed class RiotTokenProvider
             if (string.IsNullOrWhiteSpace(_accessToken))
             {
                 throw new InvalidOperationException(
-                    "No access token. Call RiotSession.LoginAsync() before invoking API clients.");
+                    "No bearer credential. Set RiotOptions.CallApiKey or call RiotSession.LoginAsync().");
             }
 
             return _accessToken;

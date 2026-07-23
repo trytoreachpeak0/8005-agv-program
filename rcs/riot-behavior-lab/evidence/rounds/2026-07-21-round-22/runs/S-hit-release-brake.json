@@ -1,0 +1,33 @@
+{
+    "hit":  true,
+    "target":  "release-brake",
+    "last":  {
+                 "at":  "2026-07-21 08:18:08.944",
+                 "label":  "release-brake",
+                 "apiReachable":  true,
+                 "apiError":  null,
+                 "statusHttp":  200,
+                 "statusType":  "online",
+                 "statusOk":  true,
+                 "station":  0,
+                 "procState":  "IDLE",
+                 "enable":  true,
+                 "integrationLevel":  "ON_LINE",
+                 "breakSwitchState":  "UNMOVABLE",
+                 "mode":  "MODE_AUTO",
+                 "controlState":  "CONTROL_STATE_ERR",
+                 "hardwareState":  "H_STATE_OK",
+                 "powerMode":  "POWER_MODE_FULLER",
+                 "emergencyState":  "OK",
+                 "movementState":  "MT_NA",
+                 "prop_breakSwState":  2,
+                 "prop_operationState":  1,
+                 "prop_sysState":  2,
+                 "prop_powerState":  1,
+                 "prop_hstate":  2,
+                 "prev_operationState":  1,
+                 "prev_sysState":  2,
+                 "hw_breakSwState":  2,
+                 "hw_powerState":  1
+             }
+}

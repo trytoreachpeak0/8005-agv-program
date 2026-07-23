@@ -1,0 +1,79 @@
+[
+  {
+    "id": "breakSwState",
+    "name": "解抱闸状态",
+    "map": {
+      "0": "NA",
+      "1": "OFF",
+      "2": "ON"
+    }
+  },
+  {
+    "id": "sysState",
+    "name": "系统状态",
+    "map": {
+      "4": "SYS_STATE_START_LOCATING",
+      "23": "SYS_STATE_TASK_PATH_WAITING_TRAFFIC_CONTROL",
+      "7": "SYS_STATE_TASK_NAV_WAITING_FINISH",
+      "14": "SYS_STATE_TASK_PATH_NAV_INITIALING",
+      "19": "SYS_STATE_TASK_MANUAL_PAUSED",
+      "22": "SYS_STATE_HARDWARE_ERROR",
+      "13": "SYS_STATE_TASK_NEWMAP_SAVING",
+      "0": "SYS_STATE_ZERO",
+      "1": "SYS_STATE_INITIALING",
+      "21": "SYS_STATE_TASK_MANUAL_PATH_ERROR",
+      "10": "SYS_STATE_TASK_NAV_PAUSED",
+      "9": "SYS_STATE_TASK_NAV_REFINDING_PATH",
+      "17": "SYS_STATE_TASK_PATH_PAUSED",
+      "24": "SYS_STATE_TASK_PATH_WAITING_TRAFFIC_CONTROL_SLOW",
+      "16": "SYS_STATE_TASK_PATH_WAITING_FINISH_SLOW",
+      "8": "SYS_STATE_TASK_NAV_WAITING_FINISH_SLOW",
+      "2": "SYS_STATE_IDLE",
+      "12": "SYS_STATE_TASK_NEWMAP_DRAWING",
+      "6": "SYS_STATE_TASK_NAV_FINDING_PATH",
+      "20": "SYS_STATE_TASK_NAV_PATH_ERROR",
+      "15": "SYS_STATE_TASK_PATH_WAITING_FINISH",
+      "3": "SYS_STATE_ERROR",
+      "11": "SYS_STATE_TASK_NAV_NO_WAY",
+      "5": "SYS_STATE_TASK_NAV_INITIALING",
+      "18": "SYS_STATE_TASK_NAV_NO_STATION"
+    }
+  },
+  {
+    "id": "powerState",
+    "name": "电源状态",
+    "map": {
+      "0": "POWER_NA",
+      "1": "POWER_NORMAL",
+      "2": "POWER_SAVE_MODE"
+    }
+  },
+  {
+    "id": "operationState",
+    "name": "操作状态",
+    "map": {
+      "0": "OPERATION_NONE",
+      "1": "OPERATION_AUTO",
+      "2": "OPERATION_MANUAL"
+    }
+  },
+  {
+    "id": "hstate",
+    "name": "硬件状态",
+    "map": {
+      "0": "H_STATE_ZERO",
+      "3": "H_STATE_ERROR",
+      "1": "H_STATE_INITIALING",
+      "2": "H_STATE_OK"
+    }
+  },
+  {
+    "id": "fleetMode",
+    "name": "当前的调度模式",
+    "map": {
+      "0": "FLEET_MODE_NONE",
+      "1": "FLEET_MODE_OFFLINE",
+      "2": "FLEET_MODE_ONLINE"
+    }
+  }
+]

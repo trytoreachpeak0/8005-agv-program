@@ -1,0 +1,7 @@
+from enum import Enum
+
+class MapEdgeGroupObject_type(str, Enum):
+    OUTSIDE_TRAFFIC_EMPTY = "OUTSIDE_TRAFFIC_EMPTY",
+    SAME_DIRECTION_ONLY = "SAME_DIRECTION_ONLY",
+    SINGLE_VEHICLE_ONLY = "SINGLE_VEHICLE_ONLY",
+

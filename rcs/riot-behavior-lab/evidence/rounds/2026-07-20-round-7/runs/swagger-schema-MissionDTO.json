@@ -1,0 +1,81 @@
+{
+  "title": "MissionDTO",
+  "type": "object",
+  "properties": {
+    "actionId": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "actionName": {
+      "type": "string"
+    },
+    "actionParam1": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "actionParam2": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "actionParamStr": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "extendParams": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "failStrategy": {
+      "type": "string"
+    },
+    "failValue": {
+      "type": "string"
+    },
+    "functionKey": {
+      "type": "string"
+    },
+    "index": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "length": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "mapId": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "mapName": {
+      "type": "string"
+    },
+    "orderId": {
+      "type": "string"
+    },
+    "orderUuid": {
+      "type": "string"
+    },
+    "speed": {
+      "type": "number",
+      "format": "float"
+    },
+    "stationName": {
+      "type": "string"
+    },
+    "successStrategy": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "width": {
+      "type": "integer",
+      "format": "int32"
+    }
+  }
+}
