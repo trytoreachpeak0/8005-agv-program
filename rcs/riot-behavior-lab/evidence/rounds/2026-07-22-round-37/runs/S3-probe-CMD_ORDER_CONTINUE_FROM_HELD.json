@@ -1,0 +1,29 @@
+{
+    "call":  {
+                 "commandType":  "CMD_ORDER_CONTINUE_FROM_HELD",
+                 "code":  "100020",
+                 "message":  "订单不是暂停状态,订单无法继续执行",
+                 "body":  "{\"code\":\"100020\",\"detail\":\"code:[100020], msg:[order.state.is.not.held.order.could.not.continue]\",\"message\":\"订单不是暂停状态,订单无法继续执行\",\"msgDetail\":\"订单不是暂停状态,订单无法继续执行\",\"tid\":\"\"}"
+             },
+    "after":  {
+                  "at":  "2026-07-22 13:13:50.989",
+                  "station":  0,
+                  "movementState":  "MT_PAUSED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "speed":  0.0,
+                  "faultCodes":  "",
+                  "lastErrorCode":  0,
+                  "procState":  "PROCESSING_ORDER",
+                  "processingOrder":  true,
+                  "orderState":  3,
+                  "orderId":  "order-2079797271662297088",
+                  "numericId":  489332,
+                  "progress":  20,
+                  "failReason":  "",
+                  "m0_resultCode":  0,
+                  "m0_resultStr":  ""
+              }
+}

@@ -1,0 +1,49 @@
+{
+  "post": {
+    "tags": [
+      "车辆服务"
+    ],
+    "summary": "批量更新车辆调度状态",
+    "operationId": "updateVehicleIntegrationLevelStatusUsingPOST",
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/BatchVehicleOperation"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "*/*": {
+            "schema": {
+              "$ref": "#/components/schemas/ResponseMsg«机器人卡片返回对象»"
+            }
+          }
+        }
+      },
+      "201": {
+        "description": "Created"
+      },
+      "401": {
+        "description": "Unauthorized"
+      },
+      "403": {
+        "description": "Forbidden"
+      },
+      "404": {
+        "description": "Not Found"
+      }
+    },
+    "security": [
+      {
+        "Authorization": [
+          "global"
+        ]
+      }
+    ]
+  }
+}

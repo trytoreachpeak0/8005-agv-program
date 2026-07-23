@@ -1,0 +1,16 @@
+{
+  "hit": true,
+  "last": {
+    "at": "2026-07-20 16:37:29.079",
+    "statusType": "online",
+    "breakSwitchState": "MOVABLE",
+    "mode": "MODE_AUTO",
+    "controlState": "CONTROL_STATE_OK",
+    "enable": true,
+    "il": "ON_LINE",
+    "breakSwState": 1,
+    "operationState": 1,
+    "sysState": 2,
+    "powerState": 1
+  }
+}

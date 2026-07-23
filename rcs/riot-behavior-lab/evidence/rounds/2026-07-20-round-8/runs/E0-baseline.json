@@ -1,0 +1,56 @@
+{
+  "at": "2026-07-20 12:24:55",
+  "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "deviceName": "新基测试300c协作1",
+  "enable": true,
+  "integrationLevel": "ON_LINE",
+  "procState": "IDLE",
+  "processingOrder": false,
+  "connected": true,
+  "currentStation": 1,
+  "noStation": false,
+  "mapName": "api测试",
+  "precisePosition": {
+    "x": 155.0,
+    "y": -477.0
+  },
+  "battery": 22,
+  "movementState": "MT_FINISHED",
+  "fleetMode": "FLEET_MODE_OFFLINE",
+  "runtimeStation": 1,
+  "runtimeMap": "api测试",
+  "stationsMap29": [
+    {
+      "id": 1,
+      "name": "站点1",
+      "x": 150.0,
+      "y": -480.0,
+      "yaw": 4712.389
+    },
+    {
+      "id": 2,
+      "name": "站点2",
+      "x": 150.0,
+      "y": -2440.0,
+      "yaw": 4712.389
+    }
+  ],
+  "plannedDestination": 2,
+  "routeCost": {
+    "code": "0",
+    "message": "成功",
+    "msgDetail": "",
+    "result": {
+      "deviceCostsList": [
+        {
+          "costs": 1960,
+          "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+          "message": "ok"
+        }
+      ],
+      "mapId": 29,
+      "stationId": 2
+    },
+    "tid": ""
+  }
+}

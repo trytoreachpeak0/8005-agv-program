@@ -1,0 +1,19 @@
+{
+  "at": "2026-07-20 10:19:23",
+  "scenario": "mapInfo-single-station",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/29/1",
+  "httpStatus": 200,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功"
+  },
+  "resultCompact": {
+    "id": 1,
+    "name": "站点1",
+    "type": 1,
+    "desc": "",
+    "dmcode_id": ""
+  },
+  "responsePreview": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"check_pos.x\":0,\"check_pos.y\":0,\"check_pos.yaw\":0,\"desc\":\"\",\"dmcode_id\":\"\",\"edge_id\":1,\"enter_backward\":false,\"enter_pos.x\":0,\"enter_pos.y\":0,\"enter_pos.yaw\":0,\"exit_backward\":false,\"exit_pos.x\":0,\"exit_pos.y\":0,\"exit_pos.yaw\":0,\"id\":1,\"name\":\"站点1\",\"no_rotate\":false,\"param\":0,\"pgv_offset.x\":0,\"pgv_offset.y\":0,\"pgv_offset.yaw\":0,\"pos.x\":150.0,\"pos.y\":-480.0,\"pos.yaw\":4712.389,\"pos_dynamic\":false,\"station_offset\":0,\"type\":1,\"user_define_properties\":{}},\"tid\":\"\"}"
+}

@@ -1,0 +1,30 @@
+{
+    "samples":  [
+                    {
+                        "at":  "2026-07-20 13:17:22.376",
+                        "station":  0,
+                        "noStation":  true,
+                        "procState":  "PROCESSING_ORDER",
+                        "processingOrder":  true,
+                        "movementState":  "MT_RUNNING",
+                        "enable":  true,
+                        "integrationLevel":  "ON_LINE",
+                        "fleetMode":  "FLEET_MODE_OFFLINE",
+                        "orderState":  3,
+                        "missionState":  1,
+                        "missionType":  "move",
+                        "missionTypes":  [
+                                             "move"
+                                         ],
+                        "executingIndex":  0,
+                        "orderId":  "order-2079073561783435264",
+                        "numericId":  488040,
+                        "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                        "appointVehicleKey":  "",
+                        "upperId":  "riot-lab-R11-nokey-20260720-131717",
+                        "progress":  100
+                    }
+                ],
+    "criticalWrongVehicle":  false,
+    "dispatchedTo":  "BROKERX-aee2f93d717546cf9510c98c854fe83e"
+}

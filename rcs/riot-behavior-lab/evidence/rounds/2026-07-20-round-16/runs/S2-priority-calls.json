@@ -1,0 +1,79 @@
+{
+    "attempts":  [
+                     {
+                         "via":  "orderId-string",
+                         "url":  "http://172.10.1.72:8888/api/order/v1/orderRecordPriorityExec?orderTaskKey=order-2079101767542505472",
+                         "code":  "0",
+                         "message":  "成功",
+                         "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                     }
+                 ],
+    "after":  {
+                  "A":  {
+                            "at":  "2026-07-20 15:09:25.376",
+                            "station":  0,
+                            "noStation":  true,
+                            "mapName":  "新基测试2opt",
+                            "procState":  "PROCESSING_ORDER",
+                            "processingOrder":  true,
+                            "movementState":  "MT_RUNNING",
+                            "enable":  true,
+                            "integrationLevel":  "ON_LINE",
+                            "orderState":  3,
+                            "missionState":  1,
+                            "progress":  100,
+                            "orderId":  "order-2079101743068741632",
+                            "numericId":  488102,
+                            "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                            "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                            "finalState":  false,
+                            "remainCost":  31440,
+                            "remainCode":  "0",
+                            "upperId":  "riot-behavior-lab-R16-S2-A-20260720-150915"
+                        },
+                  "B":  {
+                            "at":  "2026-07-20 15:09:25.524",
+                            "station":  0,
+                            "noStation":  true,
+                            "mapName":  "新基测试2opt",
+                            "procState":  "PROCESSING_ORDER",
+                            "processingOrder":  true,
+                            "movementState":  "MT_RUNNING",
+                            "enable":  true,
+                            "integrationLevel":  "ON_LINE",
+                            "orderState":  1,
+                            "missionState":  0,
+                            "progress":  0,
+                            "orderId":  "order-2079101765277581312",
+                            "numericId":  488103,
+                            "executeVehicleKey":  "--",
+                            "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                            "finalState":  false,
+                            "remainCost":  9223372036854775807,
+                            "remainCode":  "0",
+                            "upperId":  "riot-behavior-lab-R16-S2-B-20260720-150921"
+                        },
+                  "C":  {
+                            "at":  "2026-07-20 15:09:25.678",
+                            "station":  0,
+                            "noStation":  true,
+                            "mapName":  "新基测试2opt",
+                            "procState":  "PROCESSING_ORDER",
+                            "processingOrder":  true,
+                            "movementState":  "MT_RUNNING",
+                            "enable":  true,
+                            "integrationLevel":  "ON_LINE",
+                            "orderState":  1,
+                            "missionState":  0,
+                            "progress":  0,
+                            "orderId":  "order-2079101767542505472",
+                            "numericId":  488104,
+                            "executeVehicleKey":  "--",
+                            "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                            "finalState":  false,
+                            "remainCost":  9223372036854775807,
+                            "remainCode":  "0",
+                            "upperId":  "riot-behavior-lab-R16-S2-C-20260720-150921"
+                        }
+              }
+}

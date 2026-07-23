@@ -1,0 +1,21 @@
+{
+    "at":  "2026-07-20 13:41:25.819",
+    "station":  1,
+    "noStation":  false,
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "movementState":  "MT_FINISHED",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  null,
+    "missionState":  null,
+    "missionResultCode":  null,
+    "missionResultStr":  null,
+    "orderId":  null,
+    "numericId":  null,
+    "executeVehicleKey":  null,
+    "appointVehicleKey":  null,
+    "finalState":  null,
+    "progress":  null,
+    "upperId":  ""
+}

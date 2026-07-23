@@ -1,0 +1,26 @@
+{
+  "cleared": true,
+  "messageId": 329244,
+  "before": {
+    "at": "2026-07-20 15:59:07.529",
+    "emergencyState": null,
+    "controlState": null,
+    "breakSwitchState": null,
+    "movementState": "",
+    "procState": null,
+    "enable": null,
+    "integrationLevel": "",
+    "station": null
+  },
+  "after": {
+    "at": "2026-07-20 15:59:18.853",
+    "emergencyState": "OK",
+    "controlState": "CONTROL_STATE_OK",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 5
+  }
+}

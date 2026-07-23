@@ -1,0 +1,24 @@
+{
+  "callApiKeyWorks": true,
+  "serviceIdEnable": "enable",
+  "serviceIdDisable": "disable",
+  "disableEffect": {
+    "at": "2026-07-20 13:37:02.160",
+    "enable": false,
+    "integrationLevel": "OFF_LINE",
+    "procState": "IDLE",
+    "processingOrder": false,
+    "station": 1,
+    "movementState": "MT_FINISHED"
+  },
+  "restoreEffect": {
+    "at": "2026-07-20 13:37:03.352",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "procState": "IDLE",
+    "processingOrder": false,
+    "station": 1,
+    "movementState": "MT_FINISHED"
+  },
+  "note": "UI used admin Bearer; verified with callApiKey"
+}

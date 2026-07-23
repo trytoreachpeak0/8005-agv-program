@@ -1,0 +1,30 @@
+{
+    "hitExec":  true,
+    "uid":  "riot-behavior-lab-R35-L1noloc-20260722-123103",
+    "last":  {
+                 "at":  "2026-07-22 12:31:04.565",
+                 "runtimeType":  "online",
+                 "station":  0,
+                 "mapName":  "api测试2",
+                 "movementState":  "MT_RUNNING",
+                 "controlState":  "CONTROL_STATE_OK",
+                 "emergencyState":  "OK",
+                 "breakSwitchState":  "MOVABLE",
+                 "locationState":  "LOCATION_STATE_RUNNING",
+                 "speed":  0.0,
+                 "faultCodes":  "",
+                 "lastErrorCode":  0,
+                 "procState":  "PROCESSING_ORDER",
+                 "processingOrder":  true,
+                 "enable":  true,
+                 "integrationLevel":  "ON_LINE",
+                 "orderState":  3,
+                 "orderId":  "order-2079786713173065728",
+                 "numericId":  489295,
+                 "failReason":  "",
+                 "progress":  11,
+                 "executingIndex":  0,
+                 "m0_resultCode":  0,
+                 "m0_resultStr":  ""
+             }
+}

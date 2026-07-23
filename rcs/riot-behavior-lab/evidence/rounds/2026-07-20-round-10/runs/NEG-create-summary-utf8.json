@@ -1,0 +1,50 @@
+[
+  {
+    "name": "fake-vehicleKey",
+    "code": "0",
+    "message": "成功",
+    "msgDetail": "",
+    "unexpected": true,
+    "orderId": "order-2079069545519251456",
+    "appointVehicleKey": "BROKERX-DOES-NOT-EXIST-riot-lab",
+    "executeVehicleKey": null,
+    "executeVehicleName": null,
+    "orderState": 1
+  },
+  {
+    "name": "bad-mapId",
+    "code": "0660003",
+    "message": "目的地站点不存在",
+    "msgDetail": "目的地站点不存在",
+    "unexpected": false,
+    "orderId": null,
+    "appointVehicleKey": null,
+    "executeVehicleKey": null,
+    "executeVehicleName": null,
+    "orderState": null
+  },
+  {
+    "name": "bad-destination",
+    "code": "0660003",
+    "message": "目的地站点不存在",
+    "msgDetail": "目的地站点不存在",
+    "unexpected": false,
+    "orderId": null,
+    "appointVehicleKey": null,
+    "executeVehicleKey": null,
+    "executeVehicleName": null,
+    "orderState": null
+  },
+  {
+    "name": "missing-appointVehicleKey",
+    "code": "0",
+    "message": "成功",
+    "msgDetail": "",
+    "unexpected": true,
+    "orderId": "order-2079069547234721792",
+    "appointVehicleKey": null,
+    "executeVehicleKey": null,
+    "executeVehicleName": null,
+    "orderState": 1
+  }
+]

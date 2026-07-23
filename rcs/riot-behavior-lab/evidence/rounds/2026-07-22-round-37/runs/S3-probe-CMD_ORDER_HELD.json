@@ -1,0 +1,29 @@
+{
+    "call":  {
+                 "commandType":  "CMD_ORDER_HELD",
+                 "code":  "0",
+                 "message":  "成功",
+                 "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+             },
+    "after":  {
+                  "at":  "2026-07-22 13:13:55.668",
+                  "station":  0,
+                  "movementState":  "MT_PAUSED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "speed":  0.0,
+                  "faultCodes":  "",
+                  "lastErrorCode":  0,
+                  "procState":  "USER_FORCE_IDLE",
+                  "processingOrder":  true,
+                  "orderState":  7,
+                  "orderId":  "order-2079797271662297088",
+                  "numericId":  489332,
+                  "progress":  20,
+                  "failReason":  "",
+                  "m0_resultCode":  0,
+                  "m0_resultStr":  ""
+              }
+}

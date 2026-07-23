@@ -1,0 +1,40 @@
+{
+  "at": "2026-07-20 10:19:23",
+  "scenario": "stations-map-29",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/stations/29",
+  "mapId": 29,
+  "mapName": "api测试",
+  "httpStatus": 200,
+  "elapsedMs": 185,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功",
+    "resultShape": "array",
+    "stationCount": 2,
+    "hasStationId1": true
+  },
+  "stations": [
+    {
+      "id": 1,
+      "name": "站点1",
+      "type": 1,
+      "desc": "",
+      "pos.x": 150.0,
+      "pos.y": -480.0,
+      "pos.yaw": 4712.389,
+      "edge_id": 1
+    },
+    {
+      "id": 2,
+      "name": "站点2",
+      "type": 1,
+      "desc": "",
+      "pos.x": 150.0,
+      "pos.y": -1520.0,
+      "pos.yaw": 4712.389,
+      "edge_id": 1
+    }
+  ],
+  "fieldNote": "stationId=id, stationName=name; coordinates are dotted keys pos.x/pos.y/pos.yaw"
+}

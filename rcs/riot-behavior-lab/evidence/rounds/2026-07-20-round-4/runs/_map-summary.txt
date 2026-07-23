@@ -1,0 +1,22 @@
+MAPINFO_ALL count=18 code=0
+id=6	name=尊阳电镀线	floor=0
+id=27	name=新基测试2	floor=0
+id=26	name=新基测试1	floor=0
+id=25	name=ZY_WB_MapF	floor=0
+id=21	name=长廊	floor=0
+id=19	name=ZY_WB_Map	floor=0
+id=18	name=3opt	floor=0
+id=17	name=2	floor=0
+id=16	name=新潮尊阳测试	floor=0
+id=14	name=尊阳电镀线opt	floor=1
+id=13	name=电镀plus	floor=1
+id=12	name=华士新厂	floor=1
+id=11	name=华士老厂	floor=1
+id=9	name=二楼连廊	floor=2
+id=8	name=华士新厂南侧1楼电梯	floor=1
+id=7	name=华士新厂南侧2楼电梯	floor=2
+id=28	name=新基测试2opt	floor=0
+id=29	name=api测试	floor=0
+LIGHT count=18 code=0 shape=array
+TEST_VEHICLE_CLUES:
+{"getVehicleInfo":{"url":"http://172.10.1.72:8888/api/task/v1/task/getVehicleInfo/BROKERX-aee2f93d717546cf9510c98c854fe83e","httpStatus":200,"code":"","message":"","fields":{},"resultTopKeys":null},"getVehicleInfoByDeviceKey":{"url":"http://172.10.1.72:8888/api/task/vehicles/getVehicleInfoByDeviceKey?deviceKey=BROKERX-aee2f93d717546cf9510c98c854fe83e","httpStatus":200,"code":"00002","message":"内部错误","fields":{},"resultTopKeys":null},"getAllTaskVehicles.match":{"found":true,"fields":{"vehicle.aliveState":true,"vehicle.battery":37,"vehicle.batteryState":"NO_CHARGE","vehicle.connected":true,"vehicle.connectedTimestamp":1784507855064,"vehicle.currentNode":1,"vehicle.currentStation":1,"vehicle.locationState":"LOCATION_STATE_RUNNING","vehicle.noStation":false,"vehicleTaskInfo.enable":false,"vehicleTaskInfo.key":"BROKERX-aee2f93d717546cf9510c98c854fe83e","vehicleTaskInfo.name":"新基测试300c协作1","vehicleTaskInfo.procState":"IDLE"}}}

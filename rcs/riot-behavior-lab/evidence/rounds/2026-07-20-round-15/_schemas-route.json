@@ -1,0 +1,351 @@
+{
+  "keys": [
+    "CostUnit",
+    "RepDeviceCosts",
+    "ResponseMsg«Map«string,Map«string,Set«CostUnit»»»»",
+    "ResponseMsg«回复车辆列表到达站点代价»",
+    "回复车辆列表到达站点代价",
+    "找最近的终点参数对象",
+    "找最近的起点参数对象",
+    "申请车辆列表到达站点代价",
+    "ResponseMsg«机器人订单轨迹»",
+    "机器人订单轨迹",
+    "ResponseMsg«Map«string,double»»",
+    "ResponseMsg«long»",
+    "ResponseMsg«Void»",
+    "ResponseMsg«int»"
+  ],
+  "schemas": {
+    "CostUnit": {
+      "title": "CostUnit",
+      "type": "object",
+      "properties": {
+        "beginTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "costFactor": {
+          "type": "string",
+          "enum": [
+            "doAction",
+            "emergencyStop",
+            "obstacles",
+            "orderHang",
+            "traffic"
+          ]
+        },
+        "edgeId": {
+          "type": "string"
+        },
+        "vehicleKey": {
+          "type": "string"
+        }
+      }
+    },
+    "RepDeviceCosts": {
+      "title": "RepDeviceCosts",
+      "type": "object",
+      "properties": {
+        "costs": {
+          "type": "integer",
+          "description": "规划到指定站点的代价, -1 时表示异常,单位mm",
+          "format": "int64"
+        },
+        "deviceKey": {
+          "type": "string",
+          "description": "车辆deviceKey"
+        },
+        "message": {
+          "type": "string",
+          "description": "消息,正常-ok,异常-错误信息"
+        }
+      }
+    },
+    "ResponseMsg«Map«string,Map«string,Set«CostUnit»»»»": {
+      "title": "ResponseMsg«Map«string,Map«string,Set«CostUnit»»»»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "result": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    },
+    "ResponseMsg«回复车辆列表到达站点代价»": {
+      "title": "ResponseMsg«回复车辆列表到达站点代价»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/components/schemas/回复车辆列表到达站点代价"
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    },
+    "回复车辆列表到达站点代价": {
+      "title": "回复车辆列表到达站点代价",
+      "type": "object",
+      "properties": {
+        "deviceCostsList": {
+          "type": "array",
+          "description": "车辆代价列表",
+          "items": {
+            "$ref": "#/components/schemas/RepDeviceCosts"
+          }
+        },
+        "mapId": {
+          "type": "integer",
+          "description": "地图id",
+          "format": "int32"
+        },
+        "stationId": {
+          "type": "integer",
+          "description": "站点id",
+          "format": "int32"
+        }
+      },
+      "description": "回复车辆列表到达站点代价"
+    },
+    "找最近的终点参数对象": {
+      "title": "找最近的终点参数对象",
+      "type": "object",
+      "properties": {
+        "endStationIds": {
+          "type": "array",
+          "description": "终点候选站点id列表",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "mapId": {
+          "type": "integer",
+          "description": "地图id",
+          "format": "int32"
+        },
+        "startStationId": {
+          "type": "integer",
+          "description": "起点站点id",
+          "format": "int32"
+        }
+      },
+      "description": "找最近的终点参数对象"
+    },
+    "找最近的起点参数对象": {
+      "title": "找最近的起点参数对象",
+      "type": "object",
+      "properties": {
+        "endStationId": {
+          "type": "integer",
+          "description": "终点站点id",
+          "format": "int32"
+        },
+        "mapId": {
+          "type": "integer",
+          "description": "地图id",
+          "format": "int32"
+        },
+        "startStationIds": {
+          "type": "array",
+          "description": "起点候选站点id列表",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "description": "找最近的起点参数对象"
+    },
+    "申请车辆列表到达站点代价": {
+      "title": "申请车辆列表到达站点代价",
+      "type": "object",
+      "properties": {
+        "deviceKeys": {
+          "type": "array",
+          "description": "车辆deviceKey列表",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mapId": {
+          "type": "integer",
+          "description": "地图id",
+          "format": "int32"
+        },
+        "stationId": {
+          "type": "integer",
+          "description": "站点id",
+          "format": "int32"
+        }
+      },
+      "description": "申请车辆列表到达站点代价"
+    },
+    "ResponseMsg«机器人订单轨迹»": {
+      "title": "ResponseMsg«机器人订单轨迹»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/components/schemas/机器人订单轨迹"
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    },
+    "机器人订单轨迹": {
+      "title": "机器人订单轨迹",
+      "type": "object",
+      "properties": {
+        "currentTaskPath": {
+          "description": "当前子任务轨迹",
+          "$ref": "#/components/schemas/MapResources"
+        },
+        "orderPath": {
+          "description": "订单轨迹",
+          "$ref": "#/components/schemas/OrderPath"
+        }
+      },
+      "description": "机器人订单轨迹"
+    },
+    "ResponseMsg«Map«string,double»»": {
+      "title": "ResponseMsg«Map«string,double»»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "result": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    },
+    "ResponseMsg«long»": {
+      "title": "ResponseMsg«long»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "result": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    },
+    "ResponseMsg«Void»": {
+      "title": "ResponseMsg«Void»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    },
+    "ResponseMsg«int»": {
+      "title": "ResponseMsg«int»",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "msgDetail": {
+          "type": "string"
+        },
+        "result": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tid": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

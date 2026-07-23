@@ -1,0 +1,92 @@
+[
+    {
+        "uid":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+        "beforeState":  1,
+        "orderId":  "order-2079084014647508992",
+        "cancel":  {
+                       "api":  "command",
+                       "orderId":  "order-2079084014647508992",
+                       "code":  "0",
+                       "message":  "成功",
+                       "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                   },
+        "after":  {
+                      "at":  "2026-07-20 13:58:54.413",
+                      "station":  0,
+                      "noStation":  true,
+                      "procState":  "USER_FORCE_IDLE",
+                      "processingOrder":  true,
+                      "movementState":  "MT_PAUSED",
+                      "enable":  true,
+                      "integrationLevel":  "ON_LINE",
+                      "orderState":  2,
+                      "missionState":  0,
+                      "orderId":  "order-2079084014647508992",
+                      "numericId":  488073,
+                      "executeVehicleKey":  "--",
+                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                      "finalState":  true,
+                      "upperId":  "riot-behavior-lab-R14-B-queue-20260720-135849"
+                  }
+    },
+    {
+        "uid":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+        "beforeState":  1,
+        "orderId":  "order-2079084017281531904",
+        "cancel":  {
+                       "api":  "command",
+                       "orderId":  "order-2079084017281531904",
+                       "code":  "0",
+                       "message":  "成功",
+                       "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                   },
+        "after":  {
+                      "at":  "2026-07-20 13:58:54.679",
+                      "station":  0,
+                      "noStation":  true,
+                      "procState":  "USER_FORCE_IDLE",
+                      "processingOrder":  true,
+                      "movementState":  "MT_PAUSED",
+                      "enable":  true,
+                      "integrationLevel":  "ON_LINE",
+                      "orderState":  2,
+                      "missionState":  0,
+                      "orderId":  "order-2079084017281531904",
+                      "numericId":  488074,
+                      "executeVehicleKey":  "--",
+                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                      "finalState":  true,
+                      "upperId":  "riot-behavior-lab-R14-C-queue-20260720-135849"
+                  }
+    },
+    {
+        "uid":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+        "beforeState":  7,
+        "orderId":  "order-2079084003733929984",
+        "cancel":  {
+                       "api":  "command",
+                       "orderId":  "order-2079084003733929984",
+                       "code":  "0",
+                       "message":  "成功",
+                       "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                   },
+        "after":  {
+                      "at":  "2026-07-20 13:58:54.970",
+                      "station":  0,
+                      "noStation":  true,
+                      "procState":  "IN_CANCEL",
+                      "processingOrder":  false,
+                      "movementState":  "MT_PAUSED",
+                      "enable":  true,
+                      "integrationLevel":  "ON_LINE",
+                      "orderState":  2,
+                      "missionState":  4,
+                      "orderId":  "order-2079084003733929984",
+                      "numericId":  488072,
+                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                      "finalState":  true,
+                      "upperId":  "riot-behavior-lab-R14-A-exec-20260720-135846"
+                  }
+    }
+]

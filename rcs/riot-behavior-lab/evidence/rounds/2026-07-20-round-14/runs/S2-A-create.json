@@ -1,0 +1,71 @@
+{
+    "uid":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+    "request":  "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"isAppointEnable\":1,\"lockStatus\":0,\"orderName\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"upperId\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"mission\":[{\"type\":\"move\",\"mapId\":29,\"destination\":2}]}",
+    "create":  {
+                   "status":  200,
+                   "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"appointVehicleGroupId\":0,\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"createTime\":\"2026-07-20 14:00:28\",\"createdBy\":\"api-test\",\"endStationName\":\"站点2\",\"endStationNo\":2,\"finalState\":false,\"id\":488072,\"isAppointEnable\":1,\"lockStatus\":0,\"missions\":[{\"actionId\":0,\"actionName\":\"\",\"actionParam1\":0,\"actionParam2\":0,\"actionParamStr\":\"\",\"createTime\":\"2026-07-20 14:00:28\",\"createType\":0,\"destination\":2,\"destinationName\":\"\",\"executingIndex\":0,\"failStrategy\":\"\",\"failValue\":\"\",\"functionKey\":\"\",\"id\":7416708,\"isDeleted\":0,\"length\":0,\"mapId\":29,\"mapName\":\"\",\"missionState\":0,\"orderId\":488072,\"orderUuid\":\"b2f3779f-34fe-4d46-bb08-16f1a4eafc4d\",\"resultCode\":0,\"resultStr\":\"\",\"speed\":0.0,\"successStrategy\":\"SUCCESS_STRATEGY_VOID\",\"type\":\"move\",\"updateTime\":\"2026-07-20 14:00:28\",\"width\":0}],\"modifiedBy\":\"api-test\",\"orderId\":\"order-2079084003733929984\",\"orderName\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"source\":\"FMS\",\"startEndStationNameDetail\":\"null null \u003e null null\",\"startStationName\":\"站点2\",\"startStationNo\":2,\"updateTime\":\"2026-07-20 14:00:28\",\"upperId\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"userId\":0},\"tid\":\"\"}",
+                   "parsed":  {
+                                  "code":  "0",
+                                  "message":  "成功",
+                                  "msgDetail":  "",
+                                  "result":  {
+                                                 "appointVehicleGroupId":  0,
+                                                 "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                 "createTime":  "2026-07-20 14:00:28",
+                                                 "createdBy":  "api-test",
+                                                 "endStationName":  "站点2",
+                                                 "endStationNo":  2,
+                                                 "finalState":  false,
+                                                 "id":  488072,
+                                                 "isAppointEnable":  1,
+                                                 "lockStatus":  0,
+                                                 "missions":  [
+                                                                  {
+                                                                      "actionId":  0,
+                                                                      "actionName":  "",
+                                                                      "actionParam1":  0,
+                                                                      "actionParam2":  0,
+                                                                      "actionParamStr":  "",
+                                                                      "createTime":  "2026-07-20 14:00:28",
+                                                                      "createType":  0,
+                                                                      "destination":  2,
+                                                                      "destinationName":  "",
+                                                                      "executingIndex":  0,
+                                                                      "failStrategy":  "",
+                                                                      "failValue":  "",
+                                                                      "functionKey":  "",
+                                                                      "id":  7416708,
+                                                                      "isDeleted":  0,
+                                                                      "length":  0,
+                                                                      "mapId":  29,
+                                                                      "mapName":  "",
+                                                                      "missionState":  0,
+                                                                      "orderId":  488072,
+                                                                      "orderUuid":  "b2f3779f-34fe-4d46-bb08-16f1a4eafc4d",
+                                                                      "resultCode":  0,
+                                                                      "resultStr":  "",
+                                                                      "speed":  0.0,
+                                                                      "successStrategy":  "SUCCESS_STRATEGY_VOID",
+                                                                      "type":  "move",
+                                                                      "updateTime":  "2026-07-20 14:00:28",
+                                                                      "width":  0
+                                                                  }
+                                                              ],
+                                                 "modifiedBy":  "api-test",
+                                                 "orderId":  "order-2079084003733929984",
+                                                 "orderName":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                                 "orderState":  1,
+                                                 "orderType":  1,
+                                                 "priority":  0,
+                                                 "source":  "FMS",
+                                                 "startEndStationNameDetail":  "null null \u003e null null",
+                                                 "startStationName":  "站点2",
+                                                 "startStationNo":  2,
+                                                 "updateTime":  "2026-07-20 14:00:28",
+                                                 "upperId":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                                 "userId":  0
+                                             },
+                                  "tid":  ""
+                              }
+               }
+}

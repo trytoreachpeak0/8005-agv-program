@@ -2,7 +2,11 @@
   "baseUrl": "http://<host>:<port>",
   "username": "<username>",
   "password": "<password>",
+  "callApiKey": "<long-lived-key-from-riot-web-call-key-settings>",
   "testVehicleKey": "<device-key-of-the-only-test-vehicle>",
+  "testVehicleName": "<display-name-e.g.-新基测试300c协作1>",
+  "candidateMapId": 29,
+  "candidateMapName": "api测试",
   "testVehicleOnline": true,
-  "notes": "Copy to environment.local.json and fill real values. environment.local.json is gitignored via *.local.json."
+  "notes": "Copy to environment.local.json and fill real values. Prefer callApiKey. Vehicles: getAllVehicleSimpleInfo. Maps: mapInfo/all. Stations: mapInfo/stations/{mapId} (id=stationId, name=stationName). Confirm mapId+destination before any write."
 }

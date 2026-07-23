@@ -1,0 +1,23 @@
+{
+    "at":  "2026-07-22 08:53:21.312",
+    "station":  0,
+    "mapName":  "api测试2",
+    "movementState":  "MT_FINISHED",
+    "controlState":  "CONTROL_STATE_ERR",
+    "emergencyState":  "CAN_RECOVER",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "faultCodes":  "",
+    "speed":  0.0,
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  null,
+    "orderId":  null,
+    "numericId":  null,
+    "executeVehicleKey":  null,
+    "appointVehicleKey":  null,
+    "failReason":  null,
+    "progress":  null
+}

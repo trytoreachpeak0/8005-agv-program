@@ -1,0 +1,23 @@
+{
+    "at":  "2026-07-22 08:35:32.704",
+    "station":  0,
+    "mapName":  "api测试2",
+    "movementState":  "MT_FINISHED",
+    "controlState":  "CONTROL_STATE_ERR",
+    "emergencyState":  "CAN_NOT_RECOVER",
+    "breakSwitchState":  "MOVABLE",
+    "speed":  0.0,
+    "faultCodes":  "",
+    "lastErrorCode":  30001,
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "enable":  true,
+    "orderState":  2,
+    "orderId":  "order-2079723448338350080",
+    "numericId":  489190,
+    "failReason":  "R28-cleanup-op",
+    "progress":  14,
+    "executingIndex":  0,
+    "m0_resultCode":  0,
+    "m0_resultStr":  ""
+}

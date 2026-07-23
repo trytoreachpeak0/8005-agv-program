@@ -1,0 +1,171 @@
+{
+    "byExecute":  {
+                      "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026filterByState=9\u0026executeVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                      "status":  200,
+                      "summary":  {
+                                      "code":  "0",
+                                      "message":  "成功",
+                                      "total":  1,
+                                      "current":  1,
+                                      "size":  50,
+                                      "count":  1,
+                                      "records":  [
+                                                      {
+                                                          "id":  488072,
+                                                          "orderId":  "order-2079084003733929984",
+                                                          "upperId":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                                          "orderName":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                                          "orderState":  3,
+                                                          "finalState":  false,
+                                                          "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                          "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                          "executeVehicleName":  "新基测试300c协作1",
+                                                          "createTime":  "2026-07-20 14:00:29",
+                                                          "endStationNo":  2
+                                                      }
+                                                  ]
+                                  },
+                      "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":1,\"records\":[{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"arriveTime\":0,\"arriveTimeMsg\":\"已到达站点2\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:29\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点2\",\"endStationNo\":2,\"eta\":0,\"executeTime\":\"2026-07-20 14:00:31\",\"executeVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"executeVehicleName\":\"新基测试300c协作1\",\"executingIndex\":0,\"failReason\":\"\",\"finalState\":false,\"id\":488072,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079084003733929984\",\"orderName\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"orderState\":3,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":100,\"source\":\"FMS\",\"startEndStationName\":\"站点2 \u003e 站点2\",\"startEndStationNameDetail\":\"api测试 站点2 \u003e api测试 站点2\",\"startStationName\":\"站点2\",\"startStationNo\":2,\"taskState\":\"正在前往站点2\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:31\",\"upperId\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"userId\":0}],\"searchCount\":false,\"size\":50,\"total\":1},\"tid\":\"\"}"
+                  },
+    "byAppointUndoc":  {
+                           "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026appointVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026filterByState=9",
+                           "status":  200,
+                           "summary":  {
+                                           "code":  "0",
+                                           "message":  "成功",
+                                           "total":  4,
+                                           "current":  1,
+                                           "size":  50,
+                                           "count":  4,
+                                           "records":  [
+                                                           {
+                                                               "id":  488074,
+                                                               "orderId":  "order-2079084017281531904",
+                                                               "upperId":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+                                                               "orderName":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+                                                               "orderState":  1,
+                                                               "finalState":  false,
+                                                               "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                               "executeVehicleKey":  "--",
+                                                               "executeVehicleName":  "0",
+                                                               "createTime":  "2026-07-20 14:00:32",
+                                                               "endStationNo":  2
+                                                           },
+                                                           {
+                                                               "id":  488073,
+                                                               "orderId":  "order-2079084014647508992",
+                                                               "upperId":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+                                                               "orderName":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+                                                               "orderState":  1,
+                                                               "finalState":  false,
+                                                               "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                               "executeVehicleKey":  "--",
+                                                               "executeVehicleName":  "0",
+                                                               "createTime":  "2026-07-20 14:00:31",
+                                                               "endStationNo":  1
+                                                           },
+                                                           {
+                                                               "id":  488072,
+                                                               "orderId":  "order-2079084003733929984",
+                                                               "upperId":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                                               "orderName":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                                               "orderState":  3,
+                                                               "finalState":  false,
+                                                               "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                               "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                               "executeVehicleName":  "新基测试300c协作1",
+                                                               "createTime":  "2026-07-20 14:00:29",
+                                                               "endStationNo":  2
+                                                           },
+                                                           {
+                                                               "id":  487965,
+                                                               "orderId":  "order-2079031330829631488",
+                                                               "upperId":  "",
+                                                               "orderName":  "2号前往老厂磨划",
+                                                               "orderState":  9,
+                                                               "finalState":  false,
+                                                               "appointVehicleKey":  "BROKERX-3929103234654e7bbceb972979ab02cf",
+                                                               "executeVehicleKey":  "BROKERX-3929103234654e7bbceb972979ab02cf",
+                                                               "executeVehicleName":  "磨划晶圆AGV2",
+                                                               "createTime":  "2026-07-20 10:31:10",
+                                                               "endStationNo":  17
+                                                           }
+                                                       ]
+                                       },
+                           "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":1,\"records\":[{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:32\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点2\",\"endStationNo\":2,\"eta\":0,\"executeVehicleKey\":\"--\",\"executeVehicleName\":\"0\",\"executingIndex\":-1,\"failReason\":\"\",\"finalState\":false,\"id\":488074,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079084017281531904\",\"orderName\":\"riot-behavior-lab-R14-C-queue-20260720-135849\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":0,\"source\":\"FMS\",\"startEndStationName\":\"站点2 \u003e 站点2\",\"startEndStationNameDetail\":\"api测试 站点2 \u003e api测试 站点2\",\"startStationName\":\"站点2\",\"startStationNo\":2,\"taskState\":\"-\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:32\",\"upperId\":\"riot-behavior-lab-R14-C-queue-20260720-135849\",\"userId\":0},{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:31\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点1\",\"endStationNo\":1,\"eta\":0,\"executeVehicleKey\":\"--\",\"executeVehicleName\":\"0\",\"executingIndex\":-1,\"failReason\":\"\",\"finalState\":false,\"id\":488073,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079084014647508992\",\"orderName\":\"riot-behavior-lab-R14-B-queue-20260720-135849\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":0,\"source\":\"FMS\",\"startEndStationName\":\"站点1 \u003e 站点1\",\"startEndStationNameDetail\":\"api测试 站点1 \u003e api测试 站点1\",\"startStationName\":\"站点1\",\"startStationNo\":1,\"taskState\":\"-\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:31\",\"upperId\":\"riot-behavior-lab-R14-B-queue-20260720-135849\",\"userId\":0},{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"arriveTime\":0,\"arriveTimeMsg\":\"已到达站点2\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:29\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点2\",\"endStationNo\":2,\"eta\":0,\"executeTime\":\"2026-"
+                       },
+    "byState1Global":  {
+                           "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026pageSize=100",
+                           "status":  200,
+                           "summary":  {
+                                           "code":  "0",
+                                           "message":  "成功",
+                                           "total":  2,
+                                           "current":  1,
+                                           "size":  50,
+                                           "count":  2,
+                                           "records":  [
+                                                           {
+                                                               "id":  488074,
+                                                               "orderId":  "order-2079084017281531904",
+                                                               "upperId":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+                                                               "orderName":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+                                                               "orderState":  1,
+                                                               "finalState":  false,
+                                                               "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                               "executeVehicleKey":  "--",
+                                                               "executeVehicleName":  "0",
+                                                               "createTime":  "2026-07-20 14:00:32",
+                                                               "endStationNo":  2
+                                                           },
+                                                           {
+                                                               "id":  488073,
+                                                               "orderId":  "order-2079084014647508992",
+                                                               "upperId":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+                                                               "orderName":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+                                                               "orderState":  1,
+                                                               "finalState":  false,
+                                                               "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                               "executeVehicleKey":  "--",
+                                                               "executeVehicleName":  "0",
+                                                               "createTime":  "2026-07-20 14:00:31",
+                                                               "endStationNo":  1
+                                                           }
+                                                       ]
+                                       },
+                           "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":1,\"records\":[{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:32\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点2\",\"endStationNo\":2,\"eta\":0,\"executeVehicleKey\":\"--\",\"executeVehicleName\":\"0\",\"executingIndex\":-1,\"failReason\":\"\",\"finalState\":false,\"id\":488074,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079084017281531904\",\"orderName\":\"riot-behavior-lab-R14-C-queue-20260720-135849\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":0,\"source\":\"FMS\",\"startEndStationName\":\"站点2 \u003e 站点2\",\"startEndStationNameDetail\":\"api测试 站点2 \u003e api测试 站点2\",\"startStationName\":\"站点2\",\"startStationNo\":2,\"taskState\":\"-\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:32\",\"upperId\":\"riot-behavior-lab-R14-C-queue-20260720-135849\",\"userId\":0},{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:31\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点1\",\"endStationNo\":1,\"eta\":0,\"executeVehicleKey\":\"--\",\"executeVehicleName\":\"0\",\"executingIndex\":-1,\"failReason\":\"\",\"finalState\":false,\"id\":488073,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079084014647508992\",\"orderName\":\"riot-behavior-lab-R14-B-queue-20260720-135849\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":0,\"source\":\"FMS\",\"startEndStationName\":\"站点1 \u003e 站点1\",\"startEndStationNameDetail\":\"api测试 站点1 \u003e api测试 站点1\",\"startStationName\":\"站点1\",\"startStationNo\":1,\"taskState\":\"-\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:31\",\"upperId\":\"riot-behavior-lab-R14-B-queue-20260720-135849\",\"userId\":0}],\"searchCount\":false,\"size\":50,\"total\":2},\"tid\":\"\"}"
+                       },
+    "clientFilterAppointOrExecute":  [
+                                         {
+                                             "id":  488074,
+                                             "orderId":  "order-2079084017281531904",
+                                             "upperId":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+                                             "orderName":  "riot-behavior-lab-R14-C-queue-20260720-135849",
+                                             "orderState":  1,
+                                             "finalState":  false,
+                                             "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                             "executeVehicleKey":  "--",
+                                             "executeVehicleName":  "0",
+                                             "createTime":  "2026-07-20 14:00:32",
+                                             "endStationNo":  2
+                                         },
+                                         {
+                                             "id":  488073,
+                                             "orderId":  "order-2079084014647508992",
+                                             "upperId":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+                                             "orderName":  "riot-behavior-lab-R14-B-queue-20260720-135849",
+                                             "orderState":  1,
+                                             "finalState":  false,
+                                             "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                             "executeVehicleKey":  "--",
+                                             "executeVehicleName":  "0",
+                                             "createTime":  "2026-07-20 14:00:31",
+                                             "endStationNo":  1
+                                         }
+                                     ],
+    "expectedUids":  [
+                         "riot-behavior-lab-R14-A-exec-20260720-135846",
+                         "riot-behavior-lab-R14-B-queue-20260720-135849",
+                         "riot-behavior-lab-R14-C-queue-20260720-135849"
+                     ]
+}

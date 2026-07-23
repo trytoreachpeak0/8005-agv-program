@@ -1,0 +1,49 @@
+{
+    "tag":  "B",
+    "uid":  "riot-behavior-lab-R27-B-20260721-191842",
+    "mode":  "after-cancel-emerg",
+    "beforeOrder":  3,
+    "beforeEmerg":  "CAN_RECOVER",
+    "beforeBreak":  "MOVABLE",
+    "continueCode":  "100021",
+    "continueMessage":  "由于车辆原因订单无法跳过或者继续",
+    "afterContinueOrder":  3,
+    "afterContinueEmerg":  "OK",
+    "jumpCode":  "100021",
+    "jumpMessage":  "由于车辆原因订单无法跳过或者继续",
+    "afterJumpOrder":  9,
+    "continueRecovered":  false,
+    "steps":  [
+                  {
+                      "step":  "cancelEmergency",
+                      "code":  "0",
+                      "message":  "成功"
+                  },
+                  {
+                      "step":  "snap-after-cancel-emerg",
+                      "orderState":  3,
+                      "emergencyState":  "OK"
+                  },
+                  {
+                      "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                      "orderId":  "order-2079526911670878208",
+                      "code":  "100021",
+                      "message":  "由于车辆原因订单无法跳过或者继续",
+                      "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}"
+                  },
+                  {
+                      "step":  "snap-after-CONTINUE",
+                      "orderState":  3,
+                      "emergencyState":  "OK",
+                      "procState":  "PROCESSING_ORDER",
+                      "movementState":  "MT_RUNNING"
+                  },
+                  {
+                      "commandType":  "CMD_ORDER_JUMP_FROM_HANG",
+                      "orderId":  "order-2079526911670878208",
+                      "code":  "100021",
+                      "message":  "由于车辆原因订单无法跳过或者继续",
+                      "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}"
+                  }
+              ]
+}

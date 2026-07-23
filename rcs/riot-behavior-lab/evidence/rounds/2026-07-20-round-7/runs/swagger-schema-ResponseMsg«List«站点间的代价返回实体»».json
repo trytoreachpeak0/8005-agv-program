@@ -1,0 +1,27 @@
+{
+  "title": "ResponseMsg«List«站点间的代价返回实体»»",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "detail": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "msgDetail": {
+      "type": "string"
+    },
+    "result": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/站点间的代价返回实体"
+      }
+    },
+    "tid": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "url":  "http://172.10.1.72:8888/api/task/vehicles/startLocation?vehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e\u0026stationNo=1",
+    "stationNo":  "1",
+    "status":  200,
+    "code":  "0",
+    "message":  "成功",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+    "error":  null
+}

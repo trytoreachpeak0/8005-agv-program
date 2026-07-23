@@ -1,0 +1,5 @@
+{
+    "code":  "100036",
+    "message":  "中断订单的当前子任务索引不为移动任务",
+    "body":  "{\"code\":\"100036\",\"detail\":\"code:[100036], msg:[interrupt.subtask.index.not.support.edit]\",\"message\":\"中断订单的当前子任务索引不为移动任务\",\"msgDetail\":\"中断订单的当前子任务索引不为移动任务\",\"tid\":\"\"}"
+}

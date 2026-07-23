@@ -1,0 +1,8 @@
+{
+  "statusType": "online",
+  "proc": "IDLE",
+  "move": "MT_FINISHED",
+  "station": 1,
+  "enable": true,
+  "il": "ON_LINE"
+}

@@ -1,0 +1,17 @@
+{
+  "at": "2026-07-20 10:19:23",
+  "scenario": "stations-invalid-mapId-0",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/stations/0",
+  "mapId": 0,
+  "httpStatus": 200,
+  "elapsedMs": 23,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功",
+    "resultShape": "array",
+    "stationCount": 0
+  },
+  "stations": [],
+  "responsePreview": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":[],\"tid\":\"\"}"
+}

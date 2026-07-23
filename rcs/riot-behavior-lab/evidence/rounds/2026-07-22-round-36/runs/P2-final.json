@@ -1,0 +1,36 @@
+{
+    "order":  {
+                  "at":  "2026-07-22 13:07:23.793",
+                  "station":  5,
+                  "movementState":  "MT_FINISHED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "procState":  "IDLE",
+                  "processingOrder":  false,
+                  "orderState":  2,
+                  "orderId":  "order-2079795809272070144",
+                  "numericId":  489322,
+                  "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "progress":  20,
+                  "failReason":  "R36-P2-op"
+              },
+    "vehicle":  {
+                    "at":  "2026-07-22 13:07:23.890",
+                    "station":  5,
+                    "movementState":  "MT_FINISHED",
+                    "controlState":  "CONTROL_STATE_OK",
+                    "emergencyState":  "OK",
+                    "breakSwitchState":  "MOVABLE",
+                    "locationState":  "LOCATION_STATE_RUNNING",
+                    "procState":  "IDLE",
+                    "processingOrder":  false,
+                    "orderState":  null,
+                    "orderId":  null,
+                    "numericId":  null,
+                    "executeVehicleKey":  null,
+                    "progress":  null,
+                    "failReason":  null
+                }
+}

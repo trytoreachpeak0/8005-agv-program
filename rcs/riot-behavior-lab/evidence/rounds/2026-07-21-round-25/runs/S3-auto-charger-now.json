@@ -1,0 +1,19 @@
+{
+  "at": "2026-07-21 16:24:11.128",
+  "name": "电镀顶升AGV1",
+  "station": 16,
+  "battery": 62,
+  "batteryState": "CHARGING",
+  "actionState": "AT_FINISHED",
+  "movementState": "MT_FINISHED",
+  "controlState": "CONTROL_STATE_OK",
+  "breakSwitchState": "MOVABLE",
+  "locationState": "LOCATION_STATE_RUNNING",
+  "procState": "IDLE",
+  "enable": true,
+  "processingOrder": false,
+  "orderState": 5,
+  "orderProgress": 100,
+  "statusType": "online",
+  "props": {}
+}

@@ -1,0 +1,35 @@
+{
+  "at": "2026-07-20 10:19:23",
+  "scenario": "mapInfo-single-29",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/29",
+  "httpStatus": 200,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功"
+  },
+  "map": {
+    "id": 29,
+    "name": "api测试",
+    "floor": 0,
+    "description": "",
+    "gmtCreate": "2026-07-20 09:32:45",
+    "gmtUpdate": "2026-07-20 09:49:48",
+    "hasMapJson": true,
+    "topKeys": [
+      "description",
+      "floor",
+      "gmtCreate",
+      "gmtUpdate",
+      "id",
+      "mapError",
+      "mapJson",
+      "name",
+      "source",
+      "state",
+      "syncState",
+      "url"
+    ]
+  },
+  "note": "mapJson stripped/not retained"
+}

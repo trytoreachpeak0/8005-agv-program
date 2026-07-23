@@ -1,0 +1,24 @@
+{
+  "title": "回复车辆列表到达站点代价",
+  "type": "object",
+  "properties": {
+    "deviceCostsList": {
+      "type": "array",
+      "description": "车辆代价列表",
+      "items": {
+        "$ref": "#/components/schemas/RepDeviceCosts"
+      }
+    },
+    "mapId": {
+      "type": "integer",
+      "description": "地图id",
+      "format": "int32"
+    },
+    "stationId": {
+      "type": "integer",
+      "description": "站点id",
+      "format": "int32"
+    }
+  },
+  "description": "回复车辆列表到达站点代价"
+}

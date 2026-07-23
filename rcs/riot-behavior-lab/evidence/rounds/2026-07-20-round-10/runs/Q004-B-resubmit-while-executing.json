@@ -1,0 +1,10 @@
+{
+    "originalUpperId":  "riot-behavior-lab-R10-idem-B-20260720-130031",
+    "originalOrderId":  "order-2079069344314294272",
+    "originalState":  3,
+    "resubmitReq":  "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"isAppointEnable\":1,\"lockStatus\":0,\"orderName\":\"riot-behavior-lab-R10-idem-B-20260720-130031\",\"upperId\":\"riot-behavior-lab-R10-idem-B-20260720-130031\",\"mission\":[{\"type\":\"move\",\"mapId\":29,\"destination\":1}]}",
+    "http":  200,
+    "code":  "0610008",
+    "message":  "订单已存在",
+    "result":  null
+}

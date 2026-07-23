@@ -1,0 +1,7 @@
+{
+    "uid":  "riot-behavior-lab-R36-P1-20260722-125922",
+    "dest":  3,
+    "code":  "0",
+    "message":  "成功",
+    "req":  "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"mission\":[{\"destination\":3,\"mapId\":30,\"type\":\"move\"},{\"destination\":1,\"mapId\":30,\"type\":\"move\"},{\"destination\":3,\"mapId\":30,\"type\":\"move\"},{\"destination\":2,\"mapId\":30,\"type\":\"move\"},{\"destination\":3,\"mapId\":30,\"type\":\"move\"}],\"lockStatus\":0,\"upperId\":\"riot-behavior-lab-R36-P1-20260722-125922\",\"orderName\":\"riot-behavior-lab-R36-P1-20260722-125922\",\"isAppointEnable\":1}"
+}

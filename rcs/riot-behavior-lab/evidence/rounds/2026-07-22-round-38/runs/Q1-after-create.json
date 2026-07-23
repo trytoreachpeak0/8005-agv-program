@@ -1,0 +1,20 @@
+{
+    "at":  "2026-07-22 13:37:34.183",
+    "station":  2,
+    "movementState":  "MT_FINISHED",
+    "controlState":  "CONTROL_STATE_ERR",
+    "emergencyState":  "CAN_RECOVER",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "speed":  0.0,
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "orderState":  1,
+    "orderId":  "order-2079803442251038720",
+    "numericId":  489343,
+    "executeVehicleKey":  "--",
+    "progress":  0,
+    "failReason":  "",
+    "m0_resultCode":  0,
+    "m0_resultStr":  ""
+}

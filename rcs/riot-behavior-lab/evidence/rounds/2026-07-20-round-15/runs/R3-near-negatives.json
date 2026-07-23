@@ -1,0 +1,16 @@
+[
+    {
+        "case":  "nearEnd-empty",
+        "code":  "00002",
+        "message":  "内部错误",
+        "result":  null,
+        "body":  "{\"code\":\"00002\",\"message\":\"内部错误\",\"msgDetail\":\"java.lang.NullPointerException\\r\\n\\tat sr.riot.dispatch.service.impl.RouteServiceImpl.queryNearestEnd(RouteServiceImpl.java:87)\\r\\n\\tat sr.riot.dispatch.controller.RouteController.getCurRemainCost(RouteController.java:64)\\r\\n\\tat sr.riot.dispatch.controller.RouteController$$FastClassBySpringCGLIB$$d42d1e64.invoke(\u003cgenerated\u003e)\\r\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\r\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\r\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\\r\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\r\\n...(truncated)"
+    },
+    {
+        "case":  "nearEnd-badmap",
+        "code":  "0",
+        "message":  "成功",
+        "result":  null,
+        "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+    }
+]

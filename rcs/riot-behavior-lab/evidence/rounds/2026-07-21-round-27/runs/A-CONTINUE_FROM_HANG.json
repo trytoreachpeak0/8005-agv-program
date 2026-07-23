@@ -1,0 +1,7 @@
+{
+    "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+    "orderId":  "order-2079524649447849984",
+    "code":  "100021",
+    "message":  "由于车辆原因订单无法跳过或者继续",
+    "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}"
+}

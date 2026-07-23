@@ -31,7 +31,7 @@
 riot-behavior-lab/
 ├─ governance/       安全边界、人工干预和证据治理
 ├─ sources/          外部事实源索引，不复制 Swagger/TSL 原件
-├─ catalog/          API、字段、枚举与跨层标识关系
+├─ catalog/          API、字段、枚举与跨层标识关系（含接口研究范围）
 ├─ hypotheses/       未决问题、假设和验证优先级
 ├─ experiments/      可复用实验定义
 ├─ runner/           执行器边界与后续自动化入口
@@ -65,11 +65,12 @@ knowledge + fixtures
 
 1. 阅读 [`governance/safety-boundaries.md`](./governance/safety-boundaries.md)。
 2. 确认 `environment.local.json` 中现场地址、测试车和备注仍有效。
-3. 从 [`hypotheses/open-questions.md`](./hypotheses/open-questions.md) 选择本轮要回答的问题。
-4. 在 [`experiments/catalog.md`](./experiments/catalog.md) 选择对应实验；没有对应实验时先补实验定义。
-5. 新建 `evidence/rounds/<date>-round-N/`，记录环境版本、批准范围和前置状态。
-6. 执行时保存完整脱敏请求、响应及时间序列；摘要写入 `execution-log.md`。
-7. 结束后先更新证据，再判断是否足以更新 [`knowledge/`](./knowledge/) 或晋升 [`fixtures/`](./fixtures/)。
+3. 对照 [`catalog/api-research-scope.md`](./catalog/api-research-scope.md)，确认本轮 API 落在「现在就需要进行研究」。
+4. 从 [`hypotheses/open-questions.md`](./hypotheses/open-questions.md) 选择本轮要回答的问题。
+5. 在 [`experiments/catalog.md`](./experiments/catalog.md) 选择对应实验；没有对应实验时先补实验定义。
+6. 新建 `evidence/rounds/<date>-round-N/`，记录环境版本、批准范围和前置状态。
+7. 执行时保存完整脱敏请求、响应及时间序列；摘要写入 `execution-log.md`。
+8. 结束后先更新证据，再判断是否足以更新 [`knowledge/`](./knowledge/) 或晋升 [`fixtures/`](./fixtures/)。
 
 ## 6. 人工干预协议
 
@@ -82,16 +83,13 @@ knowledge + fixtures
 
 ## 7. 当前基线
 
-- 已完成 A1 登录正例和错误密码反例。
-- 已观测到登录失败仍返回 HTTP 200，必须读取业务 `code`。
-- 设备、地图、订单、状态时间序列、取消和 interrupt 尚未形成现场证据。
-- 当前第一优先级是完成“登录 → 查询车/地图 → 建单 → 多状态面轮询 → 到站 → 幂等/取消”的最小闭环。
+- Round16：`curRemainCost` 在 EXECUTING 阶梯下降；map28 可派可跑（本轮未等到 SUCCESS）；`orderRecordPriorityExec` 插队有效（Q-026/027，BC-ROUTE-001/ORDER-014）。
+- Round15：Route GET/POST @ map28 — costs 跨图=-1；Near* 纯拓扑；动态 GET 可空。
+- 暂不测：`POST /api/task/v1/order/route/{vehicleKey}`、`POST .../currentMapExistNotFinalOrderTask/{mapId}`（已入「以后可能需要」）。
+- 下一优先：MES/SDK 对接清单，或补 map28 完整 SUCCESS。
 
 快速入口：
 
-- [`hypotheses/open-questions.md`](./hypotheses/open-questions.md) — 当前真正需要回答的问题
-- [`experiments/minimal-closed-loop.md`](./experiments/minimal-closed-loop.md) — 第一优先级最小状态闭环
-- [`experiments/catalog.md`](./experiments/catalog.md) — 实验定义
-- [`evidence/rounds/2026-07-15-round-1/`](./evidence/rounds/2026-07-15-round-1/) — 第一轮证据
-- [`knowledge/behavioral-contracts.md`](./knowledge/behavioral-contracts.md) — 已验证行为契约
-- [`knowledge/state-model.md`](./knowledge/state-model.md) — 可观测状态模型
+- [`evidence/rounds/2026-07-20-round-16/`](./evidence/rounds/2026-07-20-round-16/) — remain / map28 / 优先执行
+- [`evidence/rounds/2026-07-20-round-15/`](./evidence/rounds/2026-07-20-round-15/) — Route Controller
+- [`knowledge/behavioral-contracts.md`](./knowledge/behavioral-contracts.md)

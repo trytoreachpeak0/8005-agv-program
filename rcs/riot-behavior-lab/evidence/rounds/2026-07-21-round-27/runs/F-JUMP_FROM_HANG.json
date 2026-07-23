@@ -1,0 +1,7 @@
+{
+    "commandType":  "CMD_ORDER_JUMP_FROM_HANG",
+    "orderId":  "order-2079529938297421824",
+    "code":  "14013",
+    "message":  "车辆状态异常",
+    "body":  "{\"code\":\"14013\",\"detail\":\"code:[14013], msg:[vehicle.state.is.error]\",\"message\":\"车辆状态异常\",\"msgDetail\":\"车辆状态异常\",\"tid\":\"\"}"
+}

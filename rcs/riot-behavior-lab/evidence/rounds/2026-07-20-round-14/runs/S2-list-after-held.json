@@ -1,0 +1,28 @@
+{
+    "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026filterByState=9\u0026executeVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "status":  200,
+    "summary":  {
+                    "code":  "0",
+                    "message":  "成功",
+                    "total":  1,
+                    "current":  1,
+                    "size":  50,
+                    "count":  1,
+                    "records":  [
+                                    {
+                                        "id":  488072,
+                                        "orderId":  "order-2079084003733929984",
+                                        "upperId":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                        "orderName":  "riot-behavior-lab-R14-A-exec-20260720-135846",
+                                        "orderState":  7,
+                                        "finalState":  false,
+                                        "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                        "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                        "executeVehicleName":  "新基测试300c协作1",
+                                        "createTime":  "2026-07-20 14:00:29",
+                                        "endStationNo":  2
+                                    }
+                                ]
+                },
+    "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":1,\"records\":[{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"arriveTime\":0,\"arriveTimeMsg\":\"已到达站点2\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 14:00:29\",\"createdBy\":\"api-test\",\"distance\":0,\"endStationName\":\"站点2\",\"endStationNo\":2,\"eta\":0,\"executeTime\":\"2026-07-20 14:00:31\",\"executeVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"executeVehicleName\":\"新基测试300c协作1\",\"executingIndex\":0,\"failReason\":\"\",\"finalState\":false,\"id\":488072,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079084003733929984\",\"orderName\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"orderState\":7,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":100,\"source\":\"FMS\",\"startEndStationName\":\"站点2 \u003e 站点2\",\"startEndStationNameDetail\":\"api测试 站点2 \u003e api测试 站点2\",\"startStationName\":\"站点2\",\"startStationNo\":2,\"taskState\":\"正在前往站点2\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:35\",\"upperId\":\"riot-behavior-lab-R14-A-exec-20260720-135846\",\"userId\":0}],\"searchCount\":false,\"size\":50,\"total\":1},\"tid\":\"\"}"
+}

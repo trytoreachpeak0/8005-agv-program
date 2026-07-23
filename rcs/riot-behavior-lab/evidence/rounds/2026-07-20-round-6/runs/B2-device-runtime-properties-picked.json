@@ -1,0 +1,208 @@
+{
+  "at": "2026-07-20 10:25:54",
+  "api": "GET /api/device/v1/runtime/properties/{deviceKey}",
+  "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "shape": {
+    "topKeys": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "resultType": "System.Management.Automation.PSCustomObject",
+    "resultKeysSample": [
+      "cpuUsage",
+      "srosVersionStr",
+      "batteryTemperature",
+      "operationState",
+      "totalMileage",
+      "multiLoadState",
+      "powerState",
+      "batteryState",
+      "totalPowerCycle",
+      "locationState",
+      "vehicleType",
+      "remainDiskSpace",
+      "memoryUsage",
+      "srosVersion",
+      "m2StatusCode",
+      "devices",
+      "old",
+      "currentPosition",
+      "hstate",
+      "serialNo",
+      "motionControlState",
+      "syncRotate",
+      "lastErrorCode",
+      "sysState",
+      "actionTask",
+      "hardwareErrorCode",
+      "actionUnit",
+      "boxTemperature",
+      "freshState",
+      "m3StatusCode",
+      "totalPoweronTime",
+      "rotateValue",
+      "emergencyState",
+      "current",
+      "breakSwState",
+      "newMovementTaskState",
+      "nickname",
+      "hardwareVersion",
+      "mapName",
+      "generalIoInput",
+      "vehicleSerialNo",
+      "batteryCurrent",
+      "stationNo",
+      "batteryVoltage",
+      "fleetMode",
+      "m4StatusCode",
+      "srcVersion",
+      "cpuTemperature",
+      "movementState",
+      "diskUsage",
+      "batteryUseCycles",
+      "batteryPercentage",
+      "generalIoOutput",
+      "srcVersionStr",
+      "m1StatusCode"
+    ]
+  },
+  "pickedRaw": {
+    "mapName": {
+      "updateTime": 1784514455652.0,
+      "value": "api测试"
+    },
+    "stationNo": {
+      "updateTime": 1784514455652.0,
+      "value": 1
+    },
+    "sysState": {
+      "updateTime": 1784514455652.0,
+      "value": 2
+    },
+    "movementState": {
+      "updateTime": 1784514455652.0,
+      "value": {
+        "no": 2,
+        "dstStationType": 0,
+        "remainTime": 0,
+        "stations": [
+          1
+        ],
+        "taskResult": 1,
+        "avoidPolicy": 0,
+        "type": 0,
+        "curCheckpointNo": 0,
+        "curPathNo": 0,
+        "remainDistance": 0,
+        "paths": [
+          {
+            "sx": 150,
+            "sy": -480,
+            "pathType": 4,
+            "rotateAngle": 4712,
+            "ex": 0,
+            "dx": 0,
+            "ey": 0,
+            "cx": 0,
+            "dy": 0,
+            "cy": 0,
+            "limitW": 0,
+            "radius": 0,
+            "limitV": 0,
+            "direction": 0
+          }
+        ],
+        "state": 5,
+        "poses": [],
+        "totalDistance": 0
+      }
+    },
+    "multiLoadState": {
+      "updateTime": 1784514455652.0,
+      "value": 0
+    },
+    "currentPosition": {
+      "updateTime": 1784514455652.0,
+      "value": {
+        "confidence": 92,
+        "roll": 0,
+        "x": 128,
+        "y": -539,
+        "z": 0,
+        "pitch": 0,
+        "yaw": -1578
+      }
+    },
+    "nickname": "Oasis300_B0026",
+    "batteryPercentage": {
+      "updateTime": 1784514455652.0,
+      "value": 35
+    },
+    "locationState": {
+      "updateTime": 1784514455652.0,
+      "value": 3
+    },
+    "operationState": {
+      "updateTime": 1784514455652.0,
+      "value": 1
+    }
+  },
+  "picked": {
+    "mapName": "api测试",
+    "stationNo": 1,
+    "sysState": 2,
+    "movementState": {
+      "no": 2,
+      "dstStationType": 0,
+      "remainTime": 0,
+      "stations": [
+        1
+      ],
+      "taskResult": 1,
+      "avoidPolicy": 0,
+      "type": 0,
+      "curCheckpointNo": 0,
+      "curPathNo": 0,
+      "remainDistance": 0,
+      "paths": [
+        {
+          "sx": 150,
+          "sy": -480,
+          "pathType": 4,
+          "rotateAngle": 4712,
+          "ex": 0,
+          "dx": 0,
+          "ey": 0,
+          "cx": 0,
+          "dy": 0,
+          "cy": 0,
+          "limitW": 0,
+          "radius": 0,
+          "limitV": 0,
+          "direction": 0
+        }
+      ],
+      "state": 5,
+      "poses": [],
+      "totalDistance": 0
+    },
+    "multiLoadState": 0,
+    "currentPosition": {
+      "confidence": 92,
+      "roll": 0,
+      "x": 128,
+      "y": -539,
+      "z": 0,
+      "pitch": 0,
+      "yaw": -1578
+    },
+    "nickname": "Oasis300_B0026",
+    "batteryPercentage": 35,
+    "locationState": 3,
+    "operationState": 1
+  },
+  "note": "Device runtime properties include mapName; richer than runtime/status (online only)."
+}

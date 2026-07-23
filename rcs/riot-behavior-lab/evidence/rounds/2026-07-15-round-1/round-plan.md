@@ -4,12 +4,12 @@
 
 ## 环境元数据
 
-本轮创建时没有完整记录版本元数据。为避免事后猜测，缺失项明确保持 `UNKNOWN`：
+本轮创建时未完整记录版本元数据；下列已确认项为事后补记，其余缺失项保持 `UNKNOWN`：
 
-- RIoT 平台版本：`UNKNOWN`
-- Swagger 快照版本/摘要：`UNKNOWN`
-- 物模型：`standard.oasis.300ul`，现场具体版本 `UNKNOWN`
-- 地图 ID / 版本：`UNKNOWN`
+- RIoT 平台版本：`v2.2.0.30`（事后补记）
+- Swagger 快照版本/摘要：`sha256:f77dda0c0b85dce7151b1f35ef5f5fb6f2a484ed60b157ee0c167b1b70433d0d`（`rcs/riot_swagger/*.json` 按文件名排序后拼接计算的整目录摘要；OpenAPI `info.version` 缺失）
+- 物模型：`standard.oasis.300ul`，现场具体版本 `v1`（事后补记）
+- 地图 ID / 版本：ID `29`，名称 `api测试`；RIoT 地图暂无版本概念，版本记为不适用
 - 实验目录版本：迁移前未记录
 
 ## 本轮范围与批准记录

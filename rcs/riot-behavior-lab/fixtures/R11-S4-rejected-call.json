@@ -1,0 +1,6 @@
+{
+    "req":  "{\"commandType\":\"CMD_ORDER_REJECTED\",\"disableVehicle\":false,\"reason\":\"riot-lab-R11-rejected\"}",
+    "code":  "10015",
+    "message":  "订单无法移出队列",
+    "body":  "{\"code\":\"10015\",\"detail\":\"code:[10015], msg:[order.can.not.remove.out.queue]\",\"message\":\"订单无法移出队列\",\"msgDetail\":\"订单无法移出队列\",\"tid\":\"\"}"
+}

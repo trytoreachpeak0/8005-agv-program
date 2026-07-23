@@ -1,0 +1,30 @@
+{
+    "hitExec":  true,
+    "uid":  "riot-behavior-lab-R32-Poff-20260722-101118",
+    "last":  {
+                 "at":  "2026-07-22 10:11:24.384",
+                 "runtimeType":  "online",
+                 "station":  0,
+                 "mapName":  "api测试2",
+                 "movementState":  "MT_RUNNING",
+                 "controlState":  "CONTROL_STATE_OK",
+                 "emergencyState":  "OK",
+                 "breakSwitchState":  "MOVABLE",
+                 "locationState":  "LOCATION_STATE_RUNNING",
+                 "speed":  0.0,
+                 "faultCodes":  "",
+                 "lastErrorCode":  0,
+                 "procState":  "PROCESSING_ORDER",
+                 "processingOrder":  true,
+                 "enable":  true,
+                 "integrationLevel":  "ON_LINE",
+                 "orderState":  3,
+                 "orderId":  "order-2079751545636913152",
+                 "numericId":  489236,
+                 "failReason":  "",
+                 "progress":  11,
+                 "executingIndex":  0,
+                 "m0_resultCode":  0,
+                 "m0_resultStr":  ""
+             }
+}
