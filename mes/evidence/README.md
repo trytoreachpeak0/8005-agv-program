@@ -29,6 +29,21 @@
 
 禁止手工把 CSV 复制为 samples/latest。
 
+## MesIngest 工厂验证回传
+
+MesIngest Service 现场验证（`experiment_id=mes-ingest-factory-validation`）复用本目录的 **唯一 run_id、不可覆盖、先脱敏** 习惯，但产物形状是探针日志 + 只读 API JSON + manifest，**不是** meslab SQL query bundle。
+
+1. 工厂按安装包内 [`../ingest/csharp/pack/FACTORY-VALIDATION.md`](../ingest/csharp/pack/FACTORY-VALIDATION.md) 与 `validation/RETURN-CHECKLIST.md` 执行并组包。
+2. 回传前确认无 `appsettings.Local.json`、密码或完整连接字符串。
+3. 仓库侧将整个 run 目录**手工复制**到 `evidence/runs/<run_id>/`；若路径已存在则拒绝覆盖，要求新 `run_id`。
+4. 在该 run 的 `execution-log.md`「导入记录」填写接收人、时间与脱敏复查结论。
+5. **禁止**对 MesIngest 验证包执行 `meslab import-run`；**禁止**晋升 [`../samples/`](../samples/)（samples 仅服务 SQL 查询样本通道）。
+6. 维护者 / Agent 可用回传的 `demands` / `alerts` / `poll-health` JSON 与既有 `samples/mes-task-union` 或 File 源做人工对照（行数量级、字段形态、告警类型）；计划见 [`../experiments/definitions/mes-ingest-factory-validation/plan.md`](../experiments/definitions/mes-ingest-factory-validation/plan.md)。
+
+模板随安装包：`mes/ingest/csharp/pack/validation/`（`run-manifest.example.json`、`execution-log.md`、`signoff.md`）。
+
+「验证包已就绪」指仓库已交付清单与模板；「工厂已签字通过」仅当 `signoff.md` 由现场填写，且不阻塞本地后续开发。
+
 ## manifest 必填信息
 
 - schema_version、run_id、experiment_id、query_id
