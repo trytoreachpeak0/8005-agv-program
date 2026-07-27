@@ -4,11 +4,15 @@
 
 **Blocked by:** 02 — TransportDemand 出现、消失与再现生命周期
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] 当某类型上一轮成功非零数量 ≥ 可配置阈值（默认 10）且本轮成功计数为 0 时进入 PAUSED_ZERO_DROP
-- [ ] 暂停期间该类型不累计消失、不标 GONE；其它 TASK_TYPE 不受影响
-- [ ] 该类型连续 2 轮完整成功且计数 > 0 时自动解除暂停
-- [ ] 不提供人工解除 PAUSED_ZERO_DROP 的入口
-- [ ] 只读 API/健康资源能反映各类型暂停状态
-- [ ] Reconciler 测试覆盖进入、隔离影响、自动解除
+- [x] 当某类型上一轮成功非零数量 ≥ 可配置阈值（默认 10）且本轮成功计数为 0 时进入 PAUSED_ZERO_DROP
+- [x] 暂停期间该类型不累计消失、不标 GONE；其它 TASK_TYPE 不受影响
+- [x] 该类型连续 2 轮完整成功且计数 > 0 时自动解除暂停
+- [x] 不提供人工解除 PAUSED_ZERO_DROP 的入口
+- [x] 只读 API/健康资源能反映各类型暂停状态
+- [x] Reconciler 测试覆盖进入、隔离影响、自动解除
+
+## Comments
+
+- 2026-07-27: Implemented under `mes/ingest/csharp`. Per-type `TaskTypePauseState` on `ProjectionState`; enter alert `PAUSED_ZERO_DROP`; config `ZeroDropEnterThreshold` (default 10); clear after `DefaultZeroDropClearStreak` (2) consecutive non-zero successes. HTTP: `GET /api/poll-health` includes `taskTypePauses`; no clear-pause write endpoints.
