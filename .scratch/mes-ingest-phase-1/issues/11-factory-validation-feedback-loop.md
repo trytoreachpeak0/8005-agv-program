@@ -4,11 +4,17 @@
 
 **Blocked by:** 10 — 工厂可拷贝安装包与安全配置
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] 工厂执行清单覆盖：填配置、Thin 探针、失败则切 Thick 重试、启动 Service、观察多轮轮询
-- [ ] 清单要求人工核验：原始快照行与 VISIBLE 投影、告警、WPF 展示与横幅
-- [ ] 清单要求确认关闭 WPF 后 Service 与 HTTP 仍工作
-- [ ] 回传约定明确：脱敏日志、manifest、每轮耗时/行数/成败、不得回传含密码的配置
-- [ ] 仓库侧有导入/对照回传结果的位置或步骤说明（可复用既有 mes evidence 习惯）
-- [ ] 区分“验证包已就绪”与“工厂已签字通过”；后者为人工验收，不阻塞本地后续开发分支
+- [x] 工厂执行清单覆盖：填配置、Thin 探针、失败则切 Thick 重试、启动 Service、观察多轮轮询
+- [x] 清单要求人工核验：原始快照行与 VISIBLE 投影、告警、WPF 展示与横幅
+- [x] 清单要求确认关闭 WPF 后 Service 与 HTTP 仍工作
+- [x] 回传约定明确：脱敏日志、manifest、每轮耗时/行数/成败、不得回传含密码的配置
+- [x] 仓库侧有导入/对照回传结果的位置或步骤说明（可复用既有 mes evidence 习惯）
+- [x] 区分“验证包已就绪”与“工厂已签字通过”；后者为人工验收，不阻塞本地后续开发分支
+
+## Comments
+
+- Pack: `FACTORY-VALIDATION.md` + `validation/` (manifest, execution-log, RETURN-CHECKLIST, signoff) shipped via `Publish-MesIngest.ps1`.
+- Repo: `mes/experiments/definitions/mes-ingest-factory-validation/plan.md`; evidence README documents manual import to `mes/evidence/runs/<run_id>/` (no meslab `import-run` / samples promotion).
+- Supporting smoke: `FactoryValidationPackTests` (layout + checklist keywords); formal seams unchanged.
