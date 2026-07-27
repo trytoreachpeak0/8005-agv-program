@@ -1,0 +1,8 @@
+id = "CUSTOMER_BASELINE_WIRE_TO_NITROGEN"
+title = "客户基线：焊线1到氮气柜"
+sql = "06_WIRE_TO_NITROGEN.sql"
+readonly = true
+requires_approval = false
+promote_sample = false
+parameters = []
+expected_columns = ["SUBLOT", "AREA", "EQP", "STEP", "DATES", "PACKAGE"]

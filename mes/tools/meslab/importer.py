@@ -104,11 +104,6 @@ def import_run(
             raise ImportRunError(f"输出哈希不匹配: {execution.get('output')}")
         if not bundle_entries[query_id].get("promote_sample", True):
             continue
-        if (
-            bundle_entries[query_id].get("requires_approval", False)
-            and run_manifest.get("approval", {}).get("status") != "approved"
-        ):
-            continue
         previous = latest.get(query_id)
         if previous is None or int(execution.get("round", 0)) >= int(previous.get("round", 0)):
             latest[query_id] = execution

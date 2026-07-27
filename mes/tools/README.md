@@ -65,14 +65,13 @@ python runner/mes_lab.py run-factory `
   --output-root C:\transfer\runs `
   --query-id MES_TASK_UNION `
   --params-json '{"FACTORY_CODE":"<VALUE>"}' `
-  --approval-json '@C:\private\approval.json'
+  --experiment-record '@C:\private\experiment-record.json'
 ```
 
 参数也可写为 JSON 文件路径或 `@C:\private\params.json`。多查询需要不同参数时，
-JSON 可按查询 ID 嵌套。正式查询要求批准文件至少包含
-`{"status":"approved","reference":"<客户批准编号或记录链接>"}`；还可记录批准人、
-时间、执行窗口和范围，但禁止写入凭据。每次执行生成唯一 `run-...` 目录，内含
-`run-manifest.json`、`execution-log.md` 和 `results/*.csv`。
+JSON 可按查询 ID 嵌套。`--experiment-record`（及废弃别名 `--approval-json`）为**可选**，
+用于记录本次自跑实验（谁、何时、范围、备注），**不再要求客户批准**，也禁止写入凭据。
+每次执行生成唯一 `run-...` 目录，内含 `run-manifest.json`、`execution-log.md` 和 `results/*.csv`。
 
 可选实验能力：
 
@@ -80,14 +79,15 @@ JSON 可按查询 ID 嵌套。正式查询要求批准文件至少包含
 # MES_TASK_UNION phase1（固定单轮）
 python runner/mes_lab.py run-factory ... --phase1
 
-# 合并查询与五客户源对比（自动同时执行 MES_TASK_UNION）
+# 合并查询与六客户源对比（自动同时执行 MES_TASK_UNION）
 python runner/mes_lab.py run-factory ... `
   --compare-sources `
   CUSTOMER_BASELINE_DIE_TO_WIRE_STAGING `
   CUSTOMER_BASELINE_DIE_TO_OVEN `
   CUSTOMER_BASELINE_WIRE_TO_GATE `
   CUSTOMER_BASELINE_WIRE_TO_OPTICAL `
-  CUSTOMER_BASELINE_STAGING_TO_WIRE
+  CUSTOMER_BASELINE_STAGING_TO_WIRE `
+  CUSTOMER_BASELINE_WIRE_TO_NITROGEN
 
 # 性能轮次
 python runner/mes_lab.py run-factory ... --query-id MES_TASK_UNION `

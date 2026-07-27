@@ -4,6 +4,8 @@
 
 本目录是 2026-07-16 从仓库现有五个 `original_queries` 文件归档的客户原始 SQL 快照，保留各分支当时的字段顺序、大小写和格式，用于追溯客户输入及与合并查询对比。
 
+第六类 `WIRE_TO_NITROGEN` 见 [`../../2026-07-24/mes-task-original-queries/`](../../2026-07-24/mes-task-original-queries/)。
+
 对应正式查询为 [`../../../../queries/mes-task-union/query.sql`](../../../../queries/mes-task-union/query.sql)，`QUERY_ID` 为 `MES_TASK_UNION`。
 
 ## 使用边界
