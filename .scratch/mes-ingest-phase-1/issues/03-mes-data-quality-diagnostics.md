@@ -17,3 +17,4 @@
 ## Comments
 
 - 2026-07-27: Implemented under `mes/ingest/csharp`. Alert codes: `FIELD_DRIFT`, `DUPLICATE_RECONCILE_KEY`. AREA format check (letter+NN-NN, no 00) sets `locationRisk`/`locationRiskCode` (`AREA_EMPTY`|`AREA_UNPARSEABLE`) without mapping tables. HTTP: `GET /api/alerts`, `GET /api/poll-health`; write verbs rejected.
+- 2026-07-27: Post-review follow-ups → `13-demand-dto-relevant-alerts` (Story 33 relevant alerts on DemandDto); `15-row-parse-errors-as-incomplete` (row-level parse → Incomplete, not POLL_FAILURE).
