@@ -4,12 +4,16 @@
 
 **Blocked by:** 06 — 重启恢复与首轮安全屏障
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Windows Service 常驻承载 poll 循环与 Kestrel 只读 API
-- [ ] 轮询为单飞：禁止并发、重叠或堆积查询
-- [ ] 轮询采用完成后等待（默认 10s），延迟与查询超时可配置
-- [ ] 文件快照源可作为本地/开发运行模式接入同一 poll 宿主
-- [ ] 失败或不完整轮不创建新 VISIBLE、不累计消失，并产生接口告警
-- [ ] 无 WPF 时 Service 仍轮询并服务 HTTP
-- [ ] 可演示：改文件快照或等待多轮后，HTTP 投影随之更新
+- [x] Windows Service 常驻承载 poll 循环与 Kestrel 只读 API
+- [x] 轮询为单飞：禁止并发、重叠或堆积查询
+- [x] 轮询采用完成后等待（默认 10s），延迟与查询超时可配置
+- [x] 文件快照源可作为本地/开发运行模式接入同一 poll 宿主
+- [x] 失败或不完整轮不创建新 VISIBLE、不累计消失，并产生接口告警
+- [x] 无 WPF 时 Service 仍轮询并服务 HTTP
+- [x] 可演示：改文件快照或等待多轮后，HTTP 投影随之更新
+
+## Comments
+
+- 2026-07-27: Implemented `SingleFlightPollLoop` + `PollHostedService` with `UseWindowsService()`, configurable `PostPollDelaySeconds` / `QueryTimeoutSeconds`, file CSV source on the same host, and `POLL_FAILURE` / `POLL_INCOMPLETE` interface alerts. Service install packaging remains ticket 10.
