@@ -16,3 +16,4 @@
 ## Comments
 
 - 2026-07-27: Implemented under `mes/ingest/csharp`. Per-type `TaskTypePauseState` on `ProjectionState`; enter alert `PAUSED_ZERO_DROP`; config `ZeroDropEnterThreshold` (default 10); clear after `DefaultZeroDropClearStreak` (2) consecutive non-zero successes. HTTP: `GET /api/poll-health` includes `taskTypePauses`; no clear-pause write endpoints.
+- 2026-07-27: Post-review follow-up → `12-zero-drop-counts-after-baseline` (`countsByType` must apply go-live baseline filter).

@@ -17,3 +17,4 @@
 ## Comments
 
 - 2026-07-27: Implemented `SingleFlightPollLoop` + `PollHostedService` with `UseWindowsService()`, configurable `PostPollDelaySeconds` / `QueryTimeoutSeconds`, file CSV source on the same host, and `POLL_FAILURE` / `POLL_INCOMPLETE` interface alerts. Service install packaging remains ticket 10.
+- 2026-07-27: Post-review follow-up → `15-row-parse-errors-as-incomplete` (row-level parse failures currently surface as POLL_FAILURE via runner catch-all; should be Incomplete / POLL_INCOMPLETE).

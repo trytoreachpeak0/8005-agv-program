@@ -18,3 +18,4 @@
 - Added `MesIngest.Watch` (`net8.0-windows` WPF) as a separate process thin client against `GET /api/demands`, `/api/alerts`, `/api/poll-health`.
 - Client-side filter/sort + banner derivation covered by light unit tests (`DemandListProjectorTests`, `WatchBannerStateTests`); no SQL / poll hosting in Watch.
 - Default BaseUrl `http://127.0.0.1:5088`; override via `appsettings.json` or `MesIngestWatch__*` env vars.
+- 2026-07-27: Post-review follow-ups → `14-watch-banner-before-first-poll` (404 poll-health before first round → empty board); `16-watch-env-config-binding` (env prefix does not bind into `Watch` section).
