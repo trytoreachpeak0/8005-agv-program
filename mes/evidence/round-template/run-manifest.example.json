@@ -16,13 +16,19 @@
       "actual_mode": "thick"
     }
   },
+  "experiment_record": {
+    "status": "self-run",
+    "recorded_by": "<OPERATOR>",
+    "recorded_at": "<ISO8601_TIMESTAMP>",
+    "scope": "<QUERY_AND_LOAD_BOUNDARY>",
+    "notes": "<OPTIONAL_NOTES>"
+  },
   "approval": {
-    "status": "approved",
-    "reference": "<CUSTOMER_APPROVAL_REFERENCE>",
-    "approved_by": "<APPROVER_OR_ROLE>",
-    "approved_at": "<ISO8601_TIMESTAMP>",
-    "execution_window": "<APPROVED_WINDOW>",
-    "scope": "<QUERY_AND_LOAD_BOUNDARY>"
+    "status": "self-run",
+    "recorded_by": "<OPERATOR>",
+    "recorded_at": "<ISO8601_TIMESTAMP>",
+    "scope": "<QUERY_AND_LOAD_BOUNDARY>",
+    "notes": "<OPTIONAL_NOTES>"
   },
   "bundle_id": "<BUNDLE_ID>",
   "bundle_manifest_sha256": "<BUNDLE_MANIFEST_SHA256>",

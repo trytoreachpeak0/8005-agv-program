@@ -5,6 +5,7 @@ from typing import Any
 
 import httpx
 
+from riot_sdk.core.business_response import is_success_code
 from riot_sdk.core.exceptions import RiotApiException
 from riot_sdk.core.options import RiotOptions
 
@@ -71,7 +72,7 @@ class RiotAuthClient:
 
         data = response.json() if body else {}
         business_code = str(data.get("code")) if data.get("code") is not None else None
-        if not _is_success_code(business_code):
+        if not is_success_code(business_code):
             raise RiotApiException(
                 f"RIoT auth business failure code={business_code} message={data.get('message')}",
                 status_code=response.status_code,
@@ -107,10 +108,6 @@ def _strip_bearer(token: str) -> str:
     if value.lower().startswith("bearer "):
         return value[7:].strip()
     return value
-
-
-def _is_success_code(code: str | None) -> bool:
-    return code in (None, "", "0", "200", "OK", "ok", "success", "SUCCESS")
 
 
 def _find_token(raw: dict[str, str], *keys: str) -> str | None:

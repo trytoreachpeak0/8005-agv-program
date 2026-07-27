@@ -6,7 +6,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Facade discovery of DispatchableVehicle via getAllVehicleSimpleInfo (BC-VEH-002 / ADR-0006).
+/// Seam: Facade discovery of DispatchableVehicle via getAllVehicleSimpleInfo (BC-VEH-002 / ADR-sdk-0005).
 /// Body shape from Lab fixture B1-getAllVehicleSimpleInfo (trimmed to 3 known vehicles).
 /// </summary>
 public class DispatchableVehiclesFacadeTests

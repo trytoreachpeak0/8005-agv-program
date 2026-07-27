@@ -9,7 +9,7 @@ def is_ready_for_next_order(
     proc_state: str | None,
     processing_order: bool = False,
 ) -> bool:
-    """Pure ReadyForNextOrder check (BC-STATE-003 / ADR-0008).
+    """Pure ReadyForNextOrder check (BC-STATE-003 / ADR-sdk-0007).
 
     True only when previous order is SUCCESS and vehicle is IDLE.
     AWAITING_ORDER alone is not sufficient.

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 
+from riot_sdk.core.business_response import ensure_success, require_response
 from riot_sdk.core.exceptions import RiotApiException
 from riot_sdk.core.order_ref import OrderRef
 from riot_sdk.generated.order.models.mission_d_t_o import MissionDTO
@@ -11,10 +12,6 @@ from riot_sdk.generated.order.models.order_record_d_t_o_object import OrderRecor
 
 if TYPE_CHECKING:
     from riot_sdk.facade.session import RiotSession
-
-
-def _is_success_code(code: str | None) -> bool:
-    return not code or code in {"0", "200", "OK", "ok", "success", "SUCCESS"}
 
 
 def _to_order_ref(result: Any, source: str) -> OrderRef:
@@ -72,15 +69,11 @@ class OrderClient:
                 )
             ],
         )
-        response = await client.api.order.v1.add.by_default_missions.post(body)
-        if response is None:
-            raise RiotApiException("byDefaultMissions returned empty response.")
-        if not _is_success_code(response.code):
-            raise RiotApiException(
-                f"RIoT business failure code={response.code} message={response.message}",
-                status_code=200,
-                business_code=response.code,
-            )
+        response = require_response(
+            await client.api.order.v1.add.by_default_missions.post(body),
+            "byDefaultMissions",
+        )
+        ensure_success(response.code, response.message)
         return _to_order_ref(response.result, "byDefaultMissions")
 
     async def get_order_by_upper_id(self, upper_id: str) -> OrderRef:
@@ -89,17 +82,13 @@ class OrderClient:
             raise ValueError("upper_id is required")
 
         client = self._session.create_generated_order_client()
-        response = await client.api.order.v1.order_record.detail_by_upper_id.by_upper_id(
-            upper_id
-        ).get()
-        if response is None:
-            raise RiotApiException("detailByUpperId returned empty response.")
-        if not _is_success_code(response.code):
-            raise RiotApiException(
-                f"RIoT business failure code={response.code} message={response.message}",
-                status_code=200,
-                business_code=response.code,
-            )
+        response = require_response(
+            await client.api.order.v1.order_record.detail_by_upper_id.by_upper_id(
+                upper_id
+            ).get(),
+            "detailByUpperId",
+        )
+        ensure_success(response.code, response.message)
         return _to_order_ref(response.result, "detailByUpperId")
 
     async def get_order_by_order_id(self, order_id: str) -> OrderRef:
@@ -108,17 +97,13 @@ class OrderClient:
             raise ValueError("order_id is required")
 
         client = self._session.create_generated_order_client()
-        response = await client.api.order.v1.order_record.detail_by_order_id.by_order_id(
-            order_id
-        ).get()
-        if response is None:
-            raise RiotApiException("detailByOrderId returned empty response.")
-        if not _is_success_code(response.code):
-            raise RiotApiException(
-                f"RIoT business failure code={response.code} message={response.message}",
-                status_code=200,
-                business_code=response.code,
-            )
+        response = require_response(
+            await client.api.order.v1.order_record.detail_by_order_id.by_order_id(
+                order_id
+            ).get(),
+            "detailByOrderId",
+        )
+        ensure_success(response.code, response.message)
         return _to_order_ref(response.result, "detailByOrderId")
 
     async def priority_exec(self, order_id: str) -> None:
@@ -131,15 +116,11 @@ class OrderClient:
         query = request.OrderRecordPriorityExecRequestBuilderPostQueryParameters()
         query.order_task_key = order_id
         config = RequestConfiguration(query_parameters=query)
-        response = await request.post(request_configuration=config)
-        if response is None:
-            raise RiotApiException("orderRecordPriorityExec returned empty response.")
-        if not _is_success_code(response.code):
-            raise RiotApiException(
-                f"RIoT business failure code={response.code} message={response.message}",
-                status_code=200,
-                business_code=response.code,
-            )
+        response = require_response(
+            await request.post(request_configuration=config),
+            "orderRecordPriorityExec",
+        )
+        ensure_success(response.code, response.message)
 
     @property
     def raw(self):

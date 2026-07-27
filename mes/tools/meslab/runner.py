@@ -46,12 +46,16 @@ def run_factory(
     rounds: int = 1,
     wait_seconds: float = 0,
     mode: str = "single",
+    experiment_record: dict[str, Any] | None = None,
     approval: dict[str, Any] | None = None,
 ) -> Path:
     if rounds < 1:
         raise ValueError("rounds 必须大于等于 1")
     if wait_seconds < 0:
         raise ValueError("wait_seconds 不得为负数")
+
+    # ``approval`` kept as deprecated alias for callers/tests.
+    record = experiment_record if experiment_record is not None else approval
 
     bundle = Path(bundle_dir).resolve()
     bundle_manifest = load_bundle(bundle, verify=True)
@@ -62,17 +66,6 @@ def run_factory(
         raise BundleError(f"bundle 中不存在查询: {', '.join(unknown)}")
     if not selected:
         raise BundleError("没有选择要执行的查询")
-    approval_required = [
-        query_id
-        for query_id in selected
-        if entries[query_id].get("requires_approval", False)
-    ]
-    if approval_required and (approval or {}).get("status") != "approved":
-        raise BundleError(
-            "以下查询要求客户批准信息："
-            + ", ".join(approval_required)
-            + "；请提供 --approval-json"
-        )
 
     config = load_oracle_config(config_path)
     run_id, run_dir = create_run_directory(output_root)
@@ -129,6 +122,7 @@ def run_factory(
                     time.sleep(wait_seconds)
 
         derived_outputs = build_factory_reports(run_dir, executions)
+        experiment_payload = record or {"status": "not-provided"}
         run_manifest = {
             "schema_version": 1,
             "run_id": run_id,
@@ -138,7 +132,9 @@ def run_factory(
             "rounds": rounds,
             "wait_seconds": wait_seconds,
             "environment": environment,
-            "approval": approval or {"status": "not-provided"},
+            "experiment_record": experiment_payload,
+            # Deprecated alias for older importers/readers.
+            "approval": experiment_payload,
             "bundle_id": bundle_manifest["bundle_id"],
             "bundle_manifest_sha256": sha256_file(bundle / "bundle-manifest.json"),
             "queries": [

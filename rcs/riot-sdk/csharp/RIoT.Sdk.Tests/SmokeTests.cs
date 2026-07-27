@@ -44,6 +44,6 @@ public class SmokeTests
 
         var devices = await session.Device.ListDevicesAsync(pageNum: 1, pageSize: 10);
         Assert.NotNull(devices);
-        Console.WriteLine($"devices.code={devices!.Code} message={devices.Message}");
+        Console.WriteLine($"devices.total={devices.Total} records={devices.Records?.Count}");
     }
 }

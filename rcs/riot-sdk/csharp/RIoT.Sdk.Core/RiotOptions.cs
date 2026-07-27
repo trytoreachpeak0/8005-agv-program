@@ -2,7 +2,7 @@ namespace RIoT.Sdk.Core;
 
 /// <summary>
 /// Connection options for a RIoT instance.
-/// Default auth is <see cref="CallApiKey"/> (ADR-0001); AdminLogin username/password are optional backup.
+/// Default auth is <see cref="CallApiKey"/> (ADR-sdk-0001); AdminLogin username/password are optional backup.
 /// </summary>
 public sealed class RiotOptions
 {

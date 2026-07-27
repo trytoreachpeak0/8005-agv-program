@@ -6,7 +6,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Facade RouteCost via getRouteCostsBy (BC-ROUTE-001 / ADR-0006).
+/// Seam: Facade RouteCost via getRouteCostsBy (BC-ROUTE-001 / ADR-sdk-0005).
 /// Expected costs from Lab fixture R15-map29-costs (map 29 / station 1).
 /// </summary>
 public class RouteCostFacadeTests

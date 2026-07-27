@@ -6,7 +6,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Facade Map enumeration (BC-MAP-001 / ADR-0006 / ADR-0007).
+/// Seam: Facade Map enumeration (BC-MAP-001 / ADR-sdk-0005 / ADR-sdk-0006).
 /// Expected values from Lab fixture C1-mapInfo-excludeMapJson.
 /// </summary>
 public class MapFacadeTests

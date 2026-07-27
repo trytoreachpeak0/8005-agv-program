@@ -23,7 +23,7 @@ public sealed class RiotSession : IAsyncDisposable, IDisposable
         Options = options;
         TokenProvider = new RiotTokenProvider();
 
-        // ADR-0001: CallApiKey is the default Bearer credential; AdminLogin is optional.
+        // ADR-sdk-0001: CallApiKey is the default Bearer credential; AdminLogin is optional.
         if (!string.IsNullOrWhiteSpace(options.CallApiKey))
         {
             TokenProvider.SetAccessToken(options.CallApiKey);

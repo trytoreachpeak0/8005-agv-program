@@ -1,7 +1,7 @@
 namespace RIoT.Sdk.Core;
 
 /// <summary>
-/// Pure ReadyForNextOrder check (BC-STATE-003 / ADR-0008).
+/// Pure ReadyForNextOrder check (BC-STATE-003 / ADR-sdk-0007).
 /// Safe to dispatch next order only when previous order is SUCCESS and vehicle is IDLE.
 /// Not ArrivalAtStation; AWAITING_ORDER alone is not sufficient.
 /// </summary>

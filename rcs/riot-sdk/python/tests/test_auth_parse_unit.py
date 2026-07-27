@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from riot_sdk.core.auth import _find_token, _is_success_code, _strip_bearer
+from riot_sdk.core.auth import _find_token, _strip_bearer
+from riot_sdk.core.business_response import is_success_code
 
 
 def test_strip_bearer() -> None:
@@ -9,9 +10,9 @@ def test_strip_bearer() -> None:
 
 
 def test_success_codes() -> None:
-    assert _is_success_code("0")
-    assert _is_success_code("200")
-    assert not _is_success_code("401")
+    assert is_success_code("0")
+    assert is_success_code("200")
+    assert not is_success_code("401")
 
 
 def test_find_token_prefers_known_keys() -> None:

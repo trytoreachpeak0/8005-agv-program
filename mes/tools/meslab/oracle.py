@@ -10,6 +10,8 @@ import os
 from pathlib import Path
 from typing import Any, Iterator
 
+from .textio import read_local_text
+
 
 class OracleConfigError(ValueError):
     """Oracle 配置缺失或无效。"""
@@ -31,7 +33,7 @@ def load_oracle_config(path: str | Path) -> OracleConfig:
     config_path = Path(path)
     if not config_path.is_file():
         raise OracleConfigError(f"配置文件不存在: {config_path}")
-    parser.read(config_path, encoding="utf-8")
+    parser.read_string(read_local_text(config_path))
     if not parser.has_section("oracle"):
         raise OracleConfigError("config.ini 缺少 [oracle] 段")
     required = ("user", "password", "dsn")

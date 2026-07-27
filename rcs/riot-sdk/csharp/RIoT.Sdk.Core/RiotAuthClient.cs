@@ -88,7 +88,7 @@ public sealed class RiotAuthClient : IDisposable
         using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(body) ? "{}" : body);
         var root = doc.RootElement;
         var businessCode = root.TryGetProperty("code", out var codeEl) ? codeEl.GetString() : null;
-        if (!IsSuccessCode(businessCode))
+        if (!RiotBusinessResponse.IsSuccessCode(businessCode))
         {
             var message = root.TryGetProperty("message", out var msgEl) ? msgEl.GetString() : null;
             throw new RiotApiException(
@@ -153,10 +153,6 @@ public sealed class RiotAuthClient : IDisposable
 
         return null;
     }
-
-    private static bool IsSuccessCode(string? code)
-        => string.IsNullOrWhiteSpace(code)
-           || code is "0" or "200" or "OK" or "ok" or "success" or "SUCCESS";
 
     private static string StripBearerPrefix(string token)
         => token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)

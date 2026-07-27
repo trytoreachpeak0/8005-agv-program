@@ -57,8 +57,7 @@ dotnet test ./csharp/RIoT.Sdk.Tests --filter FullyQualifiedName~Smoke
 - 输出类似：`Smoke against http://172.10.1.72:8888 as admin`
 - 工程编译通过
 - 测试摘要：`failed: 0, succeeded: 1`
-- 控制台出现类似：`devices.code=0`（业务成功码为 `0`）
-- `message=` 后中文可能乱码（控制台编码问题），可忽略；以 `code=0` 为准
+- 控制台出现类似：`devices.total=...`（`ListDevices` 已解包 page；业务失败抛 `RiotApiException`，不再返回带 `code` 的外层信封）
 
 ## Python 冒烟
 

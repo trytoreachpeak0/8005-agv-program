@@ -7,7 +7,7 @@ from dataclasses import dataclass
 class RiotOptions:
     """Connection options for a RIoT instance.
 
-    Default auth is ``call_api_key`` (ADR-0001); AdminLogin username/password are optional backup.
+    Default auth is ``call_api_key`` (ADR-sdk-0001); AdminLogin username/password are optional backup.
     """
 
     base_url: str

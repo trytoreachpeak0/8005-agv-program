@@ -8,21 +8,21 @@
 - `scripts/generate.ps1` — 规范化 swagger + Kiota 重新生成双语言客户端
 - `csharp/` — `Core`（手写）+ `Generated`（Kiota）+ `Facade`（薄封装）+ `Tests`
 - `python/` — 对等的三层包结构（Python 包名 `riot_sdk`）
-- `docs/` — 使用说明、Facade 清单、ADR
-- `CONTEXT.md` — 领域用语（Ubiquitous Language）
+- `docs/` — 使用说明、Facade 清单
+- 领域用语与 ADR 在仓库根目录：[`CONTEXT.md`](../../CONTEXT.md)、[`docs/adr/`](../../docs/adr/)
 
 ## 文档
 
 - [Facade V1 方法清单](docs/facade-v1.md)（C# ↔ Python 对照）
 - [冒烟测试](docs/smoke-test.md)
-- [领域用语 CONTEXT](CONTEXT.md)
-- [ADR 决策记录](docs/adr/)
+- [领域用语 CONTEXT](../../CONTEXT.md)
+- [ADR 决策记录](../../docs/adr/)
 
 ## V1 范围（DispatchLoop）
 
-第一版具名 Facade 已按 [ADR-0004](docs/adr/0004-v1-facade-method-scope.md) 交付：鉴权、可调度车发现、Map/Station、RouteCost / NearStationQuery、建单与查单、取消、Enable/Disable、急停触发/解除、PriorityExec、OrderHold / OrderContinue、HangContinue。
+第一版具名 Facade 已按 [ADR-sdk-0003](../../docs/adr/sdk/0003-v1-facade-method-scope.md) 交付：鉴权、可调度车发现、Map/Station、RouteCost / NearStationQuery、建单与查单、取消、DispatchEnable/Disable、急停触发/解除、PriorityExec、OrderHold / OrderContinue、HangContinue。
 
-默认鉴权为 **CallApiKey**（[ADR-0001](docs/adr/0001-default-auth-callapikey.md)）。明确排除项见 [ADR-0009](docs/adr/0009-v1-explicit-non-goals.md)。
+默认鉴权为 **CallApiKey**（[ADR-sdk-0001](../../docs/adr/sdk/0001-default-auth-callapikey.md)）。明确排除项见 [ADR-sdk-0008](../../docs/adr/sdk/0008-v1-explicit-non-goals.md)。
 
 ## 工具选型
 

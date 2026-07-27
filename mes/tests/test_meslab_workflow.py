@@ -13,11 +13,14 @@ TOOLS = MES_ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 
 from meslab.bundle import BundleError, build_bundle, write_json
+from meslab.cli import _parameters
 from meslab.hashing import sha256_file
 from meslab.importer import ImportRunError, import_run
 from meslab.manifest import load_query
+from meslab.oracle import load_oracle_config
 from meslab.runner import run_factory
 from meslab.samples import write_csv
+from meslab.textio import read_local_text
 
 
 def create_query(root: Path) -> Path:
@@ -96,9 +99,29 @@ class BundleTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--params-json", result.stdout)
+        self.assertIn("--experiment-record", result.stdout)
         self.assertIn("--approval-json", result.stdout)
 
-    def test_factory_run_rejects_missing_required_approval_before_connecting(self) -> None:
+    def test_local_text_accepts_gbk_config_and_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = root / "mes-config.ini"
+            config.write_bytes(
+                "[oracle]\nuser = u\npassword = p\ndsn = localhost:1521/ORCL\n"
+                "; Oracle 11g 使用 thick\nmode = thick\n".encode("gbk")
+            )
+            loaded = load_oracle_config(config)
+            self.assertEqual(loaded.user, "u")
+            self.assertIn("使用", read_local_text(config))
+
+            record = root / "experiment-record.json"
+            record.write_bytes(
+                '{"status":"self-run","notes":"第6类复验"}'.encode("gbk")
+            )
+            data = _parameters(str(record))
+            self.assertEqual(data["notes"], "第6类复验")
+
+    def test_factory_run_no_longer_requires_approval_before_connecting(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             query_dir = create_query(root / "queries")
@@ -112,12 +135,13 @@ class BundleTests(unittest.TestCase):
             )
             bundle = root / "bundle"
             build_bundle([load_query(query_dir)], bundle)
-            with self.assertRaisesRegex(BundleError, "要求客户批准信息"):
+            with self.assertRaises(Exception) as ctx:
                 run_factory(
                     bundle,
                     root / "missing-config.ini",
                     root / "runs",
                 )
+            self.assertNotIn("客户批准", str(ctx.exception))
 
     def test_experiment_can_bundle_customer_source_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

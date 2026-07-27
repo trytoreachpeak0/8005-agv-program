@@ -4,7 +4,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Session + CallApiKey (ADR-0001). Default auth without AdminLogin.
+/// Seam: Session + CallApiKey (ADR-sdk-0001). Default auth without AdminLogin.
 /// </summary>
 public class CallApiKeyAuthTests
 {

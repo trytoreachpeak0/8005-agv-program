@@ -13,28 +13,19 @@ public sealed class TaskClient
 
     /// <summary>
     /// GET /api/task/vehicles/getAllVehicleSimpleInfo — list DispatchableVehicle rows (BC-VEH-002).
-    /// Throws <see cref="RiotApiException"/> on business failure (ADR-0006).
+    /// Throws <see cref="RiotApiException"/> on business failure (ADR-sdk-0005).
     /// </summary>
     public async Task<IReadOnlyList<DispatchableVehicle>> GetDispatchableVehiclesAsync(
         CancellationToken cancellationToken = default)
     {
         var client = _session.CreateGeneratedTaskClient();
-        var response = await client.Api.Task.Vehicles.GetAllVehicleSimpleInfo
-            .GetAsync(cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.Vehicles.GetAllVehicleSimpleInfo
+                .GetAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            "getAllVehicleSimpleInfo");
 
-        if (response is null)
-        {
-            throw new RiotApiException("getAllVehicleSimpleInfo returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
 
         var result = response.Result ?? [];
         return result
@@ -56,7 +47,7 @@ public sealed class TaskClient
 
     /// <summary>
     /// POST /api/task/v1/route/getRouteCostsBy — RouteCost for one vehicle to a station (BC-ROUTE-001).
-    /// <c>CostsMm = -1</c> means unreachable and is returned, not thrown (ADR-0006).
+    /// <c>CostsMm = -1</c> means unreachable and is returned, not thrown (ADR-sdk-0005).
     /// </summary>
     public async Task<RouteCost> GetRouteCostAsync(
         int mapId,
@@ -74,22 +65,13 @@ public sealed class TaskClient
             DeviceKeys = [deviceKey],
         };
 
-        var response = await client.Api.Task.V1.Route.GetRouteCostsBy
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.V1.Route.GetRouteCostsBy
+                .PostAsync(body, cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            "getRouteCostsBy");
 
-        if (response is null)
-        {
-            throw new RiotApiException("getRouteCostsBy returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
 
         var entry = response.Result?.DeviceCostsList?
             .FirstOrDefault(c => string.Equals(c.DeviceKey, deviceKey, StringComparison.Ordinal));
@@ -106,7 +88,7 @@ public sealed class TaskClient
 
     /// <summary>
     /// POST /api/task/v1/route/queryNearEnd — nearest end Station among candidates (NearStationQuery).
-    /// Returns stationId only (not path geometry). Throws on business failure (ADR-0006).
+    /// Returns stationId only (not path geometry). Throws on business failure (ADR-sdk-0005).
     /// </summary>
     public async Task<int> QueryNearestEndAsync(
         int mapId,
@@ -128,36 +110,23 @@ public sealed class TaskClient
             EndStationIds = endStationIds.Select(id => (int?)id).ToList(),
         };
 
-        var response = await client.Api.Task.V1.Route.QueryNearEnd
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.V1.Route.QueryNearEnd
+                .PostAsync(body, cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            "queryNearEnd");
 
-        if (response is null)
-        {
-            throw new RiotApiException("queryNearEnd returned empty response.");
-        }
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
 
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-
-        if (response.Result is null)
-        {
-            throw new RiotApiException(
-                "queryNearEnd returned null result.",
-                businessCode: "near-end-missing");
-        }
-
-        return response.Result.Value;
+        return RiotBusinessResponse.RequireResult(
+            response.Result,
+            "queryNearEnd",
+            "near-end-missing");
     }
 
     /// <summary>
     /// POST /api/task/v1/route/queryNearestStart — nearest start Station among candidates (NearStationQuery).
-    /// Returns stationId only (not path geometry). Throws on business failure (ADR-0006).
+    /// Returns stationId only (not path geometry). Throws on business failure (ADR-sdk-0005).
     /// </summary>
     public async Task<int> QueryNearestStartAsync(
         int mapId,
@@ -179,251 +148,94 @@ public sealed class TaskClient
             StartStationIds = startStationIds.Select(id => (int?)id).ToList(),
         };
 
-        var response = await client.Api.Task.V1.Route.QueryNearestStart
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.V1.Route.QueryNearestStart
+                .PostAsync(body, cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            "queryNearestStart");
 
-        if (response is null)
-        {
-            throw new RiotApiException("queryNearestStart returned empty response.");
-        }
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
 
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-
-        if (response.Result is null)
-        {
-            throw new RiotApiException(
-                "queryNearestStart returned null result.",
-                businessCode: "near-start-missing");
-        }
-
-        return response.Result.Value;
+        return RiotBusinessResponse.RequireResult(
+            response.Result,
+            "queryNearestStart",
+            "near-start-missing");
     }
 
     /// <summary>
     /// POST /api/task/v1/order/command/{orderId} with CMD_ORDER_CANCEL (BC-ORDER-003).
-    /// Uses string orderId; does not disable the vehicle. Throws on business failure (ADR-0006).
+    /// Uses string orderId; does not disable the vehicle. Throws on business failure (ADR-sdk-0005).
     /// </summary>
-    public async Task CancelOrderAsync(
+    public Task CancelOrderAsync(
         string orderId,
         string? reason = null,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(orderId);
-
-        var client = _session.CreateGeneratedTaskClient();
-        var body = new RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject
-        {
-            CommandType = RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_CANCEL,
-            DisableVehicle = false,
-            Reason = reason,
-        };
-
-        var response = await client.Api.Task.V1.Order.Command[orderId]
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("CMD_ORDER_CANCEL returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => PostOrderCommandAsync(
+            orderId,
+            RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_CANCEL,
+            reason,
+            cancellationToken);
 
     /// <summary>
     /// POST /api/task/v1/order/command/{orderId} with CMD_ORDER_HELD (BC-ORDER-006).
     /// Pauses an executing move order (orderState → HELD). Pair with OrderContinue.
     /// </summary>
-    public async Task OrderHoldAsync(
+    public Task OrderHoldAsync(
         string orderId,
         string? reason = null,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(orderId);
-
-        var client = _session.CreateGeneratedTaskClient();
-        var body = new RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject
-        {
-            CommandType = RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_HELD,
-            DisableVehicle = false,
-            Reason = reason,
-        };
-
-        var response = await client.Api.Task.V1.Order.Command[orderId]
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("CMD_ORDER_HELD returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => PostOrderCommandAsync(
+            orderId,
+            RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_HELD,
+            reason,
+            cancellationToken);
 
     /// <summary>
     /// POST /api/task/v1/order/command/{orderId} with CMD_ORDER_CONTINUE_FROM_HELD (BC-ORDER-006).
     /// Resumes a HELD move order. Do not use for OrderHang (use HangContinue).
     /// </summary>
-    public async Task OrderContinueAsync(
+    public Task OrderContinueAsync(
         string orderId,
         string? reason = null,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(orderId);
-
-        var client = _session.CreateGeneratedTaskClient();
-        var body = new RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject
-        {
-            CommandType = RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_CONTINUE_FROM_HELD,
-            DisableVehicle = false,
-            Reason = reason,
-        };
-
-        var response = await client.Api.Task.V1.Order.Command[orderId]
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("CMD_ORDER_CONTINUE_FROM_HELD returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => PostOrderCommandAsync(
+            orderId,
+            RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_CONTINUE_FROM_HELD,
+            reason,
+            cancellationToken);
 
     /// <summary>
     /// POST /api/task/v1/order/command/{orderId} with CMD_ORDER_CONTINUE_FROM_HANG (BC-ORDER-015).
     /// Attempts to pull an OrderHang back to EXECUTING. Do not use for HELD (use OrderContinue).
     /// HTTP/business success does not prove the order left HANG — confirm via orderState.
     /// </summary>
-    public async Task HangContinueAsync(
+    public Task HangContinueAsync(
         string orderId,
         string? reason = null,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(orderId);
-
-        var client = _session.CreateGeneratedTaskClient();
-        var body = new RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject
-        {
-            CommandType = RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_CONTINUE_FROM_HANG,
-            DisableVehicle = false,
-            Reason = reason,
-        };
-
-        var response = await client.Api.Task.V1.Order.Command[orderId]
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("CMD_ORDER_CONTINUE_FROM_HANG returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => PostOrderCommandAsync(
+            orderId,
+            RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType.CMD_ORDER_CONTINUE_FROM_HANG,
+            reason,
+            cancellationToken);
 
     /// <summary>
     /// POST /api/task/vehicles/updateVehicleIntegrationLevel with serviceId=enable (BC-VEH-003).
     /// Brings the vehicle into dispatch (ON_LINE). Never pass ON_LINE as serviceId.
     /// </summary>
-    public async Task DispatchEnableAsync(
+    public Task DispatchEnableAsync(
         string deviceKey,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
-
-        var client = _session.CreateGeneratedTaskClient();
-        var body = new RIoT.Sdk.Generated.TaskApi.Models.BatchVehicleOperation
-        {
-            DeviceKeys = [deviceKey],
-            ServiceId = "enable",
-        };
-
-        var response = await client.Api.Task.Vehicles.UpdateVehicleIntegrationLevel
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("DispatchEnable returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => UpdateIntegrationLevelAsync(deviceKey, enable: true, cancellationToken);
 
     /// <summary>
     /// POST /api/task/vehicles/updateVehicleIntegrationLevel with serviceId=disable (BC-VEH-003).
     /// Removes the vehicle from dispatch (OFF_LINE). Does not cancel an executing order.
     /// </summary>
-    public async Task DispatchDisableAsync(
+    public Task DispatchDisableAsync(
         string deviceKey,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
-
-        var client = _session.CreateGeneratedTaskClient();
-        var body = new RIoT.Sdk.Generated.TaskApi.Models.BatchVehicleOperation
-        {
-            DeviceKeys = [deviceKey],
-            ServiceId = "disable",
-        };
-
-        var response = await client.Api.Task.Vehicles.UpdateVehicleIntegrationLevel
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("DispatchDisable returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => UpdateIntegrationLevelAsync(deviceKey, enable: false, cancellationToken);
 
     /// <summary>
     /// Access the underlying Kiota client for endpoints not yet wrapped.
@@ -431,7 +243,53 @@ public sealed class TaskClient
     /// </summary>
     public RIoT.Sdk.Generated.TaskApi.TaskClient Raw => _session.CreateGeneratedTaskClient();
 
-    private static bool IsSuccessCode(string? code)
-        => string.IsNullOrWhiteSpace(code)
-           || code is "0" or "200" or "OK" or "ok" or "success" or "SUCCESS";
+    private async Task PostOrderCommandAsync(
+        string orderId,
+        RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject_commandType commandType,
+        string? reason,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(orderId);
+
+        var client = _session.CreateGeneratedTaskClient();
+        var body = new RIoT.Sdk.Generated.TaskApi.Models.OrderCommandDTOObject
+        {
+            CommandType = commandType,
+            DisableVehicle = false,
+            Reason = reason,
+        };
+
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.V1.Order.Command[orderId]
+                .PostAsync(body, cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            commandType.ToString());
+
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
+    }
+
+    private async Task UpdateIntegrationLevelAsync(
+        string deviceKey,
+        bool enable,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
+
+        var serviceId = enable ? "enable" : "disable";
+        var operation = enable ? "DispatchEnable" : "DispatchDisable";
+        var client = _session.CreateGeneratedTaskClient();
+        var body = new RIoT.Sdk.Generated.TaskApi.Models.BatchVehicleOperation
+        {
+            DeviceKeys = [deviceKey],
+            ServiceId = serviceId,
+        };
+
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.Vehicles.UpdateVehicleIntegrationLevel
+                .PostAsync(body, cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            operation);
+
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
+    }
 }

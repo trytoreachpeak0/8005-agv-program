@@ -6,7 +6,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: AdminLogin BusinessFailure (BC-AUTH-001 / ADR-0006).
+/// Seam: AdminLogin BusinessFailure (BC-AUTH-001 / ADR-sdk-0005).
 /// Expected shape from Lab fixture A1-login-invalid-password (HTTP 200 + code 2009).
 /// </summary>
 public class AdminLoginAuthTests

@@ -6,7 +6,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Facade Station enumeration by mapId (BC-MAP-002 / ADR-0006).
+/// Seam: Facade Station enumeration by mapId (BC-MAP-002 / ADR-sdk-0005).
 /// Expected values from Lab fixture C2-stations-map-29.
 /// </summary>
 public class StationFacadeTests

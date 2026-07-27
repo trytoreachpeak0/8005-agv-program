@@ -30,13 +30,14 @@
 - `QUERY_ID`：查询的稳定标识。业务文档引用 QUERY_ID，不复制 SQL。
 - `run_id`：一次不可覆盖的执行证据标识。
 
-### 1.2 五类运输任务
+### 1.2 六类运输任务
 
 1. `DIE_TO_WIRE_STAGING`：装片完工机台到焊线/键合派工待送区。
 2. `DIE_TO_OVEN`：装片完工机台到烘箱间。
 3. `WIRE_TO_GATE`：焊线/键合完工机台到人工质检关卡区。
 4. `WIRE_TO_OPTICAL`：焊线/键合完工机台到三光区。
 5. `STAGING_TO_WIRE`：焊线/键合派工待送区到指定焊线/键合机台。
+6. `WIRE_TO_NITROGEN`：焊线1完工机台到氮气柜（不含键合；出柜后再上焊线2由 `STAGING_TO_WIRE` 覆盖）。
 
 MES 的 `STEP`、`入库`、`入站`、`完工`仅用于客户 IT 批准的查询筛选。系统按 `TASK_TYPE` 解释物理运输含义，不根据 `STEP` 自行推导路线。
 
@@ -54,7 +55,7 @@ MES 的 `STEP`、`入库`、`入站`、`完工`仅用于客户 IT 批准的查�
 
 ### 1.4 快照、轮询和消失处理
 
-- 五类任务必须通过一个 `UNION ALL` 查询取得 Oracle 语句级一致性快照。
+- 六类任务必须通过一个 `UNION ALL` 查询取得 Oracle 语句级一致性快照。
 - 每轮完整结束后等待 10 秒再启动下一轮，禁止重叠或堆积。
 - 只有完整成功的查询才能创建任务或累计消失次数。
 - 同一记录连续 2 个完整成功快照未出现，且同时满足：未点击「开始运送」、无开仓未关会话、有效装载占用为 0 时，取消本地任务并撤销取货路线；保护期内消失计数仍累加。
@@ -87,11 +88,11 @@ MES 的 `STEP`、`入库`、`入站`、`完工`仅用于客户 IT 批准的查�
 
 ### 2.1 `MES_TASK_UNION`
 
-- 目的：一次返回五类当前运输候选快照。
+- 目的：一次返回六类当前运输候选快照。
 - 正式查询：[`../queries/mes-task-union/`](../queries/mes-task-union/)
 - 目录登记：[`../catalog/queries.md`](../catalog/queries.md)
 - 输出契约：`TASK_TYPE、SUBLOT、AREA、EQP、STEP、DATES、PACKAGE`，共 7 字段。
-- 关键约束：`TASK_TYPE` 只能是 1.2 节的五个值；EQP、DATES 必须非空；AREA 可空；DATES 按北京时间 UTC+8 解释。
+- 关键约束：`TASK_TYPE` 只能是 1.2 节的六个值；EQP、DATES 必须非空；AREA 可空；DATES 按北京时间 UTC+8 解释。
 - 历史证据：[`../evidence/legacy/2026-07-10-mes-task-union/`](../evidence/legacy/2026-07-10-mes-task-union/)
 - 样本入口：[`../samples/mes-task-union/`](../samples/mes-task-union/)
 - 验证计划：[`../experiments/definitions/mes-task-union-validation/plan.md`](../experiments/definitions/mes-task-union-validation/plan.md)
@@ -102,6 +103,7 @@ MES 的 `STEP`、`入库`、`入站`、`完工`仅用于客户 IT 批准的查�
 - `DIE_TO_OVEN`：AREA 可能为空或错误，不得因当前样本看似完整而放松位置校验。
 - `WIRE_TO_GATE`：需持续验证与三光任务互斥。
 - `WIRE_TO_OPTICAL`：历史状态可能停留较久，不能把 DATES 当成唯一有效性判断。
+- `WIRE_TO_NITROGEN`：起终点规则同 `WIRE_TO_GATE`；终点氮气柜固定站点待现场补录。
 - `STAGING_TO_WIRE`：优先级最高；若同一 SUBLOT 的上游任务仍在送往待送区而 MES 已出下游（常见于现场未按流程提前推进），下游等待上游卸货并报警/记审计，不取消上游。
 
 ### 2.2 `SUBLOT_BOX_COUNT`
@@ -153,7 +155,7 @@ MES 的 `STEP`、`入库`、`入站`、`完工`仅用于客户 IT 批准的查�
 ## 4. 已确认结论
 
 1. 当前阶段不做 MES 回写，本地保存运输任务全生命周期。
-2. 五类任务使用一个 `UNION ALL` 查询，输出 7 字段。
+2. 六类任务使用一个 `UNION ALL` 查询，输出 7 字段。
 3. 正式任务只允许来自 MES，Mock 与正式任务隔离。
 4. 花篮兜底采用重复扫码后二次确认，不增加独立“新增一篮”按钮。
 5. 固定区域配置使用 `station_name`，不是 `station_id`。

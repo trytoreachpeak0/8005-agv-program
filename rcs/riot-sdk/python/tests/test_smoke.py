@@ -29,4 +29,4 @@ async def test_login_and_list_devices_smoke() -> None:
         assert tokens.access_token
         devices = await session.device.list_devices(page_num=1, page_size=10)
         assert devices is not None
-        print("devices:", devices)
+        print(f"devices.total={devices.total} records={len(devices.records or [])}")

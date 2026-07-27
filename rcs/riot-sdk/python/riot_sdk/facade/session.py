@@ -25,7 +25,7 @@ class RiotSession:
     ) -> None:
         self.options = options
         self.token_provider = RiotTokenProvider()
-        # ADR-0001: CallApiKey is the default Bearer credential; AdminLogin is optional.
+        # ADR-sdk-0001: CallApiKey is the default Bearer credential; AdminLogin is optional.
         if options.call_api_key and options.call_api_key.strip():
             self.token_provider.set_access_token(options.call_api_key)
         self._auth = RiotAuthClient(options, client)

@@ -3,7 +3,7 @@ using RIoT.Sdk.Core;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Core ReadyForNextOrder pure helper (BC-STATE-003 / ADR-0008).
+/// Seam: Core ReadyForNextOrder pure helper (BC-STATE-003 / ADR-sdk-0007).
 /// Known-good SUCCESS=5 + IDLE from Lab Round8 state trajectory.
 /// </summary>
 public class ReadyForNextOrderTests

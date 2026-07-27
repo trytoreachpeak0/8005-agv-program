@@ -6,7 +6,7 @@ using RIoT.Sdk.Facade;
 namespace RIoT.Sdk.Tests;
 
 /// <summary>
-/// Seam: Facade NearStationQuery via queryNearEnd / queryNearestStart (ADR-0004).
+/// Seam: Facade NearStationQuery via queryNearEnd / queryNearestStart (ADR-sdk-0003).
 /// Expected stationIds from Lab fixture R15-near-tight-map28.
 /// </summary>
 public class NearStationQueryFacadeTests

@@ -14,29 +14,43 @@ public sealed class DeviceClient
     internal DeviceClient(RiotSession session) => _session = session;
 
     /// <summary>
-    /// GET /api/device/v1/devices — list devices.
+    /// GET /api/device/v1/devices — list devices (not DispatchableVehicle discovery).
+    /// Throws <see cref="RiotApiException"/> on business failure; returns unwrapped page (ADR-sdk-0005).
     /// </summary>
-    public async Task<ResponseMsg_Of_Page_Of_DeviceObject?> ListDevicesAsync(
+    public async Task<Page_Of_DeviceObject> ListDevicesAsync(
         int? pageNum = null,
         int? pageSize = null,
         CancellationToken cancellationToken = default)
     {
         var client = _session.CreateGeneratedDeviceClient();
-        return await client.Api.Device.V1.Devices.GetAsync(config =>
-        {
-            config.QueryParameters.PageNum = pageNum;
-            config.QueryParameters.PageSize = pageSize;
-        }, cancellationToken).ConfigureAwait(false);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Device.V1.Devices.GetAsync(config =>
+            {
+                config.QueryParameters.PageNum = pageNum;
+                config.QueryParameters.PageSize = pageSize;
+            }, cancellationToken).ConfigureAwait(false),
+            "ListDevices");
+
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
+        return response.Result ?? new Page_Of_DeviceObject();
     }
 
     /// <summary>
     /// GET /api/device/v1/devices/statistics/status
+    /// Throws <see cref="RiotApiException"/> on business failure; returns unwrapped DTO (ADR-sdk-0005).
     /// </summary>
-    public Task<ResponseMsg_Of_DeviceStatusStatisticsDto?> GetDeviceStatusStatisticsAsync(
+    public async Task<DeviceStatusStatisticsDto> GetDeviceStatusStatisticsAsync(
         CancellationToken cancellationToken = default)
     {
         var client = _session.CreateGeneratedDeviceClient();
-        return client.Api.Device.V1.Devices.Statistics.Status.GetAsync(cancellationToken: cancellationToken);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Device.V1.Devices.Statistics.Status
+                .GetAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            "GetDeviceStatusStatistics");
+
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
+        return response.Result ?? new DeviceStatusStatisticsDto();
     }
 
     /// <summary>
@@ -45,37 +59,10 @@ public sealed class DeviceClient
     /// confirm via getVehicleInfo.emergencyState (expect CAN_RECOVER).
     /// Body must include messageId + mqCallback + thingsProperties (empty {} is NPE).
     /// </summary>
-    public async Task TriggerEmergencyStopAsync(
+    public Task TriggerEmergencyStopAsync(
         string deviceKey,
         CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
-
-        var client = _session.CreateGeneratedDeviceClient();
-        var body = new DeviceCommandDto
-        {
-            MessageId = Random.Shared.Next(100000, 999999).ToString(),
-            MqCallback = new MqCallback { Tag = "string", Topic = "string" },
-            ThingsProperties = new DeviceCommandDto_thingsProperties(),
-        };
-
-        var response = await client.Api.Device.V1.Command.Sync.Service[deviceKey]["triggerEmergency"]
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new RiotApiException("TriggerEmergencyStop returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
-    }
+        => PostEmergencyServiceAsync(deviceKey, "triggerEmergency", cancellationToken);
 
     /// <summary>
     /// POST /api/device/v1/command/sync/service/{deviceKey}/cancelEmergency (BC-VEH-005).
@@ -83,9 +70,15 @@ public sealed class DeviceClient
     /// confirm via getVehicleInfo.emergencyState (expect OK).
     /// Body must include messageId + mqCallback + thingsProperties (empty {} is NPE).
     /// </summary>
-    public async Task CancelEmergencyStopAsync(
+    public Task CancelEmergencyStopAsync(
         string deviceKey,
         CancellationToken cancellationToken = default)
+        => PostEmergencyServiceAsync(deviceKey, "cancelEmergency", cancellationToken);
+
+    private async Task PostEmergencyServiceAsync(
+        string deviceKey,
+        string serviceId,
+        CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
 
@@ -97,24 +90,12 @@ public sealed class DeviceClient
             ThingsProperties = new DeviceCommandDto_thingsProperties(),
         };
 
-        var response = await client.Api.Device.V1.Command.Sync.Service[deviceKey]["cancelEmergency"]
-            .PostAsync(body, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Device.V1.Command.Sync.Service[deviceKey][serviceId]
+                .PostAsync(body, cancellationToken: cancellationToken)
+                .ConfigureAwait(false),
+            serviceId);
 
-        if (response is null)
-        {
-            throw new RiotApiException("CancelEmergencyStop returned empty response.");
-        }
-
-        if (!IsSuccessCode(response.Code))
-        {
-            throw new RiotApiException(
-                $"RIoT business failure code={response.Code} message={response.Message}",
-                statusCode: 200,
-                businessCode: response.Code);
-        }
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
     }
-
-    private static bool IsSuccessCode(string? code) =>
-        string.IsNullOrEmpty(code) || code == "0";
 }
