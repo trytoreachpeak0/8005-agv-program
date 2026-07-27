@@ -4,12 +4,16 @@
 
 **Blocked by:** 01 — 录制快照到只读 API 的最小纵切片
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] 仍存在的 VISIBLE 在成功全量快照中刷新 mes_last_seen_at 并将消失计数归零
-- [ ] 仅完整成功查询累计消失次数；超时、失败或不完整结果不累计、不标 GONE
-- [ ] 连续成功缺席达到可配置阈值（默认 2）后状态变为 GONE
-- [ ] 一期 GONE 不依赖装载/派车保护规则
-- [ ] 同键在 GONE 后再现时发放新 DemandId 并产生告警，不复活旧实例
-- [ ] 只读 HTTP 可按 status（VISIBLE/GONE）过滤需求列表
-- [ ] Reconciler 与 HTTP 测试覆盖成功缺席、失败不计数、GONE、再现新 DemandId
+- [x] 仍存在的 VISIBLE 在成功全量快照中刷新 mes_last_seen_at 并将消失计数归零
+- [x] 仅完整成功查询累计消失次数；超时、失败或不完整结果不累计、不标 GONE
+- [x] 连续成功缺席达到可配置阈值（默认 2）后状态变为 GONE
+- [x] 一期 GONE 不依赖装载/派车保护规则
+- [x] 同键在 GONE 后再现时发放新 DemandId 并产生告警，不复活旧实例
+- [x] 只读 HTTP 可按 status（VISIBLE/GONE）过滤需求列表
+- [x] Reconciler 与 HTTP 测试覆盖成功缺席、失败不计数、GONE、再现新 DemandId
+
+## Comments
+
+- 2026-07-27: Implemented lifecycle in `TransportDemandReconciler` (refresh/reset, disappear→GONE, reappear new DemandId + `REAPPEAR_AFTER_GONE` alert). Host exposes `MesIngest:DisappearThreshold` (default 2). HTTP `?status=VISIBLE|GONE` contract tests added. Presence uses full successful snapshot keys (baseline only gates new creates); runner appends alerts into the in-memory store.
