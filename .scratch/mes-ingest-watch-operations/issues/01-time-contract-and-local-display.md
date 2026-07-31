@@ -4,17 +4,17 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Core/Host/Watch DTO 使用 DateTimeOffset，SQL Server 使用 DATETIMEOFFSET；禁止以无 Kind DateTime 表示业务时间点
-- [ ] Host 生成的 CreatedAt、GoneAt、Alert、PollHealth 时间使用 UTC clock
-- [ ] Oracle/CSV 无 offset 的 DATES 继续按工厂 UTC+08:00 解释；API 保留原时间点
-- [ ] Watch 统一转换为 TimeZoneInfo.Local，格式 `yyyy-MM-dd HH:mm:ss zzz`
-- [ ] DATES 列显示“当前工序进入时间 (DATES)”；STEP 只保留为下一工序原始字段
-- [ ] 默认排序改为 `DATES DESC, DemandId ASC`；MesLastSeenAt 不再是默认排序
-- [ ] 覆盖不同时区、夏令时/无夏令时和相同时间次排序测试
+- [x] Core/Host/Watch DTO 使用 DateTimeOffset，SQL Server 使用 DATETIMEOFFSET；禁止以无 Kind DateTime 表示业务时间点
+- [x] Host 生成的 CreatedAt、GoneAt、Alert、PollHealth 时间使用 UTC clock
+- [x] Oracle/CSV 无 offset 的 DATES 继续按工厂 UTC+08:00 解释；API 保留原时间点
+- [x] Watch 统一转换为 TimeZoneInfo.Local，格式 `yyyy-MM-dd HH:mm:ss zzz`
+- [x] DATES 列显示“当前工序进入时间 (DATES)”；STEP 只保留为下一工序原始字段
+- [x] 默认排序改为 `DATES DESC, DemandId ASC`；MesLastSeenAt 不再是默认排序
+- [x] 覆盖不同时区、夏令时/无夏令时和相同时间次排序测试
 
 ## Comments
 
 - Confirmed domain term: MesCurrentStepEnteredAt. DATES is not the time of entering the STEP column; STEP denotes the next process.
-
+- Timezone label currently shown on HealthText; dedicated bottom status bar layout belongs to ticket 13.
