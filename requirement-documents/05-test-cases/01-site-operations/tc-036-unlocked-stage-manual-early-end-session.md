@@ -1,7 +1,7 @@
 ---
 id: TC-036
 type: test-case
-title: "未锁定阶段主动提前结束会话"
+title: "StopClosureCommit 清除工号和到站会话"
 status: draft
 created: 2026-07-14
 updated: 2026-07-14
@@ -10,19 +10,19 @@ related_uc: ["UC-043"]
 aliases: ["TC-036"]
 ---
 
-# TC-036 未锁定阶段主动提前结束会话
+# TC-036 StopClosureCommit 清除工号和到站会话
 
 ## Preconditions 前置条件
 
-会话仍处于"未开始仓门操作"阶段。
+车辆满足 StationDepartureWaiting，OperationSession 与 OnboardOperatorContext 有效。
 
 ## Test Steps 测试步骤
 
-操作员点击"结束会话"（该操作不要求核验身份，终端前任何人均可执行）。
+分别执行人工与超时 StopClosureCommit，并让其中一次后续移动失败。
 
 ## Expected Result 预期结果
 
-系统结束当前会话，记录结束时间及结束方式（"操作员主动提前结束"），界面恢复为"未验证"状态。
+StopClosureCommit 成功时立即结束会话并清除工号；后续移动失败不恢复本站会话或工号。
 
 ## Verifies 验证对象
 

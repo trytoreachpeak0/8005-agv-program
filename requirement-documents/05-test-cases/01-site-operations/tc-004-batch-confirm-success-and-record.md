@@ -1,29 +1,29 @@
 ---
 id: TC-004
 type: test-case
-title: "批量确认成功并记录"
+title: "整站结束原子提交"
 status: draft
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-31
 related_fr: ["FR-004"]
-related_uc: ["UC-002"]
+related_uc: ["UC-002", "UC-046"]
 aliases: ["TC-004"]
 ---
 
-# TC-004 批量确认成功并记录
+# TC-004 整站结束原子提交
 
 ## Preconditions 前置条件
 
-FR-003 核验已通过（当前站点存在待确认仓位，且仓门/光幕状态一致）。
+FR-003 核验通过，本站有多个尚未开始的待装任务。
 
 ## Test Steps 测试步骤
 
-系统执行批量确认。
+分别执行正常提交，并在其中一个取消记录写入时注入失败。
 
 ## Expected Result 预期结果
 
-该站点所有待确认仓位对应的进行中任务状态一次性变为"已完成"；系统记录本次确认操作（操作员、任务、仓位、时间戳）。
+正常时本站、全部任务终态、取消抑制和审计一起提交；故障时全部回滚。
 
 ## Verifies 验证对象
 
-[[fr-004-batch-task-completion-session-closure-and-non-reversibility|FR-004]] AC-1
+FR-004 AC-1

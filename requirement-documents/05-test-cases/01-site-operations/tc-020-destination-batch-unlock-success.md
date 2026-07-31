@@ -14,16 +14,16 @@ aliases: ["TC-020"]
 
 ## Preconditions 前置条件
 
-AGV 未在移动；已生成待取料清单。
+AGV 未在移动；服务端已生成覆盖一个或多个 Sublot 的本站点待卸货仓位集合，且目标仓位分布在一个或多个 IO 模块。
 
 ## Test Steps 测试步骤
 
-系统向待取料清单中的仓位下发开锁指令，仓门在规定时间内正常打开。
+车载端按 IO 模块对目标仓位分组：同一模块内使用 Modbus 功能码 `0x0F` 一次写入多个连续线圈；多个模块并行下发批量开锁命令。
 
 ## Expected Result 预期结果
 
-系统允许操作员从该仓位取出产品。
+所有下发成功的目标仓位由弹簧结构自动弹门，锁 DI 变为未锁；界面按仓位展示结果，允许操作员尽快取走全部目标产品，而不是逐门等待和确认。
 
 ## Verifies 验证对象
 
-[[fr-008-destination-station-auto-identify-and-batch-unlock|FR-008]] AC-3
+[[fr-008-destination-station-auto-identify-and-batch-unlock|FR-008]] AC-3、AC-6

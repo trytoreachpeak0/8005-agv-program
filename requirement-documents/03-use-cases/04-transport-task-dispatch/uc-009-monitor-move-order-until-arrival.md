@@ -7,12 +7,12 @@ priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-30
 primary_actor: "本地服务器（系统内部过程，非人工角色）"
 secondary_actor: RIOT
 frequency: "与 UC-008 下发频率一致：每次 UC-008 完成一次下发，都会触发本 UC 开始一轮持续轮询，直到检测到该 AGV 到站或轮询异常需人工介入"
 related_uc: ["UC-003", "UC-008"]
-related_br: []
+related_br: ["BR-001"]
 aliases: ["UC-009"]
 ---
 
@@ -20,7 +20,7 @@ aliases: ["UC-009"]
 
 ## 描述
 
-[[uc-008-dispatch-move-order-to-riot|UC-008]] 完成向 RIOT 下发移动任务后，本地服务器持续轮询 RIOT 获取该 AGV 的移动任务执行状态，直至检测到该 AGV 已到达目标站点，随即将该到站事件交由 [[uc-003-agv-arrives-at-designated-station|UC-003]] 处理后续的本地状态更新与界面跳转。
+[[uc-008-dispatch-move-order-to-riot|UC-008]] 完成向 RIOT 下发移动任务后，本地服务器持续轮询 RIOT 获取该 AGV 的移动任务执行状态，车载车辆概览显示“正在前往”并突出后续停靠计划中的下一站；检测到该 AGV 已到达目标站点后，将到站事件交由 [[uc-003-agv-arrives-at-designated-station|UC-003]] 处理当前站切换、作业清单刷新与界面跳转。
 
 > 本 UC 只覆盖"移动任务下发之后，本地服务器如何持续监听、等待到站"这一段轮询/等待过程本身，不包含到站之后如何更新本地状态、触发界面跳转（后者见 [[uc-003-agv-arrives-at-designated-station|UC-003]]），也不包含如何确定/下发移动任务内容（见 [[uc-008-dispatch-move-order-to-riot|UC-008]]）。
 
@@ -53,8 +53,9 @@ aliases: ["UC-009"]
 
 1. [[uc-008-dispatch-move-order-to-riot|UC-008]] 完成下发后，系统开始持续轮询 RIOT 获取该 AGV 移动任务的执行状态
    1.1 系统核验本次轮询/通信是否正常（见 Exception Flow E1.1）
-2. 系统持续轮询，直到读取到该 AGV 状态变为"已到达目标站点"
-3. 系统将到站事件传递给 [[uc-003-agv-arrives-at-designated-station|UC-003]]，交由其处理后续的状态更新与界面跳转
+2. 系统将车载车辆概览的运行维度显示为“正在前往”，并在 UpcomingStopPlan 中突出当前下一站；后面的未执行停靠按服务端最新计划只读展示
+3. 系统持续轮询，直到读取到该 AGV 状态变为"已到达目标站点"
+4. 系统将到站事件传递给 [[uc-003-agv-arrives-at-designated-station|UC-003]]，交由其处理当前站切换、CurrentStopWorklist 刷新和界面跳转
 
 ## 备选流程
 
@@ -79,6 +80,7 @@ aliases: ["UC-009"]
 * 本 UC 是从 [[uc-003-agv-arrives-at-designated-station|UC-003]] 中拆分出来的：UC-003 原先的 Trigger（"本地服务器轮询 RIOT，读取到该 AGV 的状态已变为已到达目标站点"）以及 Normal Flow 前两步、Exception Flow E2.1（轮询/通信异常）实际描述的正是"下发之后持续监听、等待到站"这一段过程，与 UC-003 关注的"到站事件确认之后如何更新状态、触发界面跳转"是两个不同阶段，因此拆分为独立的 UC-009，UC-003 相应精简，只保留到站事件确认之后的处理。
 * 经与用户确认：本 UC 与 UC-003 的分界点是"到站事件是否已确认"——本 UC 负责"持续轮询直到确认到站"，UC-003 负责"确认到站之后做什么"，两者是前后衔接关系，不重叠。
 * 本 UC 的 Trigger 直接衔接 [[uc-008-dispatch-move-order-to-riot|UC-008]] 的 Postcondition（该 AGV 在 RIOT 侧新增一个移动任务），构成"UC-007 生成任务 → UC-008 下发移动任务 → UC-009 持续监听 → UC-003 到站处理 → UC-001 装载"的完整链路。
+* UpcomingStopPlan 只表达服务端排定的业务停靠，不包含 RIOT 的路径节点；车载端不得根据该计划自行控制导航。
 
 ## 关联用例
 

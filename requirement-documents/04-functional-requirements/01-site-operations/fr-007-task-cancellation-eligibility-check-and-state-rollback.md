@@ -1,67 +1,101 @@
 ---
 id: FR-007
 type: functional-requirement
-title: "Task Cancellation Eligibility Check and State Rollback 任务取消资格核验与状态回滚"
+title: "Pre-Departure Load Clear-and-Cancel 离站前装货清空并取消"
 status: draft
 priority: medium
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-31
 related_uc: ["UC-006"]
 related_br: []
-related_fr: []
+related_fr: ["FR-006"]
 related_nfr: ["NFR-002"]
-related_tc: ["TC-015", "TC-016", "TC-017"]
+related_tc: ["TC-015", "TC-016", "TC-017", "TC-098", "TC-099", "TC-100", "TC-101", "TC-102", "TC-119"]
 aliases: ["FR-007"]
 ---
 
-# FR-007 Task Cancellation Eligibility Check and State Rollback 任务取消资格核验与状态回滚
+# FR-007 Pre-Departure Load Clear-and-Cancel 离站前装货清空并取消
 
 ## Description 需求描述
 
-系统应当在操作员从待处理任务列表中选中某任务并点击"取消运送"后，核验该任务当前状态是否为"新建"或"进行中"（尚未完成、尚未取消），并核验该任务名下是否尚未有任何仓位处于"已占用"状态。两项核验均通过时，系统将该任务状态更新为"已取消"，并将其从该站点的待处理/可装载任务列表中移除，同时记录本次取消操作（操作员、任务、子批号、时间戳）；任一核验不通过时，系统必须拒绝本次取消请求并给出明确原因。
+系统应允许已核验操作员在 StopClosureCommit 前，从 CurrentStopWorklist 选择一个未处于关键硬件故障恢复的装货 DemandId 执行“清空并取消”，不论其尚未装货、部分装货或已经自动提交。服务端授权所选 DemandId 的完整目标仓位范围；车载端将其中实时 OCCUPIED 的仓位批量打开，完整范围全部证明 EMPTY 且机构安全后才报告 ALL_EMPTY，服务端随后完成取消。
 
-## Rationale 制定原因
-
-允许操作员在装载开始前及时取消不再需要执行的任务，同时防止对已完成、已取消或已装载产品的任务发起取消，避免数据不一致或已装产品无人处理；将 [[uc-006-cancel-transport-task-upon-arrival|UC-006]] 的系统核验与状态转换能力收敛为可单独验收的切片。UC-006 本身流程简单、不涉及设备/硬件交互，因此不像 UC-001/UC-005/UC-010 那样拆成"核验"与"执行"两条 FR，单条 FR 即可完整覆盖。
-
-## Origin 需求来源
-
-- [[uc-006-cancel-transport-task-upon-arrival|UC-006]] Normal Flow 第 2.1、2.2、3、4 步及 Exception Flow E2.1、E2.2
+取消只作用于所选 DemandId/LoadBatch，同车其它 SUBLOT 不受影响。不同 SUBLOT 的物理仓位操作必须串行。正式提交后的取消保留原确认与提交历史。取消不要求原因；取消抑制当前 DemandId，不永久拉黑 SUBLOT。
 
 ## Acceptance Criteria 验收标准
 
-- **AC-1（核验通过，取消并记录）**
-  - **Given** 目标任务当前状态为"新建"或"进行中"，且该任务名下没有任何仓位处于"已占用"状态
-  - **When** 操作员选中该任务并点击"取消运送"
-  - **Then** 系统将该任务状态更新为"已取消"，从该站点待处理/可装载任务列表中移除，并记录本次取消操作（操作员、任务、子批号、时间戳）
+- **AC-1（未装货任务直接取消）**
+  - **Given** 目标 DemandId 尚无物理装载且车辆未离站
+  - **When** 操作员确认“清空并取消”
+  - **Then** 服务端授权空范围，车载端报告 ALL_EMPTY，服务端完成取消并记录操作
 
-- **AC-2（任务状态不满足条件，拒绝）**
-  - **Given** 目标任务当前状态已是"已完成"或"已取消"
-  - **When** 操作员点击"取消运送"
-  - **Then** 系统拒绝本次取消请求，提示"该任务当前状态不可取消"，并刷新待处理任务列表
+- **AC-2（已装货任务批量清空）**
+  - **Given** 所选 DemandId 已部分或全部装货且车辆未离站
+  - **When** 服务端授权取消
+  - **Then** 只把该 DemandId 中实时 OCCUPIED 的目标仓位组成 BatchUnlock 集合一次性打开；EMPTY 仓位跳过，其它 SUBLOT 仓位不得加入
 
-- **AC-3（任务已装载仓位，拒绝）**
-  - **Given** 目标任务名下已有一个或多个仓位处于"已占用"状态
-  - **When** 操作员点击"取消运送"
-  - **Then** 系统拒绝本次取消请求，提示"该任务已装载产品，不能直接取消"
+- **AC-3（全部为空后才完成取消）**
+  - **Given** 取消清空正在执行
+  - **When** 所选 DemandId 的完整目标范围全部达到 `EMPTY + 锁闭 + 开锁输出已复位`
+  - **Then** 车载端可靠报告 ALL_EMPTY；服务端终结为 `CANCELLED_BY_OPERATOR`，释放预留与仓位并发布新版作业清单
+
+- **AC-4（目标态不符自动重开）**
+  - **Given** 某取消仓位锁闭后仍为 OCCUPIED
+  - **When** 车载端取得稳定有效占用状态
+  - **Then** 自动再次弹开该仓门，不设强制放行次数上限；UNKNOWN 或机构状态无效时暂停恢复
+
+- **AC-5（正式提交后的补偿审计）**
+  - **Given** LoadBatch 已自动提交但 StopClosureCommit 尚未发生
+  - **When** 操作员完成清空并取消
+  - **Then** 最终有效状态为 CANCELLED_BY_OPERATOR，同时保留原装货操作员、原提交事实、取消操作和逐仓清空证据
+
+- **AC-6（多 SUBLOT 隔离）**
+  - **Given** A 与 B 均已装好并占用不同仓位
+  - **When** 操作员取消 A
+  - **Then** 只清空 A 的完整目标仓位；B 的仓位、任务、确认记录和业务占用保持不变
+
+- **AC-7（不同 SUBLOT 物理操作串行）**
+  - **Given** B 尚在装货、纠错、补偿或取消
+  - **When** 操作员请求取消 A
+  - **Then** 服务端以稳定忙碌原因拒绝授权；B 到达稳定边界后可重新发起
+
+- **AC-8（取消范围与后续复用）**
+  - **Given** A 已取消并收到包含取消终态和释放仓位的新版 CurrentStopWorklistSnapshot
+  - **When** 操作员提交新的合法 SUBLOT-C
+  - **Then** A 释放的仓位可用于 C；A 的 DemandId 终态与 TransportDemandKey 永久抑制保持，同一 SUBLOT 以后命中其它任务类型时不受永久阻断
+
+- **AC-9（已离站或业务状态不合法时拒绝）**
+  - **Given** 车辆已经离站，或目标 DemandId 已取消、已进入其它不可取消终态
+  - **When** 操作员请求清空并取消
+  - **Then** 服务端返回 REJECTED 与稳定原因码，不下发任何开锁指令
+
+- **AC-10（关键硬件故障不能走普通取消）**
+  - **Given** 目标 LoadBatch 因锁 DI 等关键硬件故障处于 VehicleRecoveryRequired
+  - **When** 普通生产操作员通过本 FR 请求清空并取消
+  - **Then** 服务端拒绝普通取消且不下发开锁；必须先由 R-09 或等效生产管理权限作出 LoadCompensationDecision，再按 FR-002 的专用补偿恢复边界处理
 
 ## Related 关联
 
-- **Use Cases：** 派生自 [[uc-006-cancel-transport-task-upon-arrival|UC-006]]；与 AC-3 拒绝路径衔接的纠错动作见 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]（取出已装载产品后方可重新取消）
-- **Business Rules：** 无
-- **Functional Requirements：** 无（本 FR 独立成条，不与其他 FR 配对）
-- **Non-Functional Requirements：** 核验通过与拒绝结果均须满足 [[nfr-002-audit-completeness-and-retention|NFR-002]] 的关键操作可审计要求
+- **Use Cases：** [[uc-006-cancel-transport-task-upon-arrival|UC-006]]
+- **Functional Requirements：** LoadCorrectionPending 可由 [[fr-006-multi-slot-unlock-retrieval-and-occupancy-rollback|FR-006]] 转入本 FR
+- **Non-Functional Requirements：** 授权、拒绝、逐仓清空、取消终态和历史补偿均须满足 [[nfr-002-audit-completeness-and-retention|NFR-002]]
 
 ## Verification 验证方式
 
-- [[TC-015|TC-015]]：核验通过，取消并记录
-- [[TC-016|TC-016]]：任务状态不满足条件，拒绝
-- [[TC-017|TC-017]]：任务已装载仓位，拒绝
+- [[TC-015|TC-015]]：未装货任务直接取消
+- [[TC-016|TC-016]]：已离站或不合法状态拒绝
+- [[TC-017|TC-017]]：已装货任务批量清空后取消
+- [[TC-098|TC-098]]：占用不符自动重开
+- [[TC-099|TC-099]]：正式提交后取消保留历史
+- [[TC-100|TC-100]]：取消 A 保留 B
+- [[TC-101|TC-101]]：另一 SUBLOT 活动时拒绝穿插
+- [[TC-102|TC-102]]：取消释放仓位供新 SUBLOT 复用
+- [[TC-119|TC-119]]：关键硬件故障不能用普通取消绕过生产决策权限
 
 ## Notes 备注
 
-- 本操作不需要班组长审批（见 UC-006 Precondition 备注）；取消结果不同步/回写给 MES，只在本地数据库处理。
-- 取消不做物理删除，任务状态更新为"已取消（Cancelled）"，记录保留用于追溯。
-- 若目标任务已装载部分/全部仓位，需先执行 [[fr-006-multi-slot-unlock-retrieval-and-occupancy-rollback|FR-006]]（对应 UC-005）取出产品，待仓位恢复"空闲"后再重新发起本 FR。
+- 正常离站前清空并取消不要求班组长审批或填写取消原因；关键硬件故障后的整批清空不属于本规则，必须先取得 LoadCompensationDecision。
+- 车辆离站后不适用本 FR，必须转异常卸出。
+- 车载端在新版 CurrentStopWorklistSnapshot 到达前不得仅凭本地 EMPTY 提前复用仓位。

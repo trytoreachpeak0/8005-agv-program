@@ -1,16 +1,16 @@
 ---
 id: BR-014
 type: business-rule
-title: "Transport Task Types and Fixed Stations 五类搬运任务类型与固定站点定义"
+title: "Transport Task Types and Fixed Stations 六类搬运任务类型与固定站点定义"
 status: draft
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-31
 related_uc: ["UC-007", "UC-001", "UC-010", "UC-023", "UC-008", "UC-024"]
 related_br: ["BR-001", "BR-003", "BR-012", "BR-013"]
 aliases: ["BR-014"]
 ---
 
-# BR-014 Transport Task Types and Fixed Stations 五类搬运任务类型与固定站点定义
+# BR-014 Transport Task Types and Fixed Stations 六类搬运任务类型与固定站点定义
 
 ## Rule Statement 规则内容
 
@@ -25,17 +25,19 @@ aliases: ["BR-014"]
 | `WIRE_TO_GATE` | 焊线/键合机台 → 人工质检关卡区 |
 | `WIRE_TO_OPTICAL` | 焊线/键合机台 → 三光区 |
 | `STAGING_TO_WIRE` | 焊线/键合派工待送区 → 指定焊线/键合机台 |
+| `WIRE_TO_NITROGEN` | 焊线1机台 → 氮气柜（不含键合） |
 
 ### 2. 起终点判定
 
 1. **DIE_TO_WIRE_STAGING / DIE_TO_OVEN**：起点为查询结果中 EQP/AREA 映射到的装片机台站点；终点分别为固定的派工待送区站点、固定的烘箱间站点。
 2. **WIRE_TO_GATE / WIRE_TO_OPTICAL**：起点为查询结果中 EQP/AREA 映射到的焊线或键合机台站点；终点分别为固定的关卡区站点、固定的三光区站点。关卡区/三光区可为公共区域，当前不要求送到区内具体机台。
 3. **STAGING_TO_WIRE**：起点为固定的派工待送区（即第 1 类任务终点）；终点为查询结果中 EQP/AREA 映射到的指定焊线或键合机台站点。
-4. AREA → 站点解析与冻结规则见 [[br-003-area-station-mapping|BR-003]]；任务幂等与对账见 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]。
+4. **WIRE_TO_NITROGEN**：起点为查询结果中 EQP/AREA 映射到的焊线1机台站点；终点为固定氮气柜站点。出柜后再上焊线2由 `STAGING_TO_WIRE` 覆盖。
+5. AREA → 站点解析与冻结规则见 [[br-003-area-station-mapping|BR-003]]；任务幂等与对账见 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]。
 
-### 3. 四个固定区域站点
+### 3. 五个固定区域站点
 
-1. 焊线/键合派工待送区、烘箱间、关卡区、三光区各自配置一个固定 `station_name`（字符串，不是数字 `station_id`）。
+1. 焊线/键合派工待送区、烘箱间、关卡区、三光区、氮气柜各自配置一个固定 `station_name`（字符串，不是数字 `station_id`）。
 2. 通过配置文件或数据库维护，可动态修改；程序不得写死实际地图值。修改只影响之后创建的新任务。
 3. 具体地图站点名由现场地图建好后填入，不阻塞只读接入与本地任务状态机开发。
 
@@ -59,7 +61,7 @@ MES SQL 按工序筛选，但同一 SUBLOT 会在不同阶段产生多条运输�
 
 2026-07-13 及此前确认（见 `mes/AGV系统业务与MES任务模型.md` 第 2.4、3、8、10.4、13 节；`mes/宿迁长电AGV项目MES数据接口需求确认.md` 第 0.2 节）：
 
-- 五类任务起终点与固定区域配置方式。
+- 六类任务起终点与固定区域配置方式；第六类 `WIRE_TO_NITROGEN` 于 2026-07-24 加入正式查询。
 - 第 5 类最高优先级、上下游等待、混装与复合停靠原则。
 
 ## Related Use Cases 关联用例

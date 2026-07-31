@@ -1,29 +1,29 @@
 ---
 id: TC-003
 type: test-case
-title: "仓门未关好或光幕异常，拒绝"
+title: "未收敛或状态不明时拒绝本站结束"
 status: draft
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-31
 related_fr: ["FR-003"]
-related_uc: ["UC-002"]
+related_uc: ["UC-002", "UC-046"]
 aliases: ["TC-003"]
 ---
 
-# TC-003 仓门未关好或光幕异常，拒绝
+# TC-003 未收敛或状态不明时拒绝本站结束
 
 ## Preconditions 前置条件
 
-待确认仓位中存在仓门未关好，或光幕检测结果与系统记录状态不一致的情况。
+分别准备部分 LoadBatch、待卸任务、LoadCorrectionPending、断联和 DepartureSafe 无效状态。
 
 ## Test Steps 测试步骤
 
-操作员点击"确认完成"按钮，系统核验待确认仓位的仓门/光幕状态。
+尝试人工结束本站或推进到自动超时。
 
 ## Expected Result 预期结果
 
-系统拒绝本次确认，提示操作员先处理该仓位（对应 UC-002 Exception Flow E2.2）。
+每种状态均拒绝 StopClosureCommit，不取消任务、不发车，并给出明确阻断原因。
 
 ## Verifies 验证对象
 
-[[fr-003-confirm-completion-eligibility-check|FR-003]] AC-3
+FR-003 AC-3

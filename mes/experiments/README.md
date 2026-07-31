@@ -8,7 +8,7 @@
 - [`active-package-coverage`](definitions/active-package-coverage/plan.md)：评估活跃任务样本对容量对照表的当前覆盖率。
 - [`package-universe-discovery`](definitions/package-universe-discovery/plan.md)：在客户 IT 批准范围内发现 PACKAGE 候选集合。
 - [`toll-prefix-boundary`](definitions/toll-prefix-boundary/plan.md)：验证 `TOLL-` 前缀容量规则的匹配边界。
-- [`sublot-basket-end-to-end`](definitions/sublot-basket-end-to-end/plan.md)：验证 SUBLOT、料盒数、PACKAGE 容量和花篮估算的端到端链路。
+- [`sublot-basket-end-to-end`](definitions/sublot-basket-end-to-end/plan.md)：验证 SUBLOT、料盒数、冻结 PACKAGE、权威花篮数、完整仓位分配与失败阻断。
 - [`legacy-program-sql-research`](definitions/legacy-program-sql-research/plan.md)：逐项研究旧程序 SQL 的业务意图、依赖和写操作风险，禁止直接执行来源快照。
 - [`mes-ingest-factory-validation`](definitions/mes-ingest-factory-validation/plan.md)：MesIngest Service/探针/WPF 工厂验证与脱敏回传闭环（不走 meslab `import-run`）。
 

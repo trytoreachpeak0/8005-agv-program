@@ -1,16 +1,16 @@
 ---
 id: TC-050
 type: test-case
-title: "仓门未能正常弹开，标记异常锁定"
+title: "仓门未弹开，标记硬件不可操作"
 status: draft
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-30
 related_fr: ["FR-017"]
 related_uc: ["UC-015"]
 aliases: ["TC-050"]
 ---
 
-# TC-050 仓门未能正常弹开，标记异常锁定
+# TC-050 仓门未弹开，标记硬件不可操作
 
 ## Preconditions 前置条件
 
@@ -22,7 +22,7 @@ aliases: ["TC-050"]
 
 ## Expected Result 预期结果
 
-系统将该仓位标记为"异常锁定"或"测试未通过"，暂停对该仓位的业务分配，记录本次测试结果为"异常"。
+系统不自动重复开锁，将该仓位标记为测试未通过和硬件不可操作，暂停新的业务分配并记录 DO 回读、锁 DI 和目视结果；人工启用不能覆盖该结果。
 
 ## Verifies 验证对象
 

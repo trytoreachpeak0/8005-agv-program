@@ -56,17 +56,17 @@ aliases: ["Workflow Step Catalog", "预置步骤目录"]
 
 | 步骤类型 | 可跳过 | 可重试 | 输入 | 输出 | 关联 UC/BR | 安全边界 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `HUMAN_AUTHENTICATE_AUTHORIZE` 认证与授权 | 否（安全） | 是 | 工牌/个人身份凭据引用、所需角色/权限、操作上下文 | 操作人 ID、授权结论、认证时间 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-025-maintain-workflow-template\|UC-025]]、[[uc-043-verify-identity-and-manage-operation-session\|UC-043]] | 强制安全步骤。不得使用共享账号；认证失败、权限不足或身份未知时阻断危险操作，不记录明文凭据。现场工牌场景（UC-001/UC-010）的认证结论来自 [[uc-043-verify-identity-and-manage-operation-session\|UC-043]] 建立的当前有效操作会话，同一会话内不需要每次重新认证；管理配置端场景（UC-025）仍按其自身的二次认证要求独立执行。 |
-| `HUMAN_SCAN_MATERIAL` 扫码 | 是 | 是 | 扫描设备、预期编码类型、任务/站点上下文 | 原始扫描摘要、标准化 SUBLOT/物料标识、匹配结论 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]] | 仅非扫码业务模板可跳过；受控物料或模板要求核验时不得跳过。抖动去重不得虚构第二篮。 |
-| `HUMAN_LOAD_UNLOAD_MATERIAL` 装取料 | 否 | 否 | 已授权人员、任务、仓位、物料、作业方向 | 装/取料事实、数量/花篮序号、仓位占用结果 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-004-slot-door-safety-interlock\|UC-004]] | 必须在正确站点和已授权仓位执行；不得在门锁/光幕/任务范围未知时开始，也不得仅凭按钮点击认定物理动作完成。 |
+| `HUMAN_AUTHENTICATE_AUTHORIZE` 认证与授权 | 按项目策略 | 是 | 工牌/个人身份凭据引用、所需角色/权限、操作上下文 | 操作人 ID、授权结论、认证时间 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-025-maintain-workflow-template\|UC-025]]、[[uc-043-verify-identity-and-manage-operation-session\|UC-043]] | 装货与卸货分别采用项目级策略；8005 装货开启、卸货关闭。策略开启时新工号必须经服务端/MES 校验，同一 Sublot 内不得换人；策略关闭时不得伪造操作员。 |
+| `HUMAN_SCAN_MATERIAL` 扫码 | 按业务方向 | 是 | 扫描设备、预期编码类型、任务/站点上下文 | 原始扫描摘要、标准化 Sublot、匹配结论 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]] | 装货输入 Sublot 并由服务端校验；卸货不输入 Sublot，服务端根据在车仓位和目标站点识别。 |
+| `HUMAN_LOAD_UNLOAD_MATERIAL` 装取料 | 否 | 否 | 项目策略、任务、仓位、物料、作业方向及策略要求时的操作员 | 装/取料事实、仓位占用结果 | [[uc-001-load-completed-lot-into-slot\|UC-001]]、[[uc-010-unload-completed-lot-at-destination-station\|UC-010]]、[[uc-004-slot-door-safety-interlock\|UC-004]] | 必须在正确站点和已授权仓位执行；不得在门锁/光幕/任务范围未知时开始，也不得仅凭按钮点击认定物理动作完成。 |
 | `HUMAN_CONFIRM_OPERATION` 人工确认 | 是 | 否 | 待确认动作、任务/仓位、提示内容、操作人 | 确认/拒绝、原因、时间 | [[uc-002-confirm-task-completion\|UC-002]]、[[uc-006-cancel-transport-task-upon-arrival\|UC-006]]、[[uc-027-execute-workflow-steps\|UC-027]] | 不得用普通人工确认替代传感器、安全联锁、二次认证或未授权审批；高风险确认必须使用专门权限和原因。 |
 
 ## 6. 硬件步骤
 
 | 步骤类型 | 可跳过 | 可重试 | 输入 | 输出 | 关联 UC/BR | 安全边界 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `HARDWARE_UNLOCK_SLOT` 开锁 | 否（安全） | 是（先查状态） | AGV/柜体、仓位、预置 IO 映射、授权作业 ID | 开锁命令回执、锁/门状态 | [[uc-004-slot-door-safety-interlock\|UC-004]]、[[uc-015-slot-door-unlock-open-test\|UC-015]] | 强制安全步骤。任务、人员、仓位、站点和联锁全部明确有效后才可开锁；结果未知先查状态，不得重复脉冲。 |
-| `HARDWARE_WAIT_DOOR_CLOSED` 关门 | 否（安全） | 否 | 仓位、门状态点位、超时 | 已关门状态及时间或超时异常 | [[uc-004-slot-door-safety-interlock\|UC-004]]、[[uc-017-slot-door-state-detection-test\|UC-017]] | 强制安全步骤。仅明确的当前关门信号可成功；未知/抖动/超时不得放行移动。 |
+| `HARDWARE_UNLOCK_SLOT` 开锁 | 否（安全） | 是（先查状态） | AGV/柜体、仓位、预置 IO 映射、授权作业 ID | 开锁命令回执、锁状态 DI、DO 回读 | [[uc-004-slot-door-safety-interlock\|UC-004]]、[[uc-015-slot-door-unlock-open-test\|UC-015]] | 强制安全步骤。任务、人员、仓位、站点和联锁全部明确有效后才可开锁；结果未知先查状态，不得重复脉冲。 |
+| `HARDWARE_WAIT_DOOR_CLOSED` 关门闩合 | 否（安全） | 否 | 仓位、锁状态 DI、DO 回读 | 锁闭状态及时间或异常 | [[uc-004-slot-door-safety-interlock\|UC-004]]、[[uc-017-slot-door-state-detection-test\|UC-017]] | 强制安全步骤。没有独立门状态 DI；仅有效锁 DI 的“锁闭”可以证明仓门已关并闩合，未知/抖动不得放行移动。 |
 | `HARDWARE_CHECK_LIGHT_CURTAIN` 光幕确认 | 否（安全） | 是 | 仓位/区域、光幕点位、有效性窗口 | 无遮挡/遮挡/未知及采样时间 | [[uc-004-slot-door-safety-interlock\|UC-004]]、[[uc-016-slot-light-curtain-function-test\|UC-016]] | 强制安全步骤。必须读取当前有效状态；通信失败或未知按遮挡处理，不得使用过期成功值。 |
 | `HARDWARE_VERIFY_SAFETY_INTERLOCK` 安全联锁 | 否（安全） | 是 | 全部仓门、门锁、光幕、IO 通信、急停及移动条件 | 允许移动或逐项阻断原因 | [[uc-004-slot-door-safety-interlock\|UC-004]]、[[uc-008-dispatch-move-order-to-riot\|UC-008]]、[[br-002-agv-allocation-eligibility\|BR-002]] | 强制安全步骤。所有条件必须明确正常才允许移动；任一未知、异常或审计失败均 fail-closed。 |
 

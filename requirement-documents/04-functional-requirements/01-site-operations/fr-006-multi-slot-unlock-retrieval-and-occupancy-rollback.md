@@ -1,86 +1,77 @@
 ---
 id: FR-006
 type: functional-requirement
-title: "Multi-Slot Unlock, Retrieval and Occupancy Rollback 多仓位批量开锁、取出与占位回滚"
+title: "Same-Slot Load Correction and Pending Recovery 原仓位装货纠错与待重放恢复"
 status: draft
 priority: medium
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-14
-updated: 2026-07-14
-related_uc: ["UC-005", "UC-004"]
+updated: 2026-07-31
+related_uc: ["UC-005", "UC-004", "UC-006"]
 related_br: []
-related_fr: ["FR-005"]
+related_fr: ["FR-005", "FR-031"]
 related_nfr: ["NFR-002"]
 related_tc: ["TC-009", "TC-010", "TC-011", "TC-012", "TC-013", "TC-014"]
 aliases: ["FR-006"]
 ---
 
-# FR-006 Multi-Slot Unlock, Retrieval and Occupancy Rollback 多仓位批量开锁、取出与占位回滚
+# FR-006 Same-Slot Load Correction and Pending Recovery 原仓位装货纠错与待重放恢复
 
 ## Description 需求描述
 
-系统应当在 [[fr-005-mis-stored-retrieval-eligibility-check|FR-005]] 核验通过后，在通过移动安全联锁核验的前提下，一次性向目标子批号关联的全部仓位下发开锁指令（不支持只开其中部分仓位）；操作员取出产品并关闭仓门后，依据光幕检测确认各仓位内确实已无产品残留，将这些仓位状态由"已占用"回滚为"空闲"，清除仓位—子批号映射关系，并记录本次取出操作（操作员、原子批号、仓位号、时间戳）。开锁失败、打开后发现仓位实际为空、或关门后光幕仍检测到残留时，系统必须按约定标记异常锁定或要求重新处理，不得静默完成回滚。
+FR-005 授权后，车载端只打开所选原仓位，要求操作员完成 `OCCUPIED → EMPTY → OCCUPIED`，并在有效锁闭反馈后以稳定光幕状态和开锁输出复位证明纠错成功。正确产品必须放回原仓位；原任务、SUBLOT、DemandId、SlotOperationAttemptId、目标仓位集合、预留与仓位映射均不改变。
 
-## Rationale 制定原因
-
-将 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 中"批量开锁—取出—关门—光幕核验—回滚"的系统侧能力收敛为可验收切片，保证纠错取出后的仓位状态与现场实物、追溯数据一致，同一子批号下的其他仓位不因单个仓位异常而被阻塞。
-
-## Origin 需求来源
-
-- [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] Normal Flow 第 3~6 步及 Exception Flow E3.1、E3.2、E5.1
-- [[uc-004-slot-door-safety-interlock|UC-004]] Flow A（开锁前移动核验）
+错误产品已取出但正确产品暂时不可得时，系统进入 LoadCorrectionPending，允许安全锁闭空仓，但不得视为成功或继续后续装货。该状态只允许原仓位继续重放，或转 FR-007 清空并取消。
 
 ## Acceptance Criteria 验收标准
 
-- **AC-1（开锁前移动联锁）**
-  - **Given** 已通过 FR-005 核验，且按 [[uc-004-slot-door-safety-interlock|UC-004]] Flow A 判定 AGV 当前处于移动状态
-  - **When** 系统准备下发批量开锁指令
-  - **Then** 系统拒绝本次开门/开锁，不得下发开锁指令
+- **AC-1（移动或安全联锁阻断）**
+  - **Given** FR-005 已授权，但 AGV 正在移动或安全联锁不允许开锁
+  - **When** 车载端准备打开纠错仓位
+  - **Then** 不输出开锁并保持当前任务与预留
 
-- **AC-2（批量开锁成功）**
-  - **Given** AGV 未在移动
-  - **When** 系统一次性向该子批号关联的全部仓位下发开锁指令，且各仓门在规定时间内正常打开
-  - **Then** 系统允许操作员从全部仓位中取出产品
+- **AC-2（只打开原仓位）**
+  - **Given** 安全联锁通过
+  - **When** 执行 LoadCorrection
+  - **Then** 退出 StationDepartureWaiting、停止离站倒计时，只打开操作员选择的原仓位，不打开同一 SUBLOT 的其它仓位，后续装货暂停
 
-- **AC-3（开锁超时，异常锁定）**
-  - **Given** 其中某仓位仓门未能在规定时间内正常打开
-  - **When** 系统核验开锁结果
-  - **Then** 系统将该仓位标记为"异常锁定"，暂停对该仓位的后续操作；该子批号关联的其他仓位不受影响，仍按计划打开
+- **AC-3（原仓位重放成功）**
+  - **Given** 操作员从原仓位取出错误产品并把正确产品放回
+  - **When** 仓门锁闭反馈有效，光幕稳定为 OCCUPIED 且开锁输出已复位
+  - **Then** 可靠记录 LoadCorrectionResult；仓位—SUBLOT 映射和既有 LoadBatch 提交事实不变，恢复剩余装货或重新进入 StationDepartureWaiting 并从完整时长计时
 
-- **AC-4（打开后实际为空，异常锁定）**
-  - **Given** 某仓位打开后，操作员核验发现该仓位内实际没有产品，与系统记录不一致
-  - **When** 操作员上报该仓位状态异常
-  - **Then** 系统将该仓位标记为"异常锁定"，暂停分配该仓位；该子批号关联的其他仓位不受影响，可正常继续取出流程
+- **AC-4（正确产品暂时不可得）**
+  - **Given** 错误产品已取出，原仓位锁闭后为 EMPTY
+  - **When** 操作员暂时无法放入正确产品
+  - **Then** 进入 LoadCorrectionPending；保持任务、SUBLOT、预留与 StationOperationGuard，禁止后续仓位装货
 
-- **AC-5（关门后光幕确认清空，回滚成功）**
-  - **Given** 全部仓位仓门已关闭，光幕检测确认各仓位内确实已无产品残留
-  - **When** 系统执行关门后核验与回滚
-  - **Then** 该子批号关联的全部仓位状态由"已占用"回滚为"空闲"，清除仓位—子批号映射关系；记录本次取出操作（操作员、原子批号、仓位号、时间戳）；相关搬运任务状态保持"进行中"
+- **AC-5（待重放的合法出口）**
+  - **Given** 当前为 LoadCorrectionPending
+  - **When** 操作员继续处理
+  - **Then** 只允许重新打开原仓位完成重放，或转 FR-007 清空并取消；不得跳过该仓位
 
-- **AC-6（关门后光幕检测残留，要求重新处理）**
-  - **Given** 操作员已关闭某仓位仓门，但光幕仍检测到产品残留
-  - **When** 系统执行关门后核验
-  - **Then** 系统不得将该仓位回滚为"空闲"，提示该仓位取出未完成并要求操作员重新打开该仓位，直至光幕确认无残留后才允许按 AC-5 回滚
+- **AC-6（目标态闭环）**
+  - **Given** 纠错仓位锁闭后仍为 EMPTY
+  - **When** 车载端取得明确有效的占用状态
+  - **Then** 自动再次弹锁并要求放入，且不设强制放行次数上限；若状态为 UNKNOWN 或机构状态无效，则暂停进入恢复而非自动循环
 
 ## Related 关联
 
-- **Use Cases：** 支撑 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]；开锁前依赖 [[uc-004-slot-door-safety-interlock|UC-004]]
-- **Business Rules：** 无
-- **Functional Requirements：** 前置核验依赖 [[fr-005-mis-stored-retrieval-eligibility-check|FR-005]]
-- **Non-Functional Requirements：** 开锁、异常锁定、回滚落库等关键操作须满足 [[nfr-002-audit-completeness-and-retention|NFR-002]]
+- **Use Cases：** [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]]
+- **Functional Requirements：** 前置授权依赖 [[fr-005-mis-stored-retrieval-eligibility-check|FR-005]]；放弃装货转 [[fr-007-task-cancellation-eligibility-check-and-state-rollback|FR-007]]
+- **Non-Functional Requirements：** 纠错、待重放与恢复记录须满足 [[nfr-002-audit-completeness-and-retention|NFR-002]]
 
 ## Verification 验证方式
 
-- [[TC-009|TC-009]]：移动联锁拒绝开锁
-- [[TC-010|TC-010]]：批量开锁成功
-- [[TC-011|TC-011]]：开锁超时，异常锁定
-- [[TC-012|TC-012]]：打开后实际为空，异常锁定
-- [[TC-013|TC-013]]：关门后光幕确认清空，回滚成功
-- [[TC-014|TC-014]]：关门后光幕检测残留，要求重新处理
+- [[TC-009|TC-009]]：移动联锁拒绝纠错开锁
+- [[TC-010|TC-010]]：只打开原仓位
+- [[TC-011|TC-011]]：原仓位重放成功
+- [[TC-012|TC-012]]：正确产品不可得进入待重放
+- [[TC-013|TC-013]]：待重放只允许继续或取消
+- [[TC-014|TC-014]]：目标态不符自动弹锁，UNKNOWN 暂停
 
 ## Notes 备注
 
-- 本 FR 不要求班组长审批（见 UC-005 Precondition 备注），也不记录"取出原因"字段，只记录操作员、原子批号、仓位号、时间戳。
-- 支持反复纠错：同一仓位/子批号取出后若重新装载又发现有误，可再次触发本 FR，不限制纠错次数。
-- 任务一旦通过 [[uc-002-confirm-task-completion|UC-002]] 确认完成后才发现存错，如何处理不在本 FR 范围内，需要额外的退料/异常处理流程（TBD，见 UC-005 Notes）。
+- 支持反复纠错，不限制业务次数；每次都使用新的 MessageId，但保持原 SlotOperationAttemptId。
+- LoadCorrection 不是整批清空，也不清除仓位—SUBLOT 映射。

@@ -20,7 +20,7 @@ aliases: ["UC-044"]
 
 ## 描述
 
-在 [[uc-010-unload-completed-lot-at-destination-station|UC-010]] 的取料流程中，操作员关闭仓位仓门后，若光幕检测到该仓位内仍有产品残留（说明取料不彻底，或误关门时仓内产品尚未取出），系统判定本次关闭未完成，转由本 UC 处理：要求操作员重新打开该仓位，取出残留产品后再次关闭，直至光幕确认该仓位内已清空为止。
+在 [[uc-010-unload-completed-lot-at-destination-station|UC-010]] 的取料流程中，操作员关闭仓位仓门后，若光幕检测到该仓位内仍有产品残留（说明取料不彻底，或误关门时仓内产品尚未取出），系统判定本次关闭未完成，自动再次弹开该仓门，供操作员取出残留产品后再次关闭，直至光幕确认该仓位内已清空为止。
 
 本 UC 从 UC-010 原 Exception Flow E4.1 拆分而来，写法上参照 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 相对 [[uc-001-load-completed-lot-into-slot|UC-001]] 的拆分方式：触发方式是系统通过光幕自动检测，不额外提供操作员主动发起"重新打开"的独立入口。
 
@@ -37,11 +37,11 @@ aliases: ["UC-044"]
 
 **任务与数据**
 
-3. 该仓位关联的搬运任务尚未通过 [[uc-002-confirm-task-completion|UC-002]] 确认完成。
+3. 该仓位关联的卸货尚未达到 `EMPTY + 锁闭 + 开锁输出已复位` 的物理闭环。
 
 **人员与权限**
 
-4. 操作员当前处于 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 建立的有效操作会话内，不需要重复验证身份。
+4. 若项目级卸货身份核验策略开启，则沿用当前已核验工号；8005 项目该策略关闭，不要求输入工号。
 
 ## 后置条件
 
@@ -64,9 +64,9 @@ aliases: ["UC-044"]
 ### 44.0
 
 1. 系统通过光幕检测到操作员刚关闭的仓位内仍有产品残留
-2. 系统提示该仓位"取出未完成"，要求操作员重新打开该仓位确认
+2. 系统提示该仓位“取出未完成”，准备自动再次弹开仓门
 3. 系统按 [[uc-004-slot-door-safety-interlock|UC-004]] Flow A 核验该 AGV 当前是否处于移动状态，只有核验通过（未在移动）才允许下发开锁指令，否则拒绝本次开门（见该 UC Exception Flow EA1.1）
-4. 系统重新打开该仓位仓门
+4. 系统自动输出开锁脉冲，重新弹开该仓位仓门
 5. 操作员取出残留产品
 6. 操作员重新关闭该仓位仓门
    6.1 系统通过光幕检测确认该仓位内确已清空（见 Exception Flow E6.1）
@@ -86,21 +86,21 @@ aliases: ["UC-044"]
 
 1. 操作员重新关闭仓位仓门
 2. 系统按第 6.1 步通过光幕检测，发现该仓位内仍检测到产品残留
-3. 系统提示该仓位取出仍未完成，要求操作员再次重新打开该仓位确认
-4. 系统重新执行第 4～6 步，直至该仓位光幕确认已清空；若反复多次仍无法清空，操作员应上报班组长或设备/电气维护人员（R-11）核实是否为光幕误报或产品卡滞等设备问题
+3. 系统提示该仓位取出仍未完成，并自动再次输出开锁脉冲
+4. 系统重新执行第 4～6 步，直至该仓位光幕确认已清空，不设可强制放行的重试次数上限；操作员可暂停并上报班组长或设备/电气维护人员（R-11），但任务与 StationOperationGuard 保持
 
 ## 备注
 
 - 本 UC 从 [[uc-010-unload-completed-lot-at-destination-station|UC-010]] 原 Exception Flow E4.1 拆分而来，独立成文，便于单独维护和引用；UC-010 自身的 Normal Flow 与 Exception Flow 相应改为指向本 UC，不再重复描述具体的重新打开流程。
 - 本 UC 触发方式仅为系统光幕自动检测，不提供操作员主动发起"重新打开"的独立入口；若操作员在关门、光幕核验通过之后才发现问题（如产品已经离开仓位现场），不在本 UC 范围内，需另行处理。
-- 本 UC 的重新打开动作属于 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 定义的操作会话内的仓门操作，会触发/维持该会话进入"仓门操作已锁定"阶段，不需要重复验证身份。
+- 本 UC 的重新打开动作属于当前 Sublot 的仓位操作，继续沿用该 Sublot 已绑定的操作员，不需要重复验证身份，也不允许在该 Sublot 完成前更换操作员。
 - [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 中也存在类似的"关闭仓门后光幕检测到残留"场景（其 Exception Flow E5.1），与本 UC 处理逻辑相似但服务的是装载/纠错方向；两者是否需要进一步合并为统一的底层能力，留待后续讨论，本 UC 暂不改动 UC-005。
 
 ## 关联用例
 
 - [[uc-010-unload-completed-lot-at-destination-station|UC-010]]：本 UC 从其 Exception Flow E4.1 拆分而来，处理完毕后流程返回该 UC 继续；该 UC 的 Normal Flow 第 4.1 步及 Exception Flow E4.1 改为指向本 UC。
 - [[uc-004-slot-door-safety-interlock|UC-004]]：本 UC 重新打开仓门前，需先经过该 UC Flow A 核验 AGV 当前是否移动（移动中则拒绝开门）。
-- [[uc-002-confirm-task-completion|UC-002]]：本 UC 处理完毕、仓位恢复"空闲"后，相关任务仍需通过该 UC 确认完成，本 UC 不直接触发任务完成。
-- [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：本 UC 的重新打开动作复用该 UC 建立的操作会话，不需要重复验证身份；本 UC 是使会话进入/维持"仓门操作已锁定"阶段的操作之一。
+- [[uc-002-confirm-task-completion|UC-002]]：不参与卸货任务提交；本 UC 处理完毕后由 UC-010 按逐仓卸货闭环更新业务状态。
+- [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：本 UC 复用当前到站会话和当前 Sublot 已绑定的操作员，不需要重复验证身份。
 
 ## 其他信息
