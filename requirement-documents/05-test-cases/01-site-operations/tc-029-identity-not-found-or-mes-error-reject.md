@@ -18,12 +18,12 @@ aliases: ["TC-029"]
 
 ## Test Steps 测试步骤
 
-MES 返回"人员不存在"，或因网络/接口异常无法返回结果。
+MES 返回“人员不存在”、岗位权限不足，或因网络/接口异常无法返回结果。
 
 ## Expected Result 预期结果
 
-系统不建立会话，提示"身份核验失败，请重新扫码或联系管理员"，不泄露具体失败原因是否为账号不存在。
+系统不更新当前工号、不允许以该工号开始新的 Sublot，并记录失败审计；界面提示身份或权限核验失败。
 
 ## Verifies 验证对象
 
-[[fr-011-identity-and-role-verification-via-mes|FR-011]] AC-3
+[[fr-011-identity-and-role-verification-via-mes|FR-011]] AC-2

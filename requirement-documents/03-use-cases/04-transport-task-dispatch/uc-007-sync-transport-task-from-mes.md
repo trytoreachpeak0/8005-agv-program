@@ -20,7 +20,7 @@ aliases: ["UC-007"]
 
 ## 描述
 
-本地服务器按 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]] 以固定延迟轮询 MES：使用带固定任务类型（[[br-014-transport-task-types-and-fixed-stations|BR-014]]）的 `UNION ALL` 合并 SQL 拉取五类运输候选，完成字段校验、AREA 站点解析（[[br-003-area-station-mapping|BR-003]]）、按 `任务类型 + SUBLOT` 去重与本地对账后，创建或刷新本地任务、取消取货前已消失任务，并处理异常骤降保护与重启恢复基线。本 UC 不包含派车范围划分（[[br-001-dispatch-task-range|BR-001]]）与导航下发。
+本地服务器按 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]] 以固定延迟轮询 MES：使用带固定任务类型（[[br-014-transport-task-types-and-fixed-stations|BR-014]]）的 `UNION ALL` 合并 SQL 拉取六类运输候选，完成字段校验、AREA 站点解析（[[br-003-area-station-mapping|BR-003]]）、按 `任务类型 + SUBLOT` 去重与本地对账后，创建或刷新本地任务、取消取货前已消失任务，并处理异常骤降保护与重启恢复基线。本 UC 不包含派车范围划分（[[br-001-dispatch-task-range|BR-001]]）与导航下发。
 
 ## 触发条件
 
@@ -31,7 +31,7 @@ aliases: ["UC-007"]
 **系统与接口**
 
 1. MES Oracle 只读查询链路可用，且仅能执行预置合并 SELECT（见 BR-012）。
-2. 五类任务合并 SQL 已配置并生效；上线基线时间过滤由应用层执行。
+2. 六类任务合并 SQL 已配置并生效；上线基线时间过滤由应用层执行。
 3. RCS/RIOT 地图同步得到的表 A/表 B（及显式覆盖）可供 AREA 解析（见 BR-003）；解析失败时任务仍可创建但进入位置异常。
 
 ## 后置条件
@@ -114,9 +114,10 @@ aliases: ["UC-007"]
 2. 暂停该类型消失计数与取消，报警；其他类型不受影响
 3. 连续 2 轮该类型数量 > 0 后自动解除，无人工解除入口
 
-### E9.1 已取消任务再次出现
+### E9.1 GONE 后同键再次出现或命中调度抑制
 
-1. 转人工确认；不自动恢复原任务、不自动创建新正式任务
+1. GONE 后同一 TransportDemandKey 再次出现时，MesIngest 保留旧 GONE 实例、分配新的本地 DemandId 并产生对账告警；不在接入层阻断，也不读取调度状态
+2. 调度消费投影时若该 TransportDemandKey 命中本地取消的永久抑制，则不创建或恢复业务任务、不派车；这不改变 MesIngest 的投影
 
 ### E10.1 MES 连接中断
 

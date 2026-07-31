@@ -1,66 +1,59 @@
 ---
 id: FR-004
 type: functional-requirement
-title: "Batch Task Completion, Session Closure and Non-Reversibility 批量确认完成、会话结束与不可撤销"
+title: "Atomic Stop Closure and Departure Handoff 整站原子结束与发车交接"
 status: draft
 priority: high
 created_by: "ZhengyuShao 邵正宇"
 updated_by: "ZhengyuShao 邵正宇"
 created: 2026-07-14
-updated: 2026-07-14
-related_uc: ["UC-002"]
+updated: 2026-07-31
+related_uc: ["UC-002", "UC-046"]
 related_br: []
-related_fr: ["FR-003"]
+related_fr: ["FR-003", "FR-013", "FR-031"]
 related_nfr: ["NFR-002"]
-related_tc: ["TC-004", "TC-005", "TC-006"]
+related_tc: ["TC-004", "TC-005", "TC-006", "TC-105", "TC-111", "TC-112"]
 aliases: ["FR-004"]
 ---
 
-# FR-004 Batch Task Completion, Session Closure and Non-Reversibility 批量确认完成、会话结束与不可撤销
+# FR-004 Atomic Stop Closure and Departure Handoff 整站原子结束与发车交接
 
 ## Description 需求描述
 
-系统应当在 [[fr-003-confirm-completion-eligibility-check|FR-003]] 核验通过后，将当前站点所有已装载或已取出（仓门已关闭）仓位对应的进行中任务状态一次性批量更新为"已完成"，并记录本次确认操作（操作员、任务、仓位、时间戳）。若本次到站操作会话（见 [[uc-043-verify-identity-and-manage-operation-session|UC-043]]）处于"仓门操作已锁定"阶段，确认完成须同时结束该会话，使界面恢复为"未验证"状态。已完成的确认操作不支持撤销：即使操作员事后发现误确认，系统也必须拒绝任何撤销请求。
-
-## Rationale 制定原因
-
-批量确认是本次到站收尾的唯一正常出口，必须保证任务状态、会话状态和审计记录三者原子一致；不支持撤销是因为确认完成即意味着 AGV 准备移动到下一站点，撤销与"AGV 是否已经/即将移动"存在冲突（见 UC-002 Notes）。
-
-## Origin 需求来源
-
-- [[uc-002-confirm-task-completion|UC-002]] Normal Flow 第 3、3.1、4 步、Postcondition 第 1~3 条及 Exception Flow E3.1
+FR-003 核验通过后，系统应将当前停靠终结、全部尚未开始待装 DemandId 的取消终态、取消抑制和审计作为一个不可分割的 StopClosureCommit。人工结束使用 `CANCELLED_BY_STOP_COMPLETE`，超时使用 `CANCELLED_BY_STATION_TIMEOUT`。提交时结束 OperationSession 并清除 OnboardOperatorContext；随后必须让车载采用最新作业与计划投影、通过 PreDepartureSafetyCheck，最后才可请求移动。
 
 ## Acceptance Criteria 验收标准
 
-- **AC-1（批量确认成功并记录）**
-  - **Given** FR-003 核验已通过
-  - **When** 系统执行批量确认
-  - **Then** 该站点所有待确认仓位对应的进行中任务状态一次性变为"已完成"；系统记录本次确认操作（操作员、任务、仓位、时间戳）
+- **AC-1（原子提交）**
+  - **Given** FR-003 核验通过
+  - **When** 系统执行 StopClosureCommit
+  - **Then** 本站终结、全部剩余任务终态、取消抑制和审计全部成功或全部回滚，不存在部分取消
 
-- **AC-2（会话结束联动）**
-  - **Given** 本次到站操作会话当前处于"仓门操作已锁定"阶段
-  - **When** 系统完成批量确认（AC-1）
-  - **Then** 该操作会话同时结束，界面恢复为"未验证"状态
+- **AC-2（提交即结束会话）**
+  - **Given** StopClosureCommit 成功
+  - **When** RIoT 移动尚未开始或下发失败
+  - **Then** OperationSession 已结束、OnboardOperatorContext 已清除，本站操作入口不重新开放
 
-- **AC-3（确认后不支持撤销）**
-  - **Given** 一次确认完成操作已成功执行（AC-1）
-  - **When** 操作员事后发现误确认并请求撤销
-  - **Then** 系统拒绝该撤销请求，不提供撤销能力；误确认的补救转人工后续处理（不在本 FR 范围内）
+- **AC-3（发车交接顺序）**
+  - **Given** StopClosureCommit 成功
+  - **When** 系统准备发车
+  - **Then** 车载先采用最新 CurrentStopWorklistSnapshot 和 UpcomingStopPlanSnapshot，再通过 PreDepartureSafetyCheck，最后才接收移动请求
+
+- **AC-4（移动失败不撤销）**
+  - **Given** StopClosureCommit 成功
+  - **When** RIoT 移动请求失败
+  - **Then** 本站结束和取消终态保持，系统进入等待发车重试并报警
 
 ## Related 关联
 
-- **Use Cases：** 支撑 [[uc-002-confirm-task-completion|UC-002]]；会话结束联动依赖 [[uc-043-verify-identity-and-manage-operation-session|UC-043]] 定义的会话阶段模型
-- **Business Rules：** 无
-- **Functional Requirements：** 前置核验依赖 [[fr-003-confirm-completion-eligibility-check|FR-003]]
-- **Non-Functional Requirements：** 批量确认与记录须满足 [[nfr-002-audit-completeness-and-retention|NFR-002]] 的关键操作可审计要求
+- **Use Cases：** [[uc-002-confirm-task-completion|UC-002]]、[[uc-046-handle-station-departure-wait-timeout|UC-046]]
+- **Functional Requirements：** 前置 FR-003；会话规则 FR-013；自动触发 FR-031
+- **Non-Functional Requirements：** 原子提交和业务审计满足 [[nfr-002-audit-completeness-and-retention|NFR-002]]
 
 ## Verification 验证方式
 
-- [[TC-004|TC-004]]：批量确认成功并记录
-- [[TC-005|TC-005]]：会话结束联动
-- [[TC-006|TC-006]]：确认后不支持撤销
+TC-004～TC-006、TC-105、TC-111、TC-112。
 
 ## Notes 备注
 
-- 任务完成结果不需要同步上报给 MES（与 UC-002 Postcondition 备注一致）。
-- 本 FR 不处理"确认前发现存错"的场景，那属于 [[uc-005-retrieve-mis-stored-product-from-slot|UC-005]] 范围。
+本 FR 原“批量确认任务完成”语义已被 LoadBatch 自动提交替代；保留 FR 编号以维持追溯链接。

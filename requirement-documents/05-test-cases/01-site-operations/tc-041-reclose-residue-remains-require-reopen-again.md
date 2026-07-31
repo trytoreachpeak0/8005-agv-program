@@ -22,7 +22,7 @@ aliases: ["TC-041"]
 
 ## Expected Result 预期结果
 
-系统提示该仓位取出仍未完成，要求操作员再次重新打开该仓位确认，重复处理直至该仓位光幕确认已清空（对应 [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]] Exception Flow E6.1）。
+系统提示该仓位取出仍未完成并自动再次弹开仓门，重复处理直至光幕确认已清空；不设强制放行次数上限，UNKNOWN 时暂停恢复（对应 [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]] Exception Flow E6.1）。
 
 ## Verifies 验证对象
 

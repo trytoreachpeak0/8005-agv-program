@@ -14,7 +14,7 @@ aliases: ["TC-063"]
 
 ## Preconditions 前置条件
 
-操作人员提交的配置中，开锁 DO 点位或门状态 DI 点位未填写。
+操作人员提交的配置中，开锁 DO 点位或锁状态 DI 点位未填写。
 
 ## Test Steps 测试步骤
 

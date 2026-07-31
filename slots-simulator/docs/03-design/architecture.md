@@ -61,7 +61,7 @@ Host ├─> Api ─┐
 | --- | --- | --- | --- | --- |
 | Slot Runtime | 仓位动作与顺序约束 | Modbus/API 事件 | 状态快照、领域事件 | 业务任务 |
 | Register Bank | 地址、权限、原子读写 | Modbus 请求 | 寄存器值/异常 | HTTP 错误 |
-| IO Mirror | DO/DI 正常镜像 | DO、实际遮挡 | 锁 DI、光幕 DI | 故障策略配置 |
+| IO Feedback | 开锁弹门、闩锁与光幕反馈 | DO、门动作、实际遮挡 | 锁 DI、光幕 DI | 故障策略配置 |
 | Fault Manager | 注入和清除故障 | API 命令 | 故障状态 | 主系统告警 |
 | Configuration | Schema、语义校验、热重载 | JSON | 有效配置快照 | 自动修复错误配置 |
 
@@ -88,7 +88,7 @@ SimulatorInstance
 
 1. `DerivedOccupancy = LightCurtainDI == Obstructed`。
 2. 开锁命令仅来自 Modbus DO。
-3. 故障注入是 DO/DI 或遮挡/DI 镜像的唯一例外。
+3. 开锁 DO、锁 DI 和内部门状态按机构迁移；锁 DI 不直接镜像 DO。光幕 DI 正常反映实际遮挡。
 4. 仓位映射必须引用存在的模块和合法通道。
 
 ## 6. 并发模型
