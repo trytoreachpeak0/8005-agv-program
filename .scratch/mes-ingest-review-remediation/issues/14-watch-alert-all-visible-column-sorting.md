@@ -16,4 +16,5 @@
 ## Comments
 
 - 2026-08-01: Added all nine Alerts sort tokens end-to-end through Watch, Host parser, shared InMemory/SQL paging, cursor payload/comparison, runtime OpenAPI, and packaged static OpenAPI. Nullable text fields sort null-first asc/null-last desc; AlertId is the stable ascending tie-break for non-AlertId primary sorts.
-- 2026-08-01: Real Host HTTP tests traverse every token in asc/desc with nulls, tied primary values, and page size 2. A 205-alert real Host + Watch test verifies SUBLOT sorting survives Load more and preserve-window automatic refresh. Full isolated LocalDB suite: 385 passed.
+- 2026-08-01: Real Host HTTP tests traverse every token in asc/desc with nulls, tied primary values, and page size 2. A 205-alert real Host + Watch test verifies SUBLOT sorting survives Load more and preserve-window automatic refresh.
+- 2026-08-01: Code review found sort resets could be dropped during an active timer refresh. `WatchRefreshAdmission` now queues state-changing resets while timer/Load more remain non-queued single-flight; concurrency regression coverage added. Full isolated LocalDB suite: 387 passed.
