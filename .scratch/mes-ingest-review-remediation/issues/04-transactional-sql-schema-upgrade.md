@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Parent / References
 
@@ -25,13 +25,17 @@
 
 ## Regression tests
 
-- [ ] 升级中途失败：库可识别为未完成升级（或已回滚到升级前一致点），不得出现“版本已升但对象缺失/半套列”
-- [ ] 失败后条件恢复再跑：升级完成且保留 DemandId、VISIBLE/GONE、pause、alerts、poll health（沿用 ticket 14 fixture 断言）
-- [ ] 成功路径重复执行仍幂等
-- [ ] 仍禁止以 DROP/重建方式清空 TransportDemand 历史
+- [x] 升级中途失败：库可识别为未完成升级（或已回滚到升级前一致点），不得出现“版本已升但对象缺失/半套列”
+- [x] 失败后条件恢复再跑：升级完成且保留 DemandId、VISIBLE/GONE、pause、alerts、poll health（沿用 ticket 14 fixture 断言）
+- [x] 成功路径重复执行仍幂等
+- [x] 仍禁止以 DROP/重建方式清空 TransportDemand 历史
 
 ## Acceptance criteria
 
-- [ ] 失败不留半迁移（事务回滚或等价安全重入策略，与 ticket 14 验收一致）
-- [ ] 成功升级保留永久历史；幂等重跑通过
-- [ ] 自动升级测试覆盖失败注入 + 恢复重跑
+- [x] 失败不留半迁移（事务回滚或等价安全重入策略，与 ticket 14 验收一致）
+- [x] 成功升级保留永久历史；幂等重跑通过
+- [x] 自动升级测试覆盖失败注入 + 恢复重跑
+
+## Comments
+
+- 2026-08-01: Wrapped `EnsureSchema` in an explicit SQL transaction so mid-upgrade failure rolls back to the pre-upgrade consistent point (no half columns/objects; schema version not advanced). Covered by `Mid_upgrade_failure_leaves_no_half_migration_and_recovers_on_rerun`; `UPGRADE.md` updated for transactional semantics.
