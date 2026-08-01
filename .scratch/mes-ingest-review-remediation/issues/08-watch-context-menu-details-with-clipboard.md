@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-human
+**Status:** done
 
 ## Parent / References
 
@@ -25,13 +25,17 @@
 
 ## Regression tests
 
-- [ ] 菜单项同时包含详情与三类复制（或 Demand 侧对等的已承诺项）
-- [ ] 「查看详情」仍走双击/Enter 同一详情通路
-- [ ] 复制行为（null → `null`、Tab 分隔、本地时区文本）回归不被破坏
-- [ ] 未选中单元格时右键仍先聚焦再复制（ticket 08 既有验收）
+- [x] 菜单项同时包含详情与三类复制（或 Demand 侧对等的已承诺项）
+- [x] 「查看详情」仍走双击/Enter 同一详情通路
+- [x] 复制行为（null → `null`、Tab 分隔、本地时区文本）回归不被破坏
+- [x] 未选中单元格时右键仍先聚焦再复制（ticket 08 既有验收）
 
 ## Acceptance criteria
 
-- [ ] 右键可打开详情且可复制，二者共存
-- [ ] 不回归 clipboard 与详情投影既有测试
-- [ ] 手工或 UI 自动化可演示菜单完整
+- [x] 右键可打开详情且可复制，二者共存
+- [x] 不回归 clipboard 与详情投影既有测试
+- [x] 手工或 UI 自动化可演示菜单完整
+
+## Comments
+
+- 2026-08-01: Implemented in `97e75a4`. Alerts XAML keeps「查看详情」; `WatchGridClipboardBehavior.Attach` appends clipboard actions. Covered by `ComposeContextMenuHeaders` + `MainWindow_attaches_clipboard_copy_to_both_grids` + `Alert_view_details_menu_and_double_click_open_same_detail_window` (menu / double-click / Enter → same `AlertDetailWindow`). Right-click focus remains `PreviewMouseRightButtonDown` → `SelectUnderMouse` (visual hit-test not unit-automated; same as original watch-ops ticket 08). Full suite green (338).

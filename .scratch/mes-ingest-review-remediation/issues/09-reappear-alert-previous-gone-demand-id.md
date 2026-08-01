@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-human
+**Status:** done
 
 ## Parent / References
 
@@ -27,12 +27,16 @@
 
 ## Regression tests
 
-- [ ] Reconciler/store：REAPPEAR alert details 含 previousGoneDemandId（或契约字段名）与 new DemandId
-- [ ] Watch 详情投影展示并可复制旧/新 Id；“定位 Demand”对旧 Id 给出历史/筛选提示（沿用 ticket 11）
-- [ ] 无历史的首次 CREATED 不误报 REAPPEAR、不填伪造旧 Id
+- [x] Reconciler/store：REAPPEAR alert details 含 previousGoneDemandId（或契约字段名）与 new DemandId
+- [x] Watch 详情投影展示并可复制旧/新 Id；“定位 Demand”对旧 Id 给出历史/筛选提示（沿用 ticket 11）
+- [x] 无历史的首次 CREATED 不误报 REAPPEAR、不填伪造旧 Id
 
 ## Acceptance criteria
 
-- [ ] `REAPPEAR_AFTER_GONE` 详情可取得先前 GONE DemandId
-- [ ] API/Watch 展示与 spec 一致
-- [ ] 生命周期与详情投影测试覆盖 GONE→再出现对照
+- [x] `REAPPEAR_AFTER_GONE` 详情可取得先前 GONE DemandId
+- [x] API/Watch 展示与 spec 一致
+- [x] 生命周期与详情投影测试覆盖 GONE→再出现对照
+
+## Comments
+
+- 2026-08-01: Implemented in `97e75a4`. Field names `previousDemandId` / `newDemandId` via `AlertDetailsBuilder.Reappear` + `ITransportDemandStore.GetLatestGoneDemandId` when hot `GetState()` omits GONE. Covered by reconciler/runner/SQL store tests + `AlertDetailsProjectionTests.Reappear_projects_previous_and_new_demand_ids` + `First_create_without_gone_history_does_not_raise_reappear`. Locate Demand button uses alert `DemandId` (new); previous Id is visible/copyable in details JSON/key-values; looking up a GONE/missing id still uses ticket 11 historical/filter hints.

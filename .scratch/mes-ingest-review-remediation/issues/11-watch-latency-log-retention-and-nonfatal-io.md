@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-human
+**Status:** done
 
 ## Parent / References
 
@@ -23,12 +23,16 @@
 
 ## Regression tests
 
-- [ ] 保留任务同时约束 `.log` 与 `.jsonl`（按天/体积策略与 ticket 03 / spec 一致）
-- [ ] 遥测写失败：HTTP 成功时 UI 仍展示数据；失败记入本地事件/诊断，不丢主路径
-- [ ] 不记录 SharedSecret 或完整连接串（既有红线）
+- [x] 保留任务同时约束 `.log` 与 `.jsonl`（按天/体积策略与 ticket 03 / spec 一致）
+- [x] 遥测写失败：HTTP 成功时 UI 仍展示数据；失败记入本地事件/诊断，不丢主路径
+- [x] 不记录 SharedSecret 或完整连接串（既有红线）
 
 ## Acceptance criteria
 
-- [ ] `.log` 有界保留，不再无限增长
-- [ ] 遥测 IO 错误不掩盖成功的 Host 拉取
-- [ ] 保留与故障隔离有自动化或可重复手工验收步骤
+- [x] `.log` 有界保留，不再无限增长
+- [x] 遥测 IO 错误不掩盖成功的 Host 拉取
+- [x] 保留与故障隔离有自动化或可重复手工验收步骤
+
+## Comments
+
+- 2026-08-01: Implemented in `97e75a4` (`WatchLocalLogRetention` over `*.jsonl`+`*.log`). Close-out added `WatchLatencyWriteFailureJournal` seam so IO failures append `TELEMETRY_IO` journal events with sanitized messages. Covered by journal/latency retention tests, `Watch_success_survives_throwing_latency_telemetry`, swallow+`onWriteFailure`, and `Latency_write_failure_is_recorded_as_local_connection_event_without_secrets`. Full suite green (338).
