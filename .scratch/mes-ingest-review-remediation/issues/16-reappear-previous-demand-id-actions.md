@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** done
+**Status:** ready-for-human
 
 - [x] REAPPEAR 详情将 previousDemandId 与 newDemandId 投影成两个明确、不会混淆的操作目标
 - [x] 操作员可分别复制旧 ID 与新 ID，且既有 Copy summary / Details JSON 行为不回归
@@ -15,4 +15,5 @@
 
 ## Comments
 
-- 2026-08-01: Implemented distinct Previous GONE / New VISIBLE DemandId targets in `AlertDetailViewModel` and `AlertDetailWindow`, with independent copy and exact locate actions. Exact lookup continues through `GET /api/demands/{demandId}`; missing/out-of-window results explicitly direct the operator to Host history, filters, and the GoneAt window without substituting another DemandId. Added ViewModel, STA WPF, clipboard-boundary, exact-client-path, and locate-hint regressions. `dotnet build MesIngest.sln --no-restore` succeeded with 0 warnings/errors; full suite passed 411/411.
+- 2026-08-01: Implemented distinct Previous GONE / New VISIBLE DemandId targets in `AlertDetailViewModel` and `AlertDetailWindow`, with independent copy and exact locate actions. Exact lookup continues through `GET /api/demands/{demandId}`; missing/out-of-window results explicitly direct the operator to Host history, filters, and the GoneAt window without substituting another DemandId. Added ViewModel, STA WPF, clipboard-boundary, exact-client-path, and locate-hint regressions.
+- 2026-08-01: Post-implementation Standards/Spec review fixed all four findings: moved status to `ready-for-human`, grouped old/new instances in `ReappearDemandTargets`, kept REAPPEAR wording off generic alert locate hints, and verified hint visibility/clear behavior in the lightweight WPF test. `dotnet build MesIngest.sln --no-restore` succeeded with 0 warnings/errors; full suite passed 412/412.
