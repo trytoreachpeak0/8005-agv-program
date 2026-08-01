@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-human
+**Status:** done
 
 ## Parent / References
 
@@ -40,3 +40,5 @@
 ## Comments
 
 - 2026-08-01: Implemented. `CsvFileMesSnapshotSource` treats zero-byte / empty-line files as `Incomplete`; header-only empty result stays `Success([])`. Runner maps to `POLL_INCOMPLETE` without presence mutation. Oracle empty result set still `Success`. Full suite green (304 tests).
+
+- 2026-08-01 Close-out: re-checked acceptance + regressions still covered (`Zero_byte_file_returns_incomplete_outcome`, `Header_only_empty_result_returns_success_with_no_rows`, `Csv_zero_byte_file_is_poll_incomplete_without_mutating_presence`, Oracle empty-result Success). No code gap — only Status had been left at `ready-for-human`. Status → `done`.
