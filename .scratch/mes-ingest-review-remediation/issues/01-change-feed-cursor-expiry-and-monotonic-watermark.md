@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Parent / References
 
@@ -26,15 +26,20 @@
 
 ## Regression tests
 
-- [ ] 部分 purge：游标早于 earliest available → 410 `SYNC_CURSOR_EXPIRED`，body 含稳定错误码；不返回跳过缺口后的 items
-- [ ] 全部 purge：high watermark 仍 ≥ 裁剪前最后 sequence（单调）；过期游标仍 410，不因空表变成“空成功页 + watermark 0”
-- [ ] `afterSequence == 0` 与“从未消费”语义一致：若 0 已早于 earliest available，同样 410（不得特判绕过）
-- [ ] InMemory 与 SQL Server store 行为对齐；纠正后删除/改写原先祝福半流的用例
-- [ ] 合法游标（`afterSequence >= earliest - 1` 且在保留窗内）仍幂等分页，next/high watermark 契约不变
+- [x] 部分 purge：游标早于 earliest available → 410 `SYNC_CURSOR_EXPIRED`，body 含稳定错误码；不返回跳过缺口后的 items
+- [x] 全部 purge：high watermark 仍 ≥ 裁剪前最后 sequence（单调）；过期游标仍 410，不因空表变成“空成功页 + watermark 0”
+- [x] `afterSequence == 0` 与“从未消费”语义一致：若 0 已早于 earliest available，同样 410（不得特判绕过）
+- [x] InMemory 与 SQL Server store 行为对齐；纠正后删除/改写原先祝福半流的用例
+- [x] 合法游标（`afterSequence >= earliest - 1` 且在保留窗内）仍幂等分页，next/high watermark 契约不变
 
 ## Acceptance criteria
 
-- [ ] 过期游标一律 410 `SYNC_CURSOR_EXPIRED`，无静默半流
-- [ ] High watermark 在保留裁剪与空表场景下保持单调
-- [ ] 两种 store + API 契约测试覆盖部分/全部 purge
-- [ ] Release 下相关 ChangeFeed 测试全绿；不再依赖“半流也算成功”的断言
+- [x] 过期游标一律 410 `SYNC_CURSOR_EXPIRED`，无静默半流
+- [x] High watermark 在保留裁剪与空表场景下保持单调
+- [x] 两种 store + API 契约测试覆盖部分/全部 purge
+- [x] Release 下相关 ChangeFeed 测试全绿；不再依赖“半流也算成功”的断言
+
+## Comments
+
+- Implemented: removed `afterSequence > 0` special-case; empty-ledger watermark from InMemory `_nextSequence-1` / SQL `sys.identity_columns.last_value`; unified expiry via `contiguousFrom = earliest ?? highWatermark + 1`.
+- `dotnet test mes/ingest/csharp/MesIngest.sln --configuration Release` → 282 passed.
