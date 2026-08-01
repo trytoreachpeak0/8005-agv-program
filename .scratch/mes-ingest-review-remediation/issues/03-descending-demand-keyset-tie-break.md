@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Parent / References
 
@@ -25,13 +25,17 @@
 
 ## Regression tests
 
-- [ ] 主排序值全相同、DemandId 递增：desc 翻页覆盖全部 ID，无漏无重
-- [ ] 主排序值部分相同、跨页边界落在并列组内：仍无漏无重
-- [ ] asc 与 desc 并集一致（仅顺序相反）；非法/排序不匹配 cursor 仍 400
-- [ ] 默认 `dates desc` 契约测试更新为显式覆盖并列场景
+- [x] 主排序值全相同、DemandId 递增：desc 翻页覆盖全部 ID，无漏无重
+- [x] 主排序值部分相同、跨页边界落在并列组内：仍无漏无重
+- [x] asc 与 desc 并集一致（仅顺序相反）；非法/排序不匹配 cursor 仍 400
+- [x] 默认 `dates desc` 契约测试更新为显式覆盖并列场景
 
 ## Acceptance criteria
 
-- [ ] 任意 allow-list 排序列在 desc 下 keyset 翻页无漏无重
-- [ ] DemandId 始终为稳定次排序键
-- [ ] 分页契约测试证明并列主值跨页完整；Release 相关用例全绿
+- [x] 任意 allow-list 排序列在 desc 下 keyset 翻页无漏无重
+- [x] DemandId 始终为稳定次排序键
+- [x] 分页契约测试证明并列主值跨页完整；Release 相关用例全绿
+
+## Comments
+
+- 2026-08-01: Fixed InMemory `DemandListPaging.IsAfterCursor` so desc flips only the primary column; DemandId remains ascending tie-break (matching SQL keyset). Covered by `DemandListPagingTieBreakTests`, API tied-dates contract, and SQL tied-primary pagination.
