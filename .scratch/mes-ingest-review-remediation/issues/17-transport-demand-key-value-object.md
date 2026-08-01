@@ -15,3 +15,4 @@
 ## Comments
 
 - 2026-08-01: Added an immutable `TransportDemandKey` with ordinal, case-sensitive value equality, non-blank component validation, and no normalization. Reconciler key sets/grouping and GONE-history callback, both stores, telemetry decorator, and store test doubles now use the value object. Oracle/CSV, HTTP/OpenAPI, and SQL schema contracts are unchanged. Targeted Release tests passed 125/125; full `MesIngest.sln` Release suite passed 423/423.
+- 2026-08-01: Post-implementation review found SQL Server's collation and padding rules could disagree with ordinal key equality. The indexed history lookup now retains its ordinary seek predicates and adds BIN2 plus byte-length predicates for exact case/whitespace equality; a LocalDB regression covers case-only and trailing-space mismatches. Internal demand/row key accessors also remove repeated key reconstruction without entering external serialization. Full Release suite passed 424/424.
