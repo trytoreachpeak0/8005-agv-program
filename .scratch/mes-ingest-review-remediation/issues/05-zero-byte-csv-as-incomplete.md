@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 ## Parent / References
 
@@ -26,13 +26,17 @@
 
 ## Regression tests
 
-- [ ] 0 字节 CSV → `Incomplete` + `POLL_INCOMPLETE`，presence 不变
-- [ ] 合法空表头+无数据行（若契约区分“完整空结果”）行为与 0 字节对照明确，测试锁定
-- [ ] 写完后的正常非空/空结果快照仍按既有成功路径工作
-- [ ] Oracle 路径不因本票被误改为拒绝合法空结果集（仅钉 CSV 截断语义）
+- [x] 0 字节 CSV → `Incomplete` + `POLL_INCOMPLETE`，presence 不变
+- [x] 合法空表头+无数据行（若契约区分“完整空结果”）行为与 0 字节对照明确，测试锁定
+- [x] 写完后的正常非空/空结果快照仍按既有成功路径工作
+- [x] Oracle 路径不因本票被误改为拒绝合法空结果集（仅钉 CSV 截断语义）
 
 ## Acceptance criteria
 
-- [ ] 零字节 CSV 不产生成功空对账副作用
-- [ ] 分类为 Incomplete / 数据质量，而非链路 Failure（除非 IO 真失败）
-- [ ] 源与 runner 回归测试覆盖；既有缺列/坏行 Incomplete 用例仍绿
+- [x] 零字节 CSV 不产生成功空对账副作用
+- [x] 分类为 Incomplete / 数据质量，而非链路 Failure（除非 IO 真失败）
+- [x] 源与 runner 回归测试覆盖；既有缺列/坏行 Incomplete 用例仍绿
+
+## Comments
+
+- 2026-08-01: Implemented. `CsvFileMesSnapshotSource` treats zero-byte / empty-line files as `Incomplete`; header-only empty result stays `Success([])`. Runner maps to `POLL_INCOMPLETE` without presence mutation. Oracle empty result set still `Success`. Full suite green (304 tests).
