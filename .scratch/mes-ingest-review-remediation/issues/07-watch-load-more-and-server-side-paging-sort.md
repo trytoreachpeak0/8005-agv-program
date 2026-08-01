@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 — Demand 降序 keyset 不因主排序并列丢行
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Parent / References
 
@@ -26,14 +26,18 @@
 
 ## Regression tests
 
-- [ ] ViewModel/UI 测试：已有 `nextCursor`/已加载多页时，定时刷新保持页累积（或等价：刷新当前已请求区间），不无故回到仅第一页
-- [ ] 筛选变化时仍清页重查（既有 ticket 07 行为保留）
-- [ ] Alerts 排序变化触发带 sort 参数的服务端请求，而非只 `OrderBy` 当前内存页
-- [ ] 不可排序列在 UI 上不可启动排序，或启动后有明确拒绝；可排序列与 Host allow-list 一致
-- [ ] 依赖 ticket 03 的并列 DemandId 场景下，Watch 连续 Load more 仍无漏行
+- [x] ViewModel/UI 测试：已有 `nextCursor`/已加载多页时，定时刷新保持页累积（或等价：刷新当前已请求区间），不无故回到仅第一页
+- [x] 筛选变化时仍清页重查（既有 ticket 07 行为保留）
+- [x] Alerts 排序变化触发带 sort 参数的服务端请求，而非只 `OrderBy` 当前内存页
+- [x] 不可排序列在 UI 上不可启动排序，或启动后有明确拒绝；可排序列与 Host allow-list 一致
+- [x] 依赖 ticket 03 的并列 DemandId 场景下，Watch 连续 Load more 仍无漏行
 
 ## Acceptance criteria
 
-- [ ] Load more 结果在自动刷新后仍然可见（筛选未变时）
-- [ ] 两表允许的排序/分页均下推 Host 完整结果集
-- [ ] 与 ticket 07/05 验收对齐的集成或契约测试通过
+- [x] Load more 结果在自动刷新后仍然可见（筛选未变时）
+- [x] 两表允许的排序/分页均下推 Host 完整结果集
+- [x] 与 ticket 07/05 验收对齐的集成或契约测试通过
+
+## Comments
+
+- 2026-08-01: Extracted `WatchBrowseSession` with Reset / PreserveWindow / Append. Timer uses PreserveWindow. Alerts sort goes through `WatchAlertBrowseQuery` to Host allow-list; UI columns aligned (Severity/AlertId/first seen/last seen sortable; TASK_TYPE/SUBLOT/DemandId/Message not). Covered by `WatchBrowseSessionTests` + live Host tied-dates Load more.
