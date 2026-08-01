@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Parent / References
 
@@ -27,13 +27,17 @@
 
 ## Regression tests
 
-- [ ] 屏障轮：仅基线前行 / 仅重复键 → 记录的健康计数为 0（或不抬升持久健康基线），不满足进入阈值
-- [ ] 屏障轮后下一空轮：不得仅因 raw 历史计数进入 `PAUSED_ZERO_DROP`
-- [ ] 对照：基线后有效行 ≥ 阈值，再变 0 → 仍按既有规则进入暂停
-- [ ] 与 ticket 12 的 `countsByType` 过滤语义一致（同一套 GoLiveBaseline 规则）
+- [x] 屏障轮：仅基线前行 / 仅重复键 → 记录的健康计数为 0（或不抬升持久健康基线），不满足进入阈值
+- [x] 屏障轮后下一空轮：不得仅因 raw 历史计数进入 `PAUSED_ZERO_DROP`
+- [x] 对照：基线后有效行 ≥ 阈值，再变 0 → 仍按既有规则进入暂停
+- [x] 与 ticket 12 的 `countsByType` 过滤语义一致（同一套 GoLiveBaseline 规则）
 
 ## Acceptance criteria
 
-- [ ] 重启屏障采用的健康计数与 reconciler 零骤降计数使用同一有效行过滤
-- [ ] 不会因基线前或重复键 raw 行虚假进入 `PAUSED_ZERO_DROP`
-- [ ] Reconciler/runner 回归测试覆盖上述对照；既有暂停进入/解除用例仍绿
+- [x] 重启屏障采用的健康计数与 reconciler 零骤降计数使用同一有效行过滤
+- [x] 不会因基线前或重复键 raw 行虚假进入 `PAUSED_ZERO_DROP`
+- [x] Reconciler/runner 回归测试覆盖上述对照；既有暂停进入/解除用例仍绿
+
+## Comments
+
+- Implemented: shared `TransportDemandReconciler.CountProjectedRowsByType` (full-snapshot uniqueness, then `Dates >= goLiveBaseline`) used by reconciler `countsByType` and runner barrier recording. Mixed pre/post baseline duplicate keys excluded. Runner + reconciler regression tests; `dotnet test mes/ingest/csharp/MesIngest.sln --configuration Release` → 287 passed.
