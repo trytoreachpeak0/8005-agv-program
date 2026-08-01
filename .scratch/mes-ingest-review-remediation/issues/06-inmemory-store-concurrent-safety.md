@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 ## Parent / References
 
@@ -25,12 +25,27 @@
 
 ## Regression tests
 
-- [ ] 并发读者 + 单写者（模拟 poll）压力测试：固定轮次内无未处理异常，响应形态始终为合法 envelope
-- [ ] 单次写替换/事务边界对读者原子：不得读到“有 Demand 无对应 feed”或半截 alert 列表（按当前契约可观察的不变量）
-- [ ] 既有功能测试在加锁/不可变快照方案下仍绿
+- [x] 并发读者 + 单写者（模拟 poll）压力测试：固定轮次内无未处理异常，响应形态始终为合法 envelope
+- [x] 单次写替换/事务边界对读者原子：不得读到“有 Demand 无对应 feed”或半截 alert 列表（按当前契约可观察的不变量）
+- [x] 既有功能测试在加锁/不可变快照方案下仍绿
 
 ## Acceptance criteria
 
-- [ ] 默认 InMemory Host 在并发 API 读 + 后台 poll 下稳定
-- [ ] 不改变 SQL store 语义；不引入虚假写 API
-- [ ] 自动化并发回归可重复失败（修前）/通过（修后）
+- [x] 默认 InMemory Host 在并发 API 读 + 后台 poll 下稳定
+- [x] 不改变 SQL store 语义；不引入虚假写 API
+- [x] 自动化并发回归可重复失败（修前）/通过（修后）
+
+## Comments
+
+- 2026-08-01 Phase 1 feedback loop (red, no prod fix yet):
+  - Test file: `mes/ingest/csharp/MesIngest.Tests/InMemoryTransportDemandStoreConcurrencyTests.cs`
+  - Repro command:
+    ```
+    dotnet test mes/ingest/csharp/MesIngest.Tests/MesIngest.Tests.csproj --filter "FullyQualifiedName~InMemoryTransportDemandStoreConcurrencyTests"
+    ```
+  - Observed (5/5 suite runs before trimming demand-page case; then 2/2 red after):
+    - `Concurrent_alert_readers_and_replace_writer_do_not_throw` → `NullReferenceException` in `AlertListPaging.Order` (`AlertListQuery.cs:346`) while writer `ReplaceState` mutates `_alerts` via `Clear`/`AddRange`.
+    - `Concurrent_change_feed_readers_and_replace_writer_do_not_throw` → `InvalidOperationException: Collection was modified` at `QueryChangeFeed` (`StoreAndRunner.cs:194`) and/or `NullReferenceException` / `IndexOutOfRangeException` in `PurgeChangeFeed` (`StoreAndRunner.cs:231`) while writer appends/purges `_changeFeed`.
+  - Note: concurrent demand `QueryPage`/`List`/`GetState` against `_state` reference swap did **not** throw in the same stress window (not used as the red loop). Atomic half-state invariants (demand vs feed vs alerts) still open for a later regression once enumeration crashes are fixed.
+
+- 2026-08-01 Implemented: `InMemoryTransportDemandStore` mirrors SQL `_gate` locking on all public read/write paths so `ReplaceState` publishes projection + change feed + alerts as one boundary; `QueryAlerts` pages a list snapshot. Regression nails kept in `InMemoryTransportDemandStoreConcurrencyTests` (throw stress + write-boundary). `dotnet test mes/ingest/csharp/MesIngest.sln --configuration Release` → 329 passed.
