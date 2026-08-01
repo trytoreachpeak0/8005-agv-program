@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-human
+**Status:** done
 
 ## Parent / References
 
@@ -49,3 +49,5 @@
   - Note: concurrent demand `QueryPage`/`List`/`GetState` against `_state` reference swap did **not** throw in the same stress window (not used as the red loop). Atomic half-state invariants (demand vs feed vs alerts) still open for a later regression once enumeration crashes are fixed.
 
 - 2026-08-01 Implemented: `InMemoryTransportDemandStore` mirrors SQL `_gate` locking on all public read/write paths so `ReplaceState` publishes projection + change feed + alerts as one boundary; `QueryAlerts` pages a list snapshot. Regression nails kept in `InMemoryTransportDemandStoreConcurrencyTests` (throw stress + write-boundary). `dotnet test mes/ingest/csharp/MesIngest.sln --configuration Release` → 329 passed.
+
+- 2026-08-01 Close-out: strengthened concurrency regressions — demand-page stress, page envelope shape checks, per-round demand ids so CREATED feed + alert write-boundary actually exercise publish. Status → `done`. Concurrency filter 4/4 green.
