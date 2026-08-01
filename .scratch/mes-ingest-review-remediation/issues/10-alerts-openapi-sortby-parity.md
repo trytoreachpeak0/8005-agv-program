@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-human
+**Status:** done
 
 ## Parent / References
 
@@ -24,13 +24,17 @@
 
 ## Regression tests
 
-- [ ] 合约测试：OpenAPI 中 Alerts `sortBy` 枚举 ⊆ 运行时 accept 集合，且覆盖实现支持的每一列
-- [ ] `sortBy=dates` 若非 Alert 合法列：文档不得列出；列出的合法列返回 200 且排序生效
-- [ ] 静态 pack OpenAPI 与现场 `/openapi/v1.json` 对该段描述一致
-- [ ] Demand allow-list 回归不受影响
+- [x] 合约测试：OpenAPI 中 Alerts `sortBy` 枚举 ⊆ 运行时 accept 集合，且覆盖实现支持的每一列
+- [x] `sortBy=dates` 若非 Alert 合法列：文档不得列出；列出的合法列返回 200 且排序生效
+- [x] 静态 pack OpenAPI 与现场 `/openapi/v1.json` 对该段描述一致
+- [x] Demand allow-list 回归不受影响
 
 ## Acceptance criteria
 
-- [ ] Alerts 文档与 `AlertListQuery` 一致，无虚假可排字段
-- [ ] 非法 sortBy 仍稳定 400；合法值可排
-- [ ] OpenAPI 契约测试覆盖 live 与 pack 静态副本
+- [x] Alerts 文档与 `AlertListQuery` 一致，无虚假可排字段
+- [x] 非法 sortBy 仍稳定 400；合法值可排
+- [x] OpenAPI 契约测试覆盖 live 与 pack 静态副本
+
+## Comments
+
+- 2026-08-01: Implemented in `97e75a4`. Alert allow-list is `lastSeenAt|firstSeenAt|code|severity|alertId` (no `dates`). Covered by `AlertListQueryParserTests` + `OpenApiContractTests` (live/pack description parity, parser ⊆ OpenAPI, `dates`→400, `code` ascending 200). Full suite green (338).
