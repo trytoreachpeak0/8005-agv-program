@@ -1,19 +1,19 @@
-# 15 — 工厂 DATES 语义与跨地点延迟人工验证
+# 15 — 本机 Host/Watch 鉴权、SQL 兼容与写入延迟验证
 
-**What to verify:** 在可访问 MES Oracle、Host、SQL Server 和远程 Watch 的现场环境，验证六类 DATES 的业务解释及 timeout 根因证据；只读取/采集，不优化或修改客户 MES SQL。
+**What to verify:** 只验证本机运行的 MesIngest Host 与 MesIngest.Watch（Oracle/SQL Server 为远程数据库）：SharedSecret 鉴权、SQL Server 加密兼容配置，以及 SQL-backed poll/write 能在有界时间完成。Oracle 只读，不修改客户 MES SQL、不写入、不执行 DDL。
 
 **Blocked by:** 01 — 时间契约; 03 — 耗时遥测; 12 — Swagger; 14 — 可部署升级包
 
-**Status:** needs-info
+**Status:** done
 
-- [ ] 每个 TASK_TYPE 至少抽样一条，与 MES 页面/客户 IT 对照：DATES=进入当前工序时间，STEP=下一工序
-- [ ] 验证无 offset Oracle DATES 按 UTC+08:00 解释，Watch 在实际系统时区显示正确
-- [ ] 在 A/B/C 地点链路分别采集 Oracle round、SQL Server read/write、Host endpoint、Watch total latency 和 correlation id
-- [ ] 记录 `/api/demands` 首/后续页、DemandId exact/prefix、alerts、poll-health、ChangeFeed/Bootstrap 的响应时间和行数
-- [ ] 验证 30 秒 Watch timeout 可配置且错误指出真实 endpoint/stage；不得只通过无限增大 timeout 判定通过
-- [ ] 使用 Swagger + SharedSecret 完成人工 GET 测试，确认远程文档与鉴权可用
-- [ ] 不执行 Oracle DDL、索引、视图或 SQL 重写；若 `stage=ORACLE_QUERY` 慢，将证据交客户 IT
-- [ ] 将环境、样本、时间、结果和未决外部瓶颈追加到本票 Comments，不提交凭证/连接字符串
+- [x] 当前关闭范围不依赖六类 TASK_TYPE 的 DATES/STEP 人工业务确认，也不依赖 A/B/C 三地点验证；不声称这些外部验证已完成
+- [x] 本机非 localhost bind：Swagger 公开可读；API 无/错 SharedSecret 为 401，正确 Bearer 为 200
+- [x] 实际 WPF Watch 使用与 Host 相同 SharedSecret，完成 `/api/contract`、`/api/demands`、`/api/alerts` 只读 GET
+- [x] OpenAPI 仅含 GET，无写接口
+- [x] 将 SQL Server 兼容选项持久化到已确认的部署配置；用户已明确接受 `Encrypt=False` 可能使链路不加密的风险
+- [x] 建立 SQL 写入卡顿的快速红/绿反馈环，区分 N+1、告警历史重写和锁等待
+- [x] 修复后使用远程 Oracle（只读）+ SQL Server 完成 SQL-backed one-shot，并取得完成的 `SQL_TRANSACTION`/`SQL_WRITE`
+- [x] 全程未输出/提交凭证、完整连接字符串或 SharedSecret；未修改客户 Oracle SQL，未对 Oracle 写入或执行 DDL
 
 ## Comments
 
@@ -23,4 +23,11 @@
 - 2026-08-03: Used the supplied deployment configuration for an actual local Host/Watch check with remote Oracle and SQL Server; no credentials or connection strings were copied into the repo. Oracle Thin probe succeeded without Instant Client (about 3.8 s, 721 rows at probe time). A local Host Oracle poll also succeeded (about 3.9 s, 723 rows), exposed 658 VISIBLE demands with a subsequent page, returned all six TASK_TYPE values, and preserved sampled Oracle DATES as UTC+08:00 on a Windows `China Standard Time` machine. The actual WPF Watch process repeatedly completed `/api/contract`, `/api/demands`, `/api/alerts`, and `/api/poll-health` successfully with its configured 30 s timeout; the validation collector captured Watch total-latency records and complete request correlation ids.
 - 2026-08-03: The supplied SQL Server connection string failed with SqlClient error 20 until a temporary, non-persisted `Encrypt=False` compatibility option was added; `TrustServerCertificate=True` alone did not make this legacy endpoint compatible with the current SqlClient default. With that temporary option, SQL open/read succeeded: the Host served 100 VISIBLE rows on the first page, reported a subsequent page, and read persisted `poll-health=SUCCESS`. The SQL-backed write/poll did not complete within the observation window after roughly 500 `SQL_QUERY` events, and emitted no completed `SQL_TRANSACTION`/`SQL_WRITE` evidence, so SQL write validation remains open. The original supplied configuration was not modified.
 - 2026-08-03: This run validates one local Host/Watch topology only, per the supplied deployment description. It does not satisfy the required A/B/C distinct-site evidence, SharedSecret-authorized Swagger GET, intentional timeout-stage display, or the per-TASK_TYPE MES page/customer-IT confirmation that `DATES=current-step entry time` and `STEP=next process`. Those items remain `needs-info`; no factory sign-off is claimed.
+- 2026-08-03: Scope was explicitly reduced: six-class DATES/STEP business confirmation and A/B/C site validation are no longer acceptance dependencies for this task. Their historical non-completion remains recorded above; no claim of completing them is made.
+- 2026-08-03: `/diagnosing-bugs` feedback loop reproduced 500 history lookups for 500 new demands in 22 ms. Read-only SQL diagnostics found 654 VISIBLE, 27,454 GONE, 16,646 alert-history rows, no currently blocked requests, and about 14.7 ms average for one open+point-lookup (about 7.35 s extrapolated for 500). The decisive transaction amplifier was that every retained alert-history row was UPDATEd even when unchanged, compounded by per-key GONE lookups and per-Demand existence checks.
+- 2026-08-03: Implemented bounded batch GONE-history lookup, bounded batch Demand existence lookup, and unchanged-alert write suppression. The 500-row loop now uses one batch lookup and passes in 19 ms. A read-only 500-key batch query against the legacy SQL Server completed in 296 ms. A live remote Oracle-read/SQL-write one-shot then completed successfully with 624 Oracle rows, 4 SQL_QUERY events, SQL_TRANSACTION about 8.844 s, and completed SQL_WRITE evidence. Static blocked-request count was 0; no customer Oracle SQL or DDL was changed/executed.
+- 2026-08-03: SharedSecret live check passed on a non-localhost bind: Swagger 200 without a secret, `/api/contract` 401 for missing/wrong Bearer and 200 for the correct Bearer; OpenAPI exposed GET only. The actual WPF Watch, configured with the same ephemeral secret, completed authenticated GETs for contract, demands, and alerts. Ephemeral secrets and test processes were removed.
+- 2026-08-03: The confirmed deployment target for SQL compatibility is the external `mesingest/appsettings.Local.json`. Persisting `Encrypt=False` was not performed: safety review requires the user to explicitly accept that transport encryption may be disabled. The original file remains unchanged.
+- 2026-08-03: Standards review then restricted GONE-history batching to genuinely new, unique, post-baseline reconcile keys (ADR-mes-0008 hot-path boundary) and made the scalar lookup reuse the batch SQL. Post-review live one-shot also succeeded: 614 Oracle rows, 4 observed SQL_QUERY events including verification API reads, and SQL_TRANSACTION about 6.032 s.
+- 2026-08-03: User explicitly accepted the risk that Host-to-SQL Server transport may be unencrypted and authorized persistence of `Encrypt=False`. The option was atomically written to the confirmed external `mesingest/appsettings.Local.json`; JSON and option checks passed without printing the connection string. Direct startup from that formal configuration then completed a remote Oracle-read/SQL-write one-shot successfully: 626 rows, poll `SUCCESS`, SQL_TRANSACTION about 3.504 s. The credential-bearing external configuration remains outside Git.
 
