@@ -34,11 +34,12 @@ experiment_id：`mes-ingest-factory-validation`
 
 ## 步骤
 
-1. 工厂按 `FACTORY-VALIDATION.md` 填配置 → Thin 探针 → 必要时 Thick → 装服务 → 多轮采样 API。
-2. 人工核验 VISIBLE / 告警 / WPF / 关窗后 Service。
-3. 按 `validation/RETURN-CHECKLIST.md` 组包；填写 `run-manifest.json` 与 `execution-log.md`。
-4. 拷回开发机；**手工**导入到 `mes/evidence/runs/<run_id>/`（见下方「仓库导入」）。
-5. 维护者 / Agent 对照 API JSON 与既有 `mes/samples/mes-task-union` 或 File 源做人工分析（字段形态、行数量级、告警类型）；结论写入该 run 的 execution-log「导入记录」。
+1. 工厂按 `FACTORY-VALIDATION.md` 填配置 → Thin 探针 → 必要时 Thick → 装服务。
+2. 在 A/B/C 每个逻辑地点运行 `validation/Invoke-FactoryValidation.ps1`，自动采集分页 API、correlation id、Oracle/SQL/Host/Watch 分阶段耗时、DATES 样本和 SHA-256。
+3. 人工逐 TASK_TYPE 对照 MES 页面/客户 IT 的 DATES/STEP 语义，核验 UTC+08:00→Watch 本机时区显示、Swagger+SharedSecret、timeout endpoint/stage，并填写 `dates-samples.tsv` / execution-log。
+4. 按 `validation/RETURN-CHECKLIST.md` 组包；复核自动生成的 `run-manifest.json`、`request-metrics.jsonl` 与 `sha256.txt`。
+5. 拷回开发机；**手工**导入到 `mes/evidence/runs/<run_id>/`（见下方「仓库导入」）。
+6. 维护者 / Agent 对照 API JSON 与既有 `mes/samples/mes-task-union` 或 File 源做人工分析（字段形态、行数量级、告警类型）；结论写入该 run 的 execution-log「导入记录」。
 
 ## 仓库导入（复用 evidence 习惯，不用 import-run）
 
@@ -53,8 +54,10 @@ experiment_id：`mes-ingest-factory-validation`
 ## 通过标准（技术证据）
 
 - Thin 或 Thick 探针至少一次 `probe_result=ok`（或失败证据完整且已停止装服）。
-- ≥3 轮 poll-health 采样，manifest 含每轮耗时/行数/成败。
-- 人工核验四项已勾选或偏差有说明。
+- A/B/C 各有独立 run，request metrics 覆盖票据 15 指定 API 路径并含耗时/行数/correlation id。
+- Oracle/SQL Server/Host/Watch 分阶段证据齐全，或权限/外部瓶颈有明确记录。
+- `dates-samples.tsv` 逐 TASK_TYPE 完成人工语义及时区确认。
+- Swagger+SharedSecret 与 30 秒可配置 timeout 的 endpoint/stage 提示已核验。
 - 回传已脱敏；落地路径在 `evidence/runs/`。
 
 ## 通过标准（工厂签字）
