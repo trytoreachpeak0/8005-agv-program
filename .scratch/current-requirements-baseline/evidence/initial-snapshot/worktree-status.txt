@@ -1,0 +1,24 @@
+## szy_document_dev...origin/szy_document_dev [ahead 56]
+ M mes/ingest/csharp/MesIngest.Tests/ReadApiContractTests.cs
+ M mes/ingest/csharp/MesIngest.Watch/MainWindow.xaml
+ M mes/ingest/csharp/MesIngest.Watch/MainWindow.xaml.cs
+ M mes/ingest/csharp/MesIngest.Watch/MesIngestApiClient.cs
+ M mes/ingest/csharp/MesIngest.Watch/WatchDemandBrowseQuery.cs
+?? .scratch/current-requirements-baseline/evidence/initial-snapshot/candidate-documents.tsv
+?? .scratch/current-requirements-baseline/evidence/initial-snapshot/capture.ps1
+?? .scratch/current-requirements-baseline/evidence/initial-snapshot/discovery-errors.txt
+?? .scratch/current-requirements-baseline/evidence/initial-snapshot/snapshot.md
+?? .scratch/current-requirements-baseline/evidence/initial-snapshot/worktree-status.txt
+?? .scratch/current-requirements-baseline/issues/01-authority-and-classification-evidence-rules.md
+?? .scratch/current-requirements-baseline/issues/02-requirement-evidence-universe.md
+?? .scratch/current-requirements-baseline/issues/03-final-baseline-approver.md
+?? .scratch/current-requirements-baseline/issues/04-atomic-requirement-approval-granularity.md
+?? .scratch/current-requirements-baseline/issues/05-conflict-classification-and-hitl-escalation.md
+?? .scratch/current-requirements-baseline/issues/06-current-baseline-history-boundary.md
+?? .scratch/current-requirements-baseline/issues/07-current-document-snapshot-method.md
+?? .scratch/current-requirements-baseline/issues/08-versioned-baseline-model.md
+?? .scratch/current-requirements-baseline/issues/09-baseline-release-storage-and-change-governance.md
+?? .scratch/current-requirements-baseline/issues/10-capture-initial-evidence-snapshot.md
+?? .scratch/current-requirements-baseline/issues/11-inventory-current-requirement-materials.md
+?? .scratch/current-requirements-baseline/issues/12-create-baseline-record-templates.md
+?? .scratch/current-requirements-baseline/map.md
