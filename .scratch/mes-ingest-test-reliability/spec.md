@@ -19,3 +19,4 @@ MesIngest 的 Host/API 契约测试包含依赖真实日历推进的夹具。测
 ## Issues
 
 - `issues/01-deterministic-host-api-clock.md`
+- `issues/02-canonical-openapi-line-endings.md`
