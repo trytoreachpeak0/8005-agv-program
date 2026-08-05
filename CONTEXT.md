@@ -508,6 +508,10 @@ _Avoid_: HangContinue、人工改充（若未采用）
 MES 任务接入：轮询只读 MES 快照、对账并投影 TransportDemand；GONE 后同一业务键再现时可以产生新的本地投影实例。它不读取调度侧取消抑制，也不决定是否创建业务任务或派车。
 _Avoid_: MES 模块（泛称）、任务服务（易含调度）、调度取消过滤器、薄模块（口语）
 
+**MesIngestWatch**:
+面向现场实施与运维工程师的只读 MES 接入运维台，用于判断接入健康、核验 TransportDemand、分析 IngestAlert 与 MES→MesIngest 链路延迟；它不拥有投影真相，也不执行调度或生产操作命令。
+_Avoid_: 生产操作 HMI、调度台、TransportDemand 编辑器、只看列表的盯盘页
+
 **IngestAlert**:
 MesIngest 检出的一个可追踪问题实例；相同原因持续存在时累计次数并更新最后发现时间，而不是每轮新增重复记录，问题消失后保留解除时间供追溯。Watch 自身的连接故障不属于 IngestAlert。
 _Avoid_: 每轮告警消息、WatchConnectionEvent、横幅
