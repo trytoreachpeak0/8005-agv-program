@@ -16,3 +16,4 @@
 ## Comments
 
 - 2026-08-08: Implemented a dedicated overview session and projection, concurrent resource fetch with per-resource errors, four production overview cards, bounded counts/current-page TASK_TYPE summaries, stale retention, and default-query card navigation. Added query concurrency, state/projection, and formal composition-root UI tests.
+- 2026-08-08: Review follow-ups added explicit `active=true`, progressive per-resource card commits, busy/cancel UI, Host last-success time, severity emphasis, first-entry default page loads, and moved pure state/projection tests to the regular unit-test project. Full solution: 427 passed, 19 SQL Server-dependent tests skipped, 0 failed; formal xUnit v3 UI host: 13 passed.
