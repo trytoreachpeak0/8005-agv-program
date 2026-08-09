@@ -4,7 +4,7 @@
 
 **Blocked by:** 无；Ticket 01–10 的当前实现与验收条件是本票必须保持并重新证明的回归契约，不是可以假定已完成的前置结论
 
-**Status:** done
+**Status:** ready-for-human
 
 **Reset decision (2026-08-09):** 用户拒绝当前生产 UI。Ticket 11 从零重建，不继承旧完成结论。现有 `verified`/`received`、窗口候选和稳定性结果只作历史参考，不得视为新 UI 的批准基线。
 
@@ -26,10 +26,12 @@
 
 ## Comments
 
-- 2026-08-10：用户在黄金机四页最终预览后明确确认“这版符合”。19 场景候选连续 10 次字节一致并逐场景生成/复核 before、after、diff；第一次批准后长跑在第 7 轮暴露 offline 场景截图早于三个并发失败全部完成，红证据被保留。夹具改为按 Fake Host 时间线确定性释放三个失败后，最终批准矩阵连续 10 次 20/20、0 received，标记 `WATCH_XAML_STABLE`。完整证据见 [`../evidence/ticket11-regression-2026-08-09.md`](../evidence/ticket11-regression-2026-08-09.md)。
-
 - 2026-08-09：当前 UI 的黄金机单次候选渲染仅用于设计检查，不构成 Ticket 11 验收、10 次稳定性结论或基线批准。先完成 Ticket 1–10 回归，之后从本票重新开始视觉基线工作。
 
 - 2026-08-09：用户提供的两张参考图与 `watch-redesign-selected-v2` 的 D/E PNG SHA-256 完全一致。当前生产候选与参考图的显著像素差异分别为 Demand `32.82%`、Alert `32.13%`；黄金环境和源码同步均已排除，因此本票首先修复生产 XAML 对齐，而不是调整渲染机。
 
 - 2026-08-09：已按用户的新 UI 重建生产 XAML、Demand/Alert 关系卡片与确定性结构锚点，并把旧 approved 隔离为历史；Ticket 01–10 的代码/非像素回归证据见 [`../evidence/ticket11-regression-2026-08-09.md`](../evidence/ticket11-regression-2026-08-09.md)。当前桌面是 2560×1440、150% DPI、`en-US`，视觉与 UIA preflight 按规范在写入 received 前停止；因此本票仍保持 `ready-for-agent`，等待 100% DPI、`zh-CN` 校准桌面的真实预览确认、19 场景连续 10 次稳定性及逐场景批准，不能把本次代码完成误记为基线完成。
+
+- 2026-08-10：用户在黄金机四页最终预览后明确确认“这版符合”。19 场景候选连续 10 次字节一致并逐场景生成/复核 before、after、diff；第一次批准后长跑在第 7 轮暴露 offline 场景截图早于三个并发失败全部完成，红证据被保留。夹具改为按 Fake Host 时间线确定性释放三个失败后，最终批准矩阵连续 10 次 20/20、0 received，标记 `WATCH_XAML_STABLE`。完整证据见 [`../evidence/ticket11-regression-2026-08-09.md`](../evidence/ticket11-regression-2026-08-09.md)。
+
+- 2026-08-10：代码审查后补齐 Demand 全字段详情/复制/隐藏服务端排序、具体 Alert 范围值，并把关键操作统一为真实 `Wpf.Ui.Controls.Button`。v25 第 10 轮只在 8 个 XML 中捕获未使用 BAML 命名空间抖动（PNG 全同），红证据未被掩盖；新增未使用命名空间规范化回归后，v26 在黄金机 19 PNG + 19 XML 连续 10 次全部匹配、0 received。当前 Wpf.Ui 版本另在隔离 125% 克隆和 150% 交互桌面各通过 5/5 FlaUI 旅程；原黄金机复核为 96 DPI 且已清除计划任务与残留进程。完整证据见 [`../evidence/ticket11-regression-2026-08-09.md`](../evidence/ticket11-regression-2026-08-09.md)。
