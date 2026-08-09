@@ -26,3 +26,5 @@
 - 2026-08-09：当前 UI 的黄金机单次候选渲染仅用于设计检查，不构成 Ticket 11 验收、10 次稳定性结论或基线批准。先完成 Ticket 1–10 回归，之后从本票重新开始视觉基线工作。
 
 - 2026-08-09：用户提供的两张参考图与 `watch-redesign-selected-v2` 的 D/E PNG SHA-256 完全一致。当前生产候选与参考图的显著像素差异分别为 Demand `32.82%`、Alert `32.13%`；黄金环境和源码同步均已排除，因此本票首先修复生产 XAML 对齐，而不是调整渲染机。
+
+- 2026-08-09：已按用户的新 UI 重建生产 XAML、Demand/Alert 关系卡片与确定性结构锚点，并把旧 approved 隔离为历史；Ticket 01–10 的代码/非像素回归证据见 [`../evidence/ticket11-regression-2026-08-09.md`](../evidence/ticket11-regression-2026-08-09.md)。当前桌面是 2560×1440、150% DPI、`en-US`，视觉与 UIA preflight 按规范在写入 received 前停止；因此本票仍保持 `ready-for-agent`，等待 100% DPI、`zh-CN` 校准桌面的真实预览确认、19 场景连续 10 次稳定性及逐场景批准，不能把本次代码完成误记为基线完成。
