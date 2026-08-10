@@ -10,6 +10,14 @@ Issues and specs (you may know a spec as a PRD) for this repo live as markdown f
 - Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
 
+## Golden WPF validation checklist
+
+Any ticket that changes `MesIngest.Watch` UI, XAML, Wpf.Ui controls, layout,
+UI Automation, DPI behavior, or visual baselines must link
+`docs/agents/golden-renderer.md` and include its Ticket checklist. The ticket
+cannot claim visual acceptance from a local desktop, PowerShell Direct session,
+RDP session, or an unapproved screenshot candidate.
+
 ## When a skill says "publish to the issue tracker"
 
 Create a new file under `.scratch/<feature-slug>/` (creating the directory if needed).
