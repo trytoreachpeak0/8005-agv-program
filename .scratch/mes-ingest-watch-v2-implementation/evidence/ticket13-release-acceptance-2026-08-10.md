@@ -2,10 +2,9 @@
 
 ## Current release decision
 
-The implementation is ready for human release approval, but no final release-signoff package exists yet. Two explicit gates remain:
+The implementation is ready for human release approval, but no final release-signoff package exists yet. SQL Server 2022 regression now passes without skips; one explicit gate remains:
 
-1. run the 19 SQL Server tests on an available SQL Server/LocalDB, or approve the exact named skip set below;
-2. record manual acceptance of the packaged Watch startup, D/E visual contract, all V2 pages/settings, and proof that the executable came from the package rather than the source tree.
+1. record manual acceptance of the packaged Watch startup, D/E visual contract, all V2 pages/settings, and proof that the executable came from the package rather than the source tree.
 
 The gate rejects a non-empty free-form waiver. SQL approval must supply a JSON `tests` array that exactly equals the observed skipped test names; the manual approval JSON must contain all four required confirmation tokens. Even after those checks pass, the guest produces only a readiness marker. The host promotes `RELEASE-SIGNOFF.json` and the package ZIP only after removing the original task/processes and passing the second interactive 96-DPI environment recheck; cleanup evidence is embedded in the signoff.
 
@@ -30,11 +29,13 @@ The gate rejects a non-empty free-form waiver. SQL approval must supply a JSON `
 
 ## Core, Host, HTTP, and SQL regression
 
-Final local result: 518 total, 499 passed, 0 failed, 19 skipped. TRX: `mes/ingest/csharp/MesIngest.Tests/TestResults/ticket13-final-core-host-http-sql.trx`.
+Formal SQL Server 2022 result: 518 total, 518 passed, 0 failed, 0 skipped. Evidence: `mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-sqlserver-final-gate-3/Results/core-host-http-sql/`. The clean source was commit `a3c0e2d3ca2561cadc22be2387b36b26faf6b116`; the host manifest records only the non-secret data source/database and never the credential or connection string.
+
+Earlier no-SQL local result: 518 total, 499 passed, 0 failed, 19 skipped. TRX: `mes/ingest/csharp/MesIngest.Tests/TestResults/ticket13-final-core-host-http-sql.trx`.
 
 The formal no-approval gate audit is preserved at `mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-final-gate-audit-2/`. On the calibrated VM it passed the clean-install package smoke and the full regression with 499 passed, 0 failed, and the same 19 named SQL skips, wrote `summary.json`, then stopped with `SQL_SERVER_SKIPS_REQUIRE_EXACT_USER_APPROVAL` before UI/manual signoff. `cleanup.json` records no scheduled task, zero residual processes, and a successful second interactive post-cleanup check; `environment-after-host-cleanup.json` confirms 1920×1080, 96 DPI, Session 1, Explorer/input desktop, light theme, `zh-CN`, China Standard Time, required fonts, and `SoftwareOnly`.
 
-All skips have the same environmental cause: the machine has neither `MES_INGEST_SQLSERVER` nor LocalDB. They remain individually gated:
+All skips in that earlier run had the same environmental cause: that test process had neither `MES_INGEST_SQLSERVER` nor LocalDB. They remain listed for red-evidence traceability:
 
 1. `MesIngest.Tests.SchemaUpgradeTests.EnsureSchema_never_drops_or_truncates_transport_demands`
 2. `MesIngest.Tests.SchemaUpgradeTests.Mid_upgrade_failure_leaves_no_half_migration_and_recovers_on_rerun`
@@ -55,6 +56,19 @@ All skips have the same environmental cause: the machine has neither `MES_INGEST
 17. `MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_does_not_rewrite_unchanged_resolved_alert_history`
 18. `MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_is_atomic_across_demand_and_pause_writes`
 19. `MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_writes_only_changed_rows_and_leaves_gone_immutable`
+
+The skipped list above is retained as historical red-gate evidence. The SQL Server 2022 run supersedes it for the current candidate and therefore requires no skip approval.
+
+## SQL Server 2022 packaged gate and cleanup
+
+- Formal attempt: `mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-sqlserver-final-gate-3/`.
+- Package smoke passed from a clean-copy install.
+- Core/Host/HTTP/SQL: 518 passed, 0 failed, 0 skipped.
+- Packaged Watch: `watch-vm-tests` 83/83, `watch-xaml-visual` 20/20, `watch-ui-journeys` 5/5, `watch-window-visual` 5/5; all 0 skipped.
+- Expected stop: `PACKAGED_RELEASE_REQUIRES_MANUAL_ACCEPTANCE`; no `RELEASE-SIGNOFF.json`, package ZIP, or `orchestration-result.json: PASSED` was created.
+- `cleanup.json` reports no original/post-cleanup scheduled task, zero residual processes, and successful post-cleanup environment result. `environment-after-host-cleanup.json` proves 1920×1080, 96 DPI, Session 1, Explorer/input desktop, light theme, `zh-CN`, China Standard Time, required fonts, and `SoftwareOnly`.
+- Secret scan found no SQL login, password, or connection string in retrieved evidence. Guest secret files, tasks, and processes were zero after the run.
+- Host cleanup deleted the dedicated database, temporary login, DPAPI credential, and firewall rule; restored Windows-only authentication and disabled TCP; restarted SQL Server successfully; disconnected the VM network adapter.
 
 ## Required approval inputs
 
