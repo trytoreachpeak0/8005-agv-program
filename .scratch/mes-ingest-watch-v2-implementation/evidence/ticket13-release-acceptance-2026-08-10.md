@@ -58,6 +58,8 @@ All skips have the same environmental cause: the machine has neither `MES_INGEST
 
 ## Required approval inputs
 
+When the calibrated VM must execute the SQL regression against an external SQL Server, supply all three host-side parameters: `-SqlServerCredentialPath`, `-SqlServerDataSource`, and `-SqlServerDatabase`. The credential file must be a `PSCredential` exported with `Export-Clixml` by the current host user, so its password is DPAPI-protected at rest. PowerShell Direct builds a transient guest connection-string file outside the payload ZIP; the interactive runner reads and deletes it before starting tests, and host cleanup deletes it again on every exit path. The connection string and password are not written to manifests, logs, source, or release evidence.
+
 `-SqlSkipApprovalPath` accepts JSON with `approvedBy`, ISO-8601 `approvedAt`, the user approval message, and a `tests` array containing exactly the 19 names above. If SQL Server is supplied and no tests skip, no SQL approval file is needed.
 
 `-ManualAcceptancePath` accepts JSON with `approvedBy`, ISO-8601 `approvedAt`, the user message, and exactly these `confirmedChecks`:
