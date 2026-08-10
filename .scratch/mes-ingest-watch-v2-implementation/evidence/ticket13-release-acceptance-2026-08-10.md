@@ -30,7 +30,9 @@ The gate rejects a non-empty free-form waiver. SQL approval must supply a JSON `
 
 ## Core, Host, HTTP, and SQL regression
 
-Local result: 518 total, 499 passed, 0 failed, 19 skipped. TRX: `mes/ingest/csharp/MesIngest.Tests/TestResults/ticket13-core-host-http-sql.trx`.
+Final local result: 518 total, 499 passed, 0 failed, 19 skipped. TRX: `mes/ingest/csharp/MesIngest.Tests/TestResults/ticket13-final-core-host-http-sql.trx`.
+
+The formal no-approval gate audit is preserved at `mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-final-gate-audit-2/`. On the calibrated VM it passed the clean-install package smoke and the full regression with 499 passed, 0 failed, and the same 19 named SQL skips, wrote `summary.json`, then stopped with `SQL_SERVER_SKIPS_REQUIRE_EXACT_USER_APPROVAL` before UI/manual signoff. `cleanup.json` records no scheduled task, zero residual processes, and a successful second interactive post-cleanup check; `environment-after-host-cleanup.json` confirms 1920×1080, 96 DPI, Session 1, Explorer/input desktop, light theme, `zh-CN`, China Standard Time, required fonts, and `SoftwareOnly`.
 
 All skips have the same environmental cause: the machine has neither `MES_INGEST_SQLSERVER` nor LocalDB. They remain individually gated:
 

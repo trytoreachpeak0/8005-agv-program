@@ -32,3 +32,5 @@
 - 2026-08-10：发布实现、包内容拒绝清单、完整 OpenAPI 对比、隔离偏好/日志烟测、四套包内 Watch 验收入口和逐文件 SHA-256 清单已实现。黄金机预审运行 `run-20260810-131320-watch-package-release` 从打包产物通过 83 个 VM 测试、20 个 Verify.Xaml 场景测试、5 个 FlaUI 旅程和 5 个窗口基线，全部 0 skip；该包因构建时源码 dirty 且早于最终 review 修复，只作诊断，不是发布签字包。
 
 - 2026-08-10：Core/Host/HTTP 本机非回归为 499 passed / 0 failed，19 个 SQL Server 条件测试因既无 `MES_INGEST_SQLSERVER` 也无 LocalDB 而逐项跳过。门禁现在要求审批 JSON 的测试名与实际 skip 集合完全一致，且 UI 四套出现任何 skip 都失败；在用户逐项批准或提供 SQL Server 前不得勾选完整回归。人工发布验收同样必须提供四项确认 JSON。完整记录见 [`../evidence/ticket13-release-acceptance-2026-08-10.md`](../evidence/ticket13-release-acceptance-2026-08-10.md)。
+
+- 2026-08-10：正式无审批红门禁 `ticket-13-final-gate-audit-2` 在黄金机通过 clean-install 包烟测和 518 项完整回归（499 passed / 0 failed / 19 SQL skipped），随后按设计以 `SQL_SERVER_SKIPS_REQUIRE_EXACT_USER_APPROVAL` 停止。退出后已删除计划任务、残留进程为 0，并通过第二个交互式任务复检原 VM 仍为 1920×1080 / 96 DPI；该结果证明门禁安全阻断，不替代最终审批运行。
