@@ -7,7 +7,7 @@ The implementation is ready for human release approval, but no final release-sig
 1. run the 19 SQL Server tests on an available SQL Server/LocalDB, or approve the exact named skip set below;
 2. record manual acceptance of the packaged Watch startup, D/E visual contract, all V2 pages/settings, and proof that the executable came from the package rather than the source tree.
 
-The gate rejects a non-empty free-form waiver. SQL approval must supply a JSON `tests` array that exactly equals the observed skipped test names; the manual approval JSON must contain all four required confirmation tokens. The successful gate produces `RELEASE-SIGNOFF.json` beside the package ZIP.
+The gate rejects a non-empty free-form waiver. SQL approval must supply a JSON `tests` array that exactly equals the observed skipped test names; the manual approval JSON must contain all four required confirmation tokens. Even after those checks pass, the guest produces only a readiness marker. The host promotes `RELEASE-SIGNOFF.json` and the package ZIP only after removing the original task/processes and passing the second interactive 96-DPI environment recheck; cleanup evidence is embedded in the signoff.
 
 ## Rebuild lineage
 
