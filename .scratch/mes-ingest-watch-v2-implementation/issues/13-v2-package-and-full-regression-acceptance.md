@@ -4,15 +4,15 @@
 
 **Blocked by:** 12 — 完成 FlaUI 旅程、真实窗口基线与失败证据
 
-**Status:** ready-for-human
+**Status:** done
 
 **Golden renderer contract:** [`docs/agents/golden-renderer.md`](../../../docs/agents/golden-renderer.md)
 
 - [x] Read `docs/agents/golden-renderer.md`.
 - [x] Ran the required golden-machine suites through an interactive task.
-- [x] User approved the final real-window preview (visual changes only; Ticket 12 approval remains valid because Ticket 13 does not change production UI pixels).
+- [x] User approved the final packaged real-window preview and all four manual release checks.
 - [x] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI after the final approval-bearing release run.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI after the final approval-bearing release run.
 
 **Rebuild decision (2026-08-09):** 本票不继承旧包或旧验收结论。只有 Ticket 11、12 的新证据闭环后才能开始；Prototype、旧冻结候选和未批准基线不得进入发布物。
 
@@ -22,7 +22,7 @@
 - [x] Core、Host、HTTP、SQL 条件测试、现有 Watch 非回归、独立 xUnit v3 UI 测试、Verify.Xaml 和 FlaUI 入口全部通过；任何跳过必须逐项说明并由用户批准，SQL 环境缺失不得默认为发布通过。
 - [x] 运行时与离线 OpenAPI 保持一致，正式业务接口继续只有只读 GET；DemandChangeFeed、cursor、时间语义、Alert code 和 TransportDemand 投影不发生未版本化变化。
 - [x] 在干净目录离线安装发布包，在黄金机从打包产物而非源码启动并重跑发布烟测，证明软件渲染、配置、日志、字体和本机偏好没有依赖开发目录。
-- [ ] 人工验收确认启动约 10 秒内可判断连接、轮询、活动 IngestAlert 和 VISIBLE TransportDemand；Demand/Alert 页面与 D/E 视觉契约一致，全部 V2 页面与设置符合批准规格。
+- [x] 人工验收确认启动约 10 秒内可判断连接、轮询、活动 IngestAlert 和 VISIBLE TransportDemand；Demand/Alert 页面与 D/E 视觉契约一致，全部 V2 页面与设置符合批准规格。
 - [x] 发布清单明确记录 Ticket 11、12、13 均为 2026-08-09 重建版本，旧视觉证据不可作为本次发布签字依据。
 
 ## Comments
@@ -36,3 +36,5 @@
 - 2026-08-10：正式无审批红门禁 `ticket-13-final-gate-audit-2` 在黄金机通过 clean-install 包烟测和 518 项完整回归（499 passed / 0 failed / 19 SQL skipped），随后按设计以 `SQL_SERVER_SKIPS_REQUIRE_EXACT_USER_APPROVAL` 停止。退出后已删除计划任务、残留进程为 0，并通过第二个交互式任务复检原 VM 仍为 1920×1080 / 96 DPI；该结果证明门禁安全阻断，不替代最终审批运行。
 
 - 2026-08-10：`ticket-13-sqlserver-final-gate-3` 通过临时 host-only 网络和 DPAPI 凭据注入使用宿主 SQL Server 2022，完整回归为 518 passed / 0 failed / 0 skipped；打包 Watch 四套入口为 83/83、20/20、5/5、5/5，全部 0 skip。运行按设计仅因缺少 `manual-acceptance.json` 停止，未生成签字文件或 ZIP；guest secret、任务和进程均清零，宿主临时库/登录/凭据/防火墙已删除，SQL TCP/认证和 VM 网卡均恢复原状。
+
+- 2026-08-10：用户以批准人 `szy` 明确确认四项打包成品人工验收。最终 approval-bearing 运行 `ticket-13-final-approved` 基于 clean commit `dc2be69` 完成 package smoke、518/0/0 SQL Server 2022 回归及四套 packaged Watch 零跳过验收；计划任务、进程和 guest secret 均清零，第二次交互式复检确认原 VM 仍为 1920×1080 / 96 DPI。已生成 `RELEASE-SIGNOFF.json` 和最终 ZIP；ZIP SHA-256 为 `E0215C2E2E37BEB661D9A593546EF86CE9045679C79C1B6F838E5B83BD3D3EAA`。宿主临时库、登录、DPAPI 凭据和防火墙均删除，SQL 恢复 Windows-only/TCP disabled 且 1433 不监听，VM 网卡断开。Ticket 13 完成。

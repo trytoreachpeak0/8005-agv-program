@@ -2,9 +2,15 @@
 
 ## Current release decision
 
-The implementation is ready for human release approval, but no final release-signoff package exists yet. SQL Server 2022 regression now passes without skips; one explicit gate remains:
+Ticket 13 is approved and complete. The final approval-bearing run produced the release-signoff package after all automated, manual, cleanup, and original-VM restoration gates passed.
 
-1. record manual acceptance of the packaged Watch startup, D/E visual contract, all V2 pages/settings, and proof that the executable came from the package rather than the source tree.
+Final evidence: `mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-final-approved/`.
+
+- Source commit: `dc2be69bfab101dfcb7dc6c526ee275c2b0c6d3d`, `sourceDirty=false`.
+- Release package: `Results/release-package/MesIngest-win-x64.zip`.
+- ZIP SHA-256: `E0215C2E2E37BEB661D9A593546EF86CE9045679C79C1B6F838E5B83BD3D3EAA`.
+- Signoff SHA-256: `090AF6D55C7EECC50FA2BF8DE149E96AAC9D0C9A67487712CB659FB881B7173D`.
+- Manual approver: `szy`; all four required confirmation tokens and the user's exact approval message are embedded in `RELEASE-SIGNOFF.json`.
 
 The gate rejects a non-empty free-form waiver. SQL approval must supply a JSON `tests` array that exactly equals the observed skipped test names; the manual approval JSON must contain all four required confirmation tokens. Even after those checks pass, the guest produces only a readiness marker. The host promotes `RELEASE-SIGNOFF.json` and the package ZIP only after removing the original task/processes and passing the second interactive 96-DPI environment recheck; cleanup evidence is embedded in the signoff.
 
@@ -69,6 +75,18 @@ The skipped list above is retained as historical red-gate evidence. The SQL Serv
 - `cleanup.json` reports no original/post-cleanup scheduled task, zero residual processes, and successful post-cleanup environment result. `environment-after-host-cleanup.json` proves 1920×1080, 96 DPI, Session 1, Explorer/input desktop, light theme, `zh-CN`, China Standard Time, required fonts, and `SoftwareOnly`.
 - Secret scan found no SQL login, password, or connection string in retrieved evidence. Guest secret files, tasks, and processes were zero after the run.
 - Host cleanup deleted the dedicated database, temporary login, DPAPI credential, and firewall rule; restored Windows-only authentication and disabled TCP; restarted SQL Server successfully; disconnected the VM network adapter.
+
+## Final approval-bearing release
+
+- Formal run: `mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-final-approved/`.
+- Package manifest: 906 hashed files, clean source commit `dc2be69bfab101dfcb7dc6c526ee275c2b0c6d3d`, business API methods limited to `GET`.
+- Core/Host/HTTP/SQL: 518 passed, 0 failed, 0 skipped against SQL Server 2022.
+- Packaged Watch: 83/83 VM tests, 20/20 Verify.Xaml scenarios, 5/5 journeys, and 5/5 real-window baselines; zero failures and zero skips.
+- Manual approval: `szy` confirmed startup within 10 seconds, Demand/Alert D/E visual contract, all V2 pages/settings, and package-run-not-source.
+- Orchestration: `PASSED`; original/post-cleanup tasks absent, residual processes 0, final environment result 0.
+- Final original-VM evidence proves 1920×1080, 96 DPI, Session 1, Explorer/input desktop, light theme, `zh-CN`, China Standard Time, required fonts, and `SoftwareOnly`.
+- Secret scan: zero login/password/connection-string hits in retrieved evidence; guest secret absent.
+- External cleanup audit: dedicated database/login absent, DPAPI credential absent, firewall rule absent, Windows-only authentication active, TCP disabled, port 1433 not listening, SQL service running, VM network adapter disconnected.
 
 ## Required approval inputs
 
