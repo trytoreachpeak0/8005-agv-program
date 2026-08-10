@@ -19,7 +19,7 @@
 - [x] 发布产物包含正式 V2 Watch、所需运行时依赖、配置样例和四套本机 Windows 验收入口；throwaway 原型、参考图假数据、旧冻结候选及测试 fake Host 不进入生产包。
 - [x] 配置样例覆盖单 Host 基址、安全凭据注入方式、1–300 秒请求超时、连接日志保留和必要的本机偏好说明，不包含真实凭据。
 - [x] 汇总 Ticket 11 的 Ticket 01–10 逐票回归证据、19 场景 XAML/PNG 新基线、Ticket 12 的五个真实窗口基线和 50 次稳定性结果；每项证据可追溯到源码、环境和运行日志。
-- [ ] Core、Host、HTTP、SQL 条件测试、现有 Watch 非回归、独立 xUnit v3 UI 测试、Verify.Xaml 和 FlaUI 入口全部通过；任何跳过必须逐项说明并由用户批准，SQL 环境缺失不得默认为发布通过。
+- [x] Core、Host、HTTP、SQL 条件测试、现有 Watch 非回归、独立 xUnit v3 UI 测试、Verify.Xaml 和 FlaUI 入口全部通过；任何跳过必须逐项说明并由用户批准，SQL 环境缺失不得默认为发布通过。
 - [x] 运行时与离线 OpenAPI 保持一致，正式业务接口继续只有只读 GET；DemandChangeFeed、cursor、时间语义、Alert code 和 TransportDemand 投影不发生未版本化变化。
 - [x] 在干净目录离线安装发布包，在黄金机从打包产物而非源码启动并重跑发布烟测，证明软件渲染、配置、日志、字体和本机偏好没有依赖开发目录。
 - [ ] 人工验收确认启动约 10 秒内可判断连接、轮询、活动 IngestAlert 和 VISIBLE TransportDemand；Demand/Alert 页面与 D/E 视觉契约一致，全部 V2 页面与设置符合批准规格。
@@ -34,3 +34,5 @@
 - 2026-08-10：Core/Host/HTTP 本机非回归为 499 passed / 0 failed，19 个 SQL Server 条件测试因既无 `MES_INGEST_SQLSERVER` 也无 LocalDB 而逐项跳过。门禁现在要求审批 JSON 的测试名与实际 skip 集合完全一致，且 UI 四套出现任何 skip 都失败；在用户逐项批准或提供 SQL Server 前不得勾选完整回归。人工发布验收同样必须提供四项确认 JSON。完整记录见 [`../evidence/ticket13-release-acceptance-2026-08-10.md`](../evidence/ticket13-release-acceptance-2026-08-10.md)。
 
 - 2026-08-10：正式无审批红门禁 `ticket-13-final-gate-audit-2` 在黄金机通过 clean-install 包烟测和 518 项完整回归（499 passed / 0 failed / 19 SQL skipped），随后按设计以 `SQL_SERVER_SKIPS_REQUIRE_EXACT_USER_APPROVAL` 停止。退出后已删除计划任务、残留进程为 0，并通过第二个交互式任务复检原 VM 仍为 1920×1080 / 96 DPI；该结果证明门禁安全阻断，不替代最终审批运行。
+
+- 2026-08-10：`ticket-13-sqlserver-final-gate-3` 通过临时 host-only 网络和 DPAPI 凭据注入使用宿主 SQL Server 2022，完整回归为 518 passed / 0 failed / 0 skipped；打包 Watch 四套入口为 83/83、20/20、5/5、5/5，全部 0 skip。运行按设计仅因缺少 `manual-acceptance.json` 停止，未生成签字文件或 ZIP；guest secret、任务和进程均清零，宿主临时库/登录/凭据/防火墙已删除，SQL TCP/认证和 VM 网卡均恢复原状。
