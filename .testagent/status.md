@@ -1,27 +1,30 @@
-# Ticket 01 test-generation status
+# Ticket 02 test-generation status
 
 ## Outcome
 
-- Three vertical acceptance tests are implemented in `MesIngest.Tests/NewSuccessRoundTracerSpineTests.cs`.
-- All three pass against an explicitly opted-in, non-LocalDB SQL Server instance (`16.0.1190.2`, product major `16`, compatibility level `160`).
-- Each test owns a new `MesIngest_Ticket01_<guid>` database and removes only that strictly validated database in `DisposeAsync`; no owned databases remain after the run.
-- Release non-incremental solution build passes with 0 warnings and 0 errors.
-- Full `MesIngest.Tests` result after the final build: 499 passed, 22 SQL tests skipped because their explicit connection variables were absent (including the three ticket-01 tests covered separately by the zero-skip formal gate), and 2 failed. The UI Automation failure passed on immediate isolated rerun. The remaining stable failure is the pre-existing `LatencyTelemetryTests.Watch_latency_file_telemetry_enforces_log_retention_by_age`: current HEAD sets the old file from real wall-clock time but evaluates retention against fixed 2026-07-31, so on 2026-08-12 it is only 28 days old relative to the injected clock. Ticket 01 does not modify that test or telemetry code.
+- Five vertical real-SQL acceptance tests are implemented in `MesIngest.Tests/RoundEvidenceIdempotencyTests.cs`; the canonical multiset rule also has a focused unit test in `MesIngest.Tests/MesTaskUnionRoundDigestTests.cs`.
+- The formal SQL Server gate ran on product version `16.0.1190.2`, major `16`, compatibility level `160`: ticket 01 regression + ticket 02 + digest produced **9 passed, 0 skipped, 0 failed**.
+- Each real-SQL test owns one GUID-suffixed `MesIngest_Ticket01_` database and removes only that validated database during disposal.
+- A non-incremental Release solution build passed with **0 warnings and 0 errors**. Solution-level discovery found all nine ticket 01/02 tests.
+- Full `MesIngest.Tests` regression, with the already-documented unrelated retention test and one known desktop-interaction flake excluded, produced **508 passed, 19 environment-gated skips, 0 failed**. The retention test derives a file timestamp from the real wall clock but evaluates retention against a fixed 2026-07-31 clock. `MainWindowUiAutomationTests.Fluent_title_bar_supports_uia_keyboard_double_click_and_mouse_drag` failed once in the broad run and passed immediately in isolation. Ticket 02 changes neither telemetry nor Watch UI.
 
 ## Requirement-to-test evidence
 
 | Requirement | Test evidence |
 | --- | --- |
-| `在空的新数据库中提交包含一条唯一且字段有效的完整 SUCCESS 后，正式 API 能读到一个由 SUBLOT + WorkType 唯一确定的 DemandSeries、一个 VISIBLE 的第一代 TransportDemand、稳定的 SeriesId/DemandId，以及该轮完整原始观测和当前 MES 字段。` | `First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence` asserts the v2 contract and key rule, Series/Demand IDs and generation, TRACKING/VISIBLE state, every live MES field, every raw field, and both by-key/by-id reads. |
-| `首次成功轮次产生可追溯的 PollTrace、ProjectionCommit 和按 SeriesSequence 排序的首次事实事件；API 返回的 Series、Demand、事件和轮次证据都指向同一次原子投影提交，不会呈现半轮状态。` | The same test asserts trace/commit linkage across Series, Demand, raw observation and initial SERIES/DEMAND facts, plus consecutive SeriesSequence ordering. |
-| `再提交内容等价但 PollTraceId 不同的完整 SUCCESS 时，SeriesId、DemandId、世代和当前字段保持不变，且不会因无意义的重复观测追加业务变化事件。` | `Equivalent_success_round_preserves_identity_and_does_not_append_business_events` asserts stable identity/generation/fields/event IDs, a new commit, and two independently linked raw observations/traces. |
-| `Host 重启后，从正式 API 读到的标识、当前状态、原始证据和事件顺序与重启前一致，新历史不会依赖内存状态重建。` | `Restarted_host_reads_the_same_persisted_projection` disposes the first factory, constructs a new production Host/DI graph over the same SQL database, and compares IDs, state, raw links, event IDs/order and trace commit through HTTP only. |
-| `新主干只发布新版 schema 和版本化契约，不迁移或重新解释旧 TransportDemand、冻结字段、IngestAlert、DemandChangeFeed 或旧 DTO，也不提供新旧契约混跑的兼容路径。` | The first test starts with an empty dedicated database, asserts the separate `/api/v2/contract`, proves legacy API/OpenAPI and legacy store DI are absent in Production V2, and exercises only the isolated `mesingest` schema/DTO path. Production also fails closed when the V2 database is omitted. Existing databases are validated against an exact schema manifest and are never patched or stamped. |
-| `自动验收以脚本化 MesTaskUnionRound → 生产 Host/领域入口 → 现场兼容的真实 SQL Server → 正式版本化 HTTP API 为门禁；内存存储或 LocalDB 结果只能提供开发反馈，不能替代该证据。` | All three tests resolve production `SuccessRoundIngestor` from `WebApplicationFactory<Program>`, use only `MES_INGEST_TICKET01_SQLSERVER`, reject LocalDB/cloud engines, require an explicitly approved product major and compatibility level, and read via v2 HTTP. The gate completed with 3 passed and 0 skipped. A wrong-major mutation failed all three tests before database creation. |
+| `SUCCESS、FAILURE 和 INCOMPLETE 都留下可查询的 PollTraceId、查询版本、结果类型、Host UTC 时间、行数和规范化内容摘要；原始行按稳定规范化多重集合计算，返回顺序变化不会改变摘要，重复行数量变化会改变摘要。` | `All_outcomes_expose_canonical_utc_round_evidence_without_projecting_unsuccessful_results` reads all three outcomes through `/api/v2`, including UTC times, counts and digests. `Canonical_digest_treats_raw_rows_as_an_order_insensitive_multiset` proves order and offset invariance plus duplicate multiplicity sensitivity. The replay/conflict tests exercise the same digest against SQL. |
+| `使用相同 PollTraceId 和相同规范化内容重放时，正式 API 返回同一已接受结果，且不会重复创建 PollTrace、ProjectionCommit、Series、Demand 或事件。` | `Same_poll_trace_and_canonical_content_replays_the_original_accepted_result_without_duplicates` changes row order, source-date offset and attempt timestamps, then asserts the original receipt/API JSON and exact table counts `(1,1,2,2,2,4)`. The all-outcomes test also proves FAILURE/INCOMPLETE replay. |
+| `使用相同 PollTraceId 绑定不同内容时，整轮以明确、版本化的契约冲突失败；真实 SQL Server 中的轮次账本和全部业务投影均无部分写入。` | `Same_poll_trace_with_different_content_returns_versioned_conflict_without_partial_writes` checks duplicate multiplicity, outcome and query-version conflicts, the stable `POLL_TRACE_CONTENT_CONFLICT` code/contract version/id, unchanged SQL counts and byte-equivalent API state. |
+| `FAILURE 和 INCOMPLETE 只追加各自的可追溯轮次证据，不创建、更新、标记 GONE 或归档任何 Series/Demand，也不改变上一成功 ProjectionCommit 的正式 API 读取结果。` | `All_outcomes_expose_canonical_utc_round_evidence_without_projecting_unsuccessful_results` starts with SUCCESS, appends FAILURE and INCOMPLETE, and proves both have nullable commits/zero raw projection rows while the prior Series API JSON and latest commit remain unchanged. |
+| `缺列、列类型或结果结构不满足契约时归为 INCOMPLETE；结构完整但字段值为空、非法或互相冲突的原始行仍归为 SUCCESS 数据证据，不得借 INCOMPLETE 隐藏局部坏数据。` | The all-outcomes test sends structurally incomplete evidence through the production `MesTaskUnionRound` classification boundary and observes INCOMPLETE isolation. `Success_preserves_unassigned_rows_while_projecting_every_assignable_key` keeps null/blank/invalid/conflicting values in SUCCESS and projects two distinct WorkTypes for one SUBLOT. Oracle column/type detection remains owned by ticket 15. |
+| `SUCCESS 中缺少 SUBLOT 或 TASK_TYPE 的行以 UnassignedMesObservation 原样归入该轮证据且不猜测 DemandSeries；同轮其它可识别业务键仍正常投影。` | `Success_preserves_unassigned_rows_while_projecting_every_assignable_key` asserts explicit `UNASSIGNED` observations with null identities and original values, negative no-guess API reads, two `ASSIGNED` observations, and exact Series/Demand/raw/event SQL counts. |
+| `通过真实 SQL Server 和正式 API 连续验证成功、同内容重放、内容冲突、FAILURE、INCOMPLETE 及 Host 重启，证明业务投影隔离、轮次证据和幂等结论在持久化后保持一致。` | `Restarted_host_preserves_round_evidence_replay_and_projection_isolation` uses one owned SQL database across two production Host/DI graphs and compares SUCCESS/FAILURE/INCOMPLETE trace JSON, Series JSON, replay receipt, post-restart conflict and table counts. |
 
-## Gap analysis
+## TDD and gap analysis
 
-- Empirically killed mutation 1: changing key-token inputs to uppercase made the case-variant 404 assertion fail.
-- Empirically killed mutation 2: reversing event SQL ordering made the consecutive SeriesSequence assertion fail.
-- High-risk ticket-01 behaviors are covered. Transaction fault injection and concurrent torn-read gates are intentionally owned by ticket 16 rather than expanded here.
-- No mutation remains applied; the three-test baseline is green after restoration.
+- Each of the five vertical slices failed for the missing production behavior before its implementation and passed after the minimal slice was added.
+- Empirically killed mutation 1: returning `IsReplay = false` for an unsuccessful replay failed the all-outcomes test.
+- Empirically killed mutation 2: removing outcome from the immutable PollTrace fingerprint failed the conflict test.
+- Empirically killed mutation 3: reporting unassigned raw rows as assigned failed the unassigned-evidence test.
+- Required Standards review found and resolved two consistency defects: MES source-date offset equality now shares one domain rule between canonical evidence and projection comparison, and initial/replay receipts share one stable identity aggregation rule. The source-date regression test failed before the fix and passed after it.
+- No mutation remains applied. Transaction fault injection and concurrent commit/read stress remain deliberately assigned to ticket 16.
