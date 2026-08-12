@@ -1,0 +1,7 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-10T13:45:52.6390055+08:00",
+  "Error": "System.Management.Automation.RuntimeException: SQL_SERVER_SKIPS_REQUIRE_EXACT_USER_APPROVAL: 19 named skips must exactly match ReleaseApproval\\sql-server-skips.json; details are in C:\\MesIngest\\13-final-gate-audit-2\\run-20260810-134334-watch-package-release\\Results\\core-host-http-sql\\summary.json",
+  "PostRunEnvironmentError": null
+}

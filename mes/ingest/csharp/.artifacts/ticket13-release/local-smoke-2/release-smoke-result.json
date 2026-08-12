@@ -1,0 +1,15 @@
+{
+  "status": "PASSED",
+  "completedAt": "2026-08-10T05:08:15.8214653+00:00",
+  "durationMs": 5583.8,
+  "watchStartupMs": 2343.2,
+  "baseUrl": "http://127.0.0.1:<ephemeral>",
+  "contractVersion": "2026.08.watch-ops.1",
+  "schemaVersion": 2,
+  "visibleDemandCount": 1,
+  "activeAlertCount": 0,
+  "pollSuccess": true,
+  "changeCount": 1,
+  "openApiMatched": true,
+  "watchValidated": true
+}

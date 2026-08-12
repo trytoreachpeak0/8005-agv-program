@@ -1,0 +1,57 @@
+Window id= name=MesIngestWatch 主窗口 help= itemStatus= enabled=True
+  TitleBar id=TitleBar name= help= itemStatus= enabled=True
+    MenuBar id=SystemMenuBar name=系统 help= itemStatus= enabled=True
+      MenuItem id= name=系统 help= itemStatus= enabled=True
+    Button id=Minimize-Restore name=最小化 help= itemStatus= enabled=True
+    Button id=Maximize-Restore name=最大化 help= itemStatus= enabled=True
+    Button id=Close name=关闭 help= itemStatus= enabled=True
+  Text id= name=MI help= itemStatus= enabled=True
+  Text id= name=MesIngest Watch help= itemStatus= enabled=True
+  Text id= name=只读接入运维台 help= itemStatus= enabled=True
+  Text id=ConnectionStatusText name=连接正常 help=连接正常 itemStatus=连接正常 enabled=True
+  CheckBox id=OverviewAutoRefreshCheckBox name=自动刷新 help= itemStatus= enabled=True
+    Text id= name=自动刷新 help= itemStatus= enabled=True
+  Button id=OverviewRefreshButton name=刷新概览 help= itemStatus= enabled=True
+    Text id= name=刷新 help= itemStatus= enabled=True
+  Button id=OverviewCancelButton name=取消概览刷新 help= itemStatus= enabled=False
+    Text id= name=取消 help= itemStatus= enabled=False
+  Text id= name=只读模式 help= itemStatus= enabled=True
+  Text id= name=不会修改业务数据 help= itemStatus= enabled=True
+  Text id= name=工作区 help= itemStatus= enabled=True
+  List id=PrimaryNavigation name=主导航 help= itemStatus= enabled=True
+    ListItem id= name=概览导航 help= itemStatus= enabled=True
+    ListItem id= name=TransportDemand 导航 help= itemStatus= enabled=True
+    ListItem id= name=IngestAlert 导航 help= itemStatus= enabled=True
+    ListItem id= name=设置导航 help= itemStatus= enabled=True
+  Text id= name=概览 help= itemStatus= enabled=True
+  Text id=OverviewConclusionText name=概览健康结论 help=✓ 健康 itemStatus=✓ 健康 enabled=True
+  Text id=OverviewNoticeText name=概览刷新提示 help= itemStatus= enabled=True
+  Pane id= name= help= itemStatus= enabled=True
+    Text id= name=Host 接入状态 help= itemStatus= enabled=True
+    Text id=OverviewHostText name=Host 接入状态 help=http://127.0.0.1:49768 · 已连接 · 契约兼容 · 最近成功连接：2026-08-09 23:28:43 +08:00 itemStatus=http://127.0.0.1:49768 · 已连接 · 契约兼容 · 最近成功连接：2026-08-09 23:28:43 +08:00 enabled=True
+    Text id= name=最近轮询健康 help= itemStatus= enabled=True
+    Text id=OverviewPollHealthText name=最近轮询健康 help=outcome=SUCCESS · endedAt=2026-08-08 09:29:59 +08:00 · durationMs=3000 · 最近 MES 快照行数=12
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 itemStatus=outcome=SUCCESS · endedAt=2026-08-08 09:29:59 +08:00 · durationMs=3000 · 最近 MES 快照行数=12
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 enabled=True
+    Button id=OverviewAlertsButton name=查看活动 IngestAlert 默认查询 help= itemStatus= enabled=True
+      Text id= name=活动 IngestAlert help= itemStatus= enabled=True
+      Text id=OverviewAlertText name=活动告警：0
+当前无活动告警
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 help=活动告警：0
+当前无活动告警
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 itemStatus=活动告警：0
+当前无活动告警
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 enabled=True
+      Text id= name=进入活动告警默认查询 → help= itemStatus= enabled=True
+    Button id=OverviewDemandsButton name=查看 VISIBLE TransportDemand 默认查询 help= itemStatus= enabled=True
+      Text id= name=VISIBLE TransportDemand help= itemStatus= enabled=True
+      Text id=OverviewDemandText name=VISIBLE TransportDemand：1
+当前页：WIRE_TO_GATE 1
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 help=VISIBLE TransportDemand：1
+当前页：WIRE_TO_GATE 1
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 itemStatus=VISIBLE TransportDemand：1
+当前页：WIRE_TO_GATE 1
+最新 · 最后成功：2026-08-09 23:28:43 +08:00 enabled=True
+      Text id= name=进入 VISIBLE 默认查询 → help= itemStatus= enabled=True
+  StatusBar id=WatchStatusBar name= help= itemStatus= enabled=True
+    Text id=StatusBarText name=MesIngestWatch 状态栏 help=connection=ok outcome=SUCCESS rows=12 durationMs=3000 hostPollEnd=2026-08-08 09:29:59 +08:00 watchLastSuccess=2026-08-09 23:28:43 +08:00 stale=8s timezone=China Standard Time (UTC+08:00) activeAlerts=0 paused=0 已恢复 itemStatus=connection=ok outcome=SUCCESS rows=12 durationMs=3000 hostPollEnd=2026-08-08 09:29:59 +08:00 watchLastSuccess=2026-08-09 23:28:43 +08:00 stale=8s timezone=China Standard Time (UTC+08:00) activeAlerts=0 paused=0 已恢复 enabled=True

@@ -1,3 +1,4 @@
 # Local runtime state and logs (may contain factory environment details).
 .runtime/
 *.received.*
+mes/ingest/csharp/TestResults/

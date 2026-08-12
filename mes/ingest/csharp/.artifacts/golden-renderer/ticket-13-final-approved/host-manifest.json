@@ -1,0 +1,32 @@
+{
+  "Ticket": "13-final-approved",
+  "Suite": "watch-package-release",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\13-final-approved\\run-20260810-145614-watch-package-release",
+  "CreatedAt": "2026-08-10T14:56:47.3611837+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "dc2be69bfab101dfcb7dc6c526ee275c2b0c6d3d",
+  "GitDirty": false,
+  "GitStatus": [],
+  "PayloadSha256": "3B853E7CCF9EC03FA7892BFA688AE37594DBB340DDFCE0164FF6E153F45881BD",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": {
+    "ApprovedBy": "szy",
+    "ApprovedAt": "08/10/2026 14:54:15",
+    "Sha256": "176037E6B839885C0855A2283B0D03AFB6B261B31C4BAB685CF1BC946381007F"
+  },
+  "SqlServer": {
+    "Configured": true,
+    "DataSource": "192.168.200.1,1433",
+    "Database": "MesIngest_Ticket13_Golden",
+    "Authentication": "SqlPasswordFromDpapiCredential"
+  }
+}

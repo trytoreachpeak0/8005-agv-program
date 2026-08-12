@@ -1,0 +1,17 @@
+--- watch-connection-20260810.jsonl ---
+{"kind":"Failure","at":"2026-08-08T01:30:00+00:00","endpoint":"/api/demands","stage":"HTTP_STATUS","elapsedMs":37,"timeoutSeconds":30,"message":"endpoint=/api/demands stage=HTTP_STATUS Response status code does not indicate success: 503 (Service Unavailable). Host response: {\u0022error\u0022:\u0022fake Host offline\u0022} timeoutSeconds=30","failureCount":1,"outageDurationMs":null,"correlationId":null}
+{"kind":"Recovered","at":"2026-08-08T01:30:00+00:00","endpoint":"/api/demands","stage":"HTTP_STATUS","elapsedMs":37,"timeoutSeconds":30,"message":"endpoint=/api/demands stage=HTTP_STATUS Response status code does not indicate success: 503 (Service Unavailable). Host response: {\u0022error\u0022:\u0022fake Host offline\u0022} timeoutSeconds=30","failureCount":1,"outageDurationMs":0,"correlationId":null}
+
+--- watch-latency-20260810.log ---
+recordedAt=2026-08-10T00:55:15.0337009+00:00 correlationId=c7b14aeb627e4e48bbbafef074dd7a86 component=Watch stage=HTTP_OK elapsedMs=69 endpoint=/api/contract statusCode=200 rowCount=1 bytes=59
+recordedAt=2026-08-10T00:55:15.0727653+00:00 correlationId=26e383acf5124c8cbbfece1a568c9b97 component=Watch stage=HTTP_OK elapsedMs=34 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T00:55:15.1154063+00:00 correlationId=006c332102124ab085bd01e6c232ba39 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T00:55:15.1420277+00:00 correlationId=da58d65df67a4a52be54cd1649557f4e component=Watch stage=HTTP_OK elapsedMs=23 endpoint=/api/alerts statusCode=200 rowCount=0 bytes=46
+recordedAt=2026-08-10T00:55:15.1438795+00:00 correlationId=8a538994fb544dfeb221597e1ac95fc0 component=Watch stage=HTTP_OK elapsedMs=19 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-10T00:55:16.0810409+00:00 correlationId=763c1747db4a4ca3945d2ce5db20f976 component=Watch stage=HTTP_STATUS elapsedMs=3 endpoint=/api/alerts statusCode=503 rowCount=0 bytes=29 detail={"error":"fake Host offline"}
+recordedAt=2026-08-10T00:55:16.0810484+00:00 correlationId=ced15d285aac4daabffe57c0f88d825d component=Watch stage=HTTP_STATUS elapsedMs=4 endpoint=/api/poll-health rowCount=0 bytes=0 detail=Response status code does not indicate success: 503 (Service Unavailable).
+recordedAt=2026-08-10T00:55:16.0810453+00:00 correlationId=e4f0308a1d1d44989b098b53c17c5286 component=Watch stage=HTTP_STATUS elapsedMs=3 endpoint=/api/demands rowCount=0 bytes=0 detail=Response status code does not indicate success: 503 (Service Unavailable). Host response: {"error":"fake Host offline"}
+recordedAt=2026-08-10T00:55:16.4293034+00:00 correlationId=394c8a80e72146fcadcbb4d11b4971fa component=Watch stage=HTTP_OK elapsedMs=0 endpoint=/api/alerts statusCode=200 rowCount=0 bytes=46
+recordedAt=2026-08-10T00:55:16.4293002+00:00 correlationId=ef5c8d2b09124d58bc5295520cadb18e component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T00:55:16.4294204+00:00 correlationId=35cded760a6d4181a66e9d3a63a8dd71 component=Watch stage=HTTP_OK elapsedMs=0 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+

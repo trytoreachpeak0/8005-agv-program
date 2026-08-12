@@ -1,0 +1,60 @@
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-10T13:11:23.2520706+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK
+  姝ｅ湪纭畾瑕佽繕鍘熺殑椤圭洰鈥?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : error NU1101: 鎵句笉鍒板寘 runtime.any.System.Text.Encoding銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘 [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : error NU1101: 鎵句笉鍒板寘 runtime.any.System.Runtime銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘 [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : error NU1101: 鎵句笉鍒板寘 runtime.any.System.Text.Encoding銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : error NU1101: 鎵句笉鍒板寘 runtime.any.System.Runtime銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : error NU1101: 鎵句笉鍒板寘 Microsoft.NETCore.App.Runtime.win-x64銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘 [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : error NU1101: 鎵句笉鍒板寘 Microsoft.WindowsDesktop.App.Runtime.win-x64銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘 [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : error NU1101: 鎵句笉鍒板寘 Microsoft.AspNetCore.App.Runtime.win-x64銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘 [C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj]
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : error NU1101: 鎵句笉鍒板寘 Microsoft.NETCore.App.Runtime.win-x64銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : error NU1101: 鎵句笉鍒板寘 Microsoft.WindowsDesktop.App.Runtime.win-x64銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘
+C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : error NU1101: 鎵句笉鍒板寘 Microsoft.AspNetCore.App.Runtime.win-x64銆傛簮 nuget.org 涓笉瀛樺湪鍏锋湁姝?ID 鐨勫寘
+  鏈兘杩樺師 C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj (鐢ㄦ椂 38.98 绉?銆?
+  鏈兘杩樺師 C:\MesIngest\13-rebuild-20260810\run-20260810-131118-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj (鐢ㄦ椂 39.01 绉?銆?

@@ -1,0 +1,4 @@
+GET /api/alerts?keys=active,limit: 2
+GET /api/contract: 1
+GET /api/demands?keys=direction,limit,sortBy,status: 2
+GET /api/poll-health: 2

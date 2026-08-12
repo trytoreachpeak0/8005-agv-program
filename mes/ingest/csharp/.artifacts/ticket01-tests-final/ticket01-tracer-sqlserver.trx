@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="70abcc58-d679-4d01-8d8b-1f447c937bc3" name="szy@LAB-WIN-01 2026-08-12 23:12:52" runUser="LAB-WIN-01\szy" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-12T23:12:52.8624025+08:00" queuing="2026-08-12T23:12:52.8624032+08:00" start="2026-08-12T23:12:32.2003493+08:00" finish="2026-08-12T23:13:00.6708810+08:00" />
+  <TestSettings name="default" id="721e1a18-3645-4008-a7f1-3d0e7c1c464f">
+    <Deployment runDeploymentRoot="szy_LAB-WIN-01_2026-08-12_23_12_52" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="5a9a932d-cc2b-4969-8eb2-bc483597690b" testId="129c9c84-4a4f-0102-1f8e-4272d399ae9a" testName="MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence" computerName="LAB-WIN-01" duration="00:00:03.6444525" startTime="2026-08-12T23:12:52.8236178+08:00" endTime="2026-08-12T23:12:52.8236388+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5a9a932d-cc2b-4969-8eb2-bc483597690b">
+      <Output>
+        <StdOut>Real SQL Server ProductVersion=16.0.1190.2; ProductMajor=16; EngineEdition=3; CompatibilityLevel=160</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e4906862-c8a9-4eda-a2c6-c71a98ea445a" testId="947e2ddb-fe4d-a3da-9407-582f700219aa" testName="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events" computerName="LAB-WIN-01" duration="00:00:03.3022948" startTime="2026-08-12T23:13:00.5981373+08:00" endTime="2026-08-12T23:13:00.5981376+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e4906862-c8a9-4eda-a2c6-c71a98ea445a">
+      <Output>
+        <StdOut>Real SQL Server ProductVersion=16.0.1190.2; ProductMajor=16; EngineEdition=3; CompatibilityLevel=160</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f130f686-61c6-46e4-8d78-dad74733360d" testId="c35e2e2a-b57b-2dbb-b423-e6879cdba101" testName="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection" computerName="LAB-WIN-01" duration="00:00:04.4712892" startTime="2026-08-12T23:12:57.2957585+08:00" endTime="2026-08-12T23:12:57.2957587+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f130f686-61c6-46e4-8d78-dad74733360d">
+      <Output>
+        <StdOut>Real SQL Server ProductVersion=16.0.1190.2; ProductMajor=16; EngineEdition=3; CompatibilityLevel=160</StdOut>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence" storage="c:\users\szy\desktop\8005---agv\mes\ingest\csharp\mesingest.tests\bin\release\net8.0-windows\mesingest.tests.dll" id="129c9c84-4a4f-0102-1f8e-4272d399ae9a">
+      <Execution id="5a9a932d-cc2b-4969-8eb2-bc483597690b" />
+      <TestMethod codeBase="C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesIngest.Tests.NewSuccessRoundTracerSpineTests" name="First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence" />
+    </UnitTest>
+    <UnitTest name="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events" storage="c:\users\szy\desktop\8005---agv\mes\ingest\csharp\mesingest.tests\bin\release\net8.0-windows\mesingest.tests.dll" id="947e2ddb-fe4d-a3da-9407-582f700219aa">
+      <Execution id="e4906862-c8a9-4eda-a2c6-c71a98ea445a" />
+      <TestMethod codeBase="C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesIngest.Tests.NewSuccessRoundTracerSpineTests" name="Equivalent_success_round_preserves_identity_and_does_not_append_business_events" />
+    </UnitTest>
+    <UnitTest name="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection" storage="c:\users\szy\desktop\8005---agv\mes\ingest\csharp\mesingest.tests\bin\release\net8.0-windows\mesingest.tests.dll" id="c35e2e2a-b57b-2dbb-b423-e6879cdba101">
+      <Execution id="f130f686-61c6-46e4-8d78-dad74733360d" />
+      <TestMethod codeBase="C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesIngest.Tests.NewSuccessRoundTracerSpineTests" name="Restarted_host_reads_the_same_persisted_projection" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="129c9c84-4a4f-0102-1f8e-4272d399ae9a" executionId="5a9a932d-cc2b-4969-8eb2-bc483597690b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="947e2ddb-fe4d-a3da-9407-582f700219aa" executionId="e4906862-c8a9-4eda-a2c6-c71a98ea445a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c35e2e2a-b57b-2dbb-b423-e6879cdba101" executionId="f130f686-61c6-46e4-8d78-dad74733360d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="3" executed="3" passed="3" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 8.0.30)&#xD;
+[xUnit.net 00:00:01.01]   Discovering: MesIngest.Tests&#xD;
+[xUnit.net 00:00:15.85]   Discovered:  MesIngest.Tests&#xD;
+[xUnit.net 00:00:15.85]   Starting:    MesIngest.Tests&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:5088&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=2e50c2d74d2545beaed6ad8f348d4b6e component=Host stage=HTTP_OK elapsedMs=6 endpoint=/api/v2/contract statusCode=200&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=f7d4110855bd4f4eabb7c3486f979dc5 component=Host stage=HTTP_STATUS elapsedMs=0 endpoint=/api/contract statusCode=404&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=0b1474f7270f4d90ad6121892ae93ba3 component=Host stage=HTTP_STATUS elapsedMs=0 endpoint=/openapi/v1.json statusCode=404&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=8daa0fe6a4c84f2f864724163765ee34 component=Host stage=HTTP_OK elapsedMs=42 endpoint=/api/v2/demand-series/by-key statusCode=200&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=be988b97af084871a687806f1c28e6ae component=Host stage=HTTP_STATUS elapsedMs=1 endpoint=/api/v2/demand-series/by-key statusCode=404&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=b3d77fcdbe0f4d50bf15fab2a063e232 component=Host stage=HTTP_STATUS elapsedMs=0 endpoint=/api/v2/demand-series/by-key statusCode=404&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=5d080e55437d4f29a3739f327415f8ab component=Host stage=HTTP_STATUS elapsedMs=1 endpoint=/api/v2/demand-series/by-key statusCode=400&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=99db1a6977fe438692a5982d7962c954 component=Host stage=HTTP_OK elapsedMs=12 endpoint=/api/v2/poll-traces/poll-ticket01-first statusCode=200&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=fc050b54c465481c8b7bce0112b704f0 component=Host stage=HTTP_OK elapsedMs=6 endpoint=/api/v2/demand-series/3736755f502f453f9991614ad805b499 statusCode=200&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:5088&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=c21d9c7ba1c04a7c9861e61b3ae2a8ec component=Host stage=HTTP_OK elapsedMs=24 endpoint=/api/v2/demand-series/by-key statusCode=200&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:5088&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=6b79bdd2cc8b40af9ce494b8272779ef component=Host stage=HTTP_OK elapsedMs=1073 endpoint=/api/v2/demand-series/d7f2f6516e9f4fcd852233db3ce8c10e statusCode=200&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=81311ea564f54c28b8992772f42fc8d1 component=Host stage=HTTP_OK elapsedMs=8 endpoint=/api/v2/poll-traces/poll-ticket01-restart statusCode=200&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:5088&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=22a39bdc01f94d3fb511ee049a448bcc component=Host stage=HTTP_OK elapsedMs=19 endpoint=/api/v2/demand-series/by-key statusCode=200&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=69c6b83750824af9922c5a5fa97c8eed component=Host stage=HTTP_OK elapsedMs=1 endpoint=/api/v2/demand-series/by-key statusCode=200&#xD;
+info: MesIngest.Latency[0]&#xD;
+      correlationId=52f733b25108492191e3754f4991d541 component=Host stage=HTTP_OK elapsedMs=6 endpoint=/api/v2/poll-traces/poll-ticket01-equivalent-2 statusCode=200&#xD;
+[xUnit.net 00:00:27.31]   Finished:    MesIngest.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

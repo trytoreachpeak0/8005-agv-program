@@ -1,0 +1,325 @@
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-10T14:57:16.9892166+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK
+MESINGEST_RELEASE_SMOKE_PASSED: artifacts=C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\release-smoke
+  姝ｅ湪纭畾瑕佽繕鍘熺殑椤圭洰鈥?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+  宸茶繕鍘?C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj (鐢ㄦ椂 11.57 绉?銆?
+  宸茶繕鍘?C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj (鐢ㄦ椂 11.57 绉?銆?
+  宸茶繕鍘?C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj (鐢ㄦ椂 11.57 绉?銆?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Net.Http 4.3.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 4.3.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 4.3.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Security.Cryptography.X509Certificates 4.3.0 渚濊禆浜?System.Security.Cryptography.Cng (>= 4.3.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.Cng 4.3.0銆?宸茶В鍐?System.Security.Cryptography.Cng 4.5.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Xml.ReaderWriter 4.3.0 渚濊禆浜?System.Threading.Tasks.Extensions (>= 4.3.0)锛屼絾鎵句笉鍒?System.Threading.Tasks.Extensions 4.3.0銆?宸茶В鍐?System.Threading.Tasks.Extensions 4.5.4 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  宸茶繕鍘?C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj (鐢ㄦ椂 28.24 绉?銆?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Net.Http 4.3.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 4.3.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 4.3.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Security.Cryptography.X509Certificates 4.3.0 渚濊禆浜?System.Security.Cryptography.Cng (>= 4.3.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.Cng 4.3.0銆?宸茶В鍐?System.Security.Cryptography.Cng 4.5.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Xml.ReaderWriter 4.3.0 渚濊禆浜?System.Threading.Tasks.Extensions (>= 4.3.0)锛屼絾鎵句笉鍒?System.Threading.Tasks.Extensions 4.3.0銆?宸茶В鍐?System.Threading.Tasks.Extensions 4.5.4 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  MesIngest.Core -> C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\bin\Release\net8.0\MesIngest.Core.dll
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_h4buohax_wpftmp.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_h4buohax_wpftmp.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_h4buohax_wpftmp.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_h4buohax_wpftmp.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  MesIngest.Host -> C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\bin\Release\net8.0\MesIngest.Host.dll
+  MesIngest.Watch -> C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\bin\Release\net8.0-windows\MesIngest.Watch.dll
+  MesIngest.Tests -> C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll (.NETCoreApp,Version=v8.0)鐨勬祴璇曡繍琛?
+VSTest 鐗堟湰 17.11.1 (x64)
+
+姝ｅ湪鍚姩娴嬭瘯鎵ц锛岃绋嶅€?..
+鎬诲叡 1 涓祴璇曟枃浠朵笌鎸囧畾妯″紡鐩稿尮閰嶃€?
+缁撴灉鏂囦欢: C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\core-host-http-sql\core-host-http-sql.trx
+
+宸查€氳繃! - 澶辫触:     0锛岄€氳繃:   518锛屽凡璺宠繃:     0锛屾€昏:   518锛屾寔缁椂闂? 8 s - MesIngest.Tests.dll (net8.0)
+  姝ｅ湪纭畾瑕佽繕鍘熺殑椤圭洰鈥?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj]
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  宸茶繕鍘?C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj (鐢ㄦ椂 28.53 绉?銆?
+  2 涓」鐩?鍏?3 涓?鏄渶鏂扮殑锛屾棤娉曡繕鍘熴€?
+WATCH_UI_ENVIRONMENT_OK: session=1 name=(not exported; validated by Explorer and OpenInputDesktop); suite=watch-vm-tests; artifacts=C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\packaged-watch-acceptance; running serial xUnit v3 UI tests.
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 83, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 62.635s
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.125s
+WATCH_UI_ENVIRONMENT_OK: session=1 name=(not exported; validated by Explorer and OpenInputDesktop); suite=watch-xaml-visual; artifacts=C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\packaged-watch-acceptance; running serial xUnit v3 UI tests.
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 20, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 30.853s
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.132s
+WATCH_UI_ENVIRONMENT_OK: session=1 name=(not exported; validated by Explorer and OpenInputDesktop); suite=watch-ui-journeys; artifacts=C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\packaged-watch-acceptance; running serial xUnit v3 UI tests.
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 5, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 48.136s
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.128s
+WATCH_UI_ENVIRONMENT_OK: session=1 name=(not exported; validated by Explorer and OpenInputDesktop); suite=watch-window-visual; artifacts=C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\packaged-watch-acceptance; running serial xUnit v3 UI tests.
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Verify.XunitV3 31.16.1 渚濊禆浜?DiffEngine (>= 19.1.2)锛屼絾鎵句笉鍒?DiffEngine 19.1.2銆?宸茶В鍐?DiffEngine 19.1.3 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: xunit.v3.common 3.2.2 渚濊禆浜?Microsoft.Bcl.AsyncInterfaces (>= 6.0.0)锛屼絾鎵句笉鍒?Microsoft.Bcl.AsyncInterfaces 6.0.0銆?宸茶В鍐?Microsoft.Bcl.AsyncInterfaces 10.0.6 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Microsoft.ApplicationInsights 2.23.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 5.0.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 5.0.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\MesIngest.Watch.UiTests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '9e963cab2d2477cb22d0a154b9d8faf1e16e5855d601f199621561b7535aef24')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 5, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 20.939s
+WATCH_UI_ALL_PASSED: suite=all artifacts=C:\MesIngest\13-final-approved\run-20260810-145614-watch-package-release\Results\packaged-watch-acceptance
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-10T15:02:23.2365434+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK

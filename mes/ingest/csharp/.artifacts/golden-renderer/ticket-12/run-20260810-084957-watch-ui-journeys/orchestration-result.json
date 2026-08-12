@@ -1,0 +1,8 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-10T08:52:51.2341567+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\12\\run-20260810-084957-watch-ui-journeys",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-12\\run-20260810-084957-watch-ui-journeys",
+  "RecoveredAfterHostTimeout": true
+}

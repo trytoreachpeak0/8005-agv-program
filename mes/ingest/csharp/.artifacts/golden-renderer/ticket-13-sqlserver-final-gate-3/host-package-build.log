@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MesIngest.Core -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Core\bin\Release\net8.0\MesIngest.Core.dll
+  MesIngest.Host -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\bin\Release\net8.0\win-x64\MesIngest.Host.dll
+  MesIngest.Host -> C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\e060682b8048461e9a47b039e3fbe038\payload\ReleasePackage\MesIngest\service\
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MesIngest.Core -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Core\bin\Release\net8.0\MesIngest.Core.dll
+  MesIngest.Watch -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Watch\bin\Release\net8.0-windows\win-x64\MesIngest.Watch.dll
+  MesIngest.Watch -> C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\e060682b8048461e9a47b039e3fbe038\payload\ReleasePackage\MesIngest\watch\
+MESINGEST_RELEASE_PACKAGE_VALID: root=C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\e060682b8048461e9a47b039e3fbe038\payload\ReleasePackage\MesIngest files=906 manifest=C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\e060682b8048461e9a47b039e3fbe038\payload\ReleasePackage\MesIngest\RELEASE-MANIFEST.json

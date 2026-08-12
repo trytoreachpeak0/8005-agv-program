@@ -1,0 +1,41 @@
+{
+  "Ticket": "12-dpi150",
+  "Suite": "watch-ui-journeys",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11_ticket12_dpi150",
+  "GuestRunDirectory": "C:\\MesIngest\\12-dpi150\\run-20260810-095140-watch-ui-journeys",
+  "CreatedAt": "2026-08-10T09:51:48.0294125+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "0b56d3d68a57885aa1614250cb483e42ae9deff2",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/Invoke-GoldenRendererValidation.ps1",
+    " M mes/ingest/csharp/Invoke-WatchUiTests.ps1",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/MesIngest.Watch.UiTests.csproj",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/README.md",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchVisualEnvironment.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchVisualEnvironmentTests.cs",
+    "?? mes/ingest/csharp/.artifacts/",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/UI-GATE-POLICY.md",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchJourneyEvidence.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchJourneyEvidenceTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowBaseline.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowFakeHost.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowFakeHostTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowJourneyTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowNative.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/",
+    "?? mes/ingest/csharp/New-WatchWindowBaselineProposal.ps1",
+    "?? mes/ingest/csharp/Test-WatchUiGateStability.ps1",
+    "?? mes/ingest/csharp/Test-WatchWindowBaselineStability.ps1",
+    "?? mes/ingest/csharp/WatchBaselineTools.ps1"
+  ],
+  "PayloadSha256": "BBAC7E861C5996DA421E2BD9D36DB0E3DAA481C36831B45951A72011A7A12A96",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 144
+  }
+}

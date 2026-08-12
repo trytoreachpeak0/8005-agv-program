@@ -1,0 +1,7 @@
+step=visible-gone-paging-details
+exception=Xunit.Sdk.XunitException
+timeoutMs=12000
+message=Window baseline mismatch for visible-gone-paging-details. See C:\MesIngest\fluent-refinement-01\run-20260811-102545-watch-window-visual\Source\mes\ingest\csharp\TestResults\watch-ui\20260811-102555-177\visible-gone-paging-details.
+firstFailureRetained=true
+   at MesIngest.Watch.UiTests.WatchWindowBaseline.Verify(String baselineName, Byte[] actual, WatchJourneyEvidence evidence) in C:\MesIngest\fluent-refinement-01\run-20260811-102545-watch-window-visual\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowBaseline.cs:line 48
+   at MesIngest.Watch.UiTests.WatchWindowJourneyTests.RunJourneyAsync(String journeyName) in C:\MesIngest\fluent-refinement-01\run-20260811-102545-watch-window-visual\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowJourneyTests.cs:line 153

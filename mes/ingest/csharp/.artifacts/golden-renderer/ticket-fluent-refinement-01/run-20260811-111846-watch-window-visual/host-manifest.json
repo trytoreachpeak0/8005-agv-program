@@ -1,0 +1,31 @@
+{
+  "Ticket": "fluent-refinement-01",
+  "Suite": "watch-window-visual",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\fluent-refinement-01\\run-20260811-111846-watch-window-visual",
+  "CreatedAt": "2026-08-11T11:18:51.4068816+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "75011bcfdbc35e480d00353800cc5e600d436cfd",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/MesIngest.Tests/MainWindowUiAutomationTests.cs",
+    " M mes/ingest/csharp/MesIngest.Tests/WatchV2ShellTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowJourneyTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowNative.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchXamlVisualTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch/MainWindow.xaml",
+    " M mes/ingest/csharp/MesIngest.Watch/MainWindow.xaml.cs"
+  ],
+  "PayloadSha256": "F6F988F14625B2B8FD375705FC33ACE57C0FBA91A02AE5D9012A019F49A070DE",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

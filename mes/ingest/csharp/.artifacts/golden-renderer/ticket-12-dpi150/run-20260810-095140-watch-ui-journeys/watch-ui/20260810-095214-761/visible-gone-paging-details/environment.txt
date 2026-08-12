@@ -1,0 +1,12 @@
+interactive=True
+desktop=1920x1080
+dpi=144
+scale=150%
+lightTheme=True
+culture=zh-CN
+uiCulture=zh-CN
+timezone=China Standard Time
+rendering=SoftwareOnly
+framework=8.0.29
+os=Microsoft Windows NT 10.0.26200.0
+processArchitecture=X64

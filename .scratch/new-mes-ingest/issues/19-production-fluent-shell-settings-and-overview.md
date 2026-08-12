@@ -1,0 +1,23 @@
+# 19 — 生产 Fluent shell、设置与概览
+
+**What to build:** 将已确认的信息架构重写为连接真实新版 Host 状态的生产 WPF Fluent shell，并交付设置和 Overview Variant A：运维人员能从一个窗口看见一致的业务摘要、跨页重点动态、紧凑 Host 状态与明确下钻，同时在离线或刷新失败时继续辨认上一份成功快照。
+
+**Blocked by:** 14 — 一致 WatchOverviewSnapshot；18 — Watch 单 Host 非视觉会话与刷新内核
+
+**Status:** ready-for-agent
+
+- [ ] 实现与验证遵循 [MesIngest.Watch Fluent UI rules](../../../docs/agents/fluent-ui.md) 和 [Golden WPF renderer](../../../docs/agents/golden-renderer.md)；原型只提供信息层级依据，生产界面不直接复制原型假数据或硬编码视觉值。
+- [ ] 一个 FluentWindow、一个集成 TitleBar 和一个 NavigationView 构成唯一应用身份层；主导航包含概览、需求系列、资格审计、错误检索、AREA 筛选和接入告警，Host 状态与设置位于紧凑页脚。
+- [ ] 标题栏的拖动、双击最大化或还原、右键系统菜单、缩放、最小化、最大化或还原、关闭、键盘和 UI Automation 行为保持可用，应用身份不会在内容区重复出现。
+- [ ] 设置页只管理单 Host 连接、超时、各数据视图自动刷新间隔及允许的本地显示偏好；不提供手动刷新或自动刷新开关，应用连接设置时使用票 18 的会话隔离语义。
+- [ ] 概览按 Variant A 展示同一 WatchOverviewSnapshot 中的需求系列、资格、错误和当前关注摘要，以及最近 24 小时最多五条真实转换；每个卡片或子摘要携带显式目标查询并从目标页第一页开始。
+- [ ] AREA 配置名称、范围数量和本地状态作为 Watch 本地上下文单独叠加，不伪装成 Host 快照字段，也不影响错误或接入关注摘要。
+- [ ] 初始加载、成功、近期无动态、刷新中、Host 离线和刷新失败均有明确页面状态；失败整份保留上一成功概览，并以行内 InfoBar、快照时点和当前连接状态说明陈旧性，不把空动态或零错误单独宣称为健康。
+- [ ] 状态含义由文字、图标和可访问名称表达而非只靠颜色；页面命令、导航、卡片下钻、设置校验和 Host 页脚具备稳定 UI Automation 名称、键盘焦点与高对比度语义。
+- [ ] 1440×900 是主设计基线，2560×1440 能合理扩展，720 epx 最小宽度及 125%/150% DPI 下关键命令、状态、标题栏和焦点不会裁切。
+- [ ] 本票与 20–22 属于同一共享 integration train：各票先完成非像素回归和实现，四票输出冻结后只向黄金机部署一次，集中运行实际受影响的 targeted suites、生成一套最终真实窗口预览并取得一次用户批准；同一批准与证据链接回填四票后它们才可完成并共同解锁票 23，不得按票重复运行完整 `all`、候选稳定、基线提升或 DPI clone。
+- [ ] Read `docs/agents/golden-renderer.md`.
+- [ ] Ran the required golden-machine suites through an interactive task.
+- [ ] User approved the final real-window preview (visual changes only).
+- [ ] Recorded the unique evidence directory and all named skips.
+- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.

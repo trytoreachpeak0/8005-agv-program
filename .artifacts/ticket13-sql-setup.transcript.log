@@ -1,0 +1,35 @@
+**********************
+PowerShell transcript start
+Start time: 20260810145508
+Username: LAB-WIN-01\szy
+RunAs User: LAB-WIN-01\szy
+Configuration Name: 
+Machine: LAB-WIN-01 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -NoProfile -ExecutionPolicy Bypass -File C:\Users\szy\Desktop\8005---AGV\.artifacts\ticket13-golden-sql-environment.ps1 -Action Setup
+Process ID: 8268
+PSVersion: 7.6.4
+PSEdition: Core
+GitCommitId: 7.6.4
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.4
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+
+Status                : READY
+SqlService            : Running
+TcpEnabled            : 1
+LoginMode             : 2
+FirewallRemoteAddress : 192.168.200.2
+VmSwitch              : Huawei
+VmSqlConnected        : True
+SqlMajorVersion       : 16
+Database              : MesIngest_Ticket13_Golden
+CredentialPath        : C:\Users\szy\AppData\Local\MesIngestWatch\ticket13-golden-sql.credential.xml
+
+**********************
+PowerShell transcript end
+End time: 20260810145522
+**********************

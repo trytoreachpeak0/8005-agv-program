@@ -1,0 +1,11 @@
+﻿recordedAt=2026-08-10T00:56:09.0275202+00:00 correlationId=111884650dcd4839a8ef2f4cf0d6cd64 component=Watch stage=HTTP_OK elapsedMs=77 endpoint=/api/contract statusCode=200 rowCount=1 bytes=59
+recordedAt=2026-08-10T00:56:09.1031018+00:00 correlationId=2adf53df1977464ba09654b347c58e84 component=Watch stage=HTTP_OK elapsedMs=69 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T00:56:09.1571687+00:00 correlationId=18d5b743185f4310b3c9a9df1ecd6c54 component=Watch stage=HTTP_OK elapsedMs=4 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T00:56:09.1748135+00:00 correlationId=585f4efdd0e1472483d17b92d6da7a24 component=Watch stage=HTTP_OK elapsedMs=8 endpoint=/api/alerts statusCode=200 rowCount=0 bytes=46
+recordedAt=2026-08-10T00:56:09.1776207+00:00 correlationId=7c75879c045e4c4f8309c8e82effa4a8 component=Watch stage=HTTP_OK elapsedMs=6 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-10T00:56:10.1017046+00:00 correlationId=04a467b840a8462195b27587b371ff3b component=Watch stage=HTTP_STATUS elapsedMs=2 endpoint=/api/alerts statusCode=503 rowCount=0 bytes=29 detail={"error":"fake Host offline"}
+recordedAt=2026-08-10T00:56:10.1016993+00:00 correlationId=6f8dabeb9c8b4c8a958cdc86bf4e59b7 component=Watch stage=HTTP_STATUS elapsedMs=2 endpoint=/api/poll-health rowCount=0 bytes=0 detail=Response status code does not indicate success: 503 (Service Unavailable).
+recordedAt=2026-08-10T00:56:10.1016994+00:00 correlationId=9b41142f13e5482eaf05e6bdecd0938b component=Watch stage=HTTP_STATUS elapsedMs=2 endpoint=/api/demands rowCount=0 bytes=0 detail=Response status code does not indicate success: 503 (Service Unavailable). Host response: {"error":"fake Host offline"}
+recordedAt=2026-08-10T00:56:10.4560750+00:00 correlationId=ebaffdedbecd4250853ff91f196c1443 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T00:56:10.4561113+00:00 correlationId=e6ec665339104cd897a1e688ead99f93 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/alerts statusCode=200 rowCount=0 bytes=46
+recordedAt=2026-08-10T00:56:10.4563228+00:00 correlationId=950496e35b8749d193ef6b05daa77135 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436

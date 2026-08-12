@@ -1,0 +1,28 @@
+{
+  "Ticket": "13-sqlserver-final-gate-3",
+  "Suite": "watch-package-release",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\13-sqlserver-final-gate-3\\run-20260810-144121-watch-package-release",
+  "CreatedAt": "2026-08-10T14:41:49.9064462+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "a3c0e2d3ca2561cadc22be2387b36b26faf6b116",
+  "GitDirty": false,
+  "GitStatus": [],
+  "PayloadSha256": "D1B93008182DD06CBD5B1BAD6EDDD0B25E5A1B1FD1311F64C6115DCA3A422CB2",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": {
+    "Configured": true,
+    "DataSource": "192.168.200.1,1433",
+    "Database": "MesIngest_Ticket13_Golden",
+    "Authentication": "SqlPasswordFromDpapiCredential"
+  }
+}

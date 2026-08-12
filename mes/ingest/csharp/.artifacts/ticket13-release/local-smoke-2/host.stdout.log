@@ -1,0 +1,59 @@
+info: MesIngest.Latency[0]
+      correlationId=d975fb30010b4b4d96d4629742e703bb component=Oracle stage=ORACLE_QUERY elapsedMs=16 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=d975fb30010b4b4d96d4629742e703bb component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=0
+info: MesIngest.Latency[0]
+      correlationId=d975fb30010b4b4d96d4629742e703bb component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=0
+info: MesIngest.Latency[0]
+      correlationId=d975fb30010b4b4d96d4629742e703bb component=SqlServer stage=SQL_TRANSACTION elapsedMs=3 rowCount=2
+info: MesIngest.Latency[0]
+      correlationId=d975fb30010b4b4d96d4629742e703bb component=SqlServer stage=SQL_WRITE elapsedMs=3 rowCount=2
+info: MesIngest.Latency[0]
+      correlationId=d975fb30010b4b4d96d4629742e703bb component=SqlServer stage=SQL_WRITE elapsedMs=0 rowCount=1
+info: MesIngest.Host.PollHostedService[0]
+      Continuous poll disabled; PollHostedService idle.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:64396
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\.artifacts\ticket13-release\clean-install-2\MesIngest\service
+info: MesIngest.Latency[0]
+      correlationId=b5ac0cffdd2443edbe2f1bc643f29714 component=Host stage=HTTP_OK elapsedMs=40 endpoint=/api/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=3efa5f9d35dc4b6096d1917fba88f7fd component=Host stage=HTTP_OK elapsedMs=63 endpoint=/openapi/v1.json statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=834e297a7e9840f38c8f5e2f2916a7ec component=SqlServer stage=SQL_QUERY elapsedMs=2 rowCount=0
+info: MesIngest.Latency[0]
+      correlationId=834e297a7e9840f38c8f5e2f2916a7ec component=SqlServer stage=SQL_QUERY elapsedMs=2 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=834e297a7e9840f38c8f5e2f2916a7ec component=Host stage=HTTP_OK elapsedMs=21 endpoint=/api/demands statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=95a0ab8549b949f8bf61e53bfd75552b component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=0
+info: MesIngest.Latency[0]
+      correlationId=95a0ab8549b949f8bf61e53bfd75552b component=Host stage=HTTP_OK elapsedMs=2 endpoint=/api/alerts statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=dcba4663619843cca07dce0a6a2831b2 component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=dcba4663619843cca07dce0a6a2831b2 component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=dcba4663619843cca07dce0a6a2831b2 component=Host stage=HTTP_OK elapsedMs=8 endpoint=/api/poll-health statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=e9feacee17a94b409e81a171c70c70c9 component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=e9feacee17a94b409e81a171c70c70c9 component=Host stage=HTTP_OK elapsedMs=9 endpoint=/api/demand-changes statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=73d66c38749a430598f39e2aa361bf02 component=Host stage=HTTP_OK elapsedMs=4 endpoint=/api/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=1ce65ea784f44b68b7e0f0d17eef2c5b component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=1ce65ea784f44b68b7e0f0d17eef2c5b component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=1ce65ea784f44b68b7e0f0d17eef2c5b component=Host stage=HTTP_OK elapsedMs=0 endpoint=/api/poll-health statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=b0794bf2b8874e31a311036587f4e152 component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+info: MesIngest.Latency[0]
+      correlationId=b0794bf2b8874e31a311036587f4e152 component=SqlServer stage=SQL_QUERY elapsedMs=0 rowCount=1
+

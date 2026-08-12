@@ -1,0 +1,6 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-10T08:08:35.0517779+08:00",
+  "Error": "System.Management.Automation.ParameterBindingException: Parameter set cannot be resolved using the specified named parameters. One or more parameters issued cannot be used together or an insufficient number of parameters were provided.\r\n   at System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)\r\n   at System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)\r\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)\r\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)"
+}

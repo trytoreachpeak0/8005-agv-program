@@ -1,0 +1,11 @@
+journey=offline-reconnect
+reason=Post-approval Ticket 12 candidate re-established after code review; bytes match the user-approved preview
+ticket=.scratch/mes-ingest-watch-v2-implementation/issues/12-flaui-journeys-window-baselines-and-evidence.md
+submitter=Codex agent
+reviewer=User
+changeType=RenderingOnly
+productOrBusinessConfirmed=False
+candidateSha256=31DDEC2CB169DB91C1A692BA91DA7DC05B1CD453FB58FBEE77984E0FA4BAAE40
+requiredConsecutiveCandidateRuns=10
+approvalState=APPROVED_BY_NON_SUBMITTER
+approvalEvidence=User message on 2026-08-10: 批准; post-approval candidate SHA-256 matches reviewed preview
