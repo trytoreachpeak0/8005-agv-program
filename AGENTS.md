@@ -16,7 +16,9 @@ Single-context layout: root `CONTEXT.md` + categorized `docs/adr/{cross,sdk,mes}
 
 Any ticket that changes `MesIngest.Watch` UI, XAML, Wpf.Ui controls, layout,
 UI Automation, DPI behavior, or visual baselines must read
-`docs/agents/golden-renderer.md` before implementation and validation.
+`docs/agents/fluent-ui.md` and `docs/agents/golden-renderer.md` before
+implementation and validation. The Fluent rules are mandatory acceptance
+criteria, not optional visual guidance.
 
 - Formal WPF visual validation runs on Hyper-V VM `gpt_win11` through an
   interactive scheduled task. PowerShell Direct is only for deployment,
