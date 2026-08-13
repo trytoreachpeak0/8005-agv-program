@@ -4,14 +4,18 @@
 
 **Blocked by:** 08 — 提供 DemandSeries 冻结快照列表与详情；09 — ExternallyReadableDemandCatalog 与 reference consumer
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
-- [ ] 审计可观察到每个已生成 Demand 世代，包括 VISIBLE、GONE、所属 Series 已归档及 LongGoneButVisible；每项独立给出 `READABLE` 或 `NOT_READABLE`，不会把资格状态等同于生命周期状态。
-- [ ] 第一版稳定阻断目录覆盖 `DEMAND_GONE`、`SERIES_ARCHIVED`、`LONG_GONE_BUT_VISIBLE`、`DUPLICATE_TRANSPORT_DEMAND_KEY`、`SUBLOT_MULTIPLE_WORK_TYPES`、`REQUIRED_MES_FIELD_MISSING` 与 `INVALID_MES_FIELD_FORMAT`；一个 Demand 的全部命中原因均可见，列表主要原因由 Host 的稳定优先级选择。
-- [ ] 列表支持资格、WorkType、阻断原因、DemandId 和 SUBLOT 条件；不同维度取交集、同维度多值取并集，默认同时包含可读与不可读，标识匹配规则与领域契约一致。
-- [ ] 当前 AreaFilterProfile 的合法 MesArea 集合由 Host 在计数和分页前精确应用；不可信当前 AREA 不借历史值命中配置，只在“全部 AREA”范围内出现，AREA 条件不改变资格或 `CatalogRevision`。
-- [ ] 列表默认先显示不可读项，再按主要原因优先级、DemandLastSeenAt 降序和 DemandId 升序稳定排列；默认每页 100、最多 200，并返回当前完整筛选下的精确 Demand 总数。
-- [ ] 资格与原因分面按去重 Demand 精确计算且排除自身维度；同一 Demand 可计入多个原因分面，但原因数量之和不会被报告为不可读总数。
-- [ ] 首次查询冻结独立的 `ReadabilityAuditSnapshot`，列表、分面、精确总数、后续页和详情共享其 ProjectionCommit 身份并携带当时的 `CatalogRevision`；并发产生的新提交只在显式刷新后的新快照出现。
-- [ ] 详情从同一审计快照返回全部资格检查、完整阻断集合、可信字段或原始观测冲突、所属 Series、PollTrace、ProjectionCommit 与 `CatalogRevision`；主要原因不能替代完整推导。
-- [ ] 游标绑定审计快照、规范化筛选、AREA 值集合、固定顺序与契约版本；无效、过期、篡改或跨条件复用均明确失败，不静默返回第一页或另一快照的数据。
+- [x] 审计可观察到每个已生成 Demand 世代，包括 VISIBLE、GONE、所属 Series 已归档及 LongGoneButVisible；每项独立给出 `READABLE` 或 `NOT_READABLE`，不会把资格状态等同于生命周期状态。
+- [x] 第一版稳定阻断目录覆盖 `DEMAND_GONE`、`SERIES_ARCHIVED`、`LONG_GONE_BUT_VISIBLE`、`DUPLICATE_TRANSPORT_DEMAND_KEY`、`SUBLOT_MULTIPLE_WORK_TYPES`、`REQUIRED_MES_FIELD_MISSING` 与 `INVALID_MES_FIELD_FORMAT`；一个 Demand 的全部命中原因均可见，列表主要原因由 Host 的稳定优先级选择。
+- [x] 列表支持资格、WorkType、阻断原因、DemandId 和 SUBLOT 条件；不同维度取交集、同维度多值取并集，默认同时包含可读与不可读，标识匹配规则与领域契约一致。
+- [x] 当前 AreaFilterProfile 的合法 MesArea 集合由 Host 在计数和分页前精确应用；不可信当前 AREA 不借历史值命中配置，只在“全部 AREA”范围内出现，AREA 条件不改变资格或 `CatalogRevision`。
+- [x] 列表默认先显示不可读项，再按主要原因优先级、DemandLastSeenAt 降序和 DemandId 升序稳定排列；默认每页 100、最多 200，并返回当前完整筛选下的精确 Demand 总数。
+- [x] 资格与原因分面按去重 Demand 精确计算且排除自身维度；同一 Demand 可计入多个原因分面，但原因数量之和不会被报告为不可读总数。
+- [x] 首次查询冻结独立的 `ReadabilityAuditSnapshot`，列表、分面、精确总数、后续页和详情共享其 ProjectionCommit 身份并携带当时的 `CatalogRevision`；并发产生的新提交只在显式刷新后的新快照出现。
+- [x] 详情从同一审计快照返回全部资格检查、完整阻断集合、可信字段或原始观测冲突、所属 Series、PollTrace、ProjectionCommit 与 `CatalogRevision`；主要原因不能替代完整推导。
+- [x] 游标绑定审计快照、规范化筛选、AREA 值集合、固定顺序与契约版本；无效、过期、篡改或跨条件复用均明确失败，不静默返回第一页或另一快照的数据。
+
+## Comments
+
+- 2026-08-13：完成独立审计快照、SQL Server as-of 有界列表/分面/详情、正式 `/api/v2` HTTP 契约与 7-code 阻断目录。真实 SQL Server 16 / compatibility 160 门禁为 7/7 passed、0 skipped；Release solution build 通过。
