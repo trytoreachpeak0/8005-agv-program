@@ -1,45 +1,37 @@
-# Tickets 13–14 test research — current attention and atomic Watch overview
+# Ticket 15 test research — formal single-statement Oracle round source
 
-## Scope and confirmed seams
+## Confirmed production gaps
 
-Primary ticket: `.scratch/new-mes-ingest/issues/14-consistent-watch-overview-snapshot.md`.
-Ticket 14 has a hard dependency on ticket 13, whose production read seam is absent,
-so this change also supplies `.scratch/new-mes-ingest/issues/13-current-ingest-attention-read.md`.
+- Production V2 registers `RoundIngestor` and the host-session service, but the
+  Oracle source and legacy poll service are registered only on the legacy path.
+- The legacy `OracleMesSnapshotSource` trims text, treats blank identity and bad
+  `DATES` values as `INCOMPLETE`, and exposes neither provider column types nor
+  the configured command timeout to its fake executor.
+- `OdpNetOracleQueryExecutor` currently sends `SET TRANSACTION READ ONLY` before
+  the SELECT, so one round results in two Oracle commands.
+- The published query is copied twice into a release package and is checked only
+  for existence/non-empty content. The canonical raw-byte SHA-256 is
+  `54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae`.
+- The old `Thick` mode only prepends Instant Client to `PATH` while still using
+  managed ODP.NET Core. Ticket 15 therefore needs a distinct OCI-backed adapter
+  (Oracle ODBC + Instant Client) and must never silently fall back to Thin.
 
-The specification already confirms the end-to-end seam:
+## Agreed public seams
 
-1. Scripted `MesTaskUnionRound` -> production `RoundIngestor` -> real SQL Server.
-2. `GET /api/v2/current-ingest-attention` for the bounded current union.
-3. `GET /api/v2/watch-overview?area=...` for one atomic Host snapshot.
+1. `IMesTaskUnionRoundSource.ReadRoundAsync` owns artifact verification, exactly
+   one statement request, structural metadata validation, raw-value mapping,
+   `QueryVersion`, timing, and safe `FAILURE` / `INCOMPLETE` diagnostics.
+2. The internal executor request exposes the exact SQL and command timeout; its
+   result exposes provider column names/types and raw rows.
+3. `MesTaskUnionPollRunner.RunOnceAsync` is the production source-to-`RoundIngestor`
+   seam. A hosted service runs it independently of any Watch process.
+4. `CanonicalMesTaskUnionQuery` is the single content-addressed artifact authority.
 
-Tests use the public Host routes and `IMesIngestProjection.CommitRoundAsync`; they do
-not invoke private SQL/read helpers. `AdjustableTimeProvider` controls the 7-day and
-24-hour boundaries. `[Ticket01SqlServerFact]` supplies the existing disposable real
-SQL Server gate. Neither ticket changes Watch/XAML, so golden WPF validation does not apply.
-
-## Snapshot and transition policy
-
-- Every overview selects one immutable ProjectionCommit fence and one append-only
-  attention-event high-water in a single read transaction.
-- Projection-derived facts are reconstructed at the selected ProjectionSequence;
-  failed/incomplete polls are fenced by the attention high-water because they do not
-  create ProjectionCommits.
-- A production no-op/read-observer boundary is replaceable in integration tests so a
-  reader can pause immediately after selecting fence A, commit B normally, then prove
-  the first response is wholly A and the refresh wholly B.
-- Current Series attention directly uses `SeriesId + ErrorCode + Target + SubjectKind`.
-  No issue/fingerprint/revision/occurrence lifecycle is introduced.
-- Poll, task-protection, and unassigned transitions are append-only and replay-safe;
-  unchanged observations do not manufacture overview activity.
-- AREA is trimmed, ordinal, case-sensitive, de-duplicated input and scopes only Series
-  and Readability. Errors and current attention remain global.
-- Dynamics use the half-open `[snapshotAsOf - 24h, snapshotAsOf)` window, take five,
-  and order by `OccurredAt DESC, EventId ASC`.
-- V2 routes remain excluded from legacy V1 OpenAPI until ticket 17 freezes that contract.
-
-## Framework and commands
+## Framework and gate
 
 - .NET SDK 10.0.302, xUnit 2.4.2, VSTest.
-- Focused syntax: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~CurrentIngestAttentionTests|FullyQualifiedName~WatchOverviewSnapshotTests"`.
-- Release evidence requires `MES_INGEST_TICKET01_SQLSERVER`, SQL Server product major 16,
-  and compatibility level 160.
+- Focused syntax uses `dotnet test ... -c Release --filter "FullyQualifiedName~..."`.
+- The formal Host/SQL proof reuses `MES_INGEST_TICKET01_SQLSERVER`, SQL Server 2022
+  product major 16, compatibility 160, and must report zero skipped tests.
+- Real Oracle is not a CI substitute: the factory probe records `NOT_EXECUTED`
+  when no approved Oracle 11g endpoint is available.
