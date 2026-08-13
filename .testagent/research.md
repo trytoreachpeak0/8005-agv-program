@@ -1,41 +1,45 @@
-# Ticket 12 test research — frozen error detail and bounded raw evidence
+# Tickets 13–14 test research — current attention and atomic Watch overview
 
 ## Scope and confirmed seams
 
-Ticket: `.scratch/new-mes-ingest/issues/12-error-detail-bounded-raw-evidence.md`.
+Primary ticket: `.scratch/new-mes-ingest/issues/14-consistent-watch-overview-snapshot.md`.
+Ticket 14 has a hard dependency on ticket 13, whose production read seam is absent,
+so this change also supplies `.scratch/new-mes-ingest/issues/13-current-ingest-attention-read.md`.
 
-The accepted production seams are:
+The specification already confirms the end-to-end seam:
 
 1. Scripted `MesTaskUnionRound` -> production `RoundIngestor` -> real SQL Server.
-2. `GET /api/v2/error-search/{seriesId}?snapshot=...` for frozen matched detail.
-3. `GET /api/v2/error-search/{seriesId}/evidence/{evidenceId}/raw-observations?...` for explicitly authorized, bounded raw expansion.
+2. `GET /api/v2/current-ingest-attention` for the bounded current union.
+3. `GET /api/v2/watch-overview?area=...` for one atomic Host snapshot.
 
-Tests do not call private projection helpers, SQL, or token codecs directly. Time is controlled with `AdjustableTimeProvider`. Real-SQL tests use `[Ticket01SqlServerFact]` and reject LocalDB as release evidence.
+Tests use the public Host routes and `IMesIngestProjection.CommitRoundAsync`; they do
+not invoke private SQL/read helpers. `AdjustableTimeProvider` controls the 7-day and
+24-hour boundaries. `[Ticket01SqlServerFact]` supplies the existing disposable real
+SQL Server gate. Neither ticket changes Watch/XAML, so golden WPF validation does not apply.
 
-Ticket 12 does not change Watch/XAML/UI Automation/DPI/visual baselines, so the golden WPF renderer rules do not apply.
+## Snapshot and transition policy
 
-## Frozen public policy
-
-- Detail and raw reads accept only Ticket 11's signed error-search snapshot; callers do not resubmit filters or windows.
-- Raw expansion requires the configured `MesIngest:SharedSecret` as `Authorization: Bearer ...`, including localhost.
-- Allowed raw fields: `workType,sublot,area,eqp,step,mesSourceDate,package`.
-- Raw limits: at most 20 items, 2,048 UTF-8 bytes per item, 65,536 UTF-8 bytes total.
-- Default diagnostic detail summarizes `RAW_OBSERVATION_SET` as count plus digest and never returns the canonical raw JSON.
-- Object misses share `ERROR_SEARCH_OBJECT_NOT_IN_SNAPSHOT`; authorization is checked first to avoid an existence oracle.
-- V2 routes remain excluded from legacy v1 OpenAPI until ticket 17.
-
-## Storage and semantic risks
-
-- Mutable period closing columns must be reconstructed through the closed event's projection commit fence.
-- Detail must use the exact Ticket 11 scope: period window overlap; evidence-level DemandId; category/code period filters; state as a series-level aggregate gate.
-- Evidence is not clipped to the query window, so causal opening evidence for a crossing period remains visible.
-- `RAW_OBSERVATION_SET` currently stores the complete seven-field observation multiset in `ObservedValue`; exposing it directly would bypass raw authorization.
-- Raw rows must be located only after snapshot membership is proven, by evidence `(PollTraceId, ProjectionCommitId, DemandId)`.
-- Existing tables and indexes are sufficient; no schema table or index is required.
-- Ticket 08 explicitly owns the existing DemandSeries/PollTrace raw-detail payloads. Ticket 12 applies the stricter authorization and bounded expansion policy to Error Search; changing the legacy endpoints here would be a breaking scope expansion.
+- Every overview selects one immutable ProjectionCommit fence and one append-only
+  attention-event high-water in a single read transaction.
+- Projection-derived facts are reconstructed at the selected ProjectionSequence;
+  failed/incomplete polls are fenced by the attention high-water because they do not
+  create ProjectionCommits.
+- A production no-op/read-observer boundary is replaceable in integration tests so a
+  reader can pause immediately after selecting fence A, commit B normally, then prove
+  the first response is wholly A and the refresh wholly B.
+- Current Series attention directly uses `SeriesId + ErrorCode + Target + SubjectKind`.
+  No issue/fingerprint/revision/occurrence lifecycle is introduced.
+- Poll, task-protection, and unassigned transitions are append-only and replay-safe;
+  unchanged observations do not manufacture overview activity.
+- AREA is trimmed, ordinal, case-sensitive, de-duplicated input and scopes only Series
+  and Readability. Errors and current attention remain global.
+- Dynamics use the half-open `[snapshotAsOf - 24h, snapshotAsOf)` window, take five,
+  and order by `OccurredAt DESC, EventId ASC`.
+- V2 routes remain excluded from legacy V1 OpenAPI until ticket 17 freezes that contract.
 
 ## Framework and commands
 
-- .NET SDK 10.0.302, xUnit 2.4.2, VSTest runner.
-- Focused syntax: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~ErrorSearchDetailTests"`.
-- Real SQL gate requires `MES_INGEST_TICKET01_SQLSERVER` and SQL Server product major 16 / compatibility 160.
+- .NET SDK 10.0.302, xUnit 2.4.2, VSTest.
+- Focused syntax: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~CurrentIngestAttentionTests|FullyQualifiedName~WatchOverviewSnapshotTests"`.
+- Release evidence requires `MES_INGEST_TICKET01_SQLSERVER`, SQL Server product major 16,
+  and compatibility level 160.

@@ -1,24 +1,32 @@
-# Ticket 12 TDD and implementation plan
+# Tickets 13–14 TDD and implementation plan
 
 ## Vertical tracer bullets
 
-1. Frozen detail: list -> signed snapshot -> detail; append/close after the snapshot and prove old detail is unchanged while refresh sees it.
-2. Exact scope and overlap: prove category/code/window matching, true crossing boundaries, active null end, and distinct clear/gone reasons.
-3. Structured evidence: prove open/change/close facts, subject/rule/Demand/WorkType/time/PollTrace, no per-round duplicates or OccurrenceCount.
-4. Generation boundaries: prove Demand-scoped periods do not merge and Series-scoped periods preserve per-generation evidence; reconcile list counts.
-5. Authorized raw: prove duplicate observations, missing values, invalid AREA, multi WorkType, fixed whitelist, redaction, item/total limit metadata, and no default raw.
-6. Stable rejection: unauthorized, out-of-snapshot, unknown fields, and excessive limits return non-leaking stable errors and do not mutate any projection.
-7. Release gate: contract/schema 12, focused real-SQL test run, solution build, one full test-suite run, independent standards/spec review.
+1. Current attention union: active Series errors, latest unrecovered poll failure,
+   TaskTypeProtection, and unassigned observations; exact total/facets/bounded stable order.
+2. Current lifecycle: stable Series identity, evidence refresh without duplicate items,
+   successful clear with permanent Error Search history retained, failure/incomplete no fake clear.
+3. Atomic overview: one commit identity/time produces exact Series, Readability, Error,
+   global attention summaries and structured first-page drill intents.
+4. AREA isolation: changing areas changes only Series/Readability; global summaries and
+   CatalogRevision stay fixed; local profile state is absent from the DTO.
+5. Real dynamics: allowlisted state transitions only, half-open 24-hour window, latest
+   five and stable tie order; empty state says `近期无重点动态` and exposes no health claim.
+6. Deterministic concurrency: pause after fence A, commit B without reader blocking,
+   release and prove response A is coherent; refresh proves coherent B.
+7. Release gate: tracer/schema 14, focused real-SQL gate, solution build, full suite,
+   independent Standards/Spec review.
 
 ## Requirement-to-test evidence
 
-| Ticket requirement | Test evidence |
+| Requirement | Planned public-seam evidence |
 | --- | --- |
-| Frozen as-of/filter/contract; later events only after refresh | `Frozen_detail_uses_the_list_snapshot_and_excludes_later_or_unmatched_periods` |
-| Detail returns only matched periods/evidence | `Frozen_detail_uses_the_list_snapshot_and_excludes_later_or_unmatched_periods` |
-| True crossing boundaries, distinct clear/gone, no fake active end | `Detail_marks_window_overlap_preserves_clear_and_gone_reasons_and_deduplicates_unchanged_evidence` |
-| Structured open/change/end evidence without per-round duplication | overlap/dedup test; `Default_detail_summarizes_duplicate_missing_invalid_area_and_multi_worktype_diagnostics_without_raw_rows` |
-| Demand/Series generation semantics and list/detail count reconciliation | `Detail_separates_demand_generations_and_reconciles_series_generation_evidence_with_list_counts` |
-| Authorized allowlisted, redacted, bounded raw expansion; no default raw | `Raw_evidence_requires_explicit_authorization_and_returns_only_whitelisted_redacted_bounded_fields`; default-summary test |
-| Stable non-leaking rejection with no mutation | `Raw_evidence_rejections_are_stable_non_leaking_and_leave_the_snapshot_unchanged` |
-| Duplicate/missing/invalid AREA/multi WorkType/cross-window/concurrent fixtures | all six `ErrorSearchDetailTests` tracer bullets |
+| Ticket 13 union, stable source identity/evidence | `Current_attention_unifies_all_sources_with_stable_identity_exact_facets_and_order` |
+| Success-only recovery and permanent history | `Current_attention_clears_only_on_success_and_preserves_error_history` |
+| Replay/conflict/non-success atomicity and bounded read | both Current Attention tests plus existing round-idempotency tests |
+| One identifiable atomic commit snapshot | `Overview_returns_exact_same_commit_summaries_and_explicit_drill_intents` |
+| AREA only scopes Series/Readability | `Overview_area_changes_only_series_and_readability` |
+| Global active/recent errors and attention facets | exact-summary test and AREA isolation test |
+| Only real latest-five 24h transitions; empty is not health | `Overview_returns_only_latest_five_real_transitions_and_neutral_empty_state` |
+| Concurrent commit cannot tear cards | `Overview_is_wholly_old_then_wholly_new_when_commit_occurs_during_read` |
+| Formal Host read and read-only behavior | all tests use HTTP; before/after projection receipts and frozen reads are compared |
