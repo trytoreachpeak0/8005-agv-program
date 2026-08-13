@@ -1,31 +1,32 @@
-# Ticket 07 test-generation status
+# Ticket 08 test-generation status
 
 ## Current state
 
-- Research and requirement-to-test mapping complete.
-- Six real SQL Server / production Host / formal API tracer tests are implemented and green.
-- Ticket 07 production implementation is complete: per-WorkType policy, schema, atomic projection,
-  GONE/archive authority filtering, focused v2 reads, and PollTrace decision evidence.
-- Fixed review point: `112590abce17a245f69de1c5d596ac5191d167c1`.
+- Implementation and public-seam acceptance coverage are complete.
+- Fixed review point: `b2efb21` (ticket07).
+- Formal seam: scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> `/api/v2/demand-series` HTTP.
+- Ticket08 SQL Server/API gate: 10 passed, 0 failed, 0 skipped on SQL Server product major 16 / compatibility level 160.
+- Standards and Spec re-review both report no remaining actionable findings.
 
 ## Requirement evidence
 
-| Verbatim requirement | Evidence |
+| Verbatim requirement | Executed evidence |
 | --- | --- |
-| 每个 WorkType 独立维护健康非零基线；某类型从健康非零结果骤降为零时进入 TaskTypeProtection/PausedZeroDrop，该轮及保护期间的成功空轮不能把该类型 Demand 标为 GONE 或推进归档。 | `Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`; `Protected_gone_series_does_not_archive_while_other_work_type_can_archive` |
-| 一个 WorkType 受保护时，其它 WorkType 仍按各自观测和缺席权威正常创建、更新或标记 GONE；保护状态、计数和恢复进度不得跨类型串扰。 | `Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`; `Distinct_recognizable_keys_define_healthy_count_without_raw_duplicate_inflation` |
-| 受保护类型连续两轮获得健康非零结果后才解除保护；第二轮只完成解除，下一轮完整结果才恢复该类型的缺席权威，不能在解除同轮自相矛盾地确认 GONE。 | `Two_nonzero_rounds_clear_protection_but_following_round_restores_authority_before_absence_can_mark_gone` |
-| FAILURE、INCOMPLETE、幂等重放和内容冲突不建立健康基线、不推进连续恢复计数，也不解除保护；RestartBarrier 与类型保护同时存在时，只有两者都允许的轮次才具有缺席权威。 | `Failure_incomplete_replay_and_conflict_do_not_change_protection_recovery_or_events`; `Protection_progress_survives_restart_and_both_gates_must_allow_absence_authority` |
-| 保护进入、每步恢复进度、解除和权威恢复都产生稳定事件，并作为当前 CurrentIngestAttention 与轮次证据由正式 API 查询；结束后不保留为当前项，但历史事实仍可追溯。 | `Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`; `Two_nonzero_rounds_clear_protection_but_following_round_restores_authority_before_absence_can_mark_gone` |
-| 保护状态和恢复进度在 Host 重启后保持，不能因进程重启提前获得缺席权威或丢失保护证据。 | `Protection_progress_survives_restart_and_both_gates_must_allow_absence_authority` |
-| 真实 SQL Server → 正式 API 验收同时驱动至少两个 WorkType，证明目标类型进入保护、保护空轮不 GONE、其它类型继续对账、两轮非零恢复以及随后权威空轮才 GONE。 | `Invoke-Ticket07SqlServerGate.ps1`: 6 passed, 0 skipped on SQL Server 2022 / compatibility 160. |
+| 首次列表请求冻结到一个明确的 ProjectionCommit；响应必须带快照身份/commit 元数据。该快照的 exact total、lifecycle facets、每行 lifecycle/currentPresence/currentDemand/generation/lastSeriesSequence，以及随后页面和详情都按同一 commit 计算。 | `Old_snapshot_detail_stays_at_commit_a_until_a_latest_refresh_reads_commit_b`; `Frozen_snapshot_combines_all_lifecycle_presence_states_with_exact_pages_and_provenance` |
+| 列表不按外部可读资格隐藏坏数据，覆盖 TRACKING+VISIBLE、TRACKING+GONE、ARCHIVED+GONE、ARCHIVED+LONG_GONE_BUT_VISIBLE，并稳定返回 SeriesId、SUBLOT、WorkType、StartedAt、Lifecycle、CurrentPresence、当前 Demand/Generation、LastSeriesSequence。 | `Frozen_snapshot_combines_all_lifecycle_presence_states_with_exact_pages_and_provenance`; `Frozen_conflict_detail_keeps_duplicate_multiset_and_multi_work_type_evidence_after_recovery` |
+| 详情返回全部 Demand 世代与 predecessor、当前和历史 MES 事实、规范化原始多重集合、duplicate/多 WorkType 冲突、当前条件、永久错误期间、生命周期节点和每代不可读结论。 | `Frozen_conflict_detail_keeps_duplicate_multiset_and_multi_work_type_evidence_after_recovery`; `Prearchive_reappearance_creates_a_frozen_successor_without_rewriting_the_gone_snapshot`; `Frozen_detail_retains_missing_field_period_after_recovery_without_leaking_its_future_close` |
+| 详情事实可追溯 DemandId、PollTraceId、Host UTC、ProjectionCommitId；事件严格按 SeriesSequence 升序且保留 payloadVersion，归档、恢复及错误历史不得遗漏。 | `Frozen_snapshot_combines_all_lifecycle_presence_states_with_exact_pages_and_provenance`; `Prearchive_reappearance_creates_a_frozen_successor_without_rewriting_the_gone_snapshot`; conflict and error-period tests assert raw/event/evidence provenance. |
+| Host 在快照内先筛选，再 exact count/facets，再稳定排序和有界分页；cursor/locator 绑定 snapshot、规范化 filter、固定 order、contract version，并校验完整性。 | `Frozen_pages_are_exact_stable_and_reject_tampered_or_mismatched_credentials`; three token tests cover full binding, purpose separation, tampering, and normalized-filter mismatch. Cursor pages execute keyset seek over `StartedAt DESC, SeriesId ASC`; direct page location remains bounded to page size 200. |
+| 取得旧列表后提交改变字段或生命周期的新 SUCCESS，旧 snapshot 的页面和详情仍属于旧 commit；latest 才看到新 commit；未知、失效、篡改或跨 filter/version 引用结构化失败，不能静默返回第一页/最新态。 | `Old_snapshot_detail_stays_at_commit_a_until_a_latest_refresh_reads_commit_b`; `Frozen_pages_are_exact_stable_and_reject_tampered_or_mismatched_credentials`; both include same-Host-time commits and structured HTTP failures. |
+| 脚本化 MesTaskUnionRound -> production Host/domain -> real SQL Server -> formal versioned HTTP API 覆盖字段异常及恢复、duplicate、多 WorkType、GONE、归档前重现、archive、LongGoneButVisible、重启，以及旧快照读取期间的新提交。 | Seven SQL/HTTP tests in `DemandSeriesFrozenSnapshotTests`; `Invoke-Ticket08SqlServerGate.ps1` enforces exactly 10 total tests passed and zero skipped. |
 
-## Verification
+## Verification log
 
-- Release solution build: 0 warnings, 0 errors.
-- Ticket 07 SQL Server/API gate: 6 passed, 0 skipped.
-- Ticket 01/02/05/06 SQL regression slice: 19 passed, 0 skipped.
-- Full `MesIngest.Tests`: 542 passed, 19 legacy SQL tests skipped, 2 unrelated existing
-  environment-sensitive WPF/telemetry failures; no Ticket 07 or changed-path failures.
-- Two-axis review: Spec had no findings; Standards had two P3 smells, both resolved
-  (removed unused event-order helper; reused a shared SQL-test environment scope).
+- `Invoke-Ticket08SqlServerGate.ps1 -Configuration Release -ExpectedProductMajor 16 -ExpectedCompatibilityLevel 160`: 10 passed, 0 failed, 0 skipped; marker `MESINGEST_TICKET08_SQLSERVER_API_GATE_PASSED`.
+- Ticket01-07 production SQL regressions (`NewSuccessRoundTracerSpine`, field/error periods, duplicate/multi-WorkType, restart/GONE/prearchive, archive/LongGone, TaskType protection): 28 passed, 0 failed, 0 skipped.
+- `dotnet build MesIngest.sln --configuration Release --no-incremental`: 0 warnings, 0 errors.
+- Full solution: `MesIngest.Tests` 552 passed / 19 skipped / 2 unrelated existing environment failures; `MesIngest.Watch.UiTests` 82 passed / 27 environment-gated skips / 0 failed.
+  - `LatencyTelemetryTests.Watch_latency_file_telemetry_enforces_log_retention_by_age` is the pre-existing fixed-clock/current-file-time failure already recorded under the Fluent refinement tracker.
+  - `MainWindowUiAutomationTests.Fluent_title_bar_supports_uia_keyboard_double_click_and_mouse_drag` cannot inject mouse input in this non-interactive process (`Win32Exception: Access is denied`); no Watch/UI files changed in ticket08.
+- Pseudo-mutation audit: lifecycle reconstruction mutation and WorkType predicate mutation were each killed by the new acceptance tests (2/2); both mutations were reverted before the final gate.
+- Two-axis review from `b2efb21`: initial missing prearchive coverage and cursor-anchor findings were fixed; Standards and Spec re-review found no remaining actionable issue.
