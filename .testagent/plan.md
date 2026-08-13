@@ -1,49 +1,50 @@
-# Ticket 09 test implementation plan
+# Ticket 10 test implementation plan
 
-## Vertical slices
+## Vertical red -> green slices
 
-1. **Domain eligibility and catalog value identity**
-   - Red: readable unique VISIBLE member versus missing/invalid/duplicate/multi-WorkType/GONE/archived.
-   - Green: centralized `ExternallyReadableDemand` policy and immutable catalog item contract.
+1. **Stable blocker vocabulary and qualification checks**
+   - Red: all seven immutable codes exist once, stable diagnostic-first priority selects one lead while preserving all blockers, AREA vocabulary validation is exact.
+   - Green: `ReadabilityBlockerCatalog` and shared audit contracts.
 
-2. **Persisted catalog revision and Host conditional read**
-   - Red: first full response; stable DemandId order; unchanged SUCCESS/replay/non-success keep revision;
-     member enter/exit/value change bump once; same revision returns empty-body 304; query filters rejected.
-   - Green: schema v9 catalog state/items/commit evidence, one reconciliation at SUCCESS transaction end,
-     atomic projection read, Host ETag mapping.
+2. **Independent signed audit identity and cursor**
+   - Red: round-trip includes ProjectionCommit plus CatalogRevision and cursor includes normalized filters/AREA/order/page/anchor; tampering and cross-condition reuse fail.
+   - Green: audit-specific HMAC token codec over the existing persisted signing key.
 
-3. **Lifecycle/error tracer scenarios**
-   - Red/green in small public-seam scenarios for field error/recovery, duplicate/recovery,
-     multiple WorkTypes/recovery, GONE and postarchive visibility, plus stable current Watch detail.
+3. **Frozen list, exact facets, filter/AREA/order/page**
+   - Red: production SQL/Host lists every Demand generation, applies OR-within/AND-across filters and trusted AREA before exact counts, orders by the fixed contract, and pages at 1..200.
+   - Green: one serializable as-of query with bounded result rows and exact server-side aggregates.
 
-4. **Reference consumer**
-   - Red: fresh/restarted cache reconstructs solely from full catalog; commitment always rereads;
-     missing/changed candidate rejects or asks for re-decision; accepted snapshot stays immutable;
-     timeout leaves the same stable intent UNKNOWN and reconciliation never changes its key.
-   - Green: isolated class library with catalog client/store/order-gateway ports and an HTTP adapter.
+4. **Same-snapshot detail and evidence**
+   - Red: detail returns all seven checks, all matched blocker evidence, unique fields or the conflicting raw multiset, Series summary, latest PollTrace/value provenance, ProjectionCommit and CatalogRevision.
+   - Green: one demand-at-snapshot read through `IMesIngestProjection` and formal HTTP endpoint.
 
-5. **Validation**
-   - focused tests after each slice;
-   - real SQL ticket gate with no skips;
-   - ticket01-08 regression slice;
+5. **Refresh and error semantics**
+   - Red: an always-unreadable Demand changes blocker while `CatalogRevision` stays fixed; old pages/detail remain fixed and a refresh gets the new commit. Invalid/tampered/mismatched/unretained credentials return stable structured errors.
+   - Green: snapshot resolution/error mapping and explicit refresh-by-omission semantics.
+
+6. **Validation and review**
+   - focused green run after each slice;
+   - formal real-SQL ticket gate with no skips;
    - Release non-incremental solution build;
-   - complete core test suite once;
-   - assertion/gap audit, then two-axis `/code-review` and fixes.
+   - complete core suite once;
+   - assertion/gap audit, then `/code-review` Standards + Spec and fixes.
 
 ## Requirement-to-test targets
 
 | Requirement | Planned executable evidence |
 | --- | --- |
-| 1 | `Catalog_only_contains_centrally_eligible_demands_while_operations_detail_keeps_every_rejected_demand` |
-| 2 | `Catalog_returns_complete_stable_items_in_demand_id_order_and_rejects_dispatch_scope_queries` |
-| 3 | `Catalog_revision_changes_once_only_for_member_or_member_value_changes` |
-| 4 | `Conditional_catalog_read_returns_bodyless_304_or_one_atomically_committed_full_revision` |
-| 5 | `Disposable_cache_rebuilds_after_restart_from_only_the_complete_catalog` |
-| 6 | `Commitment_reread_rejects_changed_or_missing_candidate_and_preserves_accepted_snapshot`; `Unknown_order_result_reconciles_with_the_same_stable_intent_identity` |
-| 7 | lifecycle/error catalog tests plus a consumer/Host isolation assertion and ticket09 SQL gate |
+| 1 | `Audit_lists_every_demand_generation_with_readability_separate_from_lifecycle` |
+| 2 | `Blocker_catalog_is_complete_and_lead_priority_never_discards_other_reasons`; complex audit/detail tracer |
+| 3 | `Audit_filters_use_or_within_and_across_dimensions_with_domain_identifier_matching` |
+| 4 | `Area_scope_is_exact_and_excludes_untrusted_current_area_before_counts_and_pages` |
+| 5 | `Audit_order_and_bounded_pages_are_stable_with_an_exact_total` |
+| 6 | `Audit_facets_exclude_their_own_dimension_and_overlap_without_inflating_total` |
+| 7 | `Audit_snapshot_stays_frozen_when_a_new_commit_changes_blockers_without_changing_catalog_revision` |
+| 8 | `Audit_detail_uses_the_list_snapshot_and_returns_complete_checks_raw_evidence_and_provenance` |
+| 9 | `Audit_tokens_bind_snapshot_filters_area_order_contract_and_reject_tampering_or_reuse` plus HTTP credential assertions |
 
 ## Completion conditions
 
-- Every checklist row maps to a concrete passing test/assertion.
-- Generated tests are visible through the existing `MesIngest.sln` harness.
-- `.testagent/status.md` records final exact test/build/review evidence.
+- Every checklist row maps to at least one concrete passing assertion at the confirmed seam.
+- New tests are discovered by the existing `MesIngest.sln` harness.
+- `.testagent/status.md` records the exact clean build/test/gate/review evidence.
