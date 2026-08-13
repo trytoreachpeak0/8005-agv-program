@@ -1,53 +1,59 @@
-# Ticket 04 test-generation research
+# Ticket 05 test-generation research
 
 ## Bounded scope
 
-- Ticket: `.scratch/new-mes-ingest/issues/04-duplicate-key-and-multiple-work-types.md`.
+- Ticket: `.scratch/new-mes-ingest/issues/05-restart-barrier-gone-and-prearchive-reappearance.md`.
 - Confirmed production seam: scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> versioned HTTP API.
-- Production modules: `MesIngest.Core/SeriesProjection`, `MesIngest.Infrastructure/SqlServer`, and the V2 Host read contract.
+- Production modules: `MesIngest.Core/SeriesProjection`, `MesIngest.Infrastructure/SqlServer`, the V2 Host composition root, and the formal V2 read DTOs.
 - Test project: `MesIngest.Tests` (`net8.0-windows`, xUnit 2.4.2, VSTest).
-- Tickets 01-03 are complete at `da0cc4a`, `0c17773`, and `913dc77`; Ticket 03 supplies durable error periods, current conditions, readability, and API evidence.
-- GONE/archive/reappearance, TaskTypeProtection, catalog/audit/search APIs, Watch UI, and final OpenAPI freezing are later tickets and out of scope.
+- Tickets 01-04 are complete and supply the durable PollTrace/ProjectionCommit ledger, exact replay/conflict isolation, live fields, durable error periods, raw observation multisets, and the real SQL/API fixture.
+- Twelve-hour archive, post-archive visibility, per-WorkType TaskTypeProtection, catalogs, frozen/paged Series reads, Watch UI, and final OpenAPI freezing are later tickets and out of scope.
 
 ## Existing behavior and gaps
 
-- `PrepareRound` preserves every assignable observation, but `EnsureSupportedNewRound` rejects any repeated `TransportDemandKey` before the SUCCESS transaction is accepted.
-- The commit path currently projects one row at a time. It must instead group a SUCCESS round by exact `SUBLOT + WorkType`, create or advance one Series/Demand per group, and attach every group row to that identity.
-- `DemandRawObservations` already preserves multiplicity, source values, PollTrace, ProjectionCommit, SeriesId, and DemandId. The Series and PollTrace APIs already expose those rows.
-- Ticket 03's durable condition model already has the required stable identity (`SeriesId + code + target + subject`), permanent periods, evidence-change semantics, and SUCCESS-only closure. Ticket 04 should deepen that model, not create another incident/seam.
-- A duplicate group has no trustworthy `LiveMesFieldSet`; the API must distinguish that from one unique row whose individual live fields are null.
-- Duplicate evidence must be a stable canonical representation of the normalized row multiset: input order changes nothing, while content or multiplicity changes append evidence to the same period.
-- Multi-WorkType evidence must be the complete ordinally sorted WorkType set for a SUBLOT. Every currently observed key gets its own Series/Demand and Demand-scoped condition.
-- When a WorkType is absent from a later round, the absence is not yet authoritative in Ticket 04. Only an observed key whose complete SUCCESS membership set is now unique has explicit `CONDITION_CLEARED` counterevidence. Absent related Demands retain their current conflict/readability blocker until Ticket 05 can establish absence authority, transition them to `GONE`, and close with `DEMAND_GONE`; otherwise the current scaffold would expose stale `VISIBLE` Demands as readable.
-- `find-untested-sources` is not installed in this environment; deterministic source/test pairing was therefore bounded manually to the files listed below.
+- `RoundIngestor` exposes only `MesTaskUnionRound + CancellationToken`; `MesTaskUnionRound` has no caller-provided absence-authority or restart input. Preserve that deep seam.
+- `SqlServerMesIngestProjection.CommitRoundAsync` rejects replay conflicts before any mutation and records FAILURE/INCOMPLETE without ProjectionCommit. Restart phase advancement must remain after those gates and inside the SUCCESS transaction.
+- SUCCESS currently projects only keys present in the round. There is no authoritative-absence sweep, `GoneConfirmedAt`, Host session, restart phase, or authority event storage.
+- Existing schema already reserves `Generation` and `PredecessorDemandId`, but observation advancement rejects any non-VISIBLE current Demand.
+- The current Series API exposes only `CurrentDemand`; Ticket 05 needs durable read-back of both predecessor and current generations. A `Demands` collection ordered by generation is the smallest formal API addition; Ticket 08 remains responsible for frozen list/paging semantics.
+- Existing error periods close only as `CONDITION_CLEARED`. Authoritative GONE must close every current Demand-scoped condition as `DEMAND_GONE`, with evidence and Series events bound to the absence PollTrace/ProjectionCommit.
+- External readability currently depends only on current conditions. GONE must independently publish `NOT_READABLE` + `DEMAND_GONE` even after its data-error conditions close.
+- Host restart must be internal. A process-stable HostSession identity is created by the SQL projection; a V2 startup hosted service initializes it before requests. The commit path calls the same idempotent initialization as a defensive fallback.
+- Every Host session, including the initial empty-database session, starts in `BARRIER` and records `RESTART_BARRIER_ENTERED` as a startup fact. SUCCESS #1 records `RESTART_BASELINE_COMPLETED` and moves to `POST_BARRIER`; SUCCESS #2 records `RESTART_ABSENCE_AUTHORITY_RESTORED` and moves to `NORMAL`; only rounds that begin in `NORMAL` have restart absence authority.
+- Authority state/events remain queryable by HostSessionId after a later Host takes over. The current-state endpoint remains the convenience read.
+- A Demand persists `LatestObservationProjectionCommitId` so equal round timestamps cannot make PollTrace lexical order select stale raw multiplicity. Positive observations advance it; authoritative GONE preserves it.
+- `find-untested-sources` is unavailable; deterministic pairing is bounded to the files below.
 
 ## Target inventory
 
 | Target | Role |
 | --- | --- |
-| `MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.cs` | group observations, project conflicts, preserve identities, synchronize durable conditions |
-| `MesIngest.Core/SeriesProjection/ProjectionModels.cs` | express absence of a trustworthy live field set |
-| `MesIngest.Host/NewMesIngestEndpoints.cs` | publish nullable live field set through the formal V2 DTO |
-| `MesIngest.Tests/DuplicateKeyAndMultipleWorkTypesTests.cs` | four real-SQL/HTTP tracer bullets, composition coverage, and restart proof |
-
-No schema shape change is required: current error evidence is lossless `nvarchar(max)`, and current-round multiplicity can be derived from rows linked to the Demand's latest observation commit.
+| `MesIngest.Core/SeriesProjection/ProjectionModels.cs` | expose HostSession/authority evidence, GoneConfirmedAt, and all Demand generations |
+| `MesIngest.Core/SeriesProjection/RestartBarrier.cs` | centralize restart phase transitions and stable event codes |
+| `MesIngest.Core/SeriesProjection/IMesIngestProjection.cs` | internal startup initialization/read seam without authority input |
+| `MesIngest.Core/SeriesProjection/NewMesIngestContract.cs` | bump exact empty-database contract identity |
+| `MesIngest.Infrastructure/SqlServer/SqlServerMesIngestSchema.cs` | persist host sessions, authority events, GoneConfirmedAt, and exact schema validation |
+| `MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.cs` | compute restart authority, sweep authoritative absences, close conditions as GONE, create reappearance generations |
+| `MesIngest.Host/Program.cs` | initialize the V2 Host session on startup |
+| `MesIngest.Host/NewMesIngestEndpoints.cs` | publish authority state/events and generation history |
+| `MesIngest.Tests/RestartBarrierGoneAndPrearchiveReappearanceTests.cs` | real SQL/Production Host/API tracer bullets |
+| `Invoke-Ticket05SqlServerGate.ps1` | repeatable zero-skip real-SQL acceptance gate |
 
 ## Environment and commands
 
-- SDK: .NET SDK 10.0.302; no MTP signals; VSTest syntax is required.
-- Real SQL Server: default local instance, ProductVersion `16.0.1190.2`, EngineEdition `3`, `CREATE ANY DATABASE = 1`, created-database compatibility `160`; LocalDB is rejected by the fixture.
-- Process-only gate variables: `MES_INGEST_TICKET01_SQLSERVER`, `MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR=16`, `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL=160`.
-- Narrow test: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~DuplicateKeyAndMultipleWorkTypesTests"`.
-- Prerequisite regression: filter `FullyQualifiedName~LiveMesFieldsAndErrorPeriodsTests|FullyQualifiedName~RoundEvidenceIdempotencyTests|FullyQualifiedName~NewSuccessRoundTracerSpineTests`.
+- SDK: .NET SDK 10.0.302; no MTP signals; VSTest + xUnit v2 syntax is required.
+- Real SQL Server gate: `MES_INGEST_TICKET01_SQLSERVER`, `MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR=16`, and `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL=160`; LocalDB is rejected.
+- Narrow test: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~RestartBarrierGoneAndPrearchiveReappearanceTests"`.
+- Prerequisite regression: Ticket 01-04 test classes plus Ticket 05.
 - Final build: `dotnet build MesIngest.sln --configuration Release --no-incremental`.
 - Final suite: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-build`.
 
 ## Acceptance checklist (verbatim)
 
-1. `一个成功轮次中同一 SUBLOT + WorkType 出现两条或更多原始行时，只保留一个 Series 和一个当前 Demand 世代，完整保存规范化后的所有行，不选主行、不拼接字段，也不生成虚假的 LiveMesFieldSet。`
-2. `重复行形成 DUPLICATE_TRANSPORT_DEMAND_KEY 当前错误和不可读结论；正式 API 能从受影响 Demand 追到全部观测、错误期间、证据值、PollTrace 和 ProjectionCommit。`
-3. `将相同重复行从 A/B 调换为 B/A 不产生新的业务变化或新错误期间；行内容或数量真正变化时在原期间追加证据，而不是改变冲突身份。`
-4. `重复观测恢复为唯一行时，继续使用原 SeriesId、DemandId 和世代，恢复实时字段，并由完整 SUCCESS 明确结束错误期间，不以恢复为由制造新 Demand。`
-5. `同一 SUBLOT 在同轮出现多个 WorkType 时，每个 SUBLOT + WorkType 分别形成独立 Series/Demand，同时所有受影响当前 Demand 都形成 SUBLOT_MULTIPLE_WORK_TYPES 冲突及完整 WorkType 集合证据。`
-6. `多 WorkType 冲突恢复后，各 Series 不合并、不换键；仍可见的相关 Demand 结束当前冲突，历史错误期间和逐世代证据永久保留。`
-7. `真实 SQL Server → 正式 API 验收覆盖重复行、换序、证据变化、恢复唯一、同 SUBLOT 多 WorkType 及恢复，并证明标识、错误期间和原始多重集合在 Host 重启后保持一致。`
+1. `持久化一条 VISIBLE Demand 后重启 Host，系统自动进入 RestartBarrier；调用方没有能够绕过保护或直接指定缺席权威的输入。`
+2. `重启后的第一轮完整 SUCCESS 只建立基线，第二轮只结束保护，前两轮即使缺少原业务键也不推进 GONE；第三轮完整 SUCCESS 仍缺少该键时才拥有缺席权威并确认 GONE。`
+3. `RestartBarrier 的进入、基线完成和权威恢复都有可查询的稳定事件与轮次证据；FAILURE、INCOMPLETE 和内容冲突不会推进保护阶段或获得缺席权威。`
+4. `不处于保护状态时，首个具有缺席权威的完整 SUCCESS 未包含当前业务键，便把其 VISIBLE Demand 转为 GONE；DemandLastSeenAt 保持最后真实看见时间，GoneConfirmedAt 单独记录确认缺席的 Host UTC 时间。`
+5. `保护期间仍可创建新 VISIBLE Demand、更新已观测 Demand 的实时字段并保留正常事件，只禁止由缺席推进 GONE 或归档。`
+6. `Series 尚未归档时，同键在后续完整 SUCCESS 中重现会保留 SeriesId，创建更高世代和新 DemandId，并以 predecessor 关系连接永久保留的上一代；旧代不被静默复活或改写。`
+7. `真实 SQL Server → 正式 API 的持久化重启验收依次证明第一、第二、第三轮边界、直接权威缺席、归档前重现和前后世代关系，且 API 展示的生命周期事件均绑定对应 PollTrace/ProjectionCommit。`
