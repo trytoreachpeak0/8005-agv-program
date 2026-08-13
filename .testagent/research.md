@@ -1,55 +1,60 @@
-# Ticket 10 test-generation research
+# Ticket 11 test research — ErrorSearchAsOf list, windows, and facets
 
-## Scope and confirmed seam
+## Scope and confirmed seams
 
-Ticket: `.scratch/new-mes-ingest/issues/10-readability-audit-snapshot-query-detail.md`.
+Ticket: `.scratch/new-mes-ingest/issues/11-error-search-as-of-list-window-facets.md`.
 
-The parent specification already confirms the public acceptance seam:
+Confirmed public seams from the feature spec:
 
-- scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> formal versioned HTTP API;
-- pure domain tests are limited to the stable blocker catalog/priority and signed-token binding that are expensive to exhaust through SQL.
+1. `IMesIngestProjection.ListErrorSearchAsync` for dense contract/token/interval rules.
+2. Scripted `MesTaskUnionRound` → production `RoundIngestor`/Host → real SQL Server → `GET /api/v2/error-search` for acceptance behavior.
 
-This ticket does not change `MesIngest.Watch`, XAML, Wpf.Ui, UI Automation, DPI, or visual baselines, so the Fluent/golden-renderer workflow is not in scope.
+Tests observe only those public seams. Time is a system boundary and is controlled with the existing `AdjustableTimeProvider`. The real-SQL tests use `Ticket01SqlServerDatabase` and reject LocalDB as release evidence.
 
-## Existing architecture and bounded gaps
+Ticket 11 does not change Watch/XAML/UI Automation/DPI/visual baselines, so the golden WPF renderer rules do not apply.
 
-- C#/.NET 8, xUnit v2 on VSTest, ASP.NET Core minimal APIs, and a strict empty-database SQL Server contract.
-- Ticket 08 already persists a monotonic `ProjectionSequence` plus a restart-stable 32-byte HMAC key and reconstructs DemandSeries reads as of a retained commit.
-- Ticket 09 already records the committed `CatalogRevision` on every `ProjectionCommit`, including commits that do not change the catalog. This is the required correlation value, but it cannot identify an audit snapshot.
-- Existing DemandSeries reads expose blockers only for the current Demand and return one row per Series. Ticket 10 needs one row per generated Demand generation, its own exact facets/order/filter semantics, and complete detail evidence.
-- The first-version blocker vocabulary already exists implicitly across lifecycle constants and `SeriesErrorCatalog`; it needs one explicit immutable `ReadabilityBlockerCatalog` with stable priorities and checks.
-- No new business table is required. The audit can rebuild latest observation, lifecycle events, active-as-of error periods, PollTrace provenance, and catalog revision from retained committed facts in one serializable read transaction.
+## Existing conventions
 
-## Target inventory
+- Test project: `mes/ingest/csharp/MesIngest.Tests/MesIngest.Tests.csproj`.
+- Framework/platform: xUnit 2.4.2 on VSTest (`Microsoft.NET.Test.Sdk`; no MTP signals).
+- Host harness: `WebApplicationFactory<Program>` in Production with the V2 SQL projection enabled.
+- SQL gate attribute: `[Ticket01SqlServerFact]` plus `[Collection("Ticket01SqlServer")]`.
+- Neighboring model: `ReadabilityAuditTests.cs`, `ReadabilityAuditContract.cs`, `ReadabilityAuditTokenCodec.cs`, `SqlServerMesIngestProjection.ReadabilityAudit.cs`, and `NewMesIngestEndpoints.cs`.
+- Error envelope: the existing V2 `NewMesIngestErrorDto { code, error }` contract.
+- Snapshot signing key: persistent `mesingest.SchemaInfo.SnapshotTokenSigningKey`, with a distinct token purpose per read model.
+- V2 endpoints remain excluded from the legacy v1 OpenAPI until ticket 17.
 
-| Target | Role |
+## Bounded target inventory
+
+| Target | Responsibility |
 | --- | --- |
-| `MesIngest.Core/SeriesProjection/ReadabilityAuditContract.cs` | blocker catalog, filter/query/result/detail/error contract |
-| `MesIngest.Core/SeriesProjection/ReadabilityAuditTokenCodec.cs` | tamper-evident snapshot and cursor binding |
-| `IMesIngestProjection.cs`, `NewMesIngestContract.cs` | public read seam and tracer/schema 10 identity |
-| `SqlServerMesIngestProjection.ReadabilityAudit.cs` | as-of Demand-generation states, filters/facets/order/page/detail |
-| `NewMesIngestEndpoints.cs` | list/detail HTTP resources, parsing, validation, structured status mapping |
-| `ReadabilityAuditTests.cs` | domain token tests and real-SQL production Host/API tracer bullets |
-| `Invoke-Ticket10SqlServerGate.ps1` | repeatable zero-skip real SQL Server acceptance gate |
+| `ErrorSearchContract.cs` | normalized filter/window/query, interval overlap, DTO snapshots, stable errors |
+| `ErrorSearchTokenCodec.cs` | signed snapshot+query binding and keyset cursor binding |
+| `IMesIngestProjection.cs` | public list seam |
+| `SqlServerMesIngestProjection.ErrorSearch.cs` | as-of/high-water reconstruction, exact filtering/facets/order/paging |
+| `SqlServerMesIngestProjection.cs` / `Program.cs` | injectable Host `TimeProvider` |
+| `NewMesIngestEndpoints.cs` | `/api/v2/error-search`, parsing, response DTOs, stable errors |
+| `SqlServerMesIngestSchema.cs` | permanent-history query indexes and exact schema contract |
+| `ErrorSearchTests.cs` | unit and production Host/SQL/API tracer bullets |
+| `Invoke-Ticket11SqlServerGate.ps1` | zero-skip real SQL Server gate |
 
-## Platform and commands
+## Acceptance checklist (verbatim from ticket 11)
 
-- SDK 10.0.302; no MTP signal in `global.json`, project, `Directory.Build.props`, or `Directory.Packages.props`.
-- Test platform: VSTest. Framework: xUnit v2.
-- Existing `MesIngest.Tests.csproj` already references Core and Host; no new project/reference is needed.
-- Focused: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~ReadabilityAuditTests"`.
-- Final build: `dotnet build MesIngest.sln --configuration Release --no-incremental`.
-- Full core suite: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-build`.
-- Formal SQL gate uses `MES_INGEST_TICKET01_SQLSERVER` with explicit product-major and compatibility assertions; LocalDB is rejected.
+- [ ] 首次查询由 Host 冻结 `ErrorSearchAsOf`；默认窗口是截至该时点最近精确 7×24 小时，并可选择最近 24 小时、30×24 小时和全部历史，不按本地午夜或自然日取整。
+- [ ] 错误期间与查询窗口统一采用 UTC 半开区间 `[from, to)`；边界相接不算命中，未显式给出 `to` 时以 `ErrorSearchAsOf` 为排他上界，显式非法区间得到明确失败而非静默改写。
+- [ ] 查询支持主分类、SeriesErrorCode、`ACTIVE`/`ENDED`、时间、SeriesId、DemandId 与 SUBLOT；不同维度取交集、同维度多值取并集，默认同时包含活动和已结束，矛盾的分类与错误码组合明确失败。
+- [ ] SeriesId、DemandId 与错误码采用去首尾空白后的不区分大小写精确匹配，SUBLOT 采用不区分大小写包含匹配；DemandId 命中时返回所属 Series，但只汇总满足全部条件的期间与证据。
+- [ ] 列表按 DemandSeries 去重，并依次按匹配范围内 ACTIVE 优先、最近匹配证据时间降序、SeriesId 升序稳定排列；默认每页 100、最多 200，返回精确 totalSeriesCount，第一版不提供任意列排序或导出。
+- [ ] 分类与状态分面按排除自身维度后的去重 DemandSeries 精确计算；一个 Series 可命中多个主分类，因此系统不会把分类数量机械相加解释为总数。
+- [ ] 游标绑定完整规范化筛选、固定顺序、`ErrorSearchAsOf` 与契约版本；篡改、跨筛选复用或不匹配时返回稳定的明确错误，不自动冒充第一页。
+- [ ] 在可控时间下，查询后追加、改变或关闭错误期间不会改变既有快照的列表、状态、分面和页序；刷新后才可观察到新的 `ErrorSearchAsOf` 与对应结果。
+- [ ] 只有查询成功且零命中时才返回“该条件下没有错误历史”的空结果；加载失败、取消或零个活动错误都不会被报告为系统健康，AreaFilterProfile 也不会静默过滤错误检索。
 
-## Acceptance checklist (verbatim)
+## Risk notes
 
-1. `审计可观察到每个已生成 Demand 世代，包括 VISIBLE、GONE、所属 Series 已归档及 LongGoneButVisible；每项独立给出 READABLE 或 NOT_READABLE，不会把资格状态等同于生命周期状态。`
-2. `第一版稳定阻断目录覆盖 DEMAND_GONE、SERIES_ARCHIVED、LONG_GONE_BUT_VISIBLE、DUPLICATE_TRANSPORT_DEMAND_KEY、SUBLOT_MULTIPLE_WORK_TYPES、REQUIRED_MES_FIELD_MISSING 与 INVALID_MES_FIELD_FORMAT；一个 Demand 的全部命中原因均可见，列表主要原因由 Host 的稳定优先级选择。`
-3. `列表支持资格、WorkType、阻断原因、DemandId 和 SUBLOT 条件；不同维度取交集、同维度多值取并集，默认同时包含可读与不可读，标识匹配规则与领域契约一致。`
-4. `当前 AreaFilterProfile 的合法 MesArea 集合由 Host 在计数和分页前精确应用；不可信当前 AREA 不借历史值命中配置，只在“全部 AREA”范围内出现，AREA 条件不改变资格或 CatalogRevision。`
-5. `列表默认先显示不可读项，再按主要原因优先级、DemandLastSeenAt 降序和 DemandId 升序稳定排列；默认每页 100、最多 200，并返回当前完整筛选下的精确 Demand 总数。`
-6. `资格与原因分面按去重 Demand 精确计算且排除自身维度；同一 Demand 可计入多个原因分面，但原因数量之和不会被报告为不可读总数。`
-7. `首次查询冻结独立的 ReadabilityAuditSnapshot，列表、分面、精确总数、后续页和详情共享其 ProjectionCommit 身份并携带当时的 CatalogRevision；并发产生的新提交只在显式刷新后的新快照出现。`
-8. `详情从同一审计快照返回全部资格检查、完整阻断集合、可信字段或原始观测冲突、所属 Series、PollTrace、ProjectionCommit 与 CatalogRevision；主要原因不能替代完整推导。`
-9. `游标绑定审计快照、规范化筛选、AREA 值集合、固定顺序与契约版本；无效、过期、篡改或跨条件复用均明确失败，不静默返回第一页或另一快照的数据。`
+- `DemandSeriesErrorPeriods.EndedAt` is updated in place. Reads must reconstruct closure through the closed event's commit fence, not trust the current column alone.
+- Evidence can be appended to an existing period after page one. Every evidence row must be fenced by ProjectionSequence.
+- `ProjectionCommits.CommittedAt` is the round's business completion time, not a physical DB commit time. It cannot replace the frozen high-water sequence.
+- Period overlap, not evidence timestamp containment, determines a match. A long-running period can match even when its latest evidence predates the window.
+- Category facets intentionally overlap at Series level; their sum is not the exact total.
+- `AreaFilterProfile`, arbitrary sorting, export, severity filtering, and ticket-12 detail/raw evidence are out of scope.

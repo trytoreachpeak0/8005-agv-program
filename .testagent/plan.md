@@ -1,50 +1,57 @@
-# Ticket 10 test implementation plan
+# Ticket 11 test and implementation plan
 
-## Vertical red -> green slices
+## Vertical TDD slices
 
-1. **Stable blocker vocabulary and qualification checks**
-   - Red: all seven immutable codes exist once, stable diagnostic-first priority selects one lead while preserving all blockers, AREA vocabulary validation is exact.
-   - Green: `ReadabilityBlockerCatalog` and shared audit contracts.
+1. **Contract/window tracer**
+   - Test `Error_search_query_normalizes_filters_and_resolves_exact_utc_windows`.
+   - Add normalized filters, exact rolling windows, UTC offset parsing contract, half-open overlap, vocabulary/conflict/page validation.
 
-2. **Independent signed audit identity and cursor**
-   - Red: round-trip includes ProjectionCommit plus CatalogRevision and cursor includes normalized filters/AREA/order/page/anchor; tampering and cross-condition reuse fail.
-   - Green: audit-specific HMAC token codec over the existing persisted signing key.
+2. **Credential tracer**
+   - Test `Error_search_tokens_bind_asof_high_water_filter_window_order_and_page_size`.
+   - Add a signed snapshot payload containing identity + normalized filter + resolved window + fixed order, and a separate keyset cursor purpose.
 
-3. **Frozen list, exact facets, filter/AREA/order/page**
-   - Red: production SQL/Host lists every Demand generation, applies OR-within/AND-across filters and trusted AREA before exact counts, orders by the fixed contract, and pages at 1..200.
-   - Green: one serializable as-of query with bounded result rows and exact server-side aggregates.
+3. **Default search tracer**
+   - Test `Rolling_and_custom_windows_use_utc_half_open_period_overlap` through the production HTTP/SQL seam.
+   - Add projection high-water/as-of resolution and period reconstruction.
 
-4. **Same-snapshot detail and evidence**
-   - Red: detail returns all seven checks, all matched blocker evidence, unique fields or the conflicting raw multiset, Series summary, latest PollTrace/value provenance, ProjectionCommit and CatalogRevision.
-   - Green: one demand-at-snapshot read through `IMesIngestProjection` and formal HTTP endpoint.
+4. **Filter/facet tracer**
+   - Test `Filters_facets_series_dedup_and_all_four_categories_share_one_snapshot`.
+   - Add category/code/state/time/object intersection, same-dimension union, CI exact/contains semantics, exact category/state facets.
 
-5. **Refresh and error semantics**
-   - Red: an always-unreadable Demand changes blocker while `CatalogRevision` stays fixed; old pages/detail remain fixed and a refresh gets the new commit. Invalid/tampered/mismatched/unretained credentials return stable structured errors.
-   - Green: snapshot resolution/error mapping and explicit refresh-by-omission semantics.
+5. **Demand-generation tracer**
+   - Test `Demand_id_filter_keeps_only_the_matching_generation_period_and_evidence`.
+   - Add exact DemandId evidence restriction without losing the owning Series.
 
-6. **Validation and review**
-   - focused green run after each slice;
-   - formal real-SQL ticket gate with no skips;
-   - Release non-incremental solution build;
-   - complete core suite once;
-   - assertion/gap audit, then `/code-review` Standards + Spec and fixes.
+6. **Frozen-history, ordering, and paging tracer**
+   - Test `Frozen_high_water_keeps_pages_state_facets_and_order_stable_after_backdated_commit`.
+   - Fence opens/closes/evidence and summary state by frozen ProjectionSequence as well as ErrorSearchAsOf; prove fixed order and keyset paging.
 
-## Requirement-to-test targets
+7. **Failure/empty tracer**
+   - Test `Http_failures_invalid_queries_and_successful_empty_results_remain_distinct`.
+   - Add stable 400/409/410 mapping, cancellation propagation, unsupported parameter rejection, and successful empty response without health claims.
 
-| Requirement | Planned executable evidence |
+8. **Contract/release checks**
+   - Keep `/api/v2/error-search` out of legacy v1 OpenAPI until ticket 17.
+   - Add `Invoke-Ticket11SqlServerGate.ps1`, schema index self-check, contract/schema 11, ticket evidence.
+
+## Requirement-to-test map
+
+| Ticket requirement | Planned evidence |
 | --- | --- |
-| 1 | `Audit_lists_every_demand_generation_with_readability_separate_from_lifecycle` |
-| 2 | `Blocker_catalog_is_complete_and_lead_priority_never_discards_other_reasons`; complex audit/detail tracer |
-| 3 | `Audit_filters_use_or_within_and_across_dimensions_with_domain_identifier_matching` |
-| 4 | `Area_scope_is_exact_and_excludes_untrusted_current_area_before_counts_and_pages` |
-| 5 | `Audit_order_and_bounded_pages_are_stable_with_an_exact_total` |
-| 6 | `Audit_facets_exclude_their_own_dimension_and_overlap_without_inflating_total` |
-| 7 | `Audit_snapshot_stays_frozen_when_a_new_commit_changes_blockers_without_changing_catalog_revision` |
-| 8 | `Audit_detail_uses_the_list_snapshot_and_returns_complete_checks_raw_evidence_and_provenance` |
-| 9 | `Audit_tokens_bind_snapshot_filters_area_order_contract_and_reject_tampering_or_reuse` plus HTTP credential assertions |
+| 首次查询由 Host 冻结…7×24…24 小时、30×24、全部历史 | `Rolling_and_custom_windows_use_utc_half_open_period_overlap` |
+| UTC 半开区间 `[from,to)`…非法区间明确失败 | `Error_search_query_normalizes_filters_and_resolves_exact_utc_windows`; default-window HTTP test |
+| 分类/code/state/time/SeriesId/DemandId/SUBLOT；OR/AND；矛盾失败 | `Filters_facets_series_dedup_and_all_four_categories_share_one_snapshot`; vocabulary contract test |
+| 标识 exact/CI、SUBLOT contains/CI、DemandId only matching evidence | filter/facet test; `Demand_id_filter_keeps_only_the_matching_generation_period_and_evidence` |
+| Series 去重、固定排序、100/200、精确总数、无任意排序/导出 | frozen high-water/paging test; failure test |
+| 排除自身维度的分类/状态分面 | filter/facet HTTP test |
+| cursor 绑定完整查询/asOf/version；篡改/复用失败 | token test; paging HTTP test |
+| 后续追加/改变/关闭不改变旧快照 | `Frozen_high_water_keeps_pages_state_facets_and_order_stable_after_backdated_commit` |
+| 成功空集与失败/取消/零 active/AREA 隐式过滤不同 | failure/empty HTTP test |
 
-## Completion conditions
+## Commands
 
-- Every checklist row maps to at least one concrete passing assertion at the confirmed seam.
-- New tests are discovered by the existing `MesIngest.sln` harness.
-- `.testagent/status.md` records the exact clean build/test/gate/review evidence.
+- First red / narrow cycles: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~ErrorSearchTests"`.
+- Compile checks: `dotnet build MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-restore`.
+- Real SQL gate: `./Invoke-Ticket11SqlServerGate.ps1 -ExpectedProductMajor 16 -ExpectedCompatibilityLevel 160` (when the approved env is present).
+- Final full core suite: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release`.
+- Final solution build: `dotnet build MesIngest.sln --configuration Release --no-incremental`.
