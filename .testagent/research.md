@@ -1,53 +1,64 @@
-# Ticket 08 test-generation research
+# Ticket 09 test-generation research
 
-## Bounded scope
+## Scope and confirmed seams
 
-- Ticket: `.scratch/new-mes-ingest/issues/08-demand-series-frozen-snapshot-list-and-detail.md`.
-- Confirmed public seam: scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> formal `/api/v2` HTTP.
-- Production modules: `MesIngest.Core/SeriesProjection`, `MesIngest.Infrastructure/SqlServer`, and `MesIngest.Host/NewMesIngestEndpoints.cs`.
-- Test project: `MesIngest.Tests` (`net8.0-windows`, xUnit 2.4.2, VSTest).
-- No WPF/UI files are in scope; the Fluent/golden-renderer workflow does not apply.
-- `find-untested-sources` is unavailable; source/test pairing was determined from the bounded ticket seam.
+Ticket: `.scratch/new-mes-ingest/issues/09-externally-readable-demand-catalog-reference-consumer.md`.
 
-## Required semantics and current gaps
+Confirmed public seams from the parent specification:
 
-- A first list request must bind to one persisted `ProjectionCommit`; all pages, exact totals, facets, list rows, and detail reads must use that same point.
-- `ProjectionCommitId` is a random GUID and `CommittedAt` may tie, so a persisted monotonic projection sequence is required for `<= snapshot` reconstruction.
-- Current Series/Demand/error-condition tables are mutable. A historical read must reconstruct state from immutable events, raw observations, and error evidence; a later close must not leak into an older snapshot.
-- Lifecycle and presence are orthogonal: TRACKING/ARCHIVED versus VISIBLE/GONE/LONG_GONE_BUT_VISIBLE.
-- Default stable order is fixed to `StartedAt DESC, SeriesId ASC`; bounded pages default to 100 and max at 200.
-- Filters are server-side and exact under the contract: lifecycle, presence, exact ordinal WorkType, ordinal SUBLOT search, exact SeriesId/DemandId, and trusted current AREA.
-- Snapshot and page credentials persist across Host restart, are HMAC-protected with a database-persisted key, and bind contract version, projection sequence/id, canonical filters, order, page, and page size.
-- No commit exists for FAILURE/INCOMPLETE, so latest remains the last SUCCESS. Before any SUCCESS, list/detail return structured `PROJECTION_NOT_AVAILABLE`.
-- Snapshot history is not assigned a TTL in ticket08; a structurally valid reference to a retained commit remains addressable.
-- Full single-Series history is returned for this ticket. Ticket12 remains the later bounded evidence API; list reads are always bounded.
+- scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> formal versioned HTTP catalog;
+- persisted catalog projection read, including a conditional read at one committed revision;
+- isolated reference-consumer API at cache refresh, execution commitment, consumer-owned durable intent, and remote-order idempotency boundaries.
+
+No WPF/UI file is in scope; Fluent/golden-renderer rules do not apply. `find-untested-sources`
+is unavailable, so source/test pairing is bounded to this ticket's seams.
+
+## Existing architecture and gaps
+
+- V2 uses C#/.NET 8, xUnit v2 on VSTest, ASP.NET Core minimal APIs, and a strict empty-database SQL Server schema.
+- `SqlServerMesIngestProjection.CommitRoundAsync` already applies a whole SUCCESS under one
+  SERIALIZABLE transaction. FAILURE/INCOMPLETE and idempotent replays do not mutate projection state.
+- Current DemandSeries reads derive readability blockers, but there is no persisted catalog,
+  `CatalogRevision`, or `DemandRevision`. `ProjectionSequence` and `LatestProjectionCommitId` advance
+  on unchanged SUCCESS rounds and therefore cannot substitute for either domain revision.
+- `DemandLastSeenAt` also advances on unchanged observations, so it cannot be a catalog-visible member
+  value unless every poll creates revision noise. Catalog time fields must be stable/value-semantic:
+  Demand `CreatedAt`, current `MesSourceDate`, and the commit/value evidence that produced the member.
+- A catalog read must be one full-range resource, sorted by DemandId. It rejects query parameters;
+  Minimal APIs otherwise silently ignore unknown parameters.
+- The reference consumer belongs in a separate class library. Its cache is disposable. Durable state
+  begins only at `AcceptedDemandSnapshot` + `OrderIntent`; it never writes cancellation/dispatch state
+  to MesIngest.
 
 ## Target inventory
 
 | Target | Role |
 | --- | --- |
-| `MesIngest.Core/SeriesProjection/DemandSeriesBrowseContract.cs` | public query/result/error and signed credential contract |
-| `ProjectionModels.cs`, `IMesIngestProjection.cs`, `NewMesIngestContract.cs` | provenance additions, frozen reads, schema/contract v8 |
-| `SqlServerMesIngestSchema.cs` | monotonic commit sequence and persistent signing key |
-| `SqlServerMesIngestProjection.cs` | latest/as-of resolution, reconstruction, exact list/facets/page/detail |
-| `NewMesIngestEndpoints.cs` | formal frozen list/detail HTTP resources and structured errors |
-| `DemandSeriesFrozenSnapshotTests.cs` | real-SQL Production Host tracer bullets plus credential tests |
-| `Invoke-Ticket08SqlServerGate.ps1` | zero-skip real SQL acceptance gate |
+| `MesIngest.Core/SeriesProjection/ExternallyReadableDemandCatalog.cs` | central eligibility/value contract and catalog read models |
+| `ProjectionModels.cs`, `IMesIngestProjection.cs`, `NewMesIngestContract.cs` | Demand revision, persisted read seam, contract/schema v9 |
+| `SqlServerMesIngestSchema.cs` | singleton catalog state, current member rows, commit-to-revision evidence |
+| `SqlServerMesIngestProjection.cs` / new partial | reconcile catalog once at the end of each SUCCESS and conditional atomic reads |
+| `NewMesIngestEndpoints.cs` | full catalog GET, ETag/If-None-Match, 304, query rejection |
+| `MesIngest.ReferenceConsumer` | disposable cache, final reread, immutable acceptance and idempotent intent workflow |
+| `ExternallyReadableDemandCatalogTests.cs` | real-SQL production Host/API tracer bullets |
+| `ReferenceConsumerTests.cs` | consumer boundary behavior and HTTP mapping |
+| `Invoke-Ticket09SqlServerGate.ps1` | repeatable zero-skip SQL Server acceptance gate |
 
-## Environment and commands
+## Platform and commands
 
-- SDK: .NET SDK 10.0.302; no MTP signals; use VSTest + xUnit v2 syntax.
-- Real SQL gate environment: `MES_INGEST_TICKET01_SQLSERVER`, `MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR=16`, and `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL=160`.
-- Focused: `dotnet test mes/ingest/csharp/MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~DemandSeriesFrozenSnapshotTests"`.
-- Final build: `dotnet build mes/ingest/csharp/MesIngest.sln --configuration Release --no-incremental`.
-- Full tests: `dotnet test mes/ingest/csharp/MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-build`.
+- SDK 10.0.302; project has no MTP signal. Test platform is VSTest, framework xUnit v2.
+- Focused test: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~ExternallyReadableDemandCatalogTests|FullyQualifiedName~ReferenceConsumerTests"`.
+- Final build: `dotnet build MesIngest.sln --configuration Release --no-incremental`.
+- Full tests: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-build`.
+- Real SQL gate uses `MES_INGEST_TICKET01_SQLSERVER`, explicit product major, and compatibility level;
+  LocalDB is rejected.
 
 ## Acceptance checklist (verbatim)
 
-1. `首次列表请求冻结到一个明确的 ProjectionCommit；响应必须带快照身份/commit 元数据。该快照的 exact total、lifecycle facets、每行 lifecycle/currentPresence/currentDemand/generation/lastSeriesSequence，以及随后页面和详情都按同一 commit 计算。`
-2. `列表不按外部可读资格隐藏坏数据，覆盖 TRACKING+VISIBLE、TRACKING+GONE、ARCHIVED+GONE、ARCHIVED+LONG_GONE_BUT_VISIBLE，并稳定返回 SeriesId、SUBLOT、WorkType、StartedAt、Lifecycle、CurrentPresence、当前 Demand/Generation、LastSeriesSequence。`
-3. `详情返回全部 Demand 世代与 predecessor、当前和历史 MES 事实、规范化原始多重集合、duplicate/多 WorkType 冲突、当前条件、永久错误期间、生命周期节点和每代不可读结论。`
-4. `详情事实可追溯 DemandId、PollTraceId、Host UTC、ProjectionCommitId；事件严格按 SeriesSequence 升序且保留 payloadVersion，归档、恢复及错误历史不得遗漏。`
-5. `Host 在快照内先筛选，再 exact count/facets，再稳定排序和有界分页；cursor/locator 绑定 snapshot、规范化 filter、固定 order、contract version，并校验完整性。`
-6. `取得旧列表后提交改变字段或生命周期的新 SUCCESS，旧 snapshot 的页面和详情仍属于旧 commit；latest 才看到新 commit；未知、失效、篡改或跨 filter/version 引用结构化失败，不能静默返回第一页/最新态。`
-7. `脚本化 MesTaskUnionRound -> production Host/domain -> real SQL Server -> formal versioned HTTP API 覆盖字段异常及恢复、duplicate、多 WorkType、GONE、归档前重现、archive、LongGoneButVisible、重启，以及旧快照读取期间的新提交。`
+1. `经正式 Host 和持久化投影读取时，目录只包含同时满足 VISIBLE、唯一原始观测、全部必填字段有效、无当前数据异常且所属 Series 未归档的 Demand；不合格 Demand 仍可从 Watch 运维投影追查。`
+2. `目录项可观察到稳定的 DemandId、SeriesId、TransportDemandKey、世代、DemandRevision、时间与当前可信 MES 字段，并按 DemandId 稳定输出；目录拒绝 WorkType、AREA、车辆、地图或站点等 Dispatch 范围参数。`
+3. `首次读取返回完整目录及 CatalogRevision；成员进入、退出或成员业务值变化才使修订递增，无变化轮次不递增，同一轮多个成员变化也只递增一次。`
+4. `以已有修订进行条件读取时，未变化目录返回 304 Not Modified 且不传输正文；变化后返回同一已提交修订对应的完整正文，不出现新修订配旧成员或旧字段。`
+5. `reference consumer 清空缓存或重启后只靠完整目录即可恢复当前视图，不读取或持久化 DemandChangeFeed、Feed Sequence、bootstrap high-watermark 或同步 Cursor。`
+6. `reference consumer 在执行承诺点最终重读 Demand：资格、Revision 或值已变化时可观察到明确拒绝或重新决策；接受成功时保存的 AcceptedDemandSnapshot 不会被后续目录刷新改写，OrderIntent 以稳定幂等身份处理结果未知。`
+7. `端到端契约证据覆盖唯一行、字段异常与恢复、重复键、多 WorkType、归档后可见、实时字段变化和无变化轮次，并证明 MesIngest 不读取或修改消费者的取消抑制与派车状态。`
