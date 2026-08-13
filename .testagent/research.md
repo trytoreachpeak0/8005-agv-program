@@ -1,63 +1,53 @@
-# Ticket 07 test-generation research
+# Ticket 08 test-generation research
 
 ## Bounded scope
 
-- Ticket: `.scratch/new-mes-ingest/issues/07-work-type-task-type-protection.md`.
-- Confirmed production seam: scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> versioned HTTP API.
-- Production modules: `MesIngest.Core/SeriesProjection`, `MesIngest.Infrastructure/SqlServer`, V2 Host composition, and the formal V2 read DTOs.
+- Ticket: `.scratch/new-mes-ingest/issues/08-demand-series-frozen-snapshot-list-and-detail.md`.
+- Confirmed public seam: scripted `MesTaskUnionRound` -> production `RoundIngestor`/Host -> real SQL Server -> formal `/api/v2` HTTP.
+- Production modules: `MesIngest.Core/SeriesProjection`, `MesIngest.Infrastructure/SqlServer`, and `MesIngest.Host/NewMesIngestEndpoints.cs`.
 - Test project: `MesIngest.Tests` (`net8.0-windows`, xUnit 2.4.2, VSTest).
-- Tickets 02 and 05 are done. Ticket 06 implementation is present and supplies the archive path that Ticket 07 must suppress per WorkType.
-- Ticket 13 will compose the unified `CurrentIngestAttention` endpoint and Ticket 14 will compose `WatchOverviewSnapshot`. Ticket 07 must publish an attention-ready protection projection and immutable events through a focused V2 resource; it must not invert those dependencies by implementing the later aggregate APIs.
-- No WPF/UI files are in scope, so the golden-renderer workflow does not apply.
+- No WPF/UI files are in scope; the Fluent/golden-renderer workflow does not apply.
+- `find-untested-sources` is unavailable; source/test pairing was determined from the bounded ticket seam.
 
-## Inherited and resolved domain semantics
+## Required semantics and current gaps
 
-- Entry inherits the approved configurable `ZeroDropEnterThreshold` rule (default 10): when the most recent accepted non-zero count is at least the threshold and the next accepted complete SUCCESS count is zero, that WorkType enters `PAUSED_ZERO_DROP` in that round.
-- A healthy count is the number of distinct recognizable `TransportDemandKey` values for the exact WorkType in the accepted round. Duplicate raw rows for one key count once; identifiable rows with non-key data errors still count; missing SUBLOT or WorkType does not count; V2 has no go-live date filter.
-- Every accepted non-zero count replaces `LastHealthyNonZeroCount`, including recovery rounds; zero never overwrites it.
-- Recovery requires exactly two consecutive accepted non-zero SUCCESS rounds. The first records 1/2 progress; the second records 2/2 and clears protection but remains `AUTHORITY_PENDING`. The following accepted SUCCESS restores type authority. A zero while recovering resets progress to zero and remains protected.
-- Effective absence authority is the intersection of RestartBarrier authority and the per-WorkType protection decision. Callers still cannot supply authority.
-- Current attention remains true through `PAUSED_ZERO_DROP`, `RECOVERING`, and `AUTHORITY_PENDING`; it becomes false only after the authority-restored event. Historical events remain queryable.
-- Stable WorkType-scoped facts are separate from `DemandSeriesEvent`: entered, each recovery-progress step, cleared, and type absence-authority restored. Each event binds PollTrace, ProjectionCommit, Host UTC time, episode identity, stable WorkType sequence, thresholds, counts, and phases.
-
-## Existing behavior and gaps
-
-- `SqlServerMesIngestProjection.CommitRoundAsync` already rejects replay conflicts and isolates FAILURE/INCOMPLETE before any SUCCESS projection mutation. Ticket 07 state advancement must remain after those gates and in the same SERIALIZABLE transaction.
-- `ProjectionCommit.AbsenceAuthority` currently records the global RestartBarrier decision and should retain that meaning. Per-type decisions need separate round evidence.
-- GONE and twelve-hour archive sweeps currently accept one global boolean. Both must load candidate WorkType and apply the per-type authority decision.
-- The V2 schema/API currently has no protection state, protection events, or focused protection endpoint.
-- Legacy `TransportDemandReconciler` is only a semantic reference. Its old tables, DTOs, and `IngestAlert` incident lifecycle are forbidden by ADR-mes-0017.
-- `find-untested-sources` is unavailable; deterministic pairing is bounded to the files below.
+- A first list request must bind to one persisted `ProjectionCommit`; all pages, exact totals, facets, list rows, and detail reads must use that same point.
+- `ProjectionCommitId` is a random GUID and `CommittedAt` may tie, so a persisted monotonic projection sequence is required for `<= snapshot` reconstruction.
+- Current Series/Demand/error-condition tables are mutable. A historical read must reconstruct state from immutable events, raw observations, and error evidence; a later close must not leak into an older snapshot.
+- Lifecycle and presence are orthogonal: TRACKING/ARCHIVED versus VISIBLE/GONE/LONG_GONE_BUT_VISIBLE.
+- Default stable order is fixed to `StartedAt DESC, SeriesId ASC`; bounded pages default to 100 and max at 200.
+- Filters are server-side and exact under the contract: lifecycle, presence, exact ordinal WorkType, ordinal SUBLOT search, exact SeriesId/DemandId, and trusted current AREA.
+- Snapshot and page credentials persist across Host restart, are HMAC-protected with a database-persisted key, and bind contract version, projection sequence/id, canonical filters, order, page, and page size.
+- No commit exists for FAILURE/INCOMPLETE, so latest remains the last SUCCESS. Before any SUCCESS, list/detail return structured `PROJECTION_NOT_AVAILABLE`.
+- Snapshot history is not assigned a TTL in ticket08; a structurally valid reference to a retained commit remains addressable.
+- Full single-Series history is returned for this ticket. Ticket12 remains the later bounded evidence API; list reads are always bounded.
 
 ## Target inventory
 
 | Target | Role |
 | --- | --- |
-| `MesIngest.Core/SeriesProjection/TaskTypeProtection.cs` | pure transition policy, phases, and stable event codes |
-| `MesIngest.Core/SeriesProjection/ProjectionModels.cs` | protection state/event and per-round decision snapshots |
-| `MesIngest.Core/SeriesProjection/IMesIngestProjection.cs` | focused read seam |
-| `MesIngest.Core/SeriesProjection/NewMesIngestContract.cs` | exact empty-database contract/schema bump |
-| `MesIngest.Infrastructure/SqlServer/SqlServerMesIngestSchema.cs` | persistent protection state/events and exact schema validation |
-| `MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.cs` | count/transition state, effective authority, per-type GONE/archive, reads |
-| `MesIngest.Host/Program.cs` / `MesIngestHostOptions.cs` | inject configurable entry threshold into V2 projection |
-| `MesIngest.Host/NewMesIngestEndpoints.cs` | formal focused protection resource and round evidence DTOs |
-| `MesIngest.Tests/TaskTypeProtectionTests.cs` | real SQL/Production Host/API tracer bullets |
-| `Invoke-Ticket07SqlServerGate.ps1` | repeatable zero-skip real-SQL acceptance gate |
+| `MesIngest.Core/SeriesProjection/DemandSeriesBrowseContract.cs` | public query/result/error and signed credential contract |
+| `ProjectionModels.cs`, `IMesIngestProjection.cs`, `NewMesIngestContract.cs` | provenance additions, frozen reads, schema/contract v8 |
+| `SqlServerMesIngestSchema.cs` | monotonic commit sequence and persistent signing key |
+| `SqlServerMesIngestProjection.cs` | latest/as-of resolution, reconstruction, exact list/facets/page/detail |
+| `NewMesIngestEndpoints.cs` | formal frozen list/detail HTTP resources and structured errors |
+| `DemandSeriesFrozenSnapshotTests.cs` | real-SQL Production Host tracer bullets plus credential tests |
+| `Invoke-Ticket08SqlServerGate.ps1` | zero-skip real SQL acceptance gate |
 
 ## Environment and commands
 
-- SDK: .NET SDK 10.0.302; no MTP signals; VSTest + xUnit v2 syntax is required.
-- Real SQL Server gate: `MES_INGEST_TICKET01_SQLSERVER`, `MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR=16`, and `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL=160`; LocalDB is rejected.
-- Narrow test: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~TaskTypeProtectionTests"`.
-- Final build: `dotnet build MesIngest.sln --configuration Release --no-incremental`.
-- Final core suite: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-build`.
+- SDK: .NET SDK 10.0.302; no MTP signals; use VSTest + xUnit v2 syntax.
+- Real SQL gate environment: `MES_INGEST_TICKET01_SQLSERVER`, `MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR=16`, and `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL=160`.
+- Focused: `dotnet test mes/ingest/csharp/MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --filter "FullyQualifiedName~DemandSeriesFrozenSnapshotTests"`.
+- Final build: `dotnet build mes/ingest/csharp/MesIngest.sln --configuration Release --no-incremental`.
+- Full tests: `dotnet test mes/ingest/csharp/MesIngest.Tests/MesIngest.Tests.csproj --configuration Release --no-build`.
 
 ## Acceptance checklist (verbatim)
 
-1. `每个 WorkType 独立维护健康非零基线；某类型从健康非零结果骤降为零时进入 TaskTypeProtection/PausedZeroDrop，该轮及保护期间的成功空轮不能把该类型 Demand 标为 GONE 或推进归档。`
-2. `一个 WorkType 受保护时，其它 WorkType 仍按各自观测和缺席权威正常创建、更新或标记 GONE；保护状态、计数和恢复进度不得跨类型串扰。`
-3. `受保护类型连续两轮获得健康非零结果后才解除保护；第二轮只完成解除，下一轮完整结果才恢复该类型的缺席权威，不能在解除同轮自相矛盾地确认 GONE。`
-4. `FAILURE、INCOMPLETE、幂等重放和内容冲突不建立健康基线、不推进连续恢复计数，也不解除保护；RestartBarrier 与类型保护同时存在时，只有两者都允许的轮次才具有缺席权威。`
-5. `保护进入、每步恢复进度、解除和权威恢复都产生稳定事件，并作为当前 CurrentIngestAttention 与轮次证据由正式 API 查询；结束后不保留为当前项，但历史事实仍可追溯。`
-6. `保护状态和恢复进度在 Host 重启后保持，不能因进程重启提前获得缺席权威或丢失保护证据。`
-7. `真实 SQL Server → 正式 API 验收同时驱动至少两个 WorkType，证明目标类型进入保护、保护空轮不 GONE、其它类型继续对账、两轮非零恢复以及随后权威空轮才 GONE。`
+1. `首次列表请求冻结到一个明确的 ProjectionCommit；响应必须带快照身份/commit 元数据。该快照的 exact total、lifecycle facets、每行 lifecycle/currentPresence/currentDemand/generation/lastSeriesSequence，以及随后页面和详情都按同一 commit 计算。`
+2. `列表不按外部可读资格隐藏坏数据，覆盖 TRACKING+VISIBLE、TRACKING+GONE、ARCHIVED+GONE、ARCHIVED+LONG_GONE_BUT_VISIBLE，并稳定返回 SeriesId、SUBLOT、WorkType、StartedAt、Lifecycle、CurrentPresence、当前 Demand/Generation、LastSeriesSequence。`
+3. `详情返回全部 Demand 世代与 predecessor、当前和历史 MES 事实、规范化原始多重集合、duplicate/多 WorkType 冲突、当前条件、永久错误期间、生命周期节点和每代不可读结论。`
+4. `详情事实可追溯 DemandId、PollTraceId、Host UTC、ProjectionCommitId；事件严格按 SeriesSequence 升序且保留 payloadVersion，归档、恢复及错误历史不得遗漏。`
+5. `Host 在快照内先筛选，再 exact count/facets，再稳定排序和有界分页；cursor/locator 绑定 snapshot、规范化 filter、固定 order、contract version，并校验完整性。`
+6. `取得旧列表后提交改变字段或生命周期的新 SUCCESS，旧 snapshot 的页面和详情仍属于旧 commit；latest 才看到新 commit；未知、失效、篡改或跨 filter/version 引用结构化失败，不能静默返回第一页/最新态。`
+7. `脚本化 MesTaskUnionRound -> production Host/domain -> real SQL Server -> formal versioned HTTP API 覆盖字段异常及恢复、duplicate、多 WorkType、GONE、归档前重现、archive、LongGoneButVisible、重启，以及旧快照读取期间的新提交。`
