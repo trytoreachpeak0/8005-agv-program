@@ -1,22 +1,31 @@
-# Ticket 05 test-generation status
+# Ticket 07 test-generation status
 
 ## Current state
 
-- Ticket 05 implementation and six focused tracer bullets are complete on the confirmed real SQL Server / Production Host / formal V2 API seam.
-- Release solution build is green with 0 warnings and 0 errors.
-- Ticket 05 SQL Server/API gate is green against SQL Server 16.0.1190.2 / compatibility 160: 6 passed, 0 failed, 0 skipped. Ticket 01-05 key regression is 22 passed, 0 failed, 0 skipped.
-- The complete solution was executed before the final review fixes: `MesIngest.Tests` reported 524 passed, 19 environment-gated skipped, and 2 unrelated existing failures; `MesIngest.Watch.UiTests` reported 82 passed and 27 environment-gated skipped. After the final fixes, the complete core suite reported 504 passed, 41 environment-gated skipped, and the same fixed-clock telemetry retention failure; the Ticket 05 and Ticket 01-05 real-SQL gates remained fully green.
-- Spec review is clean; all three Standards findings are closed and the refreshed combined TRX records 22/22 green.
+- Research and requirement-to-test mapping complete.
+- Six real SQL Server / production Host / formal API tracer tests are implemented and green.
+- Ticket 07 production implementation is complete: per-WorkType policy, schema, atomic projection,
+  GONE/archive authority filtering, focused v2 reads, and PollTrace decision evidence.
+- Fixed review point: `112590abce17a245f69de1c5d596ac5191d167c1`.
 
 ## Requirement evidence
 
-| Ticket acceptance | Automated evidence |
+| Verbatim requirement | Evidence |
 | --- | --- |
-| automatic internal restart barrier and no caller bypass | `Restarted_host_requires_two_successful_barrier_rounds_before_third_absence_marks_gone`, including public-input reflection checks |
-| first/second/third SUCCESS boundary | restart boundary tracer and per-round PollTrace projection decision |
-| durable events plus failure/incomplete/replay/conflict isolation | `Failure_incomplete_replay_and_conflict_never_advance_restart_barrier` |
-| direct authoritative GONE, separate clocks, and DEMAND_GONE condition closure | `First_authoritative_absence_marks_visible_demand_gone_preserves_last_seen_and_closes_conditions_as_demand_gone` |
-| positive observations still project during barrier | `Restart_barrier_still_creates_and_updates_visible_demands_without_marking_absent_demands_gone` |
-| prearchive reappearance keeps Series and creates a permanent successor generation | `Prearchive_reappearance_creates_persisted_successor_generation_without_rewriting_predecessor` |
-| real SQL / formal API / Host restart | all six Ticket 05 tests execute through the production Host and versioned `/api/v2` endpoints |
-| exact latest observation under equal timestamps | `Same_completed_at_uses_latest_accepted_success_instead_of_poll_trace_lexical_order_for_current_raw_multiplicity` |
+| 每个 WorkType 独立维护健康非零基线；某类型从健康非零结果骤降为零时进入 TaskTypeProtection/PausedZeroDrop，该轮及保护期间的成功空轮不能把该类型 Demand 标为 GONE 或推进归档。 | `Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`; `Protected_gone_series_does_not_archive_while_other_work_type_can_archive` |
+| 一个 WorkType 受保护时，其它 WorkType 仍按各自观测和缺席权威正常创建、更新或标记 GONE；保护状态、计数和恢复进度不得跨类型串扰。 | `Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`; `Distinct_recognizable_keys_define_healthy_count_without_raw_duplicate_inflation` |
+| 受保护类型连续两轮获得健康非零结果后才解除保护；第二轮只完成解除，下一轮完整结果才恢复该类型的缺席权威，不能在解除同轮自相矛盾地确认 GONE。 | `Two_nonzero_rounds_clear_protection_but_following_round_restores_authority_before_absence_can_mark_gone` |
+| FAILURE、INCOMPLETE、幂等重放和内容冲突不建立健康基线、不推进连续恢复计数，也不解除保护；RestartBarrier 与类型保护同时存在时，只有两者都允许的轮次才具有缺席权威。 | `Failure_incomplete_replay_and_conflict_do_not_change_protection_recovery_or_events`; `Protection_progress_survives_restart_and_both_gates_must_allow_absence_authority` |
+| 保护进入、每步恢复进度、解除和权威恢复都产生稳定事件，并作为当前 CurrentIngestAttention 与轮次证据由正式 API 查询；结束后不保留为当前项，但历史事实仍可追溯。 | `Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`; `Two_nonzero_rounds_clear_protection_but_following_round_restores_authority_before_absence_can_mark_gone` |
+| 保护状态和恢复进度在 Host 重启后保持，不能因进程重启提前获得缺席权威或丢失保护证据。 | `Protection_progress_survives_restart_and_both_gates_must_allow_absence_authority` |
+| 真实 SQL Server → 正式 API 验收同时驱动至少两个 WorkType，证明目标类型进入保护、保护空轮不 GONE、其它类型继续对账、两轮非零恢复以及随后权威空轮才 GONE。 | `Invoke-Ticket07SqlServerGate.ps1`: 6 passed, 0 skipped on SQL Server 2022 / compatibility 160. |
+
+## Verification
+
+- Release solution build: 0 warnings, 0 errors.
+- Ticket 07 SQL Server/API gate: 6 passed, 0 skipped.
+- Ticket 01/02/05/06 SQL regression slice: 19 passed, 0 skipped.
+- Full `MesIngest.Tests`: 542 passed, 19 legacy SQL tests skipped, 2 unrelated existing
+  environment-sensitive WPF/telemetry failures; no Ticket 07 or changed-path failures.
+- Two-axis review: Spec had no findings; Standards had two P3 smells, both resolved
+  (removed unused event-order helper; reused a shared SQL-test environment scope).
