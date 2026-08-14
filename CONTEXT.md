@@ -516,6 +516,10 @@ _Avoid_: MES 模块（泛称）、任务服务（易含调度）、调度取消�
 面向现场实施与运维工程师的只读 MES 接入运维台，用于判断接入健康、核验 TransportDemand、分析 IngestAlert 与 MES→MesIngest 链路延迟；它不拥有投影真相，也不执行调度或生产操作命令。
 _Avoid_: 生产操作 HMI、调度台、TransportDemand 编辑器、只看列表的盯盘页
 
+**NewMesIngestContract（新版 MesIngest 契约）**:
+Host、Watch 与 reference consumer 同时使用的唯一 V2 业务读取契约；身份由精确 contractVersion、schemaVersion 和完整 capability ID/version 集合共同组成，规范文档固定为 `/openapi/v2.json`。任何身份差异都先拒绝业务解释，不把缺字段、未知状态、附加能力或客户端单页过滤当作兼容降级；旧 V1 只可作为 Development 隔离面存在。
+_Avoid_: 仅比较主版本、宽松 capability 子集、旧 DTO fallback、用 `/openapi/v1.json` 证明 V2、生产双契约
+
 **PollTrace（轮询追踪）**:
 一次 MesIngest 轮询从读取 MES_TASK_UNION 到本地处理结束的不可重复因果记录；无论结果为 SUCCESS、FAILURE 或 INCOMPLETE，都以稳定标识、查询版本、规范化内容摘要和行数证据关联该轮各阶段，但不包含后来发起的 Watch 查询。
 _Avoid_: WatchRefreshTrace、把时间相近的 Watch 请求当作同一 trace
@@ -673,7 +677,7 @@ ErrorSearchSnapshot 中默认 100、最多 200 个按固定 ErrorSearchResultOrd
 _Avoid_: 估算总数、错误期间总数、客户端分页、任意排序
 
 **ErrorSearchCursor（错误检索游标）**:
-绑定完整规范化筛选、固定顺序、ErrorSearchAsOf 和契约版本的 keyset 位置；无效、篡改或不匹配时 Host 返回 `INVALID_ERROR_SEARCH_CURSOR`，Watch 保留旧结果并提示失败，不自动冒充第一页。
+绑定完整规范化筛选、固定顺序、ErrorSearchAsOf 和契约版本的 keyset 位置；结构无效或验签失败返回 `INVALID_ERROR_SEARCH_CURSOR`，已验签但跨快照、筛选、窗口、顺序、页大小或契约复用返回 `ERROR_SEARCH_CURSOR_MISMATCH`，引用的投影提交不再保留则返回 410 `ERROR_SEARCH_SNAPSHOT_NOT_FOUND`。Watch 保留旧结果并提示失败，不自动冒充第一页。
 _Avoid_: 跨筛选复用、静默重解释、翻页失败自动刷新第一页
 
 **ErrorSearchFacetCount（错误检索分面数量）**:
@@ -861,7 +865,7 @@ _Avoid_: 模糊 DemandId、正则、空字符串真实值、把 VISIBLE 当作�
 _Avoid_: Series 数、阻断实例数、原因数量机械相加、分页后客户端计数
 
 **ReadabilityAuditCursor（资格审计游标）**:
-绑定 ReadabilityAuditSnapshot、规范化筛选、AreaFilterProfile 的 MesArea 值集合、固定顺序和契约版本的 keyset 位置；无效、过期或不匹配时明确失败并保留旧结果，不自动冒充第一页。
+绑定 ReadabilityAuditSnapshot、规范化筛选、AreaFilterProfile 的 MesArea 值集合、固定顺序和契约版本的 keyset 位置；结构无效或验签失败返回 `INVALID_READABILITY_AUDIT_CURSOR`，已验签但跨快照、筛选、AREA、顺序、页大小或契约复用返回 `READABILITY_AUDIT_CURSOR_MISMATCH`，引用的投影提交不再保留则返回 410 `READABILITY_AUDIT_SNAPSHOT_NOT_FOUND`。失败时保留旧结果，不自动冒充第一页。
 _Avoid_: 只绑定 CatalogRevision、跨 AREA 复用、静默刷新第一页、Watch 本地游标
 
 **ReadabilityAuditDetail（资格审计详情）**:
