@@ -1,61 +1,66 @@
-# Ticket 18 test research
+# Ticket 19 test research
 
-## Confirmed seam
+## Confirmed production seam
 
-The confirmed client seam in `.scratch/new-mes-ingest/spec.md` is
-`ScriptedFakeHost -> production MesIngest.Watch`. Ticket 18 is non-visual: no
-XAML, UI Automation, DPI, or golden-baseline files are in scope.
+The specification confirms the integration boundary as `ScriptedFakeHost ->
+production MesIngest.Watch -> UI Automation / golden machine`. Ticket 19 must
+therefore exercise the real V2 HTTP client, strict contract discovery,
+`WatchV2WorkspaceSession`, auto-refresh coordinator, presenter/window, and WPF
+semantic controls. A page-only fake or legacy `WatchHostSession` is not an
+acceptable substitute.
 
-## Target inventory
+## Frozen upstream authority
 
-- `MesIngest.Watch/WatchHostSession.cs`: reusable Host generation,
-  cancellation, settings validation, failure vocabulary.
-- `MesIngest.Watch/MesIngestApiClient.cs`: reusable HTTP/Bearer/timeout,
-  correlation, telemetry, and redaction mechanics, but currently legacy-only.
-- `MesIngest.Watch/WatchDemandSession.cs` and `WatchAlertSession.cs`: reference
-  algorithms for request generations, atomic success commits, retained failure
-  windows, and stable-id selection relocation; their legacy DTOs and cursor
-  recovery are not reusable.
-- `MesIngest.Watch/WatchAutoRefresh.cs`: legacy optional refresh model; ticket
-  18 needs a separate interval-only, always-on five-view schedule.
-- `MesIngest.Watch.UiTests/ScriptedFakeHost.cs`: deterministic timing harness,
-  currently an in-memory legacy adapter that must gain a production-HTTP path.
-- Frozen V2 authority: `MesIngest.Core/SeriesProjection/NewMesIngestContract.cs`,
-  Core query/snapshot contracts, `MesIngest.Host/NewMesIngestEndpoints.cs`, and
-  `pack/openapi/v2.json`.
+- Ticket 14 supplies one atomic `WatchOverviewSnapshot`: Host snapshot identity,
+  normalized queried `MesAreas`, four summaries, at most five real 24-hour
+  transitions, explicit no-activity state, and structured first-page navigation
+  intents.
+- Ticket 18 supplies the production V2 client/session. Applying a Host publishes
+  an empty new Host generation before I/O; refresh failure retains the entire
+  last successful snapshot; late/cancelled work cannot cross Host/query/request
+  generations.
+- Ticket 18 auto-refresh is interval-only and always on for the five Host data
+  views. Allowed intervals are 10/30/60/300 seconds, only the visible data view
+  is scheduled, and activation never performs the initial read.
 
-## Existing conventions
+## Existing production gap
 
-- C# / .NET 8, xUnit 2, VSTest; test names are behavior sentences with
-  underscores.
-- Integration-style Watch tests use production internal interfaces via
-  `InternalsVisibleTo`; deterministic gates use `TaskCompletionSource` rather
-  than wall-clock sleeps.
-- External HTTP is replaced at the `HttpMessageHandler` boundary. Tests must
-  exercise production URI construction, JSON DTOs, Bearer headers, structured
-  status errors, cancellation, and session admission.
-- Core query records provide `NormalizeAndValidate`; list-valued record equality
-  is reference-based, so a canonical query key/URI is required.
+- `App` still starts the legacy composition and a large V1 `MainWindow` using
+  old poll-health/demand/alert endpoints.
+- The legacy shell exposes four ListBox pages, manual refresh/cancel commands,
+  and an auto-refresh enabled switch. Those controls contradict ticket 19.
+- No production type represents local AREA profile context, and the V2 session /
+  coordinator has no UI notification when a background refresh commits.
+- Existing visual journeys and baselines encode the legacy shell. They must not
+  be promoted independently while tickets 20-22 are still in the shared train.
 
-## Acceptance checklist
+## Test conventions and constraints
 
-1. ScriptedFakeHost drives every Watch V2 read through the production HTTP,
-   DTO, bearer, strict-contract, paging, and session entry path.
-2. Applying Host/credential/version cancels the prior generation and clears all
-   prior Host snapshots, cursor/query state, selections, and details; failure
-   never displays the old Host.
-3. Authentication, exact-contract mismatch, network, and server-query failures
-   are separately observable and credentials are redacted.
-4. Auto-refresh is always enabled; settings can only change each data view's
-   interval. Loading/failure retains the last successful snapshot with success,
-   failure, and stale timestamps.
-5. Only a response matching Host generation, canonical query, and request
-   generation can atomically replace a snapshot; canceled/late work cannot.
-6. Query changes and snapshot/cursor/page failures retain the old result under
-   its old committed query and expose the attempted-query failure; no implicit
-   first-page fallback.
-7. Successful refresh relocates selections by SeriesId or DemandId; a missing
-   object clears selection/detail with an observable reason.
-8. Deterministic tests cover Host switching, slow work, cancellation, late
-   completion, retained failure/staleness, mismatch, query changes, selection,
-   AREA scope, and all V2 page/detail reads without visual files.
+- .NET 8 WPF, nullable enabled. `MesIngest.Tests` uses xUnit v2/VSTest;
+  `MesIngest.Watch.UiTests` uses xUnit v3 standalone and supplies the real
+  loopback `ScriptedFakeHost`.
+- WPF semantic tests run on STA and pump the Dispatcher; deterministic async
+  tests use `TaskCompletionSource`, never sleeps.
+- Public behavior assertions target automation names, navigation identity,
+  visible state text, session generations, snapshots, and persisted JSON.
+  Private control trees and prototype constants are not copied as authority.
+- Any changed production UI must satisfy `docs/agents/fluent-ui.md` and
+  `docs/agents/golden-renderer.md`: one `FluentWindow`, one integrated
+  `TitleBar`, one `NavigationView`, dynamic Wpf.Ui theme resources, keyboard /
+  UIA semantics, 1440x900 baseline and 720 effective minimum.
+- Ticket 19 currently performs non-pixel validation only. Golden-machine
+  deployment, baseline decisions, DPI clones, and user approval are deferred
+  until tickets 19-22 freeze and share one preview deployment.
+
+## Acceptance risks to mutate explicitly
+
+1. Production accidentally keeps launching the legacy composition.
+2. Interval-only edits accidentally call `ApplyAsync` and clear the Host.
+3. A failed replacement Host leaks the old Host snapshot.
+4. A failed AREA query relabels the retained Host snapshot with the new local
+   profile rather than showing the committed `Snapshot.MesAreas` separately.
+5. Auto-refresh commits without notifying/marshalling the WPF projection.
+6. Overview cards are recomputed from different reads or turn no activity into
+   a health claim.
+7. Drill-down drops Host-provided filters, cursor-null, or page-one semantics.
+8. Settings persist a credential or expose enabled/manual-refresh controls.
