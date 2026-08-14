@@ -1,66 +1,89 @@
-# Ticket 20 test research
+# Ticket 21 test research
 
 ## Confirmed production seam
 
-The specification fixes the client acceptance boundary as `ScriptedFakeHost ->
-production MesIngest.Watch -> UI Automation / golden machine`. Local TDD uses
-the real V2 HTTP client, exact contract discovery, `WatchV2WorkspaceSession`,
-production `WatchWorkspaceWindow`, WPF controls, and dynamic automation names.
-It does not add a page-only Host bypass.
+The specification confirms `ScriptedFakeHost -> MesIngestV2ApiClient ->
+WatchV2WorkspaceSession -> production WatchWorkspaceWindow -> UI Automation`
+as the Watch acceptance seam. Unit tests are limited to profile parsing/storage,
+query construction, and presentation rules that are more precise below that
+boundary. There is no page-only Host bypass.
 
-## Existing authority and gap
+## Existing authority and reusable code
 
-- Ticket 08 already supplies frozen `DemandSeriesBrowseQuery`, exact totals and
-  facets, bounded direct-page/cursor reads, and snapshot-bound full detail.
-- Ticket 18 already owns Host/query/request/selection generations, stale
-  retention, late-response rejection, and selection relocation/clearing.
-- Ticket 19 supplies the one `FluentWindow`/`TitleBar`/`NavigationView` shell,
-  settings, local AREA context, overview drill intents, and always-on refresh.
-- Production `DemandSeriesPage` is still a placeholder. Navigation only arms a
-  timer and does not perform the initial read.
-- A frozen page-two-or-later query cannot itself discover a newer projection:
-  the client must first acquire latest page one, then reopen the desired page
-  with that new snapshot reference, committing only the final page.
+- Ticket 10 owns the Host `ReadabilityAuditSnapshot` contract, filters, exact
+  totals/facets, bounded paging, stable order, details, blockers, checks, raw
+  observations, PollTrace, ProjectionCommit, and CatalogRevision.
+- Ticket 18 owns Host/query/request/selection generations, late-response
+  rejection, stale retention, and selection relocation/clearing.
+- Ticket 19 owns the one production Fluent shell, settings, overview and local
+  AREA display context.
+- Ticket 20 owns frozen DemandSeries paging, source-snapshot comparison,
+  explicit all-AREA confirmation, and the strong
+  `WatchDemandSeriesNavigationContext.FromReadabilityAudit` drill seam.
+- Production Readability Audit and AREA pages remain placeholders. No TXT
+  profile parser/store exists.
+- Readability auto-refresh currently replays a frozen page query and therefore
+  cannot discover a later projection. AREA application updates three queries
+  but immediately refreshes only Overview and an active DemandSeries page.
 
-## Test conventions
+## Local TXT decisions
 
-- .NET 8 WPF. `MesIngest.Tests` is xUnit v2/VSTest;
-  `MesIngest.Watch.UiTests` is xUnit v3/VSTest and owns `ScriptedFakeHost` V2.
-- WPF tests run on an STA dispatcher and avoid sleeps. Host timing uses gates or
-  deterministic scripted sequences.
-- Assert observable text, query timeline, frozen snapshot identity, control
-  availability, automation names, and clipboard payloads—not private helpers.
-- Formal packaged-process FlaUI journeys and all pixel/DPI work remain in the
-  one tickets 19–22 shared integration train. Existing packaged journeys still
-  target the legacy Host/window and cannot prove the V2 page locally.
+- Per-user directory: `%LocalAppData%/MesIngest.Watch/area-filters`; tests inject
+  an isolated directory.
+- UTF-8, one MesArea per effective line. Blank lines and whole-line `#`
+  comments are ignored, matching the selected prototype's editor help.
+- A draft with no effective MesArea is invalid. Duplicate effective values,
+  non-canonical MesArea values, or more than the Host limit of 100 are invalid.
+- Selecting a file changes only the editor. Save writes the selected valid TXT;
+  Apply persists it as the active profile and changes the three scoped queries.
+  Saving a currently applied file does not silently replace the persisted
+  applied AREA snapshot; the operator must apply again. All-AREA is a built-in
+  context, not an empty named TXT file.
+
+## Existing test conventions
+
+- SDK 10.0.302 with no `global.json` test runner setting: both xUnit v2 and
+  xUnit v3 projects use VSTest through `Microsoft.NET.Test.Sdk` and adapters.
+- Filter with `--filter "FullyQualifiedName~..."`.
+- WPF tests use an STA dispatcher, deterministic gates/TaskCompletionSource,
+  `FindName`, UI Automation properties, and no sleeps or screen coordinates.
+- The shared tickets 19-22 golden-machine train owns real-window preview,
+  pixel baselines, high contrast, and 125%/150% DPI evidence.
 
 ## Acceptance checklist
 
-1. Lists Tracking, GONE, Archived, and LongGoneButVisible without filtering out
-   `NOT_READABLE` or malformed data.
-2. Host resolves filters, exact AREA scope, stable order, exact totals,
-   previous/next, and direct page within one frozen snapshot.
-3. Detail distinguishes generations/predecessors, lifecycle timestamps,
-   `LiveMesFieldSet`, `DemandRawObservation`, duplicate observations, current
-   conditions, blockers, events, `PollTrace`, and `ProjectionCommit`.
-4. `DATES` is visibly named `MesSourceDate`, separate from lifecycle time.
-5. Overview/audit navigation carries SeriesId, focused DemandId, and source
-   snapshot summary; the target compares that source to its own current read.
-6. An out-of-AREA target requires explicit confirmation before all-AREA query.
-7. Loading/failure retains the previous successful list/detail; new success
-   reselects by stable id or clears with a reason.
-8. Filters, paging, grids, detail, time copying, and evidence drill-down have
-   stable automation names and keyboard focus without coordinate dependence.
-9. Master/detail, pagination, and primary actions remain reachable at 720 epx;
-   1440/2560 and DPI visual proof is deferred to the shared train.
+1. Audit rows cover every Demand generation and keep READABLE/NOT_READABLE
+   separate from VISIBLE/GONE/archived lifecycle; rows use Host lead blocker
+   while detail keeps every blocker and qualification check.
+2. State, WorkType, blocker, DemandId and SUBLOT filters; Host facets, exact
+   deduplicated totals, fixed order, 100/200 sizes and direct pages remain bound
+   to one visible frozen audit snapshot.
+3. Overlapping blocker facets never become the NOT_READABLE total; only a
+   successful zero-result query renders an empty result, never loading/failure
+   or a zero NOT_READABLE count as health.
+4. Detail exposes trusted fields or raw conflicts, owning Series, PollTrace,
+   ProjectionCommit, CatalogRevision, all checks/blockers and the same snapshot
+   identity as the list.
+5. Variant A keeps the named profile list visible beside selected TXT content,
+   validation, save and apply state. Invalid drafts cannot be saved/applied.
+6. Applying/switching an AREA profile restarts Overview, DemandSeries and Audit
+   on page one with no frozen cursor, and does not query ErrorSearch or Current
+   Attention or mutate Host business state.
+7. Host receives only canonical trusted MesArea values and applies them before
+   paging/counting; untrusted AREA remains visible only through All Areas.
+8. Audit-to-Series drill carries SeriesId, DemandId and source snapshot facts;
+   out-of-range navigation reuses Ticket 20's explicit All Areas confirmation.
+9. Refresh failure retains the old committed query/snapshot; successful refresh
+   reselects by DemandId or clears detail with an observable notice.
+10. Both pages expose stable UIA names/ids, keyboard focus, non-color status and
+    reachable key actions at the 720 epx minimum without local pixel approval.
 
 ## Risks to mutate explicitly
 
-- Reusing a frozen page query as “refresh” and never seeing a new commit.
-- Calling detail directly for a range-excluded SeriesId because the detail
-  snapshot token itself is not AREA-bound.
-- Relabeling retained old results with a newly drafted filter or AREA scope.
-- Treating `MesSourceDate` as StartedAt/last-seen/GONE time.
-- Clearing old detail while a refresh is pending, or retaining it after a new
-  snapshot no longer contains the selected SeriesId.
-- Using current-page length as total count or local sorting/filtering.
+- Reusing a frozen audit query as a latest refresh.
+- Showing facets calculated from current-page rows or summing blocker facets.
+- Relabeling retained results with a newly failed filter/profile.
+- Applying normalized profile values before reporting duplicate/empty errors.
+- Treating editor selection as application or changing global business facts.
+- Fetching audit detail from a different snapshot reference.
+- Silently navigating outside the active AREA scope.
