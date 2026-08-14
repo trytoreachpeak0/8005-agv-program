@@ -1,37 +1,53 @@
-# Ticket 15 test research — formal single-statement Oracle round source
+# Ticket 16 test research — ProjectionCommit atomicity/concurrency gate
 
-## Confirmed production gaps
+## Bounded target inventory
 
-- Production V2 registers `RoundIngestor` and the host-session service, but the
-  Oracle source and legacy poll service are registered only on the legacy path.
-- The legacy `OracleMesSnapshotSource` trims text, treats blank identity and bad
-  `DATES` values as `INCOMPLETE`, and exposes neither provider column types nor
-  the configured command timeout to its fake executor.
-- `OdpNetOracleQueryExecutor` currently sends `SET TRANSACTION READ ONLY` before
-  the SELECT, so one round results in two Oracle commands.
-- The published query is copied twice into a release package and is checked only
-  for existence/non-empty content. The canonical raw-byte SHA-256 is
-  `54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae`.
-- The old `Thick` mode only prepends Instant Client to `PATH` while still using
-  managed ODP.NET Core. Ticket 15 therefore needs a distinct OCI-backed adapter
-  (Oracle ODBC + Instant Client) and must never silently fall back to Thin.
+- Public write seam: `RoundIngestor.IngestAsync` ->
+  `IMesIngestProjection.CommitRoundAsync` -> production
+  `SqlServerMesIngestProjection`.
+- Public read seam: production V2 HTTP routes for DemandSeries, catalog,
+  CurrentIngestAttention, overview and PollTrace.
+- Storage: one SQL Server `SERIALIZABLE` transaction and transaction-owned
+  `sp_getapplock` already serialize each accepted round. Schema uniqueness covers
+  PollTrace, ProjectionCommit sequence, TransportDemandKey, generation and
+  SeriesSequence.
+- Existing test infrastructure: `Ticket01SqlServerDatabase` rejects LocalDB,
+  verifies product/compatibility, and creates only disposable
+  `MesIngest_Ticket01_<guid>` databases. The local SQL Server 2022 probe passed.
+- Existing consistency proof covers overview only; there is no production write
+  checkpoint seam and no deterministic DemandSeries/catalog/attention read gate.
 
-## Agreed public seams
+## Explicit acceptance checklist
 
-1. `IMesTaskUnionRoundSource.ReadRoundAsync` owns artifact verification, exactly
-   one statement request, structural metadata validation, raw-value mapping,
-   `QueryVersion`, timing, and safe `FAILURE` / `INCOMPLETE` diagnostics.
-2. The internal executor request exposes the exact SQL and command timeout; its
-   result exposes provider column names/types and raw rows.
-3. `MesTaskUnionPollRunner.RunOnceAsync` is the production source-to-`RoundIngestor`
-   seam. A hosted service runs it independently of any Watch process.
-4. `CanonicalMesTaskUnionQuery` is the single content-addressed artifact authority.
+1. Multiple write checkpoints fail inside the real SQL transaction without
+   leaking PollTrace, commit, Series, Demand, events, conditions, error periods,
+   protection, attention, catalog body or revision through HTTP or after restart.
+2. Retry after failure creates one commit; equal replay is inert; conflicting
+   replay is rejected without changing committed state.
+3. Concurrent rounds serialize, do not compete for generations, and cannot
+   bypass RestartBarrier or TaskTypeProtection.
+4. ProjectionSequence, SeriesSequence and CatalogRevision stay unique and
+   monotonic across concurrency/restart; one round advances the catalog at most
+   once and unchanged rounds do not advance it.
+5. DemandSeries, catalog and CurrentIngestAttention concurrent reads are each
+   wholly old or wholly new at a committed fence.
+6. FAILURE, INCOMPLETE, cancellation and SQL exceptions do not advance business
+   projection, close conditions, or publish a catalog revision; allowed technical
+   PollTrace evidence remains isolated.
+7. A combined real-SQL round set covers unique, duplicate, multi-WorkType, GONE,
+   archive, LongGoneButVisible, TaskTypeProtection, active errors and attention,
+   with the same formal reads after Host restart.
+8. The gate report records server product/version, compatibility, checkpoints,
+   concurrency scale, retries and observable assertions; LocalDB/in-memory is
+   explicitly insufficient.
 
-## Framework and gate
+## Conventions and execution
 
 - .NET SDK 10.0.302, xUnit 2.4.2, VSTest.
-- Focused syntax uses `dotnet test ... -c Release --filter "FullyQualifiedName~..."`.
-- The formal Host/SQL proof reuses `MES_INGEST_TICKET01_SQLSERVER`, SQL Server 2022
-  product major 16, compatibility 160, and must report zero skipped tests.
-- Real Oracle is not a CI substitute: the factory probe records `NOT_EXECUTED`
-  when no approved Oracle 11g endpoint is available.
+- Tests use production `WebApplicationFactory<Program>`, `RoundIngestor`, and V2
+  HTTP responses; direct SQL is limited to real-engine fault setup/metadata, not
+  business-result assertions.
+- Focused command: `dotnet test MesIngest.Tests/MesIngest.Tests.csproj -c Release
+  --filter FullyQualifiedName~ProjectionCommitAtomicityConcurrencyTests`.
+- Formal gate requires explicit non-LocalDB SQL Server product major 16,
+  compatibility 160, and exactly zero skipped tests.
