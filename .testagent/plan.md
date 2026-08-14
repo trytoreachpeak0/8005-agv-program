@@ -1,42 +1,51 @@
-# Ticket 21 test plan
+# Ticket 22 test plan
 
-Work in vertical red-green slices at the confirmed production seam.
+Work in vertical red-green slices at the specification-confirmed production
+seam.
 
-1. Add profile parser/store tests for comments/blanks, canonical MesArea,
-   empty/duplicate/over-limit diagnostics, safe names, UTF-8 atomic save, active
-   profile persistence, and selected/saved/applied state separation; implement
-   the smallest local TXT module.
-2. Add Readability query tests for latest first page, frozen previous/next and
-   direct-page requests; add latest-current-page session refresh and route audit
-   auto-refresh through it.
-3. Add presenter tests for generation-vs-lifecycle semantics, Host exact facets,
-   lead/all blockers, zero/loading/failure states, same-snapshot details, trusted
-   fields/raw conflicts and evidence provenance; implement the presenter.
-4. Add production ScriptedFakeHost tests proving immediate first-page load,
-   filters, page size, frozen paging/direct jump, selection/detail, refresh
-   reselection/clearing, and audit-to-Series navigation.
-5. Replace the Audit placeholder with the production master-detail page and wire
-   operations, auto-refresh arbitration, UIA, focus and non-color status.
-6. Add profile-window tests proving editor selection is not application, invalid
-   drafts cannot apply, save/apply state is clear, and AREA application refreshes
-   only Overview, DemandSeries and Audit.
-7. Replace the AREA placeholder with the Variant A master-detail editor and wire
-   local profile storage, active context load, save/apply and All Areas.
-8. Add semantic WPF tests for AutomationId/Name, keyboard reachability and 720
-   epx reflow/scrolling. Do not create/promote visual candidates in this ticket.
-9. Re-open every assertion against the checklist and run the focused Watch,
-   client/session, shell and profile regressions.
-10. Run `/code-review` Standards and Spec passes, fix all actionable findings,
-    then run one non-incremental Release solution build and one full solution
-    test pass. Record named environment skips and pre-existing failures exactly.
+1. Add Error Search query-helper tests for default latest first page, all
+   filters/windows/page sizes, frozen previous/next/direct page requests and
+   explicit attention drill conditions; implement the minimum query helpers.
+2. Add Error Search presenter tests for exact facets/totals/order, normalized
+   condition/UTC window facts, successful-empty vs loading/failure retention,
+   matched period boundaries, cross-generation evidence and bounded raw states;
+   implement the minimum presenter.
+3. Add Current Attention presenter/query tests for all four current kinds,
+   stable Series identity/drill, structured global evidence, facets/paging and
+   explicit non-incident semantics; implement the minimum helpers.
+4. Add production ScriptedFakeHost tests for initial loads, filters/windows,
+   frozen paging/direct jump, selection/detail, failure retention, raw evidence
+   expansion/error isolation and attention-to-error drill-down.
+5. Replace both placeholders with production Fluent pages and wire event
+   handling through the existing client/session/auto-refresh interfaces. Do not
+   add a page-only Host or test bypass.
+6. Add tests proving AREA application never changes/refetches either Ticket 22
+   query and that Overview explicit intents open both pages on page one.
+7. Add semantic WPF tests for the Variant A equal-height three-column layout,
+   responsive stack, stable UIA names/ids, keyboard reachability and non-color
+   statuses. Pixel and real-window claims remain deferred until the shared run.
+8. Re-open every generated assertion against the checklist, then perform
+   `test-gap-analysis` with empirically verified pseudo-mutations and close any
+   substantive survivors.
+9. Run focused presenter/query/session/page suites and a non-incremental Release
+   solution build, then the full solution test suite exactly once. Record every
+   environment skip and unrelated pre-existing failure.
+10. Run the required two-axis `/code-review`, fix findings, and repeat only the
+    affected focused gates.
+11. Freeze Ticket 22 with an implementation commit, then run the single shared
+    tickets 19-22 interactive targeted-suite and real-window preview train.
+    Pause for explicit user approval; do not generate candidates, promote
+    baselines or create DPI clones because Ticket 23 owns those gates.
+12. Record shared evidence/approval/cleanup in tickets 19-22, set Ticket 22's
+    final tracker state, and commit the evidence closure.
 
 ## Requirement mapping
 
 | Checklist | Planned evidence |
 | --- | --- |
-| 1, 3, 4 | `WatchReadabilityAuditPresentationTests` and production integration |
-| 2, 9 | `WatchReadabilityAuditQueryTests`, session/auto-refresh and integration |
-| 5 | `WatchAreaFilterProfileTests` plus window integration |
-| 6, 7 | ScriptedFakeHost AREA-application request timeline |
-| 8 | Existing navigation-context tests plus production audit drill |
-| 10 | `WatchV2ProductionShellTests` and audit/AREA production integration |
+| 1, 2, 3, 4 | `WatchErrorSearchPresentationTests`, `WatchErrorSearchQueryTests`, and production integration |
+| 5 | Error raw-evidence presenter tests and ScriptedFakeHost production interaction |
+| 6, 7 | `WatchCurrentIngestAttentionPresentationTests` plus attention production integration |
+| 8 | AREA-isolation request timeline and visible state assertions |
+| 9 | Ticket 22 responsive/UIA semantic integration tests |
+| 10 | Shared golden preview directory, targeted-suite results, explicit approval, named skips and cleanup logs |

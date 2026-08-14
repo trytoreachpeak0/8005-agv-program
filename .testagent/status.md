@@ -1,71 +1,85 @@
-# Ticket 21 test status
+# Ticket 22 test status
 
 ## Current
 
-- Audit query/session/auto-refresh, presentation, production WPF page and
-  Audit-to-DemandSeries drill wiring are implemented.
-- TXT-backed AREA profiles, selected/saved/applied separation, persisted
-  applied snapshot, production Variant A page and three-view refresh isolation
-  are implemented.
-- Stable UIA landmarks/tab stops and 720 epx stacked layouts are frozen by
-  semantic tests.
-- Golden candidates, baselines, VM deployment and DPI clones remain untouched;
-  they belong to the tickets 19-22 shared integration train.
+- Ticket 22 Error Search Variant A and Current ingest attention production pages
+  are implemented through the production V2 HTTP/DTO/session/window path.
+- The final Spec review passed with no actionable findings. The final Standards
+  review finding (cross-period raw-evidence selection) was reproduced red,
+  fixed, and independently rechecked.
+- The shared Ticket 19-22 golden-machine preview suite is implemented but has
+  not yet been run. Ticket 22 must remain open until the golden run, explicit
+  user approval, evidence backfill, and cleanup recheck are complete.
 
 ## Red-green evidence
 
-- `WatchAreaFilterProfileTests`: initial `CS0103` for missing parser/store;
-  final 24 tests green, including a visible corrupt-marker fallback diagnostic.
-- `WatchReadabilityAuditQueryTests`: initial `CS0103` for missing query helper;
-  final 3 tests green.
-- `WatchReadabilityAuditPresentationTests`: initial `CS0103` for missing
-  presenter; final 6 tests green.
-- `WatchReadabilityAuditProductionIntegrationTests`: initial missing
-  `ReadabilityAuditNavigationTask` and selection entry point; final tests also
-  cover multi-value OR filters, page size 200 and direct frozen page 3.
-- `WatchTicket21AreaAndResponsiveIntegrationTests`: unchanged test first caught
-  missing page/card AutomationId/Name and then missing explicit tab stops;
-  final 2 tests green.
+- Error Search query construction started red before its production helper was
+  added, then passed after normalization and opaque-cursor navigation were
+  implemented.
+- Current attention query/presentation tests were written before the matching
+  production helpers and passed after the four active-only kinds, stable
+  identity, Host-authoritative paging/facets, and structured drill were added.
+- Production UI tests drove the Error Search, Current Attention, raw-evidence,
+  cancellation/failure retention, keyboard/UIA, and responsive implementations.
+- Final Standards regression:
+  `Raw_evidence_grid_tracks_the_selected_period_across_real_selection_and_button_render_cycles`
+  failed before the fix because two periods' evidence were mixed in the grid;
+  it passed after the grid was constrained to the selected period and stale
+  period/evidence/raw state was cleared.
 
 ## Verified test-gap closure
 
-Four high-risk pseudo-mutations were empirically confirmed as survivors,
-reverted, covered, and then re-injected to prove the new assertion kills them:
+Ten pseudo-mutations were injected one at a time and reverted. All ten are now
+killed by focused tests:
 
-1. Truncating comma-separated audit OR values to one item initially passed;
-   production integration now asserts two states, WorkTypes and blockers.
-2. Rejecting exactly 100 AREA values (`>` changed to `>=`) initially passed;
-   a boundary test now fails that mutation.
-3. Omitting CatalogRevision from list/detail snapshot identity initially passed;
-   the presenter test now rejects a detail differing only in CatalogRevision.
-4. Ignoring the persisted applied AREA profile at startup initially passed;
-   production integration now proves the initial Overview request uses the
-   persisted scope and that Save alone does not replace it.
-
-No mutation remains in the working tree.
+1. Host exact total replaced by loaded row count.
+2. Failed retained zero misreported as a successful empty result.
+3. Raw failure discarded the last successful bounded payload.
+4. Current-attention rolling window used the wrong navigation window.
+5. Series-error drill omitted the required ACTIVE activity state.
+6. Direct Error Search page navigation fabricated/skipped a Host cursor.
+7. Direct page navigation walked one cursor beyond the requested page.
+8. Raw-evidence allowlist trusted Host-reported included fields.
+9. The exact 20-item raw-evidence boundary was rejected.
+10. Current-attention drill trusted stale navigation SeriesId instead of the
+    authoritative item identity.
 
 ## Focused validation
 
-- Review-fix unit/session/presenter/profile filter: 52 passed, 0 failed.
-- Review-fix audit/AREA/DemandSeries/session WPF filter: 31 passed, 0 failed.
-- `WatchV2ProductionHostTests`: 4 passed, 0 failed.
-- `WatchCompositionRootTests`: 16 passed, 0 failed.
-- `WatchV2ProductionShellTests` plus navigation context: 7 passed, 0 failed.
-- `MesIngest.Watch` Release build: succeeded with 0 warnings and 0 errors.
-- Initial two-axis review found three spec and six documented UI-standard
-  issues. Fixes now preserve off-page selections through same-snapshot detail,
-  distinguish corrupt AREA markers, retain explicit All AREA applied state,
-  use Fluent Cards/tokens/platform type, and expose truthful draft/failure
-  states. Final Spec and Standards read-only re-reviews both report no findings.
+- Ticket 22 core query/presentation tests: 31 passed, 0 failed.
+- Ticket 22 UI integration/responsive tests before the final Standards fix:
+  9 passed, 0 failed.
+- Final Error Search UI class after the cross-period fix: 6 passed, 0 failed.
+- Raw presenter/API-client safety tests: 30 passed, 0 failed.
+- Session/Error WPF state tests: 26 passed, 0 failed.
+- Shared production-journey evidence tests: 3 passed, 0 failed.
+- Adjacent Watch core regression set: 332 passed, 4 named integration tests
+  skipped by their existing environment gate.
+- Adjacent nonvisual Watch UI regression set: 57 passed, 0 failed.
+- Release solution builds used by the final focused checks completed with
+  0 warnings and 0 errors.
+- Golden scripts parse successfully; trait discovery isolates the new V2
+  production journey, the five approved legacy baseline scenarios, and the
+  nonbaseline Fluent chrome fact. No baseline was created or approved.
 
-## Final solution run
+## Full solution and golden train
 
-- Non-incremental Release solution build: succeeded, 0 warnings, 0 errors.
-- Full solution test pass (run once): `MesIngest.Watch.UiTests` 124 passed,
-  0 failed, 27 named environment/golden skips; `MesIngest.Tests` 748 passed,
-  2 failed, 99 named SQL skips.
-- Both failures are outside the Ticket 21 diff: the known INSTALL.md V1 OpenAPI
-  wording assertion and the file-retention timestamp test. All Ticket 21
-  focused filters remain green.
-- No golden candidate/baseline, VM task, preview artifact, or DPI clone was
-  generated or changed; those gates remain pending for the shared 19-22 train.
+- The single frozen-tree full Release run was executed once:
+  `dotnet test mes/ingest/csharp/MesIngest.sln --no-restore --configuration Release --verbosity minimal`.
+- `MesIngest.Watch.UiTests`: 138 passed, 28 skipped, 0 failed.
+- `MesIngest.Tests`: 781 passed, 99 skipped, 2 failed.
+- Both failures reproduce under an exact two-test filter and are pre-existing
+  baseline failures in files unchanged from fixed point `3eb6224`:
+  - `InstallPackageLayoutTests.Install_doc_describes_production_v2_release_smoke_without_claiming_v1_openapi_or_watch`
+    conflicts with the unchanged install document's explicit statement that
+    `/openapi/v1.json` must return 404.
+  - `LatencyTelemetryTests.Watch_latency_file_telemetry_enforces_log_retention_by_age`
+    fails the unchanged age-retention implementation/test at line 275.
+- The full solution was not rerun. These unrelated failures are recorded rather
+  than silently changing non-Ticket-22 production/docs behavior.
+- Pending formal command (from `mes/ingest/csharp`):
+  `./Invoke-GoldenRendererValidation.ps1 -Ticket '19-22-shared-preview' -Suite watch-production-preview -Configuration Release -ExpectedDpi 96 -ExpectedDesktopWidth 1920 -ExpectedDesktopHeight 1080 -TimeoutSeconds 7200`.
+- Pending: inspect all retrieved runner/environment/cleanup artifacts and PNG/UIA
+  evidence, show the final preview to the user, receive explicit approval, then
+  backfill Tickets 19-22. Ticket 23-only baseline promotion/stability/DPI-clone
+  work remains intentionally excluded.
