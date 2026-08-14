@@ -1,21 +1,30 @@
-# Ticket 18 test plan
+# Ticket 19 test plan
 
 Work in vertical red-green slices at the confirmed `ScriptedFakeHost ->
-production MesIngest.Watch` seam.
+production V2 Watch window` seam.
 
-1. Add a scripted HTTP scenario and a failing contract/capability test; implement
-   the strict V2 client factory, shared query URI canonicalization, wire mapping,
-   Bearer/correlation/redaction, and all six Watch capability reads.
-2. Add a failing Host replacement test; implement the V2 workspace Host
-   generation, synchronous business-state reset, connection gate, and exact
-   contract failure state.
-3. Add slow/cancel/late/query-change tests one at a time; implement the generic
-   per-view request gate and success/failure state with separate pending and
-   committed canonical queries.
-4. Add retained failure/cursor tests; implement structured server-query errors,
-   success/failure timestamps, stale state, and no cursor fallback.
-5. Add selection tests for SeriesId and DemandId; implement atomic relocation or
-   detail clearing after successful snapshots.
-6. Add always-on refresh tests; implement five interval-only view schedules.
-7. Re-open every assertion against the ticket matrix, run narrow projects, then
-   run the full solution once and record any environment-only exclusions.
+1. Add a failing production-composition/shell semantic test; introduce the V2
+   composition and one `FluentWindow` with integrated title bar,
+   `NavigationView`, six primary pages, Host footer, and settings footer.
+2. Add a real scripted-Host initial-load test; apply the exact contract, issue
+   the explicit overview read, render all four summaries and no-activity state
+   from the same `WatchOverviewSnapshot`, then activate overview auto-refresh.
+3. Add success -> gated refresh -> failure tests; project refreshing, retained
+   full snapshot, committed AREA scope, Host snapshot time, client success /
+   failure time, stale reason, and current connection without a health claim.
+4. Add Host replacement and settings persistence tests; prove the UI clears
+   synchronously for a new Host, no old Host survives failure, credentials are
+   never stored, and interval-only changes preserve Host generation.
+5. Add local AREA-context and drill-down tests; keep local profile state separate
+   from Host `Snapshot.MesAreas`, and route the complete Host-provided
+   `OverviewNavigationIntent` with page one and null cursor.
+6. Add deterministic auto-refresh notification tests and dispatcher projection;
+   prove start/completion/failure are observable, busy ticks do not queue, and
+   settings/AREA pages deactivate Host polling.
+7. Add adaptive/accessibility semantic tests for 720 epx reflow, text+icon
+   states, automation names, tab focus, and absence of forbidden manual refresh,
+   cancel, and auto-refresh enabled controls.
+8. Re-open every assertion against the ticket matrix, perform pseudo-mutation
+   checks, run focused tests/builds, run the full solution exactly once, then run
+   independent Standards and Spec reviews. Do not run or promote golden evidence
+   in this ticket-local loop.
