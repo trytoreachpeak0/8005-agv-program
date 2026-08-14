@@ -129,6 +129,17 @@ killed by focused tests:
   also fails closed at the HTTP and session boundaries and no longer reports a
   rejected detail as successfully read. A new unique golden run is required;
   the inconsistent run remains preserved.
+- `run-20260815-005125-watch-production-preview` used clean commit `dd905a8`.
+  Its calibrated environment and `watch-vm-tests` passed (150 passed, one named
+  nonbaseline chrome skip), but the production journey stopped at DemandSeries:
+  the DataGrid root does not expose UIA `ScrollItem`, while the journey requested
+  that unsupported pattern directly. Cleanup and post-cleanup environment gates
+  passed with no residual task or process.
+- The exact real-process journey was reproduced locally in 7 seconds with the
+  same `PatternNotSupportedException`, then passed 1/1 in 18 seconds after the
+  evidence grid received keyboard focus and let WPF scroll its ancestor through
+  the accessible focus path. The unsupported pattern is no longer requested;
+  another unique formal golden run is required.
 - Pending: inspect all retrieved runner/environment/cleanup artifacts and PNG/UIA
   evidence, show the final preview to the user, receive explicit approval, then
   backfill Tickets 19-22. Ticket 23-only baseline promotion/stability/DPI-clone
