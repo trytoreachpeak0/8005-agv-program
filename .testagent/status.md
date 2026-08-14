@@ -1,47 +1,75 @@
-# Ticket 17 test status
+# Ticket 18 test status
 
 ## Current
 
-- Ticket, spec, domain glossary, ADR-mes-0006..0017, and applicable skills read.
-- Public HTTP/OpenAPI seam is pre-confirmed by the spec.
-- Worktree started clean at `bd7181b`.
-- Read-only API, test, cursor, package, and release-gap research completed in
-  parallel; no implementation files changed during research.
-- Baseline `OpenApiContractTests`: 7 passed, 0 failed, 0 skipped.
-- Ticket 17 implementation and independent Standards/Spec review are complete;
-  both review axes pass after follow-up fixes.
+- Ticket, replacement V2 contract, relevant ADRs, repository agent rules, and
+  implement/TDD/test/review skills were read before implementation.
+- The confirmed seam is `ScriptedFakeHost -> production HTTP client ->
+  WatchV2WorkspaceSession`; no page-only adapter was added.
+- Ticket 18 implementation is complete. Independent Standards and Spec reviews
+  both pass after follow-up fixes for caller-canceled connection ownership,
+  selection concurrency, and production auto-refresh dispatch.
+- No XAML, UI Automation, DPI, or visual-baseline file changed, so the golden
+  WPF renderer is intentionally outside this non-visual ticket's feedback loop.
 
-## Validation log
+## Red-green evidence
 
-- Contract freeze red test failed on missing compatibility policy, capability
-  inventory, OpenAPI path and exact-match helper; green now fixes version
-  `2026.08.new-mes-ingest.v2.0`, schema 17, nine stable capability IDs and all
-  17 GET operations.
-- V2 OpenAPI red test failed because V2 remained excluded and `/openapi/v2.json`
-  was absent; green publishes an independent Production document with exact
-  paths, parameters, response matrices, schemas, stable values, time semantics,
-  ETag/304 and raw-evidence limits. Non-SQL OpenAPI facts pass 7/7.
-- ErrorSearch cursor binding mismatch now returns
-  `ERROR_SEARCH_CURSOR_MISMATCH`; invalid/tampered remains the invalid-cursor
-  code. Focused token fact passes.
-- Reference consumer now discovers and exact-matches contract/schema/capability
-  IDs and versions before every catalog read; 11/11 focused facts pass.
-- Compatibility classifier distinguishes exact, documentation-only, additive
-  and breaking changes, including the canonical V2 document; 6/6 facts pass.
-- Real SQL Server 16 / compatibility 160 Round -> Host -> SQL -> HTTP contract
-  fact passes 1/1, covering unavailable, empty, success, ETag/304, invalid page
-  and valid-but-unretained snapshot responses.
-- Canonical `pack/openapi/v2.json`, package/release gate, smoke, HTTP examples
-  and operator docs are implemented. `ReleasePackageValidationTests`: 16/16
-  pass; all three PowerShell scripts parse successfully.
-- Post-review contract/auth/path checks pass 3/3; the compatibility remap check
-  passes 1/1; the real SQL runtime contract fact passes 1/1.
-- Pseudo-mutations for capability operations, stable query codes, key
-  comparison, Production legacy probing, manifest hash, hidden writes, hidden
-  query parameters, and previous-contract credentials were injected and killed;
-  no mutation marker remains.
-- `dotnet build MesIngest.sln -c Release --no-restore --verbosity minimal`
-  succeeds with 0 warnings and 0 errors.
-- The final full-suite command was started exactly once. Its terminal result was
-  lost during desktop context compaction, so it is intentionally not claimed as
-  passing evidence; all evidence above has an observed terminal result.
+- V2 client tests first failed because the production client/session did not
+  exist. They now cover exact contract version/schema/capabilities, normalized
+  query URIs, Bearer/correlation transport, all list/detail/raw reads, wire-to-
+  Core mapping, response contract identity, structured errors, redaction, and
+  an invalid empty custom error window: 14/14 pass.
+- Scripted Host tests first exposed the in-memory legacy bypass. The fake now
+  hosts Kestrel on an ephemeral loopback port and scripts real method/path/query,
+  Bearer, JSON, status, delay/cancellation, paging snapshot/cursor, and all ten
+  V2 contract/business operations.
+- Workspace tests first failed on missing Host/query/request admission and
+  retained-state semantics. They now cover Host replacement and failed apply,
+  strict connection gating, normalized query/request/Host generations,
+  caller cancellation even when a handler ignores its token, retained success
+  with success/failure timestamps and staleness, cursor 410 without first-page
+  fallback, response contract mismatch, and distinct failure kinds.
+- Selection tests cover SeriesId and DemandId relocation/removal, changing A to
+  B while refresh is fetching A's detail, and two same-ID detail requests. The
+  selection generation and detail cancellation gate prevent every older detail
+  from committing.
+- Auto-refresh first failed because only a passive schedule existed. The
+  production coordinator now dispatches all five normalized view queries into
+  the workspace via a controllable one-shot `ITimer`; it is always interval-
+  based, single-flight, drops busy ticks, applies interval changes, and cancels
+  on disposal. Its deterministic no-sleep suite passes 16/16.
+
+## Focused validation
+
+- `WatchV2ApiClientTests`: 14 passed, 0 failed, 0 skipped.
+- `WatchV2AutoRefreshTests`: 16 passed, 0 failed, 0 skipped.
+- `WatchV2WorkspaceSessionTests` + `ScriptedFakeHostV2SurfaceTests`: 23 passed,
+  0 failed, 0 skipped.
+- Production Watch project builds with 0 warnings and 0 errors.
+
+## Pseudo-mutation audit
+
+The following mutations were injected one at a time, observed to fail their new
+or strengthened test, and then reverted:
+
+- remove Host generation from snapshot admission;
+- remove request generation from same-query admission;
+- accept discovered schema/capability drift;
+- preserve selection/detail while applying a failed replacement Host.
+
+No mutation marker remains.
+
+## Final solution run
+
+- The required full solution command was started exactly once:
+  `dotnet test MesIngest.sln --no-restore --verbosity minimal`.
+- Ticket 18's Watch UI project completed with 105 passed, 27 expected visual /
+  interactive-environment skips, and 0 failed. The general test project reported
+  663 passed, 99 SQL/environment skips, and 3 failures.
+- All three failed test areas are byte-for-byte unchanged from `HEAD`. A focused
+  rerun made the UI Automation title-bar test pass. The two stable pre-existing
+  failures are: `INSTALL.md` at `HEAD` contains the string
+  `openapi/v1.json` although its test forbids any occurrence, and the latency
+  retention test stamps its old file from real `DateTime.UtcNow` while applying
+  a fixed 2026-07-31 retention clock, which no longer makes that file older than
+  the cutoff on 2026-08-14. They were not expanded into ticket 18.
