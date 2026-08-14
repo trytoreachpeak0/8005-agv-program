@@ -7,9 +7,11 @@
 - The final Spec review passed with no actionable findings. The final Standards
   review finding (cross-period raw-evidence selection) was reproduced red,
   fixed, and independently rechecked.
-- The shared Ticket 19-22 golden-machine preview suite is implemented but has
-  not yet been run. Ticket 22 must remain open until the golden run, explicit
-  user approval, evidence backfill, and cleanup recheck are complete.
+- The shared Ticket 19-22 golden-machine preview suite has completed its code
+  and infrastructure gates, but the first green runner exposed an internally
+  inconsistent final drill preview. That run is preserved and excluded from
+  approval. Ticket 22 remains open until a corrected unique golden run,
+  explicit user approval, evidence backfill, and cleanup recheck are complete.
 
 ## Red-green evidence
 
@@ -53,6 +55,11 @@ killed by focused tests:
 - Raw presenter/API-client safety tests: 30 passed, 0 failed.
 - Session/Error WPF state tests: 26 passed, 0 failed.
 - Shared production-journey evidence tests: 3 passed, 0 failed.
+- Error-detail identity follow-up after the first runner-green preview:
+  34 core presenter/API-client tests passed; 39 session/Error/responsive/journey
+  tests passed with the one real-window journey locally skipped by its explicit
+  environment gate. New red-green facts reject route, Series, snapshot,
+  filter, window, and order mismatches without replacing a successful list.
 - Process file-location isolation tests added after the first real-window run:
   5 passed, 0 failed. They prove production defaults remain unchanged and UI
   test mode fails closed unless `LOCALAPPDATA` is an absolute isolated root.
@@ -107,6 +114,21 @@ killed by focused tests:
     selects a real matched period before waiting for that period's evidence.
     The exact local check passed 6 Error Search UI facts with the real-window
     journey remaining the one expected environment-gated skip.
+- `run-20260815-000454-watch-production-preview` passed both formal suites and
+  all environment/orchestration/cleanup gates: `watch-vm-tests` reported 139
+  passed plus the one named nonbaseline chrome skip; the production journey
+  reported 1 passed. The commit and guest payload hashes matched and no task or
+  product/test process remained.
+- That runner-green evidence is intentionally not an approval candidate. Its
+  final Current Attention drill showed the normalized filter and row for
+  `SERIES-ATTENTION-22` while the detail status still named
+  `SERIES-ERROR-22`, with empty period/evidence grids. The fake detail callback
+  ignored its request and the journey captured after only the filter changed.
+- The follow-up now makes the fake detail query/request-aware and waits for the
+  selected Series identity, periods, and evidence before capture. Production
+  also fails closed at the HTTP and session boundaries and no longer reports a
+  rejected detail as successfully read. A new unique golden run is required;
+  the inconsistent run remains preserved.
 - Pending: inspect all retrieved runner/environment/cleanup artifacts and PNG/UIA
   evidence, show the final preview to the user, receive explicit approval, then
   backfill Tickets 19-22. Ticket 23-only baseline promotion/stability/DPI-clone
