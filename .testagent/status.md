@@ -1,53 +1,53 @@
-# Ticket 19 test status
+# Ticket 20 test status
 
 ## Current
 
-- Ticket 19's non-pixel implementation is frozen. Production `App` now owns the
-  V2 composition/window and the tested seam is `ScriptedFakeHost -> production
-  MesIngestV2ApiClient -> WatchV2WorkspaceSession -> production WPF window`.
-- Standards review has no remaining documented-rule violation. Spec review
-  passes the non-pixel implementation with no remaining P0-P3 finding.
+- Ticket 20's non-pixel implementation is frozen. The production page uses the
+  existing V2 DemandSeries list/detail contract and the tested integration seam
+  is `ScriptedFakeHost -> MesIngestV2ApiClient -> WatchV2WorkspaceSession ->
+  production WatchWorkspaceWindow`.
+- Independent Standards, Spec, and correctness reviews have no remaining
+  findings after fixes.
 - No golden baseline, candidate, promoted artifact, DPI clone, VM deployment,
   or user-approval checkbox was changed. Those remain intentionally deferred to
-  the one shared tickets 19-22 preview.
+  the shared tickets 19-22 preview.
 
 ## Red-green evidence
 
-- Missing LongGone summary and failed-to-retry status first failed 2/8
-  `WatchOverviewPresentationTests`, then passed 8/8 after implementation.
-- Production Host/window tests first exposed stale UIA, incomplete summary, and
-  stale Host preference overwrite (3 failures), then passed 4/4 after the
-  generation gate, complete projections, state icons, and dynamic UIA names.
-- A second UIA mutation showed fixed snapshot/InfoBar names hiding dynamic facts
-  (2 failures); dynamic accessible names then passed 4/4.
-- Auto-refresh notification tests cover Started/Completed ordering, observer
-  isolation, and disposal suppression; preference tests cover schema fallback,
-  all supported intervals, atomic replacement, geometry bounds, and no secret.
+- Presenter tests first failed to compile without the source object facts, then
+  proved complete lifecycle, LiveMesFieldSet/raw evidence, provenance, exact
+  zero-page state, retained-failure state, and source snapshot comparison.
+- The automatic-target race test first observed two requests for the old filter;
+  after suspending the old target while a manual/AREA operation is pending, the
+  new query commits and reactivates atomically.
+- Production integration tests cover current-AREA-first navigation, explicit
+  all-AREA confirmation, frozen paging, focused audit drill, stale-operation
+  rejection, disposal, AREA changes, and manual-versus-automatic arbitration.
+- The final solution run exposed two legacy-grid regressions caused by changing
+  the shared clipboard selection unit. The behavior now preserves `FullRow`
+  only when the DemandSeries page explicitly requests it; both legacy regression
+  tests passed 2/2 after the fix.
 
 ## Focused validation
 
-- `dotnet build .\MesIngest.sln -c Release --no-restore --no-incremental`:
-  succeeded, 0 warnings / 0 errors.
-- General Ticket 19/V2 filter: 62 passed / 0 failed / 0 skipped.
-- Production Host/session filter: 27 passed / 0 failed / 0 skipped.
-
-## Pseudo-mutation audit
-
-- Removing the production App's V2 composition ownership made the shell root test
-  fail (expected V2, observed legacy composition).
-- Removing auto-refresh notification subscription left the visible overview at
-  `1` instead of the completed value `2`.
-- Relabeling the retained Host snapshot with the new local AREA made the real
-  Host failure test show local `B1-1` instead of committed `A1-1`.
-- All three mutations were reverted before final validation.
+- Ticket 20 presentation/query/clipboard/auto-refresh/shell filter: 43 passed /
+  0 failed / 0 skipped.
+- Production Host/session/DemandSeries integration filter: 29 passed / 0 failed /
+  0 skipped.
+- Legacy clipboard/selection regression filter: 2 passed / 0 failed / 0 skipped.
+- `Invoke-WatchUiTests.ps1 -Suite watch-vm-tests`: 118 passed / 0 failed / 1
+  named skip (`zh-CN` required, current session `en-US`). Evidence:
+  `C:\Users\szy\AppData\Local\Temp\ticket20-watch-vm-20260814-165832`.
+- Final non-incremental Release build: 0 warnings / 0 errors.
 
 ## Final solution run
 
-- Ran exactly once after focused validation:
-  - `MesIngest.Watch.UiTests`: 109 passed / 0 failed / 27 named visual/interactive
-    environment skips.
-  - `MesIngest.Tests`: 695 passed / 3 failed / 99 named SQL-environment skips.
-- The three failures are outside the Ticket 19 diff: an existing INSTALL.md
-  `openapi/v1.json` assertion, latency telemetry retention using filesystem time,
-  and a legacy `MainWindow` caption-drag timing assertion. Focused re-run passed
-  the caption-drag test; the two deterministic pre-existing failures remained.
+- Ran exactly once after the initial focused validation:
+  - `MesIngest.Watch.UiTests`: 118 passed / 0 failed / 27 named
+    visual/interactive-environment skips.
+  - `MesIngest.Tests`: 711 passed / 5 failed / 99 named SQL-environment skips.
+- Two failures were the shared clipboard regression described above and passed
+  their 2/2 focused verification after the scoped fix. The three remaining
+  failures are outside the Ticket 20 diff and failed again in a focused run: the
+  existing INSTALL.md `openapi/v1.json` assertion, latency telemetry retention
+  using filesystem time, and legacy `MainWindow` caption double-click timing.
