@@ -53,6 +53,9 @@ killed by focused tests:
 - Raw presenter/API-client safety tests: 30 passed, 0 failed.
 - Session/Error WPF state tests: 26 passed, 0 failed.
 - Shared production-journey evidence tests: 3 passed, 0 failed.
+- Process file-location isolation tests added after the first real-window run:
+  5 passed, 0 failed. They prove production defaults remain unchanged and UI
+  test mode fails closed unless `LOCALAPPDATA` is an absolute isolated root.
 - Adjacent Watch core regression set: 332 passed, 4 named integration tests
   skipped by their existing environment gate.
 - Adjacent nonvisual Watch UI regression set: 57 passed, 0 failed.
@@ -79,6 +82,22 @@ killed by focused tests:
   than silently changing non-Ticket-22 production/docs behavior.
 - Pending formal command (from `mes/ingest/csharp`):
   `./Invoke-GoldenRendererValidation.ps1 -Ticket '19-22-shared-preview' -Suite watch-production-preview -Configuration Release -ExpectedDpi 96 -ExpectedDesktopWidth 1920 -ExpectedDesktopHeight 1080 -TimeoutSeconds 7200`.
+- Preserved golden-machine red evidence:
+  - `run-20260814-232704-watch-production-preview` stopped before any suite
+    because the VM offline cache lacked `System.Data.Odbc 8.0.0`.
+  - `run-20260814-233317-watch-production-preview` stopped before any suite on
+    the transitive `System.Text.Encoding.CodePages 8.0.0` dependency.
+  - Both exact trusted packages were copied into the required offline cache and
+    verified by nupkg SHA-256; all 93 package id/version pairs in the current UI
+    test assets file then reported present.
+  - `run-20260814-233601-watch-production-preview` passed the calibrated
+    environment and `watch-vm-tests` (139 passed, 1 named skip), then preserved
+    a real-window failure at AREA because Windows Known Folder resolution
+    ignored the child `LOCALAPPDATA` environment override.
+  - The harness fix now explicitly maps the existing UI-test-mode isolated root
+    into the existing internal composition file-location seams. Spec and
+    Standards rechecks passed with no public/page bypass and no production-mode
+    behavior change.
 - Pending: inspect all retrieved runner/environment/cleanup artifacts and PNG/UIA
   evidence, show the final preview to the user, receive explicit approval, then
   backfill Tickets 19-22. Ticket 23-only baseline promotion/stability/DPI-clone
