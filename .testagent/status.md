@@ -1,53 +1,71 @@
-# Ticket 20 test status
+# Ticket 21 test status
 
 ## Current
 
-- Ticket 20's non-pixel implementation is frozen. The production page uses the
-  existing V2 DemandSeries list/detail contract and the tested integration seam
-  is `ScriptedFakeHost -> MesIngestV2ApiClient -> WatchV2WorkspaceSession ->
-  production WatchWorkspaceWindow`.
-- Independent Standards, Spec, and correctness reviews have no remaining
-  findings after fixes.
-- No golden baseline, candidate, promoted artifact, DPI clone, VM deployment,
-  or user-approval checkbox was changed. Those remain intentionally deferred to
-  the shared tickets 19-22 preview.
+- Audit query/session/auto-refresh, presentation, production WPF page and
+  Audit-to-DemandSeries drill wiring are implemented.
+- TXT-backed AREA profiles, selected/saved/applied separation, persisted
+  applied snapshot, production Variant A page and three-view refresh isolation
+  are implemented.
+- Stable UIA landmarks/tab stops and 720 epx stacked layouts are frozen by
+  semantic tests.
+- Golden candidates, baselines, VM deployment and DPI clones remain untouched;
+  they belong to the tickets 19-22 shared integration train.
 
 ## Red-green evidence
 
-- Presenter tests first failed to compile without the source object facts, then
-  proved complete lifecycle, LiveMesFieldSet/raw evidence, provenance, exact
-  zero-page state, retained-failure state, and source snapshot comparison.
-- The automatic-target race test first observed two requests for the old filter;
-  after suspending the old target while a manual/AREA operation is pending, the
-  new query commits and reactivates atomically.
-- Production integration tests cover current-AREA-first navigation, explicit
-  all-AREA confirmation, frozen paging, focused audit drill, stale-operation
-  rejection, disposal, AREA changes, and manual-versus-automatic arbitration.
-- The final solution run exposed two legacy-grid regressions caused by changing
-  the shared clipboard selection unit. The behavior now preserves `FullRow`
-  only when the DemandSeries page explicitly requests it; both legacy regression
-  tests passed 2/2 after the fix.
+- `WatchAreaFilterProfileTests`: initial `CS0103` for missing parser/store;
+  final 24 tests green, including a visible corrupt-marker fallback diagnostic.
+- `WatchReadabilityAuditQueryTests`: initial `CS0103` for missing query helper;
+  final 3 tests green.
+- `WatchReadabilityAuditPresentationTests`: initial `CS0103` for missing
+  presenter; final 6 tests green.
+- `WatchReadabilityAuditProductionIntegrationTests`: initial missing
+  `ReadabilityAuditNavigationTask` and selection entry point; final tests also
+  cover multi-value OR filters, page size 200 and direct frozen page 3.
+- `WatchTicket21AreaAndResponsiveIntegrationTests`: unchanged test first caught
+  missing page/card AutomationId/Name and then missing explicit tab stops;
+  final 2 tests green.
+
+## Verified test-gap closure
+
+Four high-risk pseudo-mutations were empirically confirmed as survivors,
+reverted, covered, and then re-injected to prove the new assertion kills them:
+
+1. Truncating comma-separated audit OR values to one item initially passed;
+   production integration now asserts two states, WorkTypes and blockers.
+2. Rejecting exactly 100 AREA values (`>` changed to `>=`) initially passed;
+   a boundary test now fails that mutation.
+3. Omitting CatalogRevision from list/detail snapshot identity initially passed;
+   the presenter test now rejects a detail differing only in CatalogRevision.
+4. Ignoring the persisted applied AREA profile at startup initially passed;
+   production integration now proves the initial Overview request uses the
+   persisted scope and that Save alone does not replace it.
+
+No mutation remains in the working tree.
 
 ## Focused validation
 
-- Ticket 20 presentation/query/clipboard/auto-refresh/shell filter: 43 passed /
-  0 failed / 0 skipped.
-- Production Host/session/DemandSeries integration filter: 29 passed / 0 failed /
-  0 skipped.
-- Legacy clipboard/selection regression filter: 2 passed / 0 failed / 0 skipped.
-- `Invoke-WatchUiTests.ps1 -Suite watch-vm-tests`: 118 passed / 0 failed / 1
-  named skip (`zh-CN` required, current session `en-US`). Evidence:
-  `C:\Users\szy\AppData\Local\Temp\ticket20-watch-vm-20260814-165832`.
-- Final non-incremental Release build: 0 warnings / 0 errors.
+- Review-fix unit/session/presenter/profile filter: 52 passed, 0 failed.
+- Review-fix audit/AREA/DemandSeries/session WPF filter: 31 passed, 0 failed.
+- `WatchV2ProductionHostTests`: 4 passed, 0 failed.
+- `WatchCompositionRootTests`: 16 passed, 0 failed.
+- `WatchV2ProductionShellTests` plus navigation context: 7 passed, 0 failed.
+- `MesIngest.Watch` Release build: succeeded with 0 warnings and 0 errors.
+- Initial two-axis review found three spec and six documented UI-standard
+  issues. Fixes now preserve off-page selections through same-snapshot detail,
+  distinguish corrupt AREA markers, retain explicit All AREA applied state,
+  use Fluent Cards/tokens/platform type, and expose truthful draft/failure
+  states. Final Spec and Standards read-only re-reviews both report no findings.
 
 ## Final solution run
 
-- Ran exactly once after the initial focused validation:
-  - `MesIngest.Watch.UiTests`: 118 passed / 0 failed / 27 named
-    visual/interactive-environment skips.
-  - `MesIngest.Tests`: 711 passed / 5 failed / 99 named SQL-environment skips.
-- Two failures were the shared clipboard regression described above and passed
-  their 2/2 focused verification after the scoped fix. The three remaining
-  failures are outside the Ticket 20 diff and failed again in a focused run: the
-  existing INSTALL.md `openapi/v1.json` assertion, latency telemetry retention
-  using filesystem time, and legacy `MainWindow` caption double-click timing.
+- Non-incremental Release solution build: succeeded, 0 warnings, 0 errors.
+- Full solution test pass (run once): `MesIngest.Watch.UiTests` 124 passed,
+  0 failed, 27 named environment/golden skips; `MesIngest.Tests` 748 passed,
+  2 failed, 99 named SQL skips.
+- Both failures are outside the Ticket 21 diff: the known INSTALL.md V1 OpenAPI
+  wording assertion and the file-retention timestamp test. All Ticket 21
+  focused filters remain green.
+- No golden candidate/baseline, VM task, preview artifact, or DPI clone was
+  generated or changed; those gates remain pending for the shared 19-22 train.
