@@ -49,9 +49,15 @@ Run from `mes\ingest\csharp` inside the interactive guest session:
 .\Invoke-WatchUiTests.ps1 -Configuration Release -Suite watch-vm-tests
 .\Invoke-WatchUiTests.ps1 -Configuration Release -Suite watch-xaml-visual
 .\Invoke-WatchUiTests.ps1 -Configuration Release -Suite watch-ui-journeys
+.\Invoke-WatchUiTests.ps1 -Configuration Release -Suite watch-production-preview
 .\Invoke-WatchUiTests.ps1 -Configuration Release -Suite watch-window-visual
 .\Invoke-WatchUiTests.ps1 -Configuration Release -Suite all
 ```
+
+`watch-production-preview` runs `watch-vm-tests` followed by the production
+`watch-ui-journeys` inside one payload deployment and desktop-mutex lease. It is
+the implementation-train preview entry point: it does not run either baseline
+comparison suite and does not create, promote, or approve a baseline.
 
 The 19-scenario Verify.Xaml stability gate is:
 
