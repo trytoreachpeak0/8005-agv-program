@@ -98,6 +98,15 @@ killed by focused tests:
     into the existing internal composition file-location seams. Spec and
     Standards rechecks passed with no public/page bypass and no production-mode
     behavior change.
+  - `run-20260814-235546-watch-production-preview` proved that isolation fix:
+    AREA loaded/applied `Factory-East` and produced its preview. Its next red
+    evidence showed the Error Search page visibly loaded and the Host request
+    completed, while the journey waited on the page's WPF `Grid` root, which is
+    not present in the UIA Control view after the responsive layout refactor.
+  - The journey now waits on the exposed normalized-filter status text and
+    selects a real matched period before waiting for that period's evidence.
+    The exact local check passed 6 Error Search UI facts with the real-window
+    journey remaining the one expected environment-gated skip.
 - Pending: inspect all retrieved runner/environment/cleanup artifacts and PNG/UIA
   evidence, show the final preview to the user, receive explicit approval, then
   backfill Tickets 19-22. Ticket 23-only baseline promotion/stability/DPI-clone
