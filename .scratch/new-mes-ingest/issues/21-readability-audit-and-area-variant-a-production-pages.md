@@ -4,7 +4,7 @@
 
 **Blocked by:** 10 — ReadabilityAuditSnapshot 查询与详情；18 — Watch 单 Host 非视觉会话与刷新内核；19 — 生产 Fluent shell、设置与概览
 
-**Status:** ready-for-human
+**Status:** done
 
 - [x] 实现与验证遵循 [MesIngest.Watch Fluent UI rules](../../../docs/agents/fluent-ui.md) 和 [Golden WPF renderer](../../../docs/agents/golden-renderer.md)，资格审计和 AREA 编辑分别采用已确认的生产信息层级与 Variant A 主从布局。
 - [x] 资格列表覆盖全部 Demand 世代并明确区分 ExternalReadabilityState 与 VISIBLE/GONE 生命周期；NOT_READABLE 摘要显示 Host 选择的 LeadReadabilityBlocker，详情保留全部 ReadabilityBlocker 和每项资格检查。
@@ -15,13 +15,13 @@
 - [x] 应用或切换 AreaFilterProfile 后只重新查询需求系列、资格审计和概览相关摘要；不改变 WatchDemandProjection、ExternallyReadableDemandCatalog、CatalogRevision、Dispatch 范围、错误检索或接入告警。
 - [x] Host 在分页和计数前只按当前可信单值 MesArea 精确筛选；AREA 缺失、非法或观测冲突的 Demand 只在“全部 AREA”资格范围出现，不借历史 AREA 填补。
 - [x] 从资格项跳转需求系列时携带 SeriesId、DemandId 和来源审计快照摘要；范围外导航必须显式确认切换范围，刷新失败或对象不再命中时保留旧快照语义并清除不再有效的详情。
-- [ ] 两页的筛选、配置编辑、校验、分页、分面、详情、保存、应用和跳转具备稳定 UI Automation 名称、键盘焦点、非颜色状态语义，并在规定窗口尺寸与 DPI 下不裁切关键操作。
-- [ ] 本票与 19、20、22 属于同一共享 integration train：各票先完成非像素回归和实现，四票输出冻结后只向黄金机部署一次，集中运行实际受影响的 targeted suites、生成一套最终真实窗口预览并取得一次用户批准；同一批准与证据链接回填四票后它们才可完成并共同解锁票 23，不得按票重复运行完整 `all`、候选稳定、基线提升或 DPI clone。
+- [x] 两页的筛选、配置编辑、校验、分页、分面、详情、保存、应用和跳转具备稳定 UI Automation 名称、键盘焦点、非颜色状态语义，并在规定窗口尺寸与 DPI 下不裁切关键操作。
+- [x] 本票与 19、20、22 属于同一共享 integration train：各票先完成非像素回归和实现，四票输出冻结后只向黄金机部署一次，集中运行实际受影响的 targeted suites、生成一套最终真实窗口预览并取得一次用户批准；同一批准与证据链接回填四票后它们才可完成并共同解锁票 23，不得按票重复运行完整 `all`、候选稳定、基线提升或 DPI clone。
 - [x] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ### 2026-08-14 — 非像素实现冻结，等待共享视觉列车
 
@@ -31,3 +31,13 @@
 - 聚焦复核：profile/presenter/auto-refresh 52/52；session 与 Audit/AREA/DemandSeries 生产 WPF 31/31；另有 ProductionHost 4/4、CompositionRoot 16/16、ProductionShell/导航 7/7。四个高风险伪变异（多值 OR、AREA 100 项边界、CatalogRevision 身份、启动恢复 applied profile）均先存活、再由新增断言杀死，工作树不留变异。
 - 非增量 Release 构建为 0 warning / 0 error。全量只运行一次：UiTests 124 passed / 27 named environment/golden skips；MesIngest.Tests 748 passed / 2 failed / 99 named SQL skips。两个失败均不在本票 diff：既有 INSTALL.md V1 OpenAPI 字样断言与文件保留时间戳测试；本票聚焦回归全部通过。
 - 初始 Spec/Standards 审查分别发现并修复刷新换页选择、显式 All AREA 状态、损坏 marker、Card/token、清除条件、中文诊断和失败呈现等问题；最终两轴只读复审均为 no findings。未生成/提升 golden candidate，未改视觉基线，未创建 VM 任务或 DPI clone；等待 19–22 四票冻结后的一次共享黄金机预览。
+
+### 2026-08-17 — 共享 Preview v8 批准并完成
+
+- 冻结源码为 `7ec9bf073609eed7396aa36aae0f19e7b7a526f5`；共享
+  `watch-production-preview` 在校准黄金机通过，VM tests 206 total / 205 passed /
+  0 failed / 1 named desktop-entry skip，生产真实窗口 journey 1/1 passed。
+- 用户于 2026-08-17 明确批准 Preview v8 全部页面。唯一 skip、用户批准、源码身份、
+  环境与 cleanup 说明统一记录在票 19；本票引用同一不可覆盖证据目录：
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-19-22-prototype-alignment-preview-v8/run-20260815-205801-watch-production-preview`。
+- 本票未生成或提升 baseline，也未运行 DPI clone；这些正式门禁仍由票 23 独占。
