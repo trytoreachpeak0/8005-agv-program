@@ -10,12 +10,12 @@
 - [ ] 为本次冻结的 19–22 源身份建立唯一、不覆盖历史的证据目录，记录提交与 dirty diff 身份、环境报告、任务原生退出码、恢复/构建/测试日志、截图、UIA 树、Verify XML、received/diff、通过或失败或 skip 计数及每个 named skip 的 release gate。
 - [ ] 先运行全部相关代码与非像素回归，再在 1920×1080、96 DPI、zh-CN、浅色主题、SoftwareOnly 的真实交互桌面运行受影响的 UI Automation、键盘、标题栏、导航、分页、详情、InfoBar、剪贴板、高对比度语义和真实窗口旅程。
 - [ ] 开始候选门禁前，核对 19–22 的共享黄金机预览、用户批准、源码提交与 dirty diff 身份确实对应本票冻结输出；身份和视觉/UIA/DPI 输出均未变化时不得重复生成或要求再次批准同一预览，若不一致则保留失效证据、只重做受影响预览并重新取得批准。
-- [ ] 用户批准后生成全新 candidate matrix，不批量提升历史 received/candidate；对候选连续运行 10 次并要求 PNG 与 XML 字节完全一致，任何失败都保留 red evidence、解释原因并从第一轮重新计数。
-- [ ] 为每个受影响场景生成 before/after/diff 证据，只提升用户明确批准的候选；提升后对同一矩阵再连续运行 10 次并要求 `0 received`，不以一次成功重跑掩盖先前失败。
+- [ ] 用户批准后生成全新 candidate matrix，不批量提升历史 received/candidate；对候选连续运行 `-Runs` 次（默认 3，见 [Golden WPF renderer](../../../docs/agents/golden-renderer.md) 的 Repetition count），每一轮的 PNG 与 XML 必须字节完全一致，或在该文档的 Visual equivalence 判据下被判定为视觉等价；任何被容差接受的 step 都要列入证据并在审批时人工复核，任何失败都保留 red evidence、解释原因并从第一轮重新计数。
+- [ ] 为每个受影响场景生成 before/after/diff 证据，只提升用户明确批准的候选；提升后对同一矩阵再连续运行同样的 `-Runs` 次并要求 `0 received`，不以一次成功重跑掩盖先前失败。
 - [ ] 从校准 VM 导出具有新 VM ID 的一次性离线克隆，断开网络后分别在 125%（120 DPI）和 150%（144 DPI）运行所需 watch-ui-journeys；交互环境报告必须证明实际 DPI，且不改变原 gpt_win11 的 96 DPI。
 - [ ] DPI 旅程证明 720 epx 最小宽度与规定缩放下，标题栏按钮、导航、页面状态、筛选、分页、三列或 master-detail 边界、关键命令和焦点视觉能重排或滚动而不裁切。
 - [ ] 完成后清除交互计划任务、残留 Watch/test 进程、临时 payload、DPI 克隆及其精确导出/导入目录，并复核原 VM 为 1920×1080、96 DPI、Explorer 与输入桌面处于正确交互会话。
-- [ ] 将 19–22 的共享预览证据和本票唯一门禁 evidence directory、环境身份、用户批准记录、named skips 与清理结果互相链接；这些实现票不重复执行各自的完整 10 次候选、10 次提升后稳定和 DPI clone 流程。
+- [ ] 将 19–22 的共享预览证据和本票唯一门禁 evidence directory、环境身份、用户批准记录、named skips 与清理结果互相链接；这些实现票不重复执行各自的完整候选稳定、提升后稳定和 DPI clone 流程。
 - [ ] 票 23 完成后，只有后续改动造成视觉、XAML、UI Automation 或 DPI 输出变化，或某场景失败时，才重跑受影响场景并重新完成被失效的批准与连续计数；与 UI 输出无关的后端、文档或打包变化不得触发无意义的整套视觉重验。
 - [ ] Read `docs/agents/golden-renderer.md`.
 - [ ] Ran the required golden-machine suites through an interactive task.

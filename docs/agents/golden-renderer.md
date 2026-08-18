@@ -59,10 +59,11 @@ Run from `mes\ingest\csharp` inside the interactive guest session:
 the implementation-train preview entry point: it does not run either baseline
 comparison suite and does not create, promote, or approve a baseline.
 
-The 19-scenario Verify.Xaml stability gate is:
+The 19-scenario Verify.Xaml stability gate is (see "Repetition count" below
+for how many runs to ask for):
 
 ```powershell
-.\Test-WatchXamlBaselineStability.ps1 -Configuration Release -Runs 10
+.\Test-WatchXamlBaselineStability.ps1 -Configuration Release -Runs 3
 ```
 
 For normal host-side orchestration, use the repository wrapper:
@@ -102,12 +103,11 @@ For visual changes, the order is mandatory:
 2. Generate real golden-machine previews for all affected pages/states.
 3. Show the final preview images to the user and obtain explicit approval.
 4. Generate a fresh candidate matrix; do not bulk-promote historical candidates.
-5. Run the candidate matrix 10 consecutive times and require byte-identical PNG
-   and XML output.
+5. Run the candidate matrix `-Runs` consecutive times (default 3) and require every
+   run to be byte-identical or visually equivalent under the bounded predicate below.
 6. Produce per-scenario before/after/diff evidence.
 7. Promote only the explicitly approved candidate.
-8. Run the same 10-run command against the promoted baselines and require
-   `0 received`.
+8. Run the same command against the promoted baselines and require `0 received`.
 
 A later UI change invalidates an earlier visual approval. Test-only
 normalization may reuse approval only when all approved PNG SHA-256 hashes remain
@@ -116,6 +116,87 @@ identical; record that comparison in evidence.
 Never hide a red run with a successful rerun. Keep the first failure, explain
 the cause, add a regression test when possible, and restart the required
 consecutive-run count from one.
+
+## Visual equivalence
+
+Byte equality is the fast path and the default. It is not, however, the definition
+of "unchanged": WPF may rasterise an identical glyph run into slightly different
+antialiasing intensities between processes, leaving the glyph's pixel support
+untouched and shifting individual grey levels by one or two. That difference carries
+no visual information, and failing on it makes the gate reject its own renderer
+rather than a regression.
+
+When two captures are not byte-identical, both the candidate stability gate and the
+promoted-baseline gate apply the same bounded predicate
+(`MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs`). Two captures count as
+visually equivalent only when **every** rule holds:
+
+| # | Rule | Rejects |
+| --- | --- | --- |
+| 1 | identical frame dimensions | resize, DPI and layout-container changes |
+| 2 | ink mask unchanged | moved text, different glyph, font or weight, moved control, added or removed element |
+| 3 | achromatic delta (ΔR = ΔG = ΔB) | accent, status and theme colour changes |
+| 4 | per-channel &#124;Δ&#124; ≤ 3 | contrast, opacity and brightness changes |
+| 5 | ≤ 24 differing regions, each ≤ 128x48 px | global gamma shifts, large-area repaints |
+| 6 | ≤ max(512, 0.05% of the frame) differing pixels | slow erosion of a baseline |
+| 7 | alpha channel unchanged | compositing changes |
+
+Rule 2 is load-bearing. Because rule 4 bounds every difference, no pixel can cross
+between clearly-ink and clearly-background, so the mask is evaluated with a tolerance
+band around the threshold and cannot flake on the threshold itself.
+
+Per run, at most 4 steps may be accepted this way and at most 1536 differing pixels
+in total. Exceeding either budget fails the run.
+
+Acceptance is never silent. Every accepted capture writes
+`visual-equivalence-accepted.json` plus `<step>.equivalent-{expected,actual,diff}.png`
+into the evidence directory, and the run logs
+`WATCH_WINDOW_VISUAL_EQUIVALENCE_ACCEPTED: step=… pixels=… maxDelta=…`. Any step that
+used tolerance must be listed in the ticket evidence and reviewed by a human at
+approval time, exactly like a `received` file.
+
+The predicate is covered by `WatchWindowVisualEquivalenceTests` and, against real
+golden-machine captures, by `WatchWindowVisualEquivalenceGoldenFixtureTests`
+(pointed at `.artifacts/golden-renderer` through
+`MESINGEST_WATCH_GOLDEN_FIXTURES`; it skips by name when the captures are absent).
+Keep the real-capture tests: an early revision of the predicate silently reported
+*zero* differences for every real pair because it normalised pixel formats through
+`Graphics.DrawImageUnscaled`, which rescales by the ratio of the source and
+destination resolutions — the captures carry 95.99 DPI while a new `Bitmap` defaults
+to 96. Synthetic fixtures alone did not catch it.
+
+Do not widen these bounds to make a failing run pass. If a real change is visually
+equivalent but exceeds them, that is a baseline update with the usual approval, not
+a tolerance change.
+
+## Repetition count
+
+`-Runs` defaults to **3** for every stability gate. A full journey run costs roughly
+two and a half minutes on `gpt_win11`, so 3 runs is about 8 minutes and 20 runs is
+close to an hour; the default is set so that routine verification stays usable.
+
+The count used to be 10 because repetition was the only defence against
+nondeterministic rasterisation: the gate could not tell a harmless antialiasing flip
+from a regression, so it had to see enough runs to notice the flip existed. The
+bounded predicate above now *classifies* that difference instead of merely detecting
+it, which changes what repetition is for. A real change fails on the first run that
+shows it, whatever the count.
+
+Repetition still has one job the predicate cannot do: catching genuinely intermittent
+behaviour — a race that occasionally changes layout, data ordering that occasionally
+reaches the capture, a control that occasionally keeps focus. Raise `-Runs` when a
+ticket has reason to suspect that:
+
+- a ticket touches async refresh, focus handling, virtualization or animation;
+- a previous run of the same matrix produced an unexplained difference;
+- a baseline is being promoted for a page whose journey is new.
+
+Measured reference for calibrating the choice: the Ticket 23 antialiasing flip
+appears in roughly 12% of runs (12 of 102 historical runs; 3 of 20 in the validation
+batch `ticket-23-visual-equivalence-gate/run-20260818-222727`). A defect at that rate
+has about a 33% chance of being missed by 3 runs and 8% by 20. Choose the count from
+the rate you need to detect, and record the choice and its reason in the ticket
+evidence.
 
 ## DPI validation
 
