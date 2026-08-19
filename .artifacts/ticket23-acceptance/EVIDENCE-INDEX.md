@@ -28,7 +28,12 @@ the approved preview captured before those edits.
 | DPI 125% (120 DPI) | `.../ticket-23-dpi-120/run-20260819-083824-watch-ui-journeys` | PASSED |
 | DPI 150% (144 DPI) | `.../ticket-23-dpi-144/run-20260819-084741-watch-ui-journeys` | PASSED |
 | Final VM recheck at 96 DPI | `.../ticket-23-final-vm-recheck/run-20260819-085538-watch-vm-tests` | PASSED — 227 tests 0 failed 5 skipped |
-| Verify.Xaml stability, 10 runs | `.../ticket-23-xaml-gate/run-20260819-090314-watch-xaml-stability` | **FAILED** — run 6 differs; see "Open red" below |
+| Verify.Xaml stability, 10 runs | `.../ticket-23-xaml-gate/run-20260819-090314-watch-xaml-stability` | **FAILED** — run 6 differs; diagnosed and fixed below |
+| Verify.Xaml stability after fix, 3 runs | `.../ticket-23-xaml-gate-fixed-2/run-20260819-105020-watch-xaml-stability` | PASSED |
+| 720 epx at 100% | `.../ticket-23-epx-720-baseline-96dpi-v2/run-20260819-113728-watch-ui-journeys` | PASSED — 720x600 epx |
+| 720 epx at 125% | `.../ticket-23-epx-720-dpi-120/run-20260819-115708-watch-ui-journeys` | PASSED — 900x750 physical = 720x600 epx |
+| 720 epx at 150% | `.../ticket-23-epx-720-dpi-144/run-20260819-115136-watch-ui-journeys` | PASSED — 1080x900 physical = 720x600 epx |
+| Final VM recheck after the 720 epx phase | `.../ticket-23-final-vm-recheck-after-720epx` | PASSED — 228 tests 0 failed 5 skipped |
 
 Every run records its own scheduled-task result, native exit code, restore/build/test logs,
 environment JSON before and after, screenshots, UIA tree, and cleanup JSON.
@@ -185,10 +190,12 @@ Effective DPI is proven by the interactive environment report at both scales, be
 after each suite — not by a registry read over PowerShell Direct, which the runbook says is
 insufficient.
 
-Scope honesty: these runs prove reflow and scrolling at 125% and 150%. They do **not**
-exercise the 720 epx width floor; the narrowest client they reach is 960x600 epx at 150%.
-The floor is covered by tests that set `window.Width = 720` directly, in
-`WatchV2ProductionShellTests` (host) and `WatchTicket22ResponsiveIntegrationTests` (guest).
+Scope honesty: the original 1440x900 runs proved reflow and scrolling at 125% and 150% but
+did **not** exercise the 720 epx width floor — their narrowest client was 960x600 epx. That
+gap was closed afterwards on a second clone (`gpt_win11_ticket23_dpi720`, new VM id
+`83b0777b`) using `-JourneyClientEpx 720x600`, which pins the client in effective pixels so
+the width under test no longer follows the machine's scaling. 720x600 epx passes at 100%,
+125% and 150%, each with the effective DPI proven by the interactive environment report.
 
 Deviation recorded: the host has 15.3 GB RAM and `gpt_win11` holds a static 4 GB, so the
 clone could not boot alongside it. With maintainer approval the golden machine was shut down
@@ -215,9 +222,15 @@ and `windows_server_2022_100` share that directory but use their own disks and w
 alone. After deletion the live VM remains Running on
 `F:\ticket23-font-import-20260818\Virtual Hard Disks\`.
 
-One item deliberately **not** removed: guest payload directories under `C:\MesIngest\23*`.
-A repository safety hook blocks `Remove-Item` on that path, and it was not worked around.
-All evidence is already on the host, so nothing is at risk; this is guest disk hygiene only.
+Guest payload directories are removed: 29 of them (`23`, `23-*`, `ticket-23-preview-v2`,
+`Ticket23FontCalibration`), leaving zero ticket-23 directories under `C:\MesIngest` and
+83 GB free on the guest system drive. The deletion was scoped by name to this ticket only —
+other tickets' payloads and the offline `Ticket11\NuGetPackages` cache were verified intact
+afterwards, along with zero scheduled tasks and zero residual processes.
+
+An earlier attempt was refused by a repository safety hook and was not worked around; the
+directories were left in place and recorded as outstanding until the maintainer asked for
+them to be cleared.
 
 A cleanup note worth carrying forward: the scheduled-task purge used a `*MesIngest*`
 wildcard, which also matched the recheck task that was live at that moment. It happened to
