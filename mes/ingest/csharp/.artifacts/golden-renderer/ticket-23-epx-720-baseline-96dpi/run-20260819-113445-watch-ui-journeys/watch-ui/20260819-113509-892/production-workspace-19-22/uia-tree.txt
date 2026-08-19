@@ -1,0 +1,135 @@
+Window id= name=MesIngest Watch help= itemStatus= enabled=True
+  Text id= name= help= itemStatus= enabled=True
+  Text id= name=MesIngest Watch help= itemStatus= enabled=True
+  Button id=TitleBarMinimizeButton name=最小化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarMaximizeButton name=最大化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarCloseButton name=关闭窗口 help= itemStatus= enabled=True
+  Button id=NavigationToggleButton name=展开或折叠主导航 help=在 48 epx 紧凑导航与 224 epx 展开导航之间切换 itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+  List id=NavigationItems name= help= itemStatus= enabled=True
+    DataItem id=OverviewNavigationItem name=概览导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=概览 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=DemandSeriesNavigationItem name=需求系列导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=需求系列 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ReadabilityAuditNavigationItem name=资格审计导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=资格审计 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ErrorSearchNavigationItem name=错误检索导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=错误检索 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=AreaFilterNavigationItem name=AREA 筛选导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=AREA 筛选 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=CurrentAttentionNavigationItem name=接入告警导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=接入告警 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  List id=NavigationFooterItems name= help= itemStatus= enabled=True
+    DataItem id=HostNavigationItem name=Host 状态：Host 已连接；打开连接设置 help=http://127.0.0.1:51543 · 契约兼容 itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=Host 已连接 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=SettingsNavigationItem name=设置导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=设置 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  Pane id=PART_NavigationViewContentPresenter name= help= itemStatus= enabled=True
+  Pane id=OverviewPage name=概览页面 help= itemStatus= enabled=True
+    Text id= name=概览 help= itemStatus= enabled=True
+    Text id=OverviewContextText name=概览快照、客户端读取时间与自动刷新策略：Host 快照 2026-08-14 15:08:10 · 投影提交 2026-08-14 15:08:10 · 序列 232 · Watch 最近成功 2026-08-14 13:08:00 · 自动刷新 10 秒 help= itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+    Text id=OverviewHostStatusText name=Host 已连接 help= itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+    Text id= name=需求系列 help= itemStatus= enabled=True
+    Button id=SeriesSummaryAction name=查看全部需求系列第一页 help= itemStatus= enabled=True
+      Text id= name=查看 → help= itemStatus= enabled=True
+    Text id=SeriesSummaryValue name=6 help= itemStatus= enabled=True
+    Text id=SeriesSummaryDetail name=4 Tracking · 2 Archived · 2 GONE · 1 归档后仍可见 help= itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+    Text id= name=资格审计 help= itemStatus= enabled=True
+    Button id=ReadabilitySummaryAction name=查看全部资格审计第一页 help= itemStatus= enabled=True
+      Text id= name=查看 → help= itemStatus= enabled=True
+    Text id=ReadabilitySummaryValue name=2 / 5 help= itemStatus= enabled=True
+    Text id=ReadabilitySummaryDetail name=当前外部可读 · 3 个不可见或阻断 help= itemStatus= enabled=True
+    Button id=ReadableSummaryAction name=查看可读资格审计第一页 help= itemStatus= enabled=True
+      Text id= name=可读 help= itemStatus= enabled=True
+    Button id=NotReadableSummaryAction name=查看不可读资格审计第一页 help= itemStatus= enabled=True
+      Text id= name=不可读 help= itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+    Text id= name=错误检索 help= itemStatus= enabled=True
+    Button id=ErrorsSummaryAction name=查看全部错误检索第一页 help= itemStatus= enabled=True
+      Text id= name=查看 → help= itemStatus= enabled=True
+    Text id=ErrorsSummaryValue name=1 help= itemStatus= enabled=True
+    Text id=ErrorsSummaryDetail name=活动错误 Series · 近 7 天 1 个 Series help= itemStatus= enabled=True
+    Button id=ActiveErrorsSummaryAction name=查看活动错误第一页 help= itemStatus= enabled=True
+      Text id= name=活动 help= itemStatus= enabled=True
+    Button id=PriorErrorsSummaryAction name=查看近七天错误第一页 help= itemStatus= enabled=True
+      Text id= name=近 7 天 help= itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+    Text id= name=AREA 筛选 help= itemStatus= enabled=True
+    Button id= name=管理 AREA 筛选 help= itemStatus= enabled=True
+      Text id= name=管理 → help= itemStatus= enabled=True
+    Text id=LocalAreaHeadingText name=东区 help= itemStatus= enabled=True
+    Text id=LocalAreaDetailText name=本机已应用 · 12 个 AREA · 本机更新 2026-08-14 13:00:00 help= itemStatus= enabled=True
+    Text id=HostAreaScopeText name=Host 已提交范围：12 个 AREA（A1-1、A1-2、A2-1…） help= itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+    Text id= name=接入告警 help= itemStatus= enabled=True
+    Button id=AttentionSummaryAction name=查看全部接入告警第一页 help= itemStatus= enabled=True
+      Text id= name=查看 → help= itemStatus= enabled=True
+    Text id=AttentionSummaryValue name=8 help= itemStatus= enabled=True
+    Text id=AttentionSummaryDetail name=当前接入关注项 · 5 ERROR · 3 WARNING help= itemStatus= enabled=True
+    Text id=AttentionSummaryFacetText name=接入告警严重度精确分面：5 ERROR · 3 WARNING help= itemStatus= enabled=True
+    Text id=RecentActivityHeadingText name=近期重点动态 help= itemStatus= enabled=True
+    Text id= name=最近成功窗口中最值得关注的变化 help= itemStatus= enabled=True
+    Text id= name=按时间倒序 help= itemStatus= enabled=True
+    Button id= name=打开重点动态 错误检索 · REQUIRED_MES_FIELD_MISSING help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=错误检索 · REQUIRED_MES_FIELD_MISSING help= itemStatus= enabled=True
+      Text id= name=SERIES-ATTENTION-22 · WIRE_TO_GATE · attention-poll-22 help= itemStatus= enabled=True
+      Text id= name=2026-08-14 15:08:09 help= itemStatus= enabled=True
+    Button id= name=打开重点动态 轮询运行 · POLL_RUN_FAILURE help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=轮询运行 · POLL_RUN_FAILURE help= itemStatus= enabled=True
+      Text id= name=attention-poll-failed-22 help= itemStatus= enabled=True
+      Text id= name=2026-08-14 15:07:09 help= itemStatus= enabled=True
+    Button id= name=打开重点动态 任务类型保护 · TASK_TYPE_PROTECTION help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=任务类型保护 · TASK_TYPE_PROTECTION help= itemStatus= enabled=True
+      Text id= name=WORK-UNSUPPORTED-22 help= itemStatus= enabled=True
+      Text id= name=2026-08-14 15:06:09 help= itemStatus= enabled=True
+    Button id= name=打开重点动态 未分配 MES 观测 · UNASSIGNED_MES_OBSERVATION help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=未分配 MES 观测 · UNASSIGNED_MES_OBSERVATION help= itemStatus= enabled=True
+      Text id= name=WIRE_TO_GATE · attention-poll-22 help= itemStatus= enabled=True
+      Text id= name=2026-08-14 15:05:09 help= itemStatus= enabled=True
+    Button id= name=打开重点动态 SERIES_LIFECYCLE · DEMAND_OBSERVED help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=SERIES_LIFECYCLE · DEMAND_OBSERVED help= itemStatus= enabled=True
+      Text id= name=SERIES-PREVIEW-20 · WIRE_TO_GATE · poll-demand-series-20 help= itemStatus= enabled=True
+      Text id= name=2026-08-14 13:06:07 help= itemStatus= enabled=True
+    Text id= name=当前显示范围 help= itemStatus= enabled=True
+    Text id= name=AREA 配置会同时影响两个数据页 help= itemStatus= enabled=True
+    Text id= name=东区 help= itemStatus= enabled=True
+    Text id= name=本机已应用 · 12 个 AREA · 本机更新 2026-08-14 13:00:00 help= itemStatus= enabled=True
+    Text id= name=需求系列 help= itemStatus= enabled=True
+    Text id= name=4 Tracking · 2 Archived · 2 GONE · 1 归档后仍可见 help= itemStatus= enabled=True
+    Text id= name=资格审计 help= itemStatus= enabled=True
+    Text id= name=当前外部可读 · 3 个不可见或阻断 help= itemStatus= enabled=True
+    Text id=StaleNoticeText name=概览数据未标记为陈旧 help= itemStatus= enabled=True
+    Button id= name=管理 AREA 筛选 help= itemStatus= enabled=True
+      Text id= name=管理 AREA 筛选 help= itemStatus= enabled=True
+    ScrollBar id=PART_VerticalScrollBar name= help= itemStatus= enabled=True
+      Button id=PART_ButtonScrollUp name=CaretUp24 help= itemStatus= enabled=True
+        Text id= name= help= itemStatus= enabled=True
+      Button id=PageUp name= help= itemStatus= enabled=True
+      Thumb id= name= help= itemStatus= enabled=True
+      Button id=PageDown name= help= itemStatus= enabled=True
+      Button id=PART_ButtonScrollDown name=CaretDown24 help= itemStatus= enabled=True
+        Text id= name= help= itemStatus= enabled=True

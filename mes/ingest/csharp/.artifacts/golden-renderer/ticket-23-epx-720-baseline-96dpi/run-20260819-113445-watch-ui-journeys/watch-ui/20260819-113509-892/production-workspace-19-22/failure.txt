@@ -1,0 +1,9 @@
+step=launch
+exception=System.InvalidOperationException
+timeoutMs=20000
+message=Could not stabilize the client area at 720x450; got 720x600.
+firstFailureRetained=true
+   at MesIngest.Watch.UiTests.WatchWindowNative.SetClientSize(IntPtr handle, Int32 width, Int32 height) in C:\MesIngest\23-epx-720-baseline-96dpi\run-20260819-113445-watch-ui-journeys\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowNative.cs:line 104
+   at MesIngest.Watch.UiTests.WatchWindowNative.SetClientSizeInEffectivePixels(IntPtr handle, Int32 width, Int32 height) in C:\MesIngest\23-epx-720-baseline-96dpi\run-20260819-113445-watch-ui-journeys\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowNative.cs:line 34
+   at MesIngest.Watch.UiTests.WatchWorkspaceProductionJourneyTests.ApplyJourneyClientSize(IntPtr windowHandle) in C:\MesIngest\23-epx-720-baseline-96dpi\run-20260819-113445-watch-ui-journeys\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWorkspaceProductionJourneyTests.cs:line 2496
+   at MesIngest.Watch.UiTests.WatchWorkspaceProductionJourneyTests.Operator_reviews_the_complete_production_workspace_and_records_the_shared_preview() in C:\MesIngest\23-epx-720-baseline-96dpi\run-20260819-113445-watch-ui-journeys\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWorkspaceProductionJourneyTests.cs:line 659
