@@ -9,7 +9,12 @@ param(
     [string]$CloneVm = 'gpt_win11_ticket23_dpi',
     [string]$SourceVm = 'gpt_win11',
     [string]$ExportRoot = 'F:\ticket23-dpi-export-20260819',
-    [string]$ImportRoot = 'F:\ticket23-dpi-import-20260819'
+    [string]$ImportRoot = 'F:\ticket23-dpi-import-20260819',
+
+    # Distinguishes this attempt's record. Evidence is never overwritten - the first run of
+    # this script clobbered the committed clone-cleanup.json of the earlier 1440x900 DPI
+    # phase, which had to be restored from git.
+    [string]$Label = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -71,6 +76,10 @@ $record = [pscustomobject]@{
         Select-Object -ExpandProperty Name)
 }
 
-$out = 'C:\Users\szy\Desktop\8005---AGV\.artifacts\ticket23-dpi\clone-cleanup.json'
+$suffix = if ([string]::IsNullOrWhiteSpace($Label)) { '' } else { "-$Label" }
+$out = "C:\Users\szy\Desktop\8005---AGV\.artifacts\ticket23-dpi\clone-cleanup$suffix.json"
+if (Test-Path -LiteralPath $out) {
+    throw "Refusing to overwrite existing evidence: $out"
+}
 $record | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $out -Encoding utf8
 Get-Content -LiteralPath $out

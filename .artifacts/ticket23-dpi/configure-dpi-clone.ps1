@@ -10,7 +10,12 @@ param(
     [ValidateSet(120, 144)]
     [int]$Dpi,
 
-    [string]$CloneVm = 'gpt_win11_ticket23_dpi'
+    [string]$CloneVm = 'gpt_win11_ticket23_dpi',
+
+    # Distinguishes this attempt's record from earlier ones. Evidence is never overwritten:
+    # clone-configured-120.json and -144.json already belong to the committed 1440x900 DPI
+    # run, so a second attempt must write beside them, not over them.
+    [string]$Label = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -95,6 +100,10 @@ if (@($record.ExplorerSessions).Count -eq 0) {
     throw 'Clone has no Explorer session after the DPI restart.'
 }
 
-$out = "C:\Users\szy\Desktop\8005---AGV\.artifacts\ticket23-dpi\clone-configured-$Dpi.json"
+$suffix = if ([string]::IsNullOrWhiteSpace($Label)) { "$Dpi" } else { "$Label-$Dpi" }
+$out = "C:\Users\szy\Desktop\8005---AGV\.artifacts\ticket23-dpi\clone-configured-$suffix.json"
+if (Test-Path -LiteralPath $out) {
+    throw "Refusing to overwrite existing evidence: $out"
+}
 $record | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $out -Encoding utf8
 Get-Content -LiteralPath $out

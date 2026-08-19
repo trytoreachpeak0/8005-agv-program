@@ -1,0 +1,26 @@
+{
+  "Ticket": "23-epx-720-dpi-120",
+  "Suite": "watch-ui-journeys",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "JourneyClientEpx": "720x600",
+  "VmName": "gpt_win11_ticket23_dpi720",
+  "GuestRunDirectory": "C:\\MesIngest\\23-epx-720-dpi-120\\run-20260819-115708-watch-ui-journeys",
+  "CreatedAt": "2026-08-19T11:57:23.9304469+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "e3ea6e470fee8476a22a31b202579002d4356673",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/MesIngest.Tests/InstallPackageLayoutTests.cs"
+  ],
+  "PayloadSha256": "F0ECA2B7CC8F534B80A2D3F079095F8B918F7A1CC2A972055517E7A3C2E500FD",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 120
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}
