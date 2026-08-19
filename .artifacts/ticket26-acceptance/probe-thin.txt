@@ -1,0 +1,15 @@
+MesIngest Oracle MES_TASK_UNION round probe
+execution_scope=LIVE_ORACLE
+connection_attempted=true
+requested_mode=Thin
+actual_mode=Thin
+driver=Oracle.ManagedDataAccess.Core
+query_id=MES_TASK_UNION
+query_version=MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae
+query_sha256=54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae
+duration_ms=3001
+outcome=Success
+row_count=597
+result=PASSED
+
+

@@ -1,0 +1,13 @@
+{
+  "Identical": true,
+  "DeclaredFileCount": 914,
+  "Missing": [],
+  "Mismatched": [],
+  "Unexpected": [],
+  "OperatorSupplied": [
+    "service/appsettings.Local.json"
+  ],
+  "SourceCommit": "3286b04ed39ee1199ce67e9b3091062c2b4fc565",
+  "SourceDirty": false,
+  "ManifestSha256": "723e796e59aa79636dbde2db607b3d19f29147209e0973df5e242c6a1bfa1fd6"
+}

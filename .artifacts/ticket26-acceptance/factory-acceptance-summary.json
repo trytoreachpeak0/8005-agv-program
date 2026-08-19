@@ -1,0 +1,277 @@
+{
+  "status": "PASSED_WITH_NAMED_SKIPS",
+  "generatedAt": "2026-08-19T17:57:52.1528483+00:00",
+  "counts": {
+    "declared": 20,
+    "passed": 19,
+    "failed": 0,
+    "namedSkips": 1
+  },
+  "passed": [
+    {
+      "id": "PACKAGE_IDENTITY_MATCHES_RELEASE_MANIFEST",
+      "title": "Deployed package is the released artifact",
+      "gate": "FACTORY_PACKAGE_IDENTITY",
+      "status": "PASSED",
+      "detail": "914 files match RELEASE-MANIFEST.json (sourceCommit=3286b04ed39ee1199ce67e9b3091062c2b4fc565, manifest sha256=723e796e59aa79636dbde2db607b3d19f29147209e0973df5e242c6a1bfa1fd6).",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "package-identity.json"
+      ]
+    },
+    {
+      "id": "TARGET_ENVIRONMENT_IDENTITY_RECORDED",
+      "title": "Target environment identity recorded",
+      "gate": "FACTORY_PACKAGE_IDENTITY",
+      "status": "PASSED",
+      "detail": "SQL Server LAB-WIN-01\\MSSQLSERVER/MesIngest_Ticket26_Factory (major 16, compatibility 160, 0 user tables before bootstrap); Oracle mode Thin with commandTimeout=30s from the operator configuration; machine LAB-WIN-01, clock 2026-08-20T01:54:34.7237607+08:00.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "environment.json"
+      ]
+    },
+    {
+      "id": "CANONICAL_QUERY_READ_ONLY_BOUNDARY",
+      "title": "One approved six-branch read-only statement",
+      "gate": "FACTORY_ORACLE_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "One statement, 6 TASK_TYPE branches, 5 UNION ALL, no write keyword, sha256=54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "LIVE_ORACLE_THIN_PROBE",
+      "title": "Live Oracle Thin read-only probe",
+      "gate": "FACTORY_ORACLE_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "execution_scope=LIVE_ORACLE, connection_attempted=true, mode Thin->Thin via Oracle.ManagedDataAccess.Core, query MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae, outcome=Success, rows=597, duration=3001ms, commandTimeout=30s.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "probe-thin.txt"
+      ]
+    },
+    {
+      "id": "LIVE_MES_TASK_UNION_ROUNDS",
+      "title": "Complete MesTaskUnionRounds against the plant Oracle",
+      "gate": "FACTORY_ORACLE_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "3 complete rounds, 3 SUCCESS. All on MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae. outcome/rows: SUCCESS/602, SUCCESS/601, SUCCESS/602. Canonical digests recorded per round in rounds.json.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "rounds.json"
+      ]
+    },
+    {
+      "id": "NON_SUCCESS_ROUNDS_PRESERVE_PROJECTION",
+      "title": "A failed or incomplete round never moves the business projection",
+      "gate": "FACTORY_ORACLE_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "No non-SUCCESS round occurred in this window; every observed round committed normally.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "rounds.json"
+      ]
+    },
+    {
+      "id": "CONTRACT_DISCOVERY_AND_AUTHORIZATION",
+      "title": "Versioned contract discovery and restricted-evidence authorization",
+      "gate": "FACTORY_API_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "contractVersion=2026.08.new-mes-ingest.v2.0, schemaVersion=17, 9 capabilities, GET-only. Restricted raw evidence: no secret 403, wrong secret 403, correct secret 400.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "EXTERNALLY_READABLE_CATALOG_FIRST_BODY_AND_304",
+      "title": "Catalog full first body and same-revision 304",
+      "gate": "FACTORY_API_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "First body carried 260 externally readable Demands at catalogRevision 2 with ETag W/\"catalog-r2\"; the same-revision read was 304 with no body.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "PRIMARY_READ_SURFACES",
+      "title": "Series, eligibility, error, attention and overview reads",
+      "gate": "FACTORY_API_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "demandSeries=200/100 items; readabilityAudit=200/100 items; errorSearch=200/100 items; currentIngestAttention=200/100 items; watchOverview=200/-1 items. Every surface answered the frozen contract version with a correlation id.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "read-surfaces.json"
+      ]
+    },
+    {
+      "id": "REMOTE_BINDING_DATA_ACCESS_PROTECTION",
+      "title": "A remote binding without a shared secret refuses to start",
+      "gate": "FACTORY_API_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "Startup validation refused the off-loopback binding before Kestrel bound (exit code -532462766), naming MesIngest:SharedSecret.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "SQLSERVER_PROJECTION_COMMIT_PERSISTENCE",
+      "title": "Committed projection survives a Service restart unchanged",
+      "gate": "FACTORY_SQLSERVER_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "259 Demands at catalogRevision 3 (projectionCommitId 6585d5680e694508ac8ce4847ef4b715) read identically twice after an abrupt Service restart.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "SQLSERVER_RESTART_BARRIER",
+      "title": "A restarted Service re-enters the recovery barrier",
+      "gate": "FACTORY_SQLSERVER_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "A new Host session (d541cef7372248a691e0e305c3a50bf9) replaced 638737fa195b4015a614c52c87573b12, entered the barrier (events RESTART_BARRIER_ENTERED), and is in phase BARRIER with absenceAuthorityAvailable=False.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "absence-authority.json"
+      ]
+    },
+    {
+      "id": "TASK_TYPE_PROTECTION_READ",
+      "title": "TaskTypeProtection state is readable and consistent",
+      "gate": "FACTORY_SQLSERVER_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "6 work types reported; 0 currently withhold absence authority. Phases recorded per work type in task-type-protections.json.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "task-type-protections.json"
+      ]
+    },
+    {
+      "id": "CATALOG_REVISION_MONOTONIC",
+      "title": "CatalogRevision never goes backwards",
+      "gate": "FACTORY_SQLSERVER_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "CatalogRevision across 3 observed rounds: 1 -> 2 -> 2.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "SNAPSHOT_READ_NOT_TORN",
+      "title": "A frozen snapshot read does not tear across commits",
+      "gate": "FACTORY_SQLSERVER_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "A page of 50 of 602 Demands re-read identically under the same snapshotReference after a later round committed.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "WATCH_SIX_PAGE_LIVE_HOST_VERIFICATION",
+      "title": "Watch pages, settings and compact Host state against live Host data",
+      "gate": "FACTORY_WATCH_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "Startup to main window 1408.6 ms. Pages shown: 概览, 需求系列, 资格审计, 错误检索, AREA 筛选, 接入告警, 设置, Host 状态. Host state 'Host 已连接'. Auto-refresh advanced the Watch view 3 time(s) in 45 s. Paging, detail selection and cross-page drill: detail selection: exercised on 1 of 4 live rows; paging: not exercised (the live snapshot fits one page of 4 rows); cross-page drill: exercised from an attention item into error search. Window captures stay on this machine; only their hashes are published.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "watch/watch-pages.json"
+      ]
+    },
+    {
+      "id": "WATCH_CLOSED_SERVICE_CONTINUES",
+      "title": "The Service keeps polling and serving after the Watch closes",
+      "gate": "FACTORY_WATCH_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "The Watch exited with code 0; the Service kept running, advanced the PollTrace high water 10 -> 11, wrote to SQL Server and still served the catalog at revision 7.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "TICKET23_VISUAL_GATES_NOT_REPEATED",
+      "title": "Ticket 23 visual gates deliberately not repeated",
+      "gate": "FACTORY_WATCH_ACCEPTANCE",
+      "status": "PASSED",
+      "detail": "This run verifies final packaging and live-site connection only. The pixel candidate, ten-run stability, baseline promotion and DPI clone from ticket 23 stay valid because this ticket changed no XAML, UI Automation or DPI behaviour. If the plant observes a real UI, UI Automation or DPI regression, keep the red evidence and return the affected scenario to ticket 23's gates rather than re-approving here.",
+      "owner": "",
+      "requires": "",
+      "evidence": []
+    },
+    {
+      "id": "EVIDENCE_REDACTION_AND_HASHES",
+      "title": "Evidence is redacted, hashed and free of credentials",
+      "gate": "FACTORY_EVIDENCE_CLOSURE",
+      "status": "PASSED",
+      "detail": "18 evidence files hashed. Probe logs and provider messages are redacted; API response bodies and Watch window captures are not published — they carry customer rows.",
+      "owner": "",
+      "requires": "",
+      "evidence": [
+        "evidence-hashes.json"
+      ]
+    }
+  ],
+  "failed": [],
+  "namedSkips": [
+    {
+      "id": "LIVE_ORACLE_THICK_MODE_REVERIFICATION",
+      "title": "Thick mode re-verification through the same business entry",
+      "gate": "FACTORY_ORACLE_ACCEPTANCE",
+      "status": "SKIPPED",
+      "detail": "Not run. The ticket asks for Thick only when the plant actually needs it; the Thin probe and rounds passed, so no Thick fallback was exercised.",
+      "owner": "plant IT / release owner",
+      "requires": "Oracle Instant Client plus a registered Oracle ODBC driver, then rerun with -OracleMode Thick",
+      "evidence": []
+    }
+  ],
+  "openGates": [
+    "FACTORY_ORACLE_ACCEPTANCE"
+  ],
+  "residualRisks": [
+    "Oracle Thick mode was not re-verified unless a separate -OracleMode Thick run recorded it.",
+    "Plant business semantics (DATES/STEP per TASK_TYPE) remain a human confirmation in validation\\execution-log.md.",
+    "Response bodies and Watch captures stay on this machine, so an off-site reviewer sees counts and hashes rather than rows."
+  ],
+  "rollbackReadiness": "Rollback stays the ticket 25 drill: stop the new Service, restore the separate legacy backup with scripts\\cutover\\Invoke-CutoverRollback.ps1, and run the legacy programs against the restored legacy database. No mixed-mode operation is supported.",
+  "context": {
+    "runId": "factory-acceptance-20260819T175432Z-380c08a5",
+    "packageSourceCommit": "3286b04ed39ee1199ce67e9b3091062c2b4fc565",
+    "roundsObserved": 3,
+    "cleanup": [
+      "All Host and Watch processes started by this run were stopped; the target database is left in place for review."
+    ],
+    "environment": {
+      "runId": "factory-acceptance-20260819T175432Z-380c08a5",
+      "machine": "LAB-WIN-01",
+      "user": "szy",
+      "interactive": true,
+      "osVersion": "10.0.26200.0",
+      "powerShell": "7.6.5",
+      "culture": "en-US",
+      "startedAtUtc": "2026-08-19T17:54:32.9118209+00:00",
+      "startedAtLocal": "2026-08-20T01:54:32.9288385+08:00",
+      "timeZone": "China Standard Time",
+      "utcOffset": "08:00:00",
+      "operator": "LAB-WIN-01\\szy",
+      "site": "SUQIAN-PLANT",
+      "oracleMode": "Thin",
+      "oracleCommandTimeoutSeconds": 30,
+      "sqlServer": {
+        "server": "LAB-WIN-01\\MSSQLSERVER",
+        "database": "MesIngest_Ticket26_Factory",
+        "productMajorVersion": 16,
+        "compatibilityLevel": 160
+      },
+      "sqlClient": "Microsoft.Data.SqlClient",
+      "packageRoot": "C:\\Users\\szy\\AppData\\Local\\Temp\\claude\\C--Users-szy-Desktop-8005---AGV\\4adfcda2-045f-4b66-8e85-98a9da46dc65\\scratchpad\\ticket26-package\\MesIngest"
+    }
+  }
+}

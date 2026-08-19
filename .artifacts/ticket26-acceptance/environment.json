@@ -1,0 +1,25 @@
+{
+  "runId": "factory-acceptance-20260819T175432Z-380c08a5",
+  "machine": "LAB-WIN-01",
+  "user": "szy",
+  "interactive": true,
+  "osVersion": "10.0.26200.0",
+  "powerShell": "7.6.5",
+  "culture": "en-US",
+  "startedAtUtc": "2026-08-19T17:54:32.9118209+00:00",
+  "startedAtLocal": "2026-08-20T01:54:32.9288385+08:00",
+  "timeZone": "China Standard Time",
+  "utcOffset": "08:00:00",
+  "operator": "LAB-WIN-01\\szy",
+  "site": "SUQIAN-PLANT",
+  "oracleMode": "Thin",
+  "oracleCommandTimeoutSeconds": 30,
+  "sqlServer": {
+    "server": "LAB-WIN-01\\MSSQLSERVER",
+    "database": "MesIngest_Ticket26_Factory",
+    "productMajorVersion": 16,
+    "compatibilityLevel": 160
+  },
+  "sqlClient": "Microsoft.Data.SqlClient",
+  "packageRoot": "C:\\Users\\szy\\AppData\\Local\\Temp\\claude\\C--Users-szy-Desktop-8005---AGV\\4adfcda2-045f-4b66-8e85-98a9da46dc65\\scratchpad\\ticket26-package\\MesIngest"
+}

@@ -1,0 +1,31 @@
+{
+  "PagesShown": [
+    "概览",
+    "需求系列",
+    "资格审计",
+    "错误检索",
+    "AREA 筛选",
+    "接入告警",
+    "设置",
+    "Host 状态"
+  ],
+  "MissingPages": [],
+  "AllPagesShown": true,
+  "HostStatusText": "Host 已连接",
+  "CompactHostState": "Host 状态：Host 已连接；打开连接设置",
+  "HostConnected": true,
+  "AutoRefreshObservations": 3,
+  "AutoRefreshObserved": true,
+  "InteractionSummary": "detail selection: exercised on 1 of 4 live rows; paging: not exercised (the live snapshot fits one page of 4 rows); cross-page drill: exercised from an attention item into error search",
+  "WindowMaximised": true,
+  "Captures": [
+    "page-01-OverviewPage.png",
+    "page-02-DemandSeriesScrollViewer.png",
+    "page-03-ReadabilityAuditPage.png",
+    "page-04-ErrorSearchBodyScrollViewer.png",
+    "page-05-AreaFilterPage.png",
+    "page-06-CurrentAttentionPage.png",
+    "page-07-SettingsPage.png",
+    "page-08-SettingsPage.png"
+  ]
+}

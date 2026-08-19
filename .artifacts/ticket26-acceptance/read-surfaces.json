@@ -1,0 +1,42 @@
+{
+  "demandSeries": {
+    "path": "/api/v2/demand-series?presence=VISIBLE&page=1&pageSize=100",
+    "statusCode": 200,
+    "itemCount": 100,
+    "elapsedMs": 956.7,
+    "correlationId": "28fd0cb701274193bc661a3a6fe13f9d",
+    "contractVersion": "2026.08.new-mes-ingest.v2.0"
+  },
+  "readabilityAudit": {
+    "path": "/api/v2/readability-audit?page=1&pageSize=100",
+    "statusCode": 200,
+    "itemCount": 100,
+    "elapsedMs": 468.9,
+    "correlationId": "0e2b02addddd4e06afc9c5d7acec6a48",
+    "contractVersion": "2026.08.new-mes-ingest.v2.0"
+  },
+  "errorSearch": {
+    "path": "/api/v2/error-search?pageSize=100",
+    "statusCode": 200,
+    "itemCount": 100,
+    "elapsedMs": 827.2,
+    "correlationId": "2cd22e43a33744b9b7c6e242f54d8e4d",
+    "contractVersion": "2026.08.new-mes-ingest.v2.0"
+  },
+  "currentIngestAttention": {
+    "path": "/api/v2/current-ingest-attention?pageNumber=1&pageSize=100",
+    "statusCode": 200,
+    "itemCount": 100,
+    "elapsedMs": 20.6,
+    "correlationId": "30a8db47b5ab4e909cfcae92610c5e17",
+    "contractVersion": "2026.08.new-mes-ingest.v2.0"
+  },
+  "watchOverview": {
+    "path": "/api/v2/watch-overview",
+    "statusCode": 200,
+    "itemCount": -1,
+    "elapsedMs": 629.3,
+    "correlationId": "0cf0f2caeb304f17b8b4a27eb2b10d8e",
+    "contractVersion": "2026.08.new-mes-ingest.v2.0"
+  }
+}

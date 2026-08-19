@@ -1,0 +1,50 @@
+[
+  {
+    "round": 1,
+    "pollTraceId": "ce7e91827f974097bb9f10a5f3ee020e",
+    "pollTraceHighWater": 2,
+    "outcome": "SUCCESS",
+    "queryVersion": "MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae",
+    "contentDigest": "21c904efccc79082c6200645ab224b04f4fa16e28eaf261cf8b8870a72af596c",
+    "rowCount": 602,
+    "diagnosticStage": "",
+    "diagnosticCode": "",
+    "startedAt": "08/20/2026 01:55:04",
+    "completedAt": "08/20/2026 01:55:07",
+    "catalogRevision": 1,
+    "demandCount": 262,
+    "projectionCommitId": "a7d3e3d56c24469a8c43c31f8a236062"
+  },
+  {
+    "round": 2,
+    "pollTraceId": "0a9cbf87aecd4a32997588e0973ea282",
+    "pollTraceHighWater": 3,
+    "outcome": "SUCCESS",
+    "queryVersion": "MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae",
+    "contentDigest": "7afb0f18efdcf5d2331f8e3d6dfb0c5cb7c0e16f4a2db80a73e5d98542c31dc1",
+    "rowCount": 601,
+    "diagnosticStage": "",
+    "diagnosticCode": "",
+    "startedAt": "08/20/2026 01:55:13",
+    "completedAt": "08/20/2026 01:55:16",
+    "catalogRevision": 2,
+    "demandCount": 260,
+    "projectionCommitId": "e95b95cac8544d9d908051942d0dfd34"
+  },
+  {
+    "round": 3,
+    "pollTraceId": "4a79374c012b4852b00d8b4cc19631ec",
+    "pollTraceHighWater": 4,
+    "outcome": "SUCCESS",
+    "queryVersion": "MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae",
+    "contentDigest": "ce2b6843a526f6bab83ba2d5ba5d2b7b8f560b0666ac333aee627e84e6feaf43",
+    "rowCount": 602,
+    "diagnosticStage": "",
+    "diagnosticCode": "",
+    "startedAt": "08/20/2026 01:55:24",
+    "completedAt": "08/20/2026 01:55:26",
+    "catalogRevision": 2,
+    "demandCount": 260,
+    "projectionCommitId": "e95b95cac8544d9d908051942d0dfd34"
+  }
+]
