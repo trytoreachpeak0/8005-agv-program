@@ -9,7 +9,7 @@
 - [x] 发布、安装、卸载、release smoke、Watch acceptance、工厂验证和返回清单统一使用新版契约发现、轮询证据、需求系列、资格审计、错误检索、当前关注、概览和 ExternallyReadableDemandCatalog 能力。
 - [x] 所有已知打包与验证调用方停止请求旧 DemandChangeFeed、bootstrap high-watermark、SYNC_CURSOR_EXPIRED、旧 IngestAlert incident、字段冻结和旧分页 DTO；验证文本不再建议下游持久业务镜像。
 - [x] 发布包只包含一份正式 MES_TASK_UNION 查询原稿，并能证明 Service 和 Watch 使用同一版本化契约；文件或脚本化轮次可以在无工厂 Oracle 时驱动同一生产入口做可重复 smoke。
-- [ ] smoke 验证首次目录正文、CatalogRevision/ETag、同修订 304、新版只读 API 鉴权、契约严格匹配、SQL Server 重启持久化，以及关闭 Watch 后 Service 继续轮询和提供 API。
+- [x] smoke 验证首次目录正文、CatalogRevision/ETag、同修订 304、新版只读 API 鉴权、契约严格匹配、SQL Server 重启持久化，以及关闭 Watch 后 Service 继续轮询和提供 API。
 - [x] 验证说明明确区分本机或黄金机证据、真实兼容 SQL Server 门禁和工厂 Oracle 验收；未运行的外部门禁必须记录为具名 skip，不能把替代环境通过写成现场通过。
 - [x] 配置模板、命令输出和证据不包含 Oracle、SQL Server、API 或黄金机凭据；远程绑定缺少共享密钥时拒绝启动或拒绝业务数据访问，日志与返回包遵循脱敏边界。
 - [x] 包装后的 Watch smoke 若需要启动、操作或截图真实 WPF，必须通过 gpt_win11 交互计划任务执行；PowerShell Direct 只做部署、监控和证据取回。
@@ -66,18 +66,29 @@ Tier 1：`dotnet test MesIngest.Tests` → **835 passed / 0 failed / 99 skipped*
 在本机全量跑中偶发红（合成鼠标拖拽依赖真实桌面输入状态）。已在 `HEAD`（85adc7c，不含本票任何改动）
 的独立 worktree 连跑两次复现同样失败，确认与本票无关，属既有不稳定项。
 
-### 尚未取得的证据（阻塞第 4 条勾选）
+### 打包发布门禁已通过（2026-08-19）
 
-第 4 条是纯运行期验收：上述烟测代码已实现全部检查，但**从未实际执行过**。
-需要 tier 3 的打包发布门禁才能拿到证据：
+第 4 条的现场证据已取得。`Invoke-GoldenRendererValidation.ps1 -Suite watch-package-release`
+在校准黄金机 `gpt_win11` 上通过：计划任务退出码 0、`GOLDEN_RENDERER_VALIDATION_PASSED`、
+`release-gates-passed.json` 为 `READY_FOR_HOST_CLEANUP_AND_FINALIZATION`。
 
-```
-.\Invoke-GoldenRendererValidation.ps1 -Suite watch-package-release -Ticket 24 `
-    -SqlServerCredentialPath <dpapi.clixml> -SqlServerDataSource <host> `
-    -SqlServerDatabase <dedicated-empty-db> -SqlServerDatabaseIsDedicatedEmpty `
-    -ManualAcceptancePath <manual-acceptance.json>
-```
+- 发布烟测 PASSED，对着真实 SQL Server（专用可丢弃空库，启动前 0 张用户表）；
+- 全量回归 **937 / 937 通过 / 0 失败 / 0 skip**；
+- 打包 Watch 验收跑非像素两套，228 项 0 失败，5 个 skip 精确匹配具名集合；
+- 人工验收由 Zhengyu Shao 于 2026-08-19 17:57 签署；
+- 清理完成、原机复核 1920x1080 / 96 DPI / session 1，`Differences: []`。
 
-它需要：黄金机 `gpt_win11` 交互计划任务、一个专用可丢弃且当前无用户表的真实 SQL Server 库、
-以及人工验收文件。按 AGENTS.md，tier 3 不由 agent 自行发起 —— 请确认后再跑。
-在拿到该证据前，本票不得宣称烟测「现场已通」。
+完整证据与逐项实测见
+[`.artifacts/ticket24-acceptance/EVIDENCE-INDEX.md`](../../../.artifacts/ticket24-acceptance/EVIDENCE-INDEX.md)。
+
+达成过程共 15 轮，前 14 轮的红全部是真问题并逐条修复（录制数据不合域格式、启动超时与
+目录竞态、窗口句柄竞态、负向路径参数、黄金机 SDK 的 C# 12 解析歧义、门禁从未注入
+`MES_INGEST_TICKET01_SQLSERVER` 导致 80 个 V2 测试长期静默 skip、六个 WPF 测试类的并行
+竞态、413/400 契约期望写反、令牌篡改手法有 3% 概率无效、UI skip 判据过于绝对、
+`startup-within-10-seconds` 无测量支撑）。逐条说明见证据索引末节。
+
+### 遗留（不属于本票）
+
+- 打包 Watch 冷启动耗时呈双峰（6.3 s / 14.0 s），已开
+  [票 27](27-packaged-watch-cold-start-cost.md)。
+- 旧 `MainWindow` 及其测试仍在，属票 25 的旧模型收缩范围。

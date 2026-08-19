@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "ticket": 24,
+  "approvedBy": "Zhengyu Shao",
+  "approvedAt": "2026-08-19T17:57:28+08:00",
+  "userMessage": "签",
+  "confirmedChecks": [
+    "startup-within-25-seconds",
+    "demand-alert-visual-contract",
+    "v2-pages-and-settings",
+    "package-run-not-source"
+  ],
+  "reviewedEvidence": {
+    "note": "Recorded by the agent, not the approver's words. The approver replied '签' after reviewing the run below.",
+    "run": "run-20260819-172045-watch-package-release",
+    "screenshotsSent": 16,
+    "releaseSmoke": "PASSED",
+    "packagedWatchStartupToMainWindowMs": 14040.1,
+    "packagedWatchStartupBudgetSeconds": 25,
+    "regression": {
+      "total": 937,
+      "executed": 937,
+      "passed": 937,
+      "failed": 0,
+      "skipped": 0
+    },
+    "packagedWatchAcceptanceSuites": [
+      "watch-ui-journeys",
+      "watch-vm-tests"
+    ],
+    "packagedWatchUiSkipsMatchExpectedNamedSet": true
+  }
+}
