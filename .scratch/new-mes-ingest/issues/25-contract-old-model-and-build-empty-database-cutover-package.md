@@ -4,14 +4,14 @@
 
 **Blocked by:** 18 — Watch 单 Host 非视觉会话与刷新内核；19 — 生产 Fluent shell、设置与概览；20 — DemandSeries 生产页面；21 — 资格审计与 AREA Variant A 生产页面；22 — Error Search Variant A 与接入告警生产页面；23 — 共享黄金机 UI 集成验收与基线；24 — 迁移发布脚本、smoke 和验证说明
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 - [x] 删除旧 FrozenMesFieldSet/FieldDrift/ReappearAfterGone 语义、IngestAlert incident 生命周期、DemandChangeFeed、Feed Sequence、bootstrap high-watermark、SYNC_CURSOR_EXPIRED、旧 DTO/端点、旧配置和旧 schema 升级路径；领域、Host、Watch、OpenAPI、测试和文档不再引用这些契约。
 - [x] 最终 schema 只从空数据库建立新版 PollTrace、ProjectionCommit、DemandSeries、TransportDemand 世代、原始观测、事件、当前条件、错误期间、资格、当前关注和 CatalogRevision 所需结构，不迁移或推测旧业务历史。
 - [x] 运行时代码、Watch、常规安装和卸载逻辑绝不自动删除数据库；删除只存在于要求人工停机、备份和精确目标确认的受控切换演练。
-- [ ] 在一次性目标数据库执行完整切换演练：停止旧 Host、Watch 和外部消费者，记录备份，核对精确实例和库名，删除旧库，由新 Host 建立空 schema，并以首个完整 SUCCESS bootstrap 可证明的新历史。
-- [ ] 演练证明错误当前条件使用 BOOTSTRAPPED_CURRENT_CONDITION 而不伪造旧开始时间，旧 TransportDemand、IngestAlert 和 ChangeFeed 记录不会进入新库。
-- [ ] 回退演练只通过停止新版并恢复整套旧程序、旧配置和独立旧数据库备份完成；新程序不得读取旧库，旧程序不得读取新库，也不宣称支持滚动或新旧混跑。
+- [x] 在一次性目标数据库执行完整切换演练：停止旧 Host、Watch 和外部消费者，记录备份，核对精确实例和库名，删除旧库，由新 Host 建立空 schema，并以首个完整 SUCCESS bootstrap 可证明的新历史。
+- [x] 演练证明错误当前条件使用 BOOTSTRAPPED_CURRENT_CONDITION 而不伪造旧开始时间，旧 TransportDemand、IngestAlert 和 ChangeFeed 记录不会进入新库。
+- [x] 回退演练只通过停止新版并恢复整套旧程序、旧配置和独立旧数据库备份完成；新程序不得读取旧库，旧程序不得读取新库，也不宣称支持滚动或新旧混跑。
 - [x] 最终包包含 Service、Watch、唯一正式查询、空配置模板、安装与卸载脚本、版本化 OpenAPI 和新版验证说明，且通过真实兼容 SQL Server 的主要 seam、事务、重启、鉴权和打包回归。
 - [x] 票 23 的证据在最终包未改变视觉、XAML、UI Automation 或 DPI 输出时保持有效，本票只引用其冻结源和证据身份，不重复黄金机像素或 DPI 门禁；若本票引入相关输出变化，则标明失效场景并只重跑票 23 中受影响的预览、批准、稳定与清理要求。
 - [x] 自动化证明仓库和发布产物不再包含真实凭据、旧契约入口或能够对未确认实例执行 DROP 的无人值守路径，并保存切换与回退演练的目标身份、结果和清理证据。
@@ -112,12 +112,31 @@ Tier 1：`dotnet test MesIngest.Tests` → **450 passed / 0 failed / 82 skipped*
 `EnableLegacyDevelopmentEndpoints`（80 红，本机因 skip 而看不见）、烟测库未清空、
 以及本票新增的三个扫描依赖 `git ls-files` 而 payload 上没有 git（3 红）。逐条说明见证据索引。
 
-### 尚未完成（需要 tier 3 现场运行）
+### 切换与回退演练已通过（2026-08-20）
 
-第 4、5、6 条仍未勾选，它们要求在一次性数据库上真实运行：
+第 4、5、6 条的现场证据已取得。演练在一次性库 `192.168.200.1 / MesIngest_Ticket25_Cutover`
+上进行，操作员 `LAB-WIN-01\szy` 在控制台两次原样键入目标身份后才执行删除与恢复
+（脚本无绕过开关，因此代理无法代跑这两步）。
 
-- 一次性库上的完整切换演练与 `BOOTSTRAPPED_CURRENT_CONDITION` 证据；
-- 整体回退演练。
+两端都是真实部署：旧端用票 13 发布包自己建出退役 schema 与真实业务行，新端用票 25
+打包门禁产出的发布包。
 
-两者按设计都要求操作员在控制台原样键入目标实例/库名，没有任何绕过开关，
-因此**不能由代理代跑**，必须由现场人员执行，代理只负责准备参数与核对证据。
+- 新 Host 拒绝退役库：`exitCode=-532462766`，理由确为 schema 契约；
+- 备份 + `RESTORE VERIFYONLY` 通过并记录 SHA-256 `ee2456f3fa35494e…`，确认后才 DROP，
+  `userTables 6 → 0`；
+- 新 Host 自建 `schemaVersion=17` 并提交首个完整 SUCCESS（`projectionCommits=2`）；
+- 错误当前条件 `bootstrapped=1 / errorPeriods=1`，**早于本次演练起点的期间 0 条**；
+- 退役记录未进新库：退役表 0 张、`dbo` 用户表 0 张；
+- 回退后退役表 5 张、`TransportDemands` 2 行与切换前一致，`mesingest` schema 不存在，
+  旧 Host 重新跑起来；全程 `mixedModeSupported: false`。
+
+**第 6 条的准确结论**：两个方向的隔离强度不同。「新程序不读旧库」由代码强制；
+「旧程序不读新库」只能由流程保证——退役二进制是冻结的，指向新库时**不会拒绝**，
+而是新建 6 张 `dbo` 表并正常服务。`pack/UPGRADE.md` 已按此改写，原文两边都写成有代码
+兜底是不准确的。
+
+演练本身发现并修复了 3 个真问题：切换脚本因连接串关键字写错而**从未成功连接过**；
+破坏性确认被花在无法执行的操作上（备份已前移，确认只授权 DROP）；runbook 夸大隔离保证。
+
+完整证据与逐项实测见
+[`.artifacts/ticket25-cutover-drill/EVIDENCE-INDEX.md`](../../../.artifacts/ticket25-cutover-drill/EVIDENCE-INDEX.md)。
