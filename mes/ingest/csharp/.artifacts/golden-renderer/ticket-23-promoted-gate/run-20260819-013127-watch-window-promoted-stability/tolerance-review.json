@@ -1,0 +1,55 @@
+{
+  "Ticket": "23",
+  "Gate": "watch-window-promoted-stability",
+  "Run": "run-20260819-013127-watch-window-promoted-stability",
+  "Runs": 10,
+  "ConsecutivePasses": 10,
+  "ReceivedFiles": 0,
+  "ToleranceAcceptedSteps": [
+    {
+      "Run": "run-09",
+      "Step": "07-current-ingest-attention",
+      "DifferingPixels": 116,
+      "MaxAbsoluteDelta": 2,
+      "Regions": 8,
+      "BoundingArea": "x 326-353, y 856-867 (the 跳转 glyph of CurrentAttentionGoToPageButton)",
+      "Achromatic": true,
+      "InkSupportUnchanged": true,
+      "ButtonChromeByteIdentical": true,
+      "Evidence": [
+        "Results/watch-window-promoted-stability/run-09/production-workspace-19-22/visual-equivalence-accepted.json",
+        "Results/watch-window-promoted-stability/run-09/production-workspace-19-22/07-current-ingest-attention.equivalent-expected.png",
+        "Results/watch-window-promoted-stability/run-09/production-workspace-19-22/07-current-ingest-attention.equivalent-actual.png",
+        "Results/watch-window-promoted-stability/run-09/production-workspace-19-22/07-current-ingest-attention.equivalent-diff.png",
+        "Results/watch-window-promoted-stability/run-09/production-workspace-19-22/review-side-by-side-10x.png"
+      ]
+    }
+  ],
+  "HumanReview": {
+    "ReviewedBy": "szy (maintainer)",
+    "ReviewedAt": "2026-08-19T01:55:00+08:00",
+    "Decision": "accepted",
+    "UserMessage": "接受，这正是预期行为",
+    "MagnifiedCropsShown": "10x crops of the 52x32 button rect (expected, actual, amplified difference map) were shown before the decision.",
+    "Rationale": "Identical to the phenomenon characterised in the root-cause pack: 116 pixels, same bounding area, deltas of -1/-2 only, pure grey, ink support unchanged, button chrome byte-identical. The capture path requires three consecutive byte-identical PrintWindow frames 250 ms apart, so the accepted frame is a stable rendered state rather than a mid-animation frame. Observed rate 1 in 10 runs here, consistent with the measured ~12% historical rate. Without the bounded predicate this run would have failed the gate and blocked the promotion of an output the maintainer had already approved."
+  },
+  "BudgetUsage": {
+    "StepsAcceptedInRun": 1,
+    "StepsAllowedPerRun": 4,
+    "PixelsAcceptedInRun": 116,
+    "PixelsAllowedPerRun": 1536,
+    "Note": "Well inside both per-run budgets; no budget was extended and no bound was changed for this run."
+  },
+  "CandidateGateComparison": {
+    "Run": "ticket-23-candidate-gate/run-20260819-010449-watch-window-stability",
+    "Runs": 10,
+    "ToleranceAcceptedSteps": 0,
+    "Note": "The candidate batch was byte-identical throughout, so tolerance was exercised only in the promoted batch. Combined 1 tolerated step in 20 runs."
+  },
+  "Cleanup": {
+    "TaskPresent": false,
+    "ResidualProcesses": 0,
+    "PostCleanupTaskPresent": false,
+    "PostCleanupEnvironmentResult": 0
+  }
+}

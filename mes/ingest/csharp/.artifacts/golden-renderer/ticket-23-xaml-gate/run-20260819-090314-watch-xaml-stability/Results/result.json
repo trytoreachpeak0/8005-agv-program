@@ -1,0 +1,7 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-19T10:26:49.5322508+08:00",
+  "Error": "System.Management.Automation.RuntimeException: Visual artifacts are not deterministic: run 1 differs from run 6. Files: overview-loaded-2560x1440.received.png",
+  "PostRunEnvironmentError": null
+}

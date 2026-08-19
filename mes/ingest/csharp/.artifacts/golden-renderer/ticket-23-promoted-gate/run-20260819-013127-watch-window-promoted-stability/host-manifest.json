@@ -1,0 +1,37 @@
+{
+  "Ticket": "23-promoted-gate",
+  "Suite": "watch-window-promoted-stability",
+  "Configuration": "Release",
+  "RequestedRuns": 10,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\23-promoted-gate\\run-20260819-013127-watch-window-promoted-stability",
+  "CreatedAt": "2026-08-19T01:31:39.1292191+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "5b32ace415ebef8241c58c1b0ba724bcb17494a9",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs",
+    " M mes/ingest/csharp/New-WatchWindowBaselineProposal.ps1",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/01-overview-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/01e-overview-navigation-expanded-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/01f-overview-offline-retained-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/02-settings-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/02v-settings-timeout-validation-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/03-demand-series-detail-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/04-readability-audit-detail-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/05-area-filter-profile-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/06-error-search-variant-a-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/07-current-ingest-attention-1440x900.verified.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/08-current-attention-error-drill-1440x900.verified.png"
+  ],
+  "PayloadSha256": "2AD1F4D7B1CF8714B307C61EC52A6F1AD6C8DBCA927A5DD04D966432FC9D2CE2",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

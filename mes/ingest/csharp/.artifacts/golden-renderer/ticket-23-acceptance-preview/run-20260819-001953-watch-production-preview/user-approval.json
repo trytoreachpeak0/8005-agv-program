@@ -1,0 +1,68 @@
+{
+  "Ticket": "23",
+  "ApprovedAt": "2026-08-19T00:37:25+08:00",
+  "ApprovedBy": "user",
+  "UserMessage": "批准，继续候选门禁与提升",
+  "Scope": "Ticket 19-22 生产 Watch 页面的 11 状态基线矩阵，最终真实窗口预览",
+  "PreviewRun": "ticket-23-acceptance-preview/run-20260819-001953-watch-production-preview",
+  "PreviewDirectory": "watch-ui/20260819-002016-760/production-workspace-19-22",
+  "PreviewStatesShownToUser": [
+    "01-overview",
+    "01e-overview-navigation-expanded",
+    "01f-overview-offline-retained",
+    "02-settings",
+    "02v-settings-timeout-validation",
+    "03-demand-series-detail",
+    "04-readability-audit-detail",
+    "05-area-filter-profile",
+    "06-error-search-variant-a",
+    "07-current-ingest-attention",
+    "08-current-attention-error-drill"
+  ],
+  "GoldenVm": "gpt_win11",
+  "Environment": {
+    "Desktop": "1920x1080",
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "Culture": "zh-CN",
+    "Theme": "light",
+    "RenderingMode": "SoftwareOnly",
+    "Interactive": true,
+    "SessionId": 1,
+    "GateResult": "GOLDEN_RENDERER_ENVIRONMENT_OK before and after the suite"
+  },
+  "NonPixelRegressions": {
+    "GuestWatchVmTests": "227 total, 0 failed, 5 skipped (all named below)",
+    "GuestWatchUiJourneys": "1 total, 0 failed, 0 skipped",
+    "HostMesIngestTests": "919 total, 818 passed, 99 skipped, 2 known failures recorded separately"
+  },
+  "NamedSkips": [
+    {
+      "Test": "WatchWindowCandidateEquivalenceTests.Candidate_directories_are_visually_equivalent",
+      "Reason": "Entry point driven by Test-WatchWindowBaselineStability.ps1; skips by design when MESINGEST_WATCH_CANDIDATE_REFERENCE/ACTUAL are unset.",
+      "ReleaseGate": "Exercised by the candidate stability gate whenever two runs are not byte-identical."
+    },
+    {
+      "Test": "WatchWindowVisualEquivalenceGoldenFixtureTests (4 tests)",
+      "Reason": "Real golden-machine captures live outside the guest payload; the suite skips by name when MESINGEST_WATCH_GOLDEN_FIXTURES is absent instead of silently passing.",
+      "ReleaseGate": "Run host-side against .artifacts/golden-renderer with MESINGEST_WATCH_GOLDEN_FIXTURES set; 14 passed on 2026-08-19."
+    }
+  ],
+  "SourceIdentity": {
+    "Commit": "5b32ace",
+    "CommitSubject": "feat(watch): bound golden-renderer equivalence and clear ticket 23 regressions",
+    "PriorApprovalSuperseded": {
+      "Run": "ticket-23-aliased-preview/run-20260818-094314-watch-production-preview",
+      "ApprovedAt": "2026-08-18T09:55:17+08:00",
+      "WhyItCannotCarry": "That approval covered an aliased-text experiment on CurrentAttentionGoToPageButton at commit 2280c62. The experiment was reverted; the shipped direction is the bounded visual-equivalence predicate with production geometry unchanged."
+    },
+    "EditsAfterCapture": [
+      "docs/agents/golden-renderer.md - corrected the rule 2 attribution (documentation only)",
+      "MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs - XML doc comments only, no executable change",
+      "New-WatchWindowBaselineProposal.ps1 - replaced the hardcoded 10-run requirement with a -RequiredConsecutiveCandidateRuns parameter"
+    ],
+    "IdentityCheck": "None of the edits above can change rendering. The candidate matrix must reproduce the approved preview PNGs byte for byte; that comparison is the proof and is recorded with the candidate run."
+  },
+  "Authorizes": "Fresh candidate matrix, consecutive stability runs, per-scenario before/after/diff proposals, and promotion of these exact 11 states to WindowBaselines.",
+  "DoesNotAuthorize": "Any baseline whose candidate PNG differs from the approved preview PNG, bulk promotion of historical candidates, or widening the visual-equivalence bounds."
+}

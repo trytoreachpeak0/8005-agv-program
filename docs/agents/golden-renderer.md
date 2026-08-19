@@ -79,6 +79,31 @@ outputs from the payload, registers an `Interactive` scheduled task, waits for
 completion, retrieves results, unregisters the task, and cleans residual test
 processes. It never changes an approved baseline.
 
+## Narrowing a suite while iterating
+
+`Invoke-WatchUiTests.ps1` accepts `-Class` and `-Method`. Both pass through to the
+xUnit v3 runner and restrict the selected suite to part of itself:
+
+```powershell
+.\Invoke-WatchUiTests.ps1 -Configuration Release -Suite watch-ui-journeys `
+    -Method '*ErrorSearch*'
+```
+
+Use this while diagnosing one scenario, so re-checking a single capture does not
+cost the whole category. Narrowing is rejected for `-Suite all` and
+`-Suite watch-production-preview`, which expand to several suites.
+
+A narrowed run proves nothing about the suite, and the script says so:
+
+- it logs `WATCH_UI_PARTIAL_RUN` and finishes with `WATCH_UI_PARTIAL_PASSED`,
+  never `WATCH_UI_ALL_PASSED`;
+- it writes `<suite>.partial.runner.log`, not `<suite>.runner.log`;
+- it does not clear existing `*.received.*` files, because it does not regenerate
+  the scenarios it skips.
+
+The environment gate below still runs. Every step in "Approval and baseline order"
+requires an un-narrowed run.
+
 ## Required environment gate
 
 The interactive task must run `Test-GoldenRendererEnvironment.ps1` before the
@@ -134,16 +159,25 @@ visually equivalent only when **every** rule holds:
 | # | Rule | Rejects |
 | --- | --- | --- |
 | 1 | identical frame dimensions | resize, DPI and layout-container changes |
-| 2 | ink mask unchanged | moved text, different glyph, font or weight, moved control, added or removed element |
+| 2 | ink mask unchanged | backstop for rule 4; see the note below |
 | 3 | achromatic delta (ΔR = ΔG = ΔB) | accent, status and theme colour changes |
 | 4 | per-channel &#124;Δ&#124; ≤ 3 | contrast, opacity and brightness changes |
 | 5 | ≤ 24 differing regions, each ≤ 128x48 px | global gamma shifts, large-area repaints |
 | 6 | ≤ max(512, 0.05% of the frame) differing pixels | slow erosion of a baseline |
 | 7 | alpha channel unchanged | compositing changes |
 
-Rule 2 is load-bearing. Because rule 4 bounds every difference, no pixel can cross
-between clearly-ink and clearly-background, so the mask is evaluated with a tolerance
-band around the threshold and cannot flake on the threshold itself.
+Rule 4 is what actually rejects moved text, a different glyph, a different font or
+weight, a moved control and an added or removed element: all of those turn background
+into ink somewhere, which is a swing of tens of levels, not 3. Rules 5 and 6 then bound
+how much of the frame may differ at all.
+
+Rule 2 states that requirement directly instead of leaving it implicit in a magnitude
+bound. It is deliberately unreachable while `MaxAbsoluteDelta` stays at 3 — a pixel
+cannot cross from clearly-ink to clearly-background within 3 levels, and the band around
+the threshold keeps it from flaking on the threshold itself. It exists so the invariant
+survives someone raising the magnitude bound: whoever does that must confront the ink
+rule rather than silently losing the guarantee. `Moved_ink_is_rejected` records which
+rule fires today.
 
 Per run, at most 4 steps may be accepted this way and at most 1536 differing pixels
 in total. Exceeding either budget fails the run.

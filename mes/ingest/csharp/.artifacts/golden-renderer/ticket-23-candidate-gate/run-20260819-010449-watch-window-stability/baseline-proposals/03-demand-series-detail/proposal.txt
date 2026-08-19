@@ -1,0 +1,10 @@
+journey=03-demand-series-detail
+reason=Ticket 23 initial promotion of the Ticket 19-22 production Watch matrix. 10 consecutive calibrated runs byte-identical, all 110 candidate PNGs byte-identical to the user-approved preview run-20260819-001953, zero steps accepted through visual-equivalence tolerance.
+ticket=23
+submitter=claude-opus-5 (agent)
+reviewer=szy (maintainer)
+changeType=Initial
+productOrBusinessConfirmed=False
+candidateSha256=6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408
+requiredConsecutiveCandidateRuns=10
+approvalState=PENDING_NON_SUBMITTER_REVIEW
