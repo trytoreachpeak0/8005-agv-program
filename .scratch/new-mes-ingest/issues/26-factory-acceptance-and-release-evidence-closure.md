@@ -18,6 +18,26 @@
 - [x] 每个未执行、失败或受现场条件阻塞的检查都以具体名称、原因、责任方和 release gate 记录为 skip 或 red evidence；只有实际完成的项目才能进入现场通过结论。
 - [x] 形成可由发布负责人和现场人员复核的最终验收摘要，分别列明已通过、未通过、具名 skip、剩余风险和回退准备度。
 
+## 黄金机视觉检查单为何不适用
+
+`docs/agents/issue-tracker.md` 要求：改动 `MesIngest.Watch` UI、XAML、Wpf.Ui 控件、布局、
+**UI Automation**、DPI 行为或视觉基线的票，必须链接
+[`docs/agents/golden-renderer.md`](../../../docs/agents/golden-renderer.md) 并带上它的 Ticket 检查单。
+
+本票**没有改动 Watch 自身的 UI Automation 表面**：XAML、AutomationId、AutomationProperties
+一行未动。改动的是发布包里**新增的一个 UI Automation 客户端**
+（`pack/validation/WatchAcceptanceUia.ps1`），它从进程外驱动已批准的那份 Watch，用于现场
+核验最终打包是否连得上真实 Host。因此：
+
+- 不产生、不比较、不提升任何视觉基线；截图只是现场证据，留在现场机，不进仓库；
+- 票 23 的像素候选、10 次稳定、基线提升与 DPI clone 全部**不重跑**（第 8 条）；
+- 若现场发现真实 UI / UI Automation / DPI 回归，保留红证据并把对应场景退回票 23 的门禁，
+  由那边的检查单接管。
+
+写这个客户端的过程反过来记录了 Watch 当前 UI Automation 表面的三个事实（导航项不暴露
+Invoke 模式、需求系列与错误检索页的根 Grid 不在 control view 内、导航栏高于还原态窗口），
+它们是**观察**，不是本票引入的改动。
+
 ## 实现记录（2026-08-20）
 
 ### 交付的是一次可复核的现场运行，不是一份清单
