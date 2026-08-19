@@ -71,9 +71,11 @@ Under the previous byte-exact rule that run would have failed and blocked the pr
 output the maintainer had already approved. Magnified 10x crops were shown before the
 decision and are stored beside the record.
 
-## Open red — Verify.Xaml stability gate
+## Verify.Xaml stability gate — red, diagnosed, fixed, re-run green
 
-**Ticket 23 is not complete while this stands.** The red is preserved, not rerun away.
+Resolved. The red is preserved in full rather than rerun away; the fix and its regression
+test are below, and the clean re-run is
+`ticket-23-xaml-gate-fixed-2/run-20260819-105020-watch-xaml-stability` — PASSED, 3 runs.
 
 `ticket-23-xaml-gate/run-20260819-090314-watch-xaml-stability` failed at run 6 of 10:
 
@@ -118,6 +120,38 @@ to the legacy MainWindow surface and was not promoted, altered, or approved here
 
 Choosing `-Runs 10` is what surfaced it. At the default of 3 a 1-in-10 defect has about a
 73% chance of going unseen.
+
+### Fix
+
+`WatchVisualScenario.CreateCaptureTarget` now clears mouse capture and focus and calls
+`Mouse.Synchronize()` before the content leaves the window. Ordering is the whole fix: the
+focus scope is the window, so clearing after reparenting leaves `IsFocused` set — the first
+attempt did exactly that and the new test caught it.
+
+Regression test:
+`WatchXamlVisualTests.Capture_target_carries_no_hover_capture_or_focus_state` puts the card
+into the focused state and asserts the capture surface carries no capture, focus or hover.
+
+### Cost of the gate, measured
+
+`ticket-23-xaml-gate-fixed-2`, three iterations on `gpt_win11`:
+
+| Phase | Cost |
+| --- | --- |
+| restore | ~30 s on iteration 1, skipped after (`-ReuseBuild`) |
+| `dotnet run` evaluation | 4.4 s, or 1.8 s with `--no-build`; the built exe starts in 0.7 s |
+| xUnit reported test time | 38.6 s |
+| **last capture written → process exit** | **5.6–6.0 min** |
+| total per iteration | ~7.3 min |
+
+The dead time at exit is ~80% of every iteration and is **unexplained**. Build, restore and
+`dotnet run` evaluation were each measured and are seconds; the STA threads are
+`IsBackground` with a 30 s cap, so they are not holding the process either. This wants its
+own ticket, not a guess.
+
+`-ReuseBuild` was added on the assumption that build dominated. That assumption was wrong —
+it saves ~30 s per iteration, not minutes. The switch is kept because it is correct and
+free, but the honest lever today is `-Runs`: 3 costs ~22 min where 10 cost ~77.
 
 ## Named skips and their release gates
 
