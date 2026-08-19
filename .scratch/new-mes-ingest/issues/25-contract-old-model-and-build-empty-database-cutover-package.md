@@ -12,8 +12,8 @@
 - [ ] 在一次性目标数据库执行完整切换演练：停止旧 Host、Watch 和外部消费者，记录备份，核对精确实例和库名，删除旧库，由新 Host 建立空 schema，并以首个完整 SUCCESS bootstrap 可证明的新历史。
 - [ ] 演练证明错误当前条件使用 BOOTSTRAPPED_CURRENT_CONDITION 而不伪造旧开始时间，旧 TransportDemand、IngestAlert 和 ChangeFeed 记录不会进入新库。
 - [ ] 回退演练只通过停止新版并恢复整套旧程序、旧配置和独立旧数据库备份完成；新程序不得读取旧库，旧程序不得读取新库，也不宣称支持滚动或新旧混跑。
-- [ ] 最终包包含 Service、Watch、唯一正式查询、空配置模板、安装与卸载脚本、版本化 OpenAPI 和新版验证说明，且通过真实兼容 SQL Server 的主要 seam、事务、重启、鉴权和打包回归。
-- [ ] 票 23 的证据在最终包未改变视觉、XAML、UI Automation 或 DPI 输出时保持有效，本票只引用其冻结源和证据身份，不重复黄金机像素或 DPI 门禁；若本票引入相关输出变化，则标明失效场景并只重跑票 23 中受影响的预览、批准、稳定与清理要求。
+- [x] 最终包包含 Service、Watch、唯一正式查询、空配置模板、安装与卸载脚本、版本化 OpenAPI 和新版验证说明，且通过真实兼容 SQL Server 的主要 seam、事务、重启、鉴权和打包回归。
+- [x] 票 23 的证据在最终包未改变视觉、XAML、UI Automation 或 DPI 输出时保持有效，本票只引用其冻结源和证据身份，不重复黄金机像素或 DPI 门禁；若本票引入相关输出变化，则标明失效场景并只重跑票 23 中受影响的预览、批准、稳定与清理要求。
 - [x] 自动化证明仓库和发布产物不再包含真实凭据、旧契约入口或能够对未确认实例执行 DROP 的无人值守路径，并保存切换与回退演练的目标身份、结果和清理证据。
 
 ## 实现记录（2026-08-19）
@@ -86,16 +86,38 @@ Tier 1：`dotnet test MesIngest.Tests` → **450 passed / 0 failed / 82 skipped*
 82 个 skip 全部是本机无真实 SQL Server 的 `Ticket01SqlServer` 门禁用例，其中包括本票新增的
 `EmptyDatabaseBootstrapTests`（空库一次 bootstrap、非空库拒绝且不改动既有表）。
 
+### 打包发布门禁已通过（2026-08-19）
+
+第 7、8 条的现场证据已取得。`Invoke-GoldenRendererValidation.ps1 -Suite watch-package-release`
+在校准黄金机 `gpt_win11` 上通过：计划任务退出码 0、`GOLDEN_RENDERER_VALIDATION_PASSED`、
+`release-gates-passed.json` 为 `READY_FOR_HOST_CLEANUP_AND_FINALIZATION`。
+
+- 发布烟测 PASSED，对着真实 SQL Server（专用可丢弃空库，启动前 0 张用户表）；
+- 全量回归 **533 / 533 通过 / 0 失败 / 0 skip**（用例数由票 24 的 937 降至 533，
+  是删除 48 个退役 shell 测试文件的直接结果，两侧计数一致）；
+- 本票新增的两项现场实测：注入退役配置键后包内 Host **拒绝启动**（退出码非零且
+  stderr 核对为 `retired keys`），七个退役路由全部 404；
+- 打包 Watch 验收跑非像素两套，150 项 0 失败，5 个 skip 精确匹配具名集合；
+- 人工验收由 Zhengyu Shao 于 2026-08-19 22:52 签署；
+- 清理完成、原机复核 1920x1080 / 96 DPI / session 1，`Differences: []`。
+
+第 8 条按「打包未改变已批准输出」复用票 23 的视觉验收，**未做像素比对**；该保留
+说明已在签字时告知批准人并写入 `manual-acceptance.json`。若需更硬证据应另跑
+`-Suite watch-window-visual`。
+
+完整证据与逐项实测见
+[`.artifacts/ticket25-acceptance/EVIDENCE-INDEX.md`](../../../.artifacts/ticket25-acceptance/EVIDENCE-INDEX.md)。
+
+达成过程共 5 轮，前 4 轮的红全部是真问题并逐条修复：17 个 SQL 门禁测试仍注入
+`EnableLegacyDevelopmentEndpoints`（80 红，本机因 skip 而看不见）、烟测库未清空、
+以及本票新增的三个扫描依赖 `git ls-files` 而 payload 上没有 git（3 红）。逐条说明见证据索引。
+
 ### 尚未完成（需要 tier 3 现场运行）
 
-第 4、5、6、7、8 条仍未勾选，它们要求在一次性数据库和校准黄金机上真实运行：
+第 4、5、6 条仍未勾选，它们要求在一次性数据库上真实运行：
 
 - 一次性库上的完整切换演练与 `BOOTSTRAPPED_CURRENT_CONDITION` 证据；
-- 整体回退演练；
-- `Invoke-GoldenRendererValidation.ps1 -Suite watch-package-release`（真实兼容 SQL Server 的
-  主要 seam、事务、重启、鉴权与打包回归）；
-- 据此确认票 23 的 PNG/XML/UIA/DPI 输出未变化，其证据继续有效。
+- 整体回退演练。
 
-本票未改动 `WatchWorkspaceWindow` 及其 XAML，删除的是退役 shell 自己的场景与基线，
-预期票 23 的 11 份生产窗口基线不受影响；但该结论必须由上面的打包门禁在黄金机上确认，
-不能由本机推断。
+两者按设计都要求操作员在控制台原样键入目标实例/库名，没有任何绕过开关，
+因此**不能由代理代跑**，必须由现场人员执行，代理只负责准备参数与核对证据。
