@@ -7,7 +7,7 @@
   "OperatorSupplied": [
     "service/appsettings.Local.json"
   ],
-  "SourceCommit": "3286b04ed39ee1199ce67e9b3091062c2b4fc565",
+  "SourceCommit": "3b7c8f1ab0cfda09197112c81f7c7ee83c2e70ef",
   "SourceDirty": false,
-  "ManifestSha256": "723e796e59aa79636dbde2db607b3d19f29147209e0973df5e242c6a1bfa1fd6"
+  "ManifestSha256": "433bc430ea8a377c232ffa6a8ad461a0cbacecf9bc9c6a2493dd6e3a6f3a5959"
 }

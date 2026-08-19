@@ -74,26 +74,46 @@ Oracle 的只读边界同样是被测量出来的：`Test-CanonicalReadOnlyState
 
 ### 现场结果
 
-**PASSED_WITH_NAMED_SKIPS**，20 项声明检查中 19 项 PASSED、1 项具名 skip、0 项 FAILED。
-发布包 914 个文件与 `RELEASE-MANIFEST.json` 逐字节一致（源提交 `3286b04`、
-`sourceDirty=false`）；Thin 探针 `LIVE_ORACLE` 成功读回 597 行；三轮完整轮次全部 SUCCESS；
-重启后投影不变、屏障重新进入、CatalogRevision 单调、快照读取不撕裂；打包 Watch 八个
-入口全部渲染真实 Host 数据，关闭后 Service 继续轮询与写库。
+**PASSED_WITH_NAMED_SKIPS**，22 项声明检查中 20 项 PASSED、2 项具名 skip、0 项 FAILED。
 
-唯一具名 skip 是 `LIVE_ORACLE_THICK_MODE_REVERIFICATION`：票面要求"现场确有需要时"才复验
-Thick，Thin 全程成功因此没有触发，按未执行记录。
+- 发布包 914 个文件与 `RELEASE-MANIFEST.json` 逐字节一致（源提交 `3b7c8f1`、`sourceDirty=false`）；
+- Thin 探针 `LIVE_ORACLE` 成功读回 560 行真实业务数据，全程只读；
+- 三轮完整轮次全部 SUCCESS，落在同一正式 query version；
+- 重启后投影不变、屏障重新进入、CatalogRevision 单调、快照读取不撕裂；
+- 受限原始证据的正向路径读到**真实存在的证据资源**（200），两条拒绝路径均 403；
+- 打包 Watch 八个入口全部渲染真实 Host 数据，分页、详情、跨页下钻逐项实测；停掉 Service 后
+  紧凑 Host 状态显示 `读取失败`且已加载行全部保留；关闭 Watch 后 Service 继续轮询与写库。
+
+两项具名 skip：`LIVE_ORACLE_THICK_MODE_REVERIFICATION`（Thin 全程成功，未触发 Thick 回退）与
+`NON_SUCCESS_ROUNDS_PRESERVE_PROJECTION`（本窗口没有失败或结构不完整轮次可供检查——记成
+PASSED 会被读成"已证明失败轮次无害"，而本次窗口证明不了）。
+
+**证据边界要说清楚**：Oracle 是真实工厂 MES 库；SQL Server 是实验室实例
+`LAB-WIN-01\MSSQLSERVER` 上的一次性空库；执行机 `LAB-WIN-01` 是与票 25 演练同一台实验室
+工作站，位于可访问工厂 Oracle 的网络内，不是产线机。因此本次支持"最终包装在真实 Oracle
+数据上端到端可用"，不替代工厂生产 SQL Server 与产线机上的部署验收。
+
+发布包也不是票 25 那次构建出的 zip，而是**票 25 冻结的发布契约**在票 26 提交上重建的产物：
+票 26 只往 `validation/` 加了验收脚本并把它们列入必需文件；正式查询哈希、契约版本、
+`schemaVersion=17`、OpenAPI 与共享契约程序集全部未变，打包时逐项核对。
 
 第 8 条按"打包未改变已批准输出"复用票 23 的视觉验收，**未重跑**像素候选、10 次稳定、
-基线提升与 DPI clone；现场也没有观察到 UI / UI Automation / DPI 回归，因此没有场景被退回。
+基线提升与 DPI clone；运行中也没有观察到 UI / UI Automation / DPI 回归。
 
-### 达成过程共 5 轮，前 4 轮的红全是真问题
+### 达成过程共 10 轮，前 9 轮的红全是真问题
 
-preflight 用 `System.Data.SqlClient` 放行了包内 Host（用 `Microsoft.Data.SqlClient`）
-根本连不上的目标；中止的运行会丢掉整份摘要；空库 bootstrap 期的 409 被当成缺陷而不是
-等待；`/api/v2/absence-authority` 返回当前会话而不是列表；分页面的契约版本在 snapshot
-身份上、总数是 `exactTotalCount`、错误检索按 cursor 分页；Watch 导航项不暴露
-Invoke 模式、页面根 Grid 在 UIA control view 之外、导航栏比还原态窗口高、`if` 返回空数组
-展开成 `$null`。逐条说明见证据索引。
+preflight 用 `System.Data.SqlClient` 放行了包内 Host 连不上的目标；中止的运行会丢掉整份
+摘要；空库 bootstrap 期的 409 被当成缺陷；`/api/v2/absence-authority` 返回当前会话而不是
+列表；分页面的契约版本在 snapshot 身份上、总数是 `exactTotalCount`、错误检索按 cursor
+分页；Watch 导航项不暴露 Invoke 模式、页面根 Grid 在 UIA control view 之外、导航栏高于
+还原态窗口、`if` 返回空数组展开成 `$null`。
+
+其中第 5 轮之后的三条由代码审查发现，值得单独记：**验收在没实测的项目上写了 PASSED**——
+受限证据正向路径打的是占位路由（被查询校验在鉴权前拒绝）、Watch 的分页/详情/跨页下钻
+只写进自由文本没有断言、失败保留根本没做、没有失败轮次的窗口被记成已验证。修复后这三处
+分别变成真实资源断言、独立检查与具名 skip。随后又暴露两个测量点错误：失败读取的信号在
+紧凑 Host 状态上而不是折叠的页面 InfoBar；分页控件在首份快照回来前是禁用的，先读它会把
+六页的快照记成"只有一页"。
 
 完整证据与逐项实测见
 [`.artifacts/ticket26-acceptance/EVIDENCE-INDEX.md`](../../../.artifacts/ticket26-acceptance/EVIDENCE-INDEX.md)。

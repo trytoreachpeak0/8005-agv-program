@@ -9,8 +9,8 @@
   "QueryVersion": "MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae",
   "QuerySha256": "54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae",
   "Outcome": "Success",
-  "RowCount": 597,
-  "DurationMs": 3001,
+  "RowCount": 560,
+  "DurationMs": 2716,
   "ExitCode": 0,
   "Result": "PASSED",
   "Log": "probe-thin.txt"

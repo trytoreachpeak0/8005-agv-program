@@ -2,91 +2,91 @@
   {
     "path": "absence-authority.json",
     "length": 304,
-    "sha256": "b9b02594392e15713bf1392d74ed03f94c0f03c402a49c9acc0519d4dfa4d15d"
+    "sha256": "f8de8d4e1efcc760209454680a0a090d05502767fa476e979e01f5b82c1894bc"
   },
   {
     "path": "environment.json",
-    "length": 918,
-    "sha256": "557ad501fb1d8d07164b2f96a2cd45314de0411b1d7718da59f4223fface751b"
+    "length": 956,
+    "sha256": "b1cc05c642e4eeb7042219026e92d8e3ae7ed2a7aaae651ac04848eb9300757d"
   },
   {
     "path": "host-stage-log.txt",
-    "length": 24038,
-    "sha256": "3e2aedb9efe4ae87e533370ffa4139a57f8bc4e9457d28bdc579f197162fd8b5"
+    "length": 23694,
+    "sha256": "3bcb2576f59a2e24a61ff50f32fe6863f81121e44aedcd513d1b490a2a94c46a"
   },
   {
     "path": "oracle-probe-state.json",
     "length": 558,
-    "sha256": "41e862355527b2cda33674a15dbe67839ab2f4e92002bdbf3224e2f501f8fd9b"
+    "sha256": "16c64dd237a58fc9f25a590514e9eed9bbc60131c6577e4a66568bc690eff2fb"
   },
   {
     "path": "package-identity.json",
     "length": 362,
-    "sha256": "c9ebb0f8f80046a5cab594d60ead7b8f38b4828222b17087c0a3cf59cdd11969"
+    "sha256": "b02d76639902eb7c0453c41c103568d8f72ac9f0168e89f1b7d56b17eafc1cc5"
   },
   {
     "path": "probe-thin.txt",
     "length": 452,
-    "sha256": "93adffb8675fdca1cb6cc235e0180bde268c9e7036ce3187d302dd1f788a765f"
+    "sha256": "fe51aef907650603566b3e871f6181e0d4702d9fd403bd409ea82018b69ae87f"
   },
   {
     "path": "read-surfaces.json",
-    "length": 1373,
-    "sha256": "3386cc4762844e6aa9c7d44cc5f277f986d4815d57b4e4b98c9624346acc8eee"
+    "length": 1374,
+    "sha256": "b112ef8025fd39757c08038744f9d194fb4fd3dcdbfcdd4b1f0853b17635afae"
   },
   {
     "path": "rounds.json",
     "length": 1856,
-    "sha256": "e057dded15374fefd4c31c27c86768e229458c7ed723659af3d782a85f0d1f00"
+    "sha256": "18dd10181eb2c950fcac867d73b16ef3690594acaf24845594097737988f39fc"
   },
   {
     "path": "task-type-protections.json",
     "length": 1343,
-    "sha256": "a7fb3654e82a3e9289a71a7acdca3ccde7bf71712ee860d3390e9ee77d36eaac"
+    "sha256": "28dee194fb50bb7e414fe29026de103f8997c50ecf73ee5dca6b45026a491494"
   },
   {
     "path": "watch/page-01-OverviewPage.png",
-    "length": 137634,
-    "sha256": "b34d21e775be02f477ebf0a5fc1da01a9cac72e513ebe1b900e54944fb6b11e4"
+    "length": 137618,
+    "sha256": "fd044ffb5c464825047f2efcbee6a72cb0e09013c53e7d34012c3448dfe863db"
   },
   {
     "path": "watch/page-02-DemandSeriesScrollViewer.png",
-    "length": 159686,
-    "sha256": "e55d908ca25e19fd55e965df7bff8cd11a5dde97d0bd6a447fc9356aed0180f6"
+    "length": 159673,
+    "sha256": "7f8ea665d0f9923bccee6cbd0aafc2f655a74a717bf6a2abe105bb1ef40b303b"
   },
   {
     "path": "watch/page-03-ReadabilityAuditPage.png",
-    "length": 174826,
-    "sha256": "c00cda87a487cafc61d09851f1a1a5b4846fe1668578f0313537da7c5be54636"
+    "length": 174811,
+    "sha256": "f1fd7a1d109585fedcbac8767c2182f57eb27b98d20ceeefcf4d0cb99e76ee3c"
   },
   {
     "path": "watch/page-04-ErrorSearchBodyScrollViewer.png",
-    "length": 175804,
-    "sha256": "7d73c68d4357aad00168e61e895986d89f3b23925062168ab9a9e07a24b47361"
+    "length": 175845,
+    "sha256": "7b5e75b0b2cde99e8232c05a74303f7c04214dde126bae87fb39713a4a673f8b"
   },
   {
     "path": "watch/page-05-AreaFilterPage.png",
-    "length": 128252,
-    "sha256": "453c9313ea5f93ecbcb6e9faa65d60b301cd9b7ca6a48697fa4bed1fd336096e"
+    "length": 128236,
+    "sha256": "b1fdccae250058e68d553999b5d242122c92da369d0aad7a53b88d3086f3b79d"
   },
   {
     "path": "watch/page-06-CurrentAttentionPage.png",
-    "length": 200251,
-    "sha256": "28939a3ec57f64a4e2f9ea375bd4c93d7757d1d619baafc9fca75b05e6e156ae"
+    "length": 200767,
+    "sha256": "f429126e3a7e604d946ee1b3503d37feea677a97284950ada162c93a70147ce6"
   },
   {
     "path": "watch/page-07-SettingsPage.png",
-    "length": 188001,
-    "sha256": "9df272436465341e087b183ca8436fda92f1b1bcafcb2adce5b080823463f429"
+    "length": 188105,
+    "sha256": "ef2b58224c0ff5f964e1d17b74fc8843a957f99a359adebe285a75395967b53c"
   },
   {
     "path": "watch/page-08-SettingsPage.png",
-    "length": 188351,
-    "sha256": "013a5360e1e385537be6c87627a2f86411adab7bb4c47edc3886c360162e5b99"
+    "length": 188464,
+    "sha256": "ad232a947ead6ca978e8a4facb9554e1b92f4ec01df05f7dba5d8381a047ba9e"
   },
   {
     "path": "watch/watch-pages.json",
-    "length": 1010,
-    "sha256": "24a48df64742e8c965130747385fc21d2f933d3bfdece18cf1fa08cd4ac06f10"
+    "length": 1244,
+    "sha256": "189f483f95797c503ec40da2dd7421730bd7bac25e0756384018501847eb1b43"
   }
 ]
