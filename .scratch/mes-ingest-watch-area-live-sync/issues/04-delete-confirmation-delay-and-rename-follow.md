@@ -35,8 +35,9 @@
 
 ### 验证记录
 
-- 定向存储与 UI seam：`29 passed / 0 skipped / 0 failed`。
+- 定向存储与 UI seam：`30 passed / 0 skipped / 0 failed`。
 - `dotnet build MesIngest.sln --no-incremental -v minimal`：`0 warnings / 0 errors`。
 - 主工作区 Tier 1：`502 passed / 82 environment-gated skipped / 1 failed`；唯一失败由既有未跟踪发布产物 `dist/MesIngest/scripts/cutover/CutoverSqlTools.ps1` 触发，未删除或修改该用户产物。
-- 提交 `af97056` 的隔离 clean worktree 执行 `dotnet test MesIngest.Tests -v minimal`：`502 passed / 82 environment-gated skipped / 0 failed`；验证后已清理临时 worktree。
+- 最终代码提交 `82a4c47` 的隔离 clean worktree 执行 `dotnet test MesIngest.Tests -v minimal`：`503 passed / 82 environment-gated skipped / 0 failed`；验证后已清理临时 worktree。
 - 按票据约定未运行 Tier 2 / Tier 3；黄金机验证留到整个特性完成后统一进行。
+- `/code-review` Spec 轴为 `0 finding`。Standards 轴最初提出 1 个硬项（最终代码后需重跑 Tier 1）和 2 个判断项；硬项由上述最终 clean-worktree Tier 1 关闭，含混的 `ProfileNames` / `ProfileName` 已分别改名为 `AffectedProfileNames` / `NewProfileName`，测试 Arrange 重复保留为各时序用例的显式 seam 设置。
