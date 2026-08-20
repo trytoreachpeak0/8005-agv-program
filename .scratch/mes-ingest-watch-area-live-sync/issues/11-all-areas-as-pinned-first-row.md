@@ -30,3 +30,4 @@
 - 2026-08-20：将「全部 AREA（不筛选）」建模为不对应 TXT 文件的常驻首项；搜索与目录刷新只改变后续文件行。首项复用 `AreaProfileApplyButton` 与既有 `ApplyAllAreas` 存储契约，当前生效时呈现「已应用」，且不提供另存为、重命名或删除菜单。
 - 独立 `AreaApplyAllAreasButton` 已删除，通用应用按钮迁入左栏底部；执行型按钮按 `docs/agents/fluent-ui.md` 保持 `Secondary`，不使用表示持久选择的强调色。
 - AREA 聚焦回归：70 passed、0 failed、0 skipped。Tier 1 `dotnet test MesIngest.Tests --verbosity minimal`：567 passed、82 skipped、0 failed；SQL Server fixture 因无 LocalDB 按 Tier 1 规则跳过。未运行 Tier 2/3，按本特性约定留待全部 ticket 完成后统一金机验证。
+- `$code-review` 的 Standards/Spec 双轴复核发现并修正两项：集中全 AREA 选择状态转换，避免多字段手工同步；将 `MesIngest.Watch.UiTests` 的旧独立按钮引用全部迁到「选中常驻首项 + 点击通用按钮」。UI 测试项目编译通过（0 warnings / 0 errors），未执行桌面套件。
