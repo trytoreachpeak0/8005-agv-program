@@ -4,19 +4,19 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] 监视失效时界面显示明确的降级提示
-- [ ] 目录恢复后自动重建监视并刷新列表
-- [ ] 文件系统事件缓冲区溢出时触发全量重扫，目录状态不丢失
-- [ ] 首次使用时配置目录自动创建
-- [ ] 目录不存在时列表呈现为空而非报错
-- [ ] 页面切走与窗口关闭时监视资源被释放
-- [ ] tier 1 全绿
+- [x] 监视失效时界面显示明确的降级提示
+- [x] 目录恢复后自动重建监视并刷新列表
+- [x] 文件系统事件缓冲区溢出时触发全量重扫，目录状态不丢失
+- [x] 首次使用时配置目录自动创建
+- [x] 目录不存在时列表呈现为空而非报错
+- [x] 页面切走与窗口关闭时监视资源被释放
+- [x] tier 1 全绿
 
 ## Golden renderer checklist
 
-- [ ] Read [`docs/agents/golden-renderer.md`](../../../../docs/agents/golden-renderer.md).
+- [x] Read [`docs/agents/golden-renderer.md`](../../../../docs/agents/golden-renderer.md).
 - [ ] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
 - [ ] Recorded the unique evidence directory and all named skips.
@@ -24,3 +24,11 @@
 
 > 本特性的金机验证在全部 ticket 完成后统一进行，单个 ticket 不单独上金机。
 > 实现阶段以 tier 1 为准。
+
+## Comments
+
+- 2026-08-21：`WatchAreaFilterProfileStore` 现在把目录监视建模为 `Watching` / `Degraded` / `Stopped` 状态；一秒健康检查发现目录删除或改名后停止事件源，目录恢复时自动重建并发出全量重扫。只读枚举与已应用状态读取不会为了取得事务锁而重建一个运行期已消失的目录，因此降级期间列表稳定呈现为空。
+- `FileSystemWatcher.Error` 已接入事件源；`InternalBufferOverflowException` 会停止并重建 watcher，恢复后只发出一次全量重扫，随后增量事件继续有效。首次使用仍由 store 显式创建配置目录。
+- AREA 页增加不可关闭的降级 `InfoBar`，监视恢复后自动关闭。进入 AREA 页才启动监视，切离页面调用 `StopWatchingDirectory`，返回时重启并全量刷新；窗口关闭最终释放事件源与全部计时器。
+- TDD seam：`WatchAreaFilterProfileDirectoryWatchTests` 覆盖首次创建、运行期目录删除/恢复、启动失败自动恢复、缓冲区溢出重建和 Dispose；`WatchAreaProfileLiveListTests` 覆盖持久降级提示、恢复刷新以及页面/窗口生命周期。AREA 聚焦回归 146 passed；solution 非增量构建 0 warning / 0 error；tier 1 `dotnet test MesIngest.Tests --verbosity minimal` 为 572 passed、82 skipped、0 failed。82 项均为本机无 LocalDB 时按 tier 1 规则跳过的 SQL Server 测试。
+- 未运行 tier 2/3；按本特性约定留待全部 ticket 完成后统一金机验证与用户预览。
