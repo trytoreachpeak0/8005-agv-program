@@ -4,7 +4,7 @@
 
 **Blocked by:** 无（票 20 已完成，本票在其成果上修正布局缺陷）
 
-**Status:** claimed
+**Status:** resolved
 
 ## 背景
 
@@ -49,7 +49,7 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
 - [x] tier 1 全量通过：`dotnet test MesIngest.Tests`，命名每一处 skip。
 - [x] Read `docs/agents/golden-renderer.md`.
 - [x] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
+- [x] User approved the final real-window preview (visual changes only).
 - [x] Recorded the unique evidence directory and all named skips.
 - [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
@@ -93,4 +93,10 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
   `SeriesId` 列头分隔线并确认列宽增加，通过 UIA 收起详情后生成
   `03a-demand-series-master-only.png`，再展开并继续生成 `03-demand-series-detail.png`。
 - 未批准、未覆盖任何视觉基线。清理证据：scheduled task 不存在、残留进程 0，清理后环境复检返回 0。
-- 等待用户审阅最终预览，因此“User approved”保持未勾选。
+- 用户已于 2026-08-20 审阅收起态与恢复详情态的最终预览并明确回复“批准”。未批准、未覆盖视觉基线。
+
+## Answer
+
+票 28 已完成：DemandSeries 详情和顶部来源说明可折叠，主从区域可拖动且会话内保持比例，
+主列表列宽可在真实 WPF 主题下拖动，窄窗使用横向滚动，分页控件完整并居中。Tier 1、
+黄金机 `watch-vm-tests` 与生产 UI 旅程均通过，用户已批准最终真实窗口预览。
