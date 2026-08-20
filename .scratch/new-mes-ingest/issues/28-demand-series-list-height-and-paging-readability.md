@@ -34,24 +34,24 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
 
 ## 验收项
 
-- [ ] 实现与验证遵循 [MesIngest.Watch Fluent UI rules](../../../docs/agents/fluent-ui.md) 和 [Golden WPF renderer](../../../docs/agents/golden-renderer.md)；沿用票 20 的 master-detail 信息架构，不新增窗口、不改变页面骨架与导航。
-- [ ] DemandSeries 详情面板可折叠：收起后主列表占据页面全部可用高度，在 1920×1080 / 96 DPI 下一屏至少完整显示 12 行数据；展开后恢复到与收起前一致的比例。
-- [ ] 主列表与详情面板之间提供 `GridSplitter`，用户可自由分配两者高度；拖动结果在同一会话内切换页面后保持，最小高度不允许把任一侧压到无法使用。
-- [ ] 顶部“来源快照比较”说明区可收起；收起状态不丢失其中的快照时点、投影提交、序列与事实变化结论，展开时内容与当前实现一致。
-- [ ] 主列表所有列可由用户拖动调整宽度。若 WPF UI 4.x 的 `DataGridColumnHeader` 主题模板导致 resize thumb 不可用，须在实机确认后修复模板或改用受支持的等价方式，不得以“默认为 true”结案。
-- [ ] 主列表列宽策略改为按内容与可用宽度分配，`SeriesId`、`WorkType`、`SUBLOT`、`当前 Demand`、时间列和 `GONE SINCE` / `ARCHIVED` 表头在 1920×1080 下不出现截断；窗口变窄时通过横向滚动或重排承载，不裁切文字。
-- [ ] 分页条上的“每页”下拉能完整显示 `25`／`50`／`100`／`200` 四个值；页码输入框能完整显示实际最大页数的位数。
-- [ ] 分页条容器不再使用固定行高：`WrapPanel` 换行后第二行完整可见；“上一页”“跳转”“下一页”与页码框的文字在按钮内水平和垂直居中。
-- [ ] 上述所有尺寸与间距通过命名资源表达，遵循 `docs/agents/watch-ui-system.md` 的 Space / Control height / Type token 约束，不引入未记录的字面量。
-- [ ] 折叠开关、splitter 和分页控件具备稳定 UI Automation 名称与键盘可达路径；splitter 可用键盘调整，折叠状态对屏幕阅读器有文字表达。
-- [ ] 票 20 的既有行为不回归：冻结快照分页、精确总数、AREA 范围确认、刷新重选与失败保留上一成功快照全部照旧通过。
+- [x] 实现与验证遵循 [MesIngest.Watch Fluent UI rules](../../../docs/agents/fluent-ui.md) 和 [Golden WPF renderer](../../../docs/agents/golden-renderer.md)；沿用票 20 的 master-detail 信息架构，不新增窗口、不改变页面骨架与导航。
+- [x] DemandSeries 详情面板可折叠：收起后主列表占据页面全部可用高度，在 1920×1080 / 96 DPI 下一屏至少完整显示 12 行数据；展开后恢复到与收起前一致的比例。
+- [x] 主列表与详情面板之间提供 `GridSplitter`，用户可自由分配两者高度；拖动结果在同一会话内切换页面后保持，最小高度不允许把任一侧压到无法使用。
+- [x] 顶部“来源快照比较”说明区可收起；收起状态不丢失其中的快照时点、投影提交、序列与事实变化结论，展开时内容与当前实现一致。
+- [x] 主列表所有列可由用户拖动调整宽度。若 WPF UI 4.x 的 `DataGridColumnHeader` 主题模板导致 resize thumb 不可用，须在实机确认后修复模板或改用受支持的等价方式，不得以“默认为 true”结案。
+- [x] 主列表列宽策略改为按内容与可用宽度分配，`SeriesId`、`WorkType`、`SUBLOT`、`当前 Demand`、时间列和 `GONE SINCE` / `ARCHIVED` 表头在 1920×1080 下不出现截断；窗口变窄时通过横向滚动或重排承载，不裁切文字。
+- [x] 分页条上的“每页”下拉能完整显示 `25`／`50`／`100`／`200` 四个值；页码输入框能完整显示实际最大页数的位数。
+- [x] 分页条容器不再使用固定行高：`WrapPanel` 换行后第二行完整可见；“上一页”“跳转”“下一页”与页码框的文字在按钮内水平和垂直居中。
+- [x] 上述所有尺寸与间距通过命名资源表达，遵循 `docs/agents/watch-ui-system.md` 的 Space / Control height / Type token 约束，不引入未记录的字面量。
+- [x] 折叠开关、splitter 和分页控件具备稳定 UI Automation 名称与键盘可达路径；splitter 可用键盘调整，折叠状态对屏幕阅读器有文字表达。
+- [x] 票 20 的既有行为不回归：冻结快照分页、精确总数、AREA 范围确认、刷新重选与失败保留上一成功快照全部照旧通过。
 - [x] 清理本票暴露出的死资源：`DemandSeriesMasterListHeight`、`DemandSeriesGenerationHeight`、`DemandSeriesEventHeight`、`DemandSeriesEvidenceMinHeight` 当前无任何引用点，随本票一并移除或恢复使用。
 - [x] tier 1 全量通过：`dotnet test MesIngest.Tests`，命名每一处 skip。
 - [x] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
+- [x] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ## Comments
 
@@ -76,3 +76,20 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
 - Standards 初审指出 3 类问题：顶部说明使用了原生 `Expander`、splitter 的 8 epx 命中区小于 32 epx、部分新间距与折叠行高未完全 token 化；Spec 初审仅重复指出 token 项，没有发现 scope creep。
 - 已改用 WPF UI `CardExpander`；splitter 使用 32 epx 命中区和居中的 4 epx 视觉线；所有新增间距以及 auto/master-only/collapsed/splitter 行高均改为命名资源。
 - 审查修正后的 focused 测试和最终 tier 1 再次通过，结果仍为 474 passed / 82 skipped / 0 failed；skip 集合及原因未变化。
+
+### 2026-08-20 — 黄金机预览
+
+- 在干净 detached worktree 上以提交 `e5934c0861a3db6c8b74e95ee141e2db8af1bc75` 执行
+  `Invoke-GoldenRendererValidation.ps1 -Ticket 28 -Suite watch-production-preview`，结果通过。
+- 唯一证据目录：`mes/ingest/csharp/.artifacts/golden-renderer/ticket-28/run-20260820-140520-watch-production-preview`。
+- 环境门通过：交互式桌面 `1920×1080`、`96 DPI`、`100%`、浅色、`zh-CN`、
+  China Standard Time、Microsoft YaHei UI / Consolas 均存在、SoftwareOnly 渲染。
+- `watch-vm-tests`：149 total / 144 passed / 5 skipped / 0 failed。5 项 skip 为
+  `WatchWindowCandidateEquivalenceTests.Candidate_directories_are_visually_equivalent`（未设置
+  candidate reference/actual，仅由 stability gate 驱动），以及
+  `WatchWindowVisualEquivalenceGoldenFixtureTests` 的 4 个 fixture 测试（未设置
+  `MESINGEST_WATCH_GOLDEN_FIXTURES`）；均不是票 28 行为跳过。
+- `watch-ui-journeys`：1 passed / 0 skipped / 0 failed；生产窗口旅程通过真实鼠标拖动
+  `SeriesId` 列头分隔线并确认列宽增加，随后生成 `03-demand-series-detail.png`。
+- 未批准、未覆盖任何视觉基线。清理证据：scheduled task 不存在、残留进程 0，清理后环境复检返回 0。
+- 等待用户审阅最终预览，因此“User approved”保持未勾选。
