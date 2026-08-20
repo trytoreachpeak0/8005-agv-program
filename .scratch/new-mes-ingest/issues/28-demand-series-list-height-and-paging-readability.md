@@ -70,3 +70,9 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
 - tier 1：从 `mes/ingest/csharp` 执行 `dotnet test MesIngest.Tests`，474 passed / 82 skipped / 0 failed / 556 total。
 - 逐项 skip 名称与结果保存在 `mes/ingest/csharp/.artifacts/ticket-28/ticket-28-tier1.trx` 的 82 个 `UnitTestResult outcome="NotExecuted"` 节点中；每一项的唯一 skip 原因均为 `Real SQL Server unavailable for Ticket 01 tracer-spine gate`。这些是 AGENTS.md 允许在 tier 1 缺少 LocalDB 时跳过的 SQL Server 集成测试。
 - 尚未运行 tier 2 / tier 3；因此 1920×1080 的 12 行可见性、WPF UI 主题下列头 resize thumb、换行分页条和最终视觉外观仍保留给交互式黄金机验证，未据本地静态检查提前结案。
+
+### 2026-08-20 — 双轴代码审查修正
+
+- Standards 初审指出 3 类问题：顶部说明使用了原生 `Expander`、splitter 的 8 epx 命中区小于 32 epx、部分新间距与折叠行高未完全 token 化；Spec 初审仅重复指出 token 项，没有发现 scope creep。
+- 已改用 WPF UI `CardExpander`；splitter 使用 32 epx 命中区和居中的 4 epx 视觉线；所有新增间距以及 auto/master-only/collapsed/splitter 行高均改为命名资源。
+- 审查修正后的 focused 测试和最终 tier 1 再次通过，结果仍为 474 passed / 82 skipped / 0 failed；skip 集合及原因未变化。
