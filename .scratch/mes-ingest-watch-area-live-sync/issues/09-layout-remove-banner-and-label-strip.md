@@ -20,7 +20,7 @@
 ## Implementation evidence
 
 - 删除 AREA 页恒驻的「当前显示范围」InfoBar；瞬态操作反馈仍按 Fluent 规则保留为可折叠 InfoBar，页面标题与主体之间只保留 12 epx 间距。
-- `AreaProfileValidCountPill` 已移到文件标题行右侧；路径标题统一附带「每行一个 AREA，如 A1-1，# 开头忽略」，不再保留独立字段标签或格式说明行。
+- `AreaProfileValidCountPill` 已移到文件标题行右侧；路径标题统一附带「每行一个 AREA · 格式：A1-1 或 A11-11 · 空行和 # 注释会忽略」，不再保留独立字段标签或格式说明行。
 - 编辑器工作区删去两个冗余头部行，`AreaProfileEditorFrame` 直接取得释放的星号高度；组合测试在 1440×900 固定窗口下确认编辑器可视高度至少 500 epx。
 - `Area_filter_layout_gives_redundant_banner_and_field_strip_space_to_the_editor` 覆盖横幅/标签条消失、标题行对齐、路径格式提示和编辑器高度；既有 golden UI 契约中的旧控件与网格行号断言已同步。
 - 聚焦 `WatchAreaProfile*` 回归：64 passed、0 failed、0 skipped。Tier 1 `dotnet test MesIngest.Tests --verbosity minimal`：561 passed、82 skipped、0 failed；SQL Server fixture 因无 LocalDB 按 Tier 1 规则跳过。
