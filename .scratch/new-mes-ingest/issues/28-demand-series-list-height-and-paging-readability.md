@@ -79,9 +79,9 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
 
 ### 2026-08-20 — 黄金机预览
 
-- 在干净 detached worktree 上以提交 `e5934c0861a3db6c8b74e95ee141e2db8af1bc75` 执行
+- 在干净 detached worktree 上以提交 `5fbf133407f74f8f98b4a7066f56a8607110cc52` 执行
   `Invoke-GoldenRendererValidation.ps1 -Ticket 28 -Suite watch-production-preview`，结果通过。
-- 唯一证据目录：`mes/ingest/csharp/.artifacts/golden-renderer/ticket-28/run-20260820-140520-watch-production-preview`。
+- 唯一最终证据目录：`mes/ingest/csharp/.artifacts/golden-renderer/ticket-28/run-20260820-142214-watch-production-preview`。
 - 环境门通过：交互式桌面 `1920×1080`、`96 DPI`、`100%`、浅色、`zh-CN`、
   China Standard Time、Microsoft YaHei UI / Consolas 均存在、SoftwareOnly 渲染。
 - `watch-vm-tests`：149 total / 144 passed / 5 skipped / 0 failed。5 项 skip 为
@@ -90,6 +90,7 @@ DemandSeries 主列表只能看到 2.5 行数据。逐条定位的根因如下�
   `WatchWindowVisualEquivalenceGoldenFixtureTests` 的 4 个 fixture 测试（未设置
   `MESINGEST_WATCH_GOLDEN_FIXTURES`）；均不是票 28 行为跳过。
 - `watch-ui-journeys`：1 passed / 0 skipped / 0 failed；生产窗口旅程通过真实鼠标拖动
-  `SeriesId` 列头分隔线并确认列宽增加，随后生成 `03-demand-series-detail.png`。
+  `SeriesId` 列头分隔线并确认列宽增加，通过 UIA 收起详情后生成
+  `03a-demand-series-master-only.png`，再展开并继续生成 `03-demand-series-detail.png`。
 - 未批准、未覆盖任何视觉基线。清理证据：scheduled task 不存在、残留进程 0，清理后环境复检返回 0。
 - 等待用户审阅最终预览，因此“User approved”保持未勾选。
