@@ -8,16 +8,33 @@
 
 **Blocked by:** 05
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] 缓冲为脏且磁盘已变更时，落盘不静默覆盖，给出二选一
-- [ ] 选择保留本地时磁盘被覆盖并更新指纹基准
-- [ ] 选择使用磁盘时本地输入被丢弃并重载
-- [ ] 冲突提示显示期间自动落盘暂停
-- [ ] 正在编辑的文件被外部删除且缓冲为脏时，内容保留、转未命名草稿、提供另存为入口
-- [ ] 同样情形下缓冲干净时，列表移除该项并把选中项移到相邻项
-- [ ] 冲突检测复用既有的指纹乐观并发，**不新增基准机制**
-- [ ] tier 1 全绿
+- [x] 缓冲为脏且磁盘已变更时，落盘不静默覆盖，给出二选一
+- [x] 选择保留本地时磁盘被覆盖并更新指纹基准
+- [x] 选择使用磁盘时本地输入被丢弃并重载
+- [x] 冲突提示显示期间自动落盘暂停
+- [x] 正在编辑的文件被外部删除且缓冲为脏时，内容保留、转未命名草稿、提供另存为入口
+- [x] 同样情形下缓冲干净时，列表移除该项并把选中项移到相邻项
+- [x] 冲突检测复用既有的指纹乐观并发，**不新增基准机制**
+- [x] tier 1 全绿
+
+实现记录：
+
+- 冲突提示未解决前，切换选中配置与 `Ctrl+S` 都会被拒绝并说明原因，否则离开提示
+  等于替用户做了二选一。切换页面不会丢弃任何一份——页面只切换可见性，缓冲、
+  提示与磁盘版本都在，切回来继续选择。
+- 「保留我的修改」由 `WatchAreaFilterProfileStore.OverwriteWithLocalEdit` 在同一把
+  事务锁内读当前指纹再写，避免提示期间落地的第三方写入被静默覆盖。仍是既有的
+  指纹乐观并发，没有第二套基准。
+- 已知边界：冲突未解决时直接关闭窗口，未落盘的缓冲随进程一并丢失。阻止关窗
+  与自动替用户选一份都不可取，spec 亦未定义该出口，故不在本 ticket 处理。
+
+`RetiredContractAndCutoverSafetyTests.The_attended_cutover_drill_is_the_only_thing_that_deletes_a_database`
+在本机红，与本 ticket 无关：该用例扫到了被 `.gitignore` 排除的本地打包产物
+`mes/ingest/csharp/dist/MesIngest/scripts/cutover/CutoverSqlTools.ps1`，其内容与被
+允许的 `pack/cutover/CutoverSqlTools.ps1` 逐字节相同，只是落在排除前缀之外。
+本 ticket 未触碰任何 `.ps1`。
 
 ## Golden renderer checklist
 
