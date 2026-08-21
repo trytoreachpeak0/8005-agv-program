@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — 切换为单实例 Inspector 并贯通首次观察。
 
-**Status:** ready-for-human
+**Status:** done
 
 **UI authority:** [Fluent UI guidance](../../../docs/agents/fluent-ui.md) · [Golden Renderer workflow](../../../docs/agents/golden-renderer.md)
 
@@ -19,10 +19,10 @@
 - [x] 自动化名称和键盘操作覆盖事件 Tab、相关事件动作、过滤器和事件证据网格。
 - [x] 从 `mes/ingest/csharp` 运行 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过。
 - [x] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ## Comments
 
@@ -97,3 +97,21 @@
   UI test project builds with zero warnings/errors, and Tier 1 passes 611 with
   the same 82 SQL environment skips. A fourth clean Tier 2 preview is required;
   all three prior visual rejections remain preserved.
+
+### 2026-08-21 — fourth golden preview approved
+
+- Clean commit `f997119e` passed the full `watch-ui-journeys` suite 1/1 in
+  139.135 seconds with 0 errors, failures, skips, or not-run tests.
+- Unique evidence:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-212732-watch-ui-journeys`.
+- Approved capture:
+  `watch-ui/20260821-212747-453/production-workspace-19-22/03c-demand-series-related-events.png`,
+  SHA-256 `46444327624A8022DAE2066E470BA8A800FD9F70722C1DA9CFC2E6B36608EAF3`.
+- The source manifest is clean. The interactive environment gate passed at
+  1920×1080, 96 DPI, light theme, zh-CN, China Standard Time, and software
+  rendering. Cleanup reports task absent, residual processes 0, and the
+  post-cleanup environment gate passed.
+- The user explicitly replied `批准` after reviewing the final real-window
+  capture. Tier 2 has no named skips. Tier 1 remains 611 passed, 0 failed, and
+  the 82 named `Ticket01SqlServerFact` environment-gated skips documented above.
+- No candidate matrix was generated and no visual baseline was promoted.

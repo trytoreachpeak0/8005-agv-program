@@ -171,3 +171,16 @@ authorized golden-machine preview.
   2px text margin. A ticket-local event text style now uses a 10px margin. The
   same real-window regression passes within ±1px; focused tests pass 34/34, UI
   tests build cleanly, and Tier 1 passes 611/0/82/693.
+
+## Fourth golden-machine preview — approved
+
+- Clean source `f997119e`; runner 1 total, 0 errors, 0 failed, 0 skipped,
+  0 not run, 139.135 seconds.
+- Evidence:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-212732-watch-ui-journeys`.
+- Approved capture SHA-256:
+  `46444327624A8022DAE2066E470BA8A800FD9F70722C1DA9CFC2E6B36608EAF3`.
+- Environment and cleanup passed at 1920×1080 / 96 DPI with task absent,
+  residual processes 0, and the post-cleanup gate successful.
+- The user explicitly replied `批准`. The column header/value regression is
+  green within ±1px. Ticket 04 is complete; no baseline was promoted.
