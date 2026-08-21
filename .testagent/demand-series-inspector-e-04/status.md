@@ -139,3 +139,18 @@ authorized golden-machine preview.
 - Fix: widen all event evidence columns and apply `DataGridTextCell` so headers
   remain legible and values use the repository's ellipsis/foreground rules.
   Post-fix focused tests pass 29/29; UI test project builds 0 warnings/errors.
+
+## Second golden-machine preview — visual rejection
+
+- Clean source `fefafd52`; runner 1 total, 0 errors, 0 failed, 0 skipped,
+  0 not run, 119.177 seconds.
+- Evidence:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-204023-watch-ui-journeys`.
+- Environment/cleanup again passed at 1920×1080 / 96 DPI with task absent and
+  residual processes 0.
+- Visual verdict: rejected. The cell style corrected value spacing but the
+  runtime DataGrid still compressed long header identities.
+- Fix: every event column now has an explicit `MinWidth` equal to its intended
+  width, forcing horizontal scrolling instead of header compression. The
+  public real-window test asserts both `ActualWidth` and `MinWidth` for all
+  eleven columns. Focused tests pass 29/29; UI tests build cleanly.
