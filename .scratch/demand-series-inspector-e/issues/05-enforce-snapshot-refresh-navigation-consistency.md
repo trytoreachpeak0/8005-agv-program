@@ -21,7 +21,7 @@
 - [x] 从 `mes/ingest/csharp` 运行 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过。
 - [x] Read `docs/agents/golden-renderer.md`.
 - [x] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
+- [x] User approved the final real-window preview (visual changes only).
 - [x] Recorded the unique evidence directory and all named skips.
 - [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
@@ -32,3 +32,4 @@
 - 2026-08-21：本次增加 Inspector 加载/失败/陈旧 `InfoBar` 和 Current Attention 精确下钻命令，属于 WPF UI 变更。按 `AGENTS.md` 未自行进入 Tier 2/3；需用户授权后在交互式 golden VM 上运行最窄受影响套件并完成预览审批。
 - 2026-08-21：用户授权后，从干净提交 `a4a1fdfe` 在 `gpt_win11` 交互桌面运行最窄完整 Tier 2：`watch-ui-journeys`，结果 `Total 1 / Failed 0 / Skipped 0`。唯一证据目录：`mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-05/run-20260821-232048-watch-ui-journeys`。运行前、运行后与清理后的环境检查均通过 1920×1080、96 DPI；scheduled task 已注销，残留进程为 0。
 - 2026-08-21：首次 Tier 2 红色证据保留在 `run-20260821-231438-watch-ui-journeys`；它发现 UI 测试项目仍调用已移除的 `SelectDemandSeriesAsync`。迁移到稳定选择与显式详情加载后，本地 Release 构建 `0 warning / 0 error`，受影响 Session 测试 `27/27` 通过，并以 `a4a1fdfe` 提交。
+- 2026-08-21：用户已批准 `run-20260821-232048-watch-ui-journeys` 中的最终真实窗口预览；本票据全部实现与视觉验收项完成。未运行 Tier 3，未创建、提升或覆盖视觉基线。
