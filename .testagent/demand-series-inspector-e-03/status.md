@@ -41,7 +41,8 @@ inline rather than skipped.
 
 ## Tier 1
 
-From `mes/ingest/csharp`, `dotnet test MesIngest.Tests` completed in 1m33s:
+After the two-axis review fixes, from `mes/ingest/csharp`,
+`dotnet test MesIngest.Tests` completed in 1m24s:
 
 - Passed: 606
 - Failed: 0
@@ -137,5 +138,22 @@ skipped tests:
 - `WatchOverviewSnapshotTests.Overview_returns_exact_same_commit_summaries_and_explicit_drill_intents`
 - `WatchOverviewSnapshotTests.Recent_activity_uses_real_transitions_a_strict_24_hour_window_and_stable_top_five`
 
-The two-axis code review remains outstanding. Tier 2/3 golden-machine work
-remains deferred pending explicit user authorization.
+## Two-axis code review
+
+### Standards
+
+Initial findings: one hard Fluent spacing violation and two judgment-call smells
+(a forwarding raw-row middle man and repeated window-test setup). All three were
+fixed: spacing now uses 8 epx, XAML binds through `RawRow.*`, and shared test
+helpers own focused-presentation and window rendering setup.
+
+### Spec
+
+Initial finding: when the predecessor snapshot was absent, predecessor identity
+incorrectly borrowed the successor creation event's PollTrace/commit. It now
+uses an unavailable fact with null committed-evidence fields, backed by a new
+regression assertion.
+
+Post-fix focused tests passed 29/29 and final Tier 1 passed 606 with 82 named SQL
+environment skips. Tier 2/3 golden-machine work remains deferred pending
+explicit user authorization.

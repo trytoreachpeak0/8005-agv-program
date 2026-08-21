@@ -35,8 +35,8 @@
   assignment/identity/native-field raw grids, and loaded-window focused-generation
   scrolling.
 - Inspector-focused suite: 29 passed, 0 failed, 0 skipped.
-- Tier 1 `dotnet test MesIngest.Tests`: 606 passed, 0 failed, 82 skipped,
-  688 total in 1m33s. Every skip is the named `Ticket01SqlServerFact` environment
+- Final post-review Tier 1 `dotnet test MesIngest.Tests`: 606 passed, 0 failed,
+  82 skipped, 688 total in 1m24s. Every skip is the named `Ticket01SqlServerFact` environment
   gate; the full list is recorded in
   `.testagent/demand-series-inspector-e-03/status.md`.
 - Four ticket-specific pseudo-mutations were injected one at a time and all were
