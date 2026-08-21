@@ -78,3 +78,22 @@
 - Focused tests remain 29/29 and now assert both actual and minimum widths for
   all eleven fields. A third clean Tier 2 run is required; both prior visual
   rejections remain preserved.
+
+### 2026-08-21 — third golden preview exposed header/value misalignment
+
+- Clean commit `63bbba6b` passed `watch-ui-journeys` 1/1 with zero skips at
+  1920×1080 / 96 DPI; task cleanup and residual-process checks both passed.
+- Evidence is preserved at
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-204939-watch-ui-journeys`.
+- User visual review rejected the candidate because column names were shifted
+  right relative to their values. A real-window regression reproduced an exact,
+  deterministic 8px X-axis difference.
+- Root cause: the header's 10px padding is rendered, while the default WPF
+  `DataGridCell` template does not consume the shared cell style's declared 8px
+  padding; event values therefore started at the text element's 2px margin.
+  Ticket-local event text now uses a 10px margin, aligning both axes without
+  changing other Watch grids.
+- The new alignment regression passes, focused Inspector tests pass 34/34, the
+  UI test project builds with zero warnings/errors, and Tier 1 passes 611 with
+  the same 82 SQL environment skips. A fourth clean Tier 2 preview is required;
+  all three prior visual rejections remain preserved.
