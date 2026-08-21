@@ -20,10 +20,10 @@
 - [x] 偏好测试覆盖旧格式、opt-out、normal bounds、maximized、monitor identity、无效坐标、缺失显示器和 visible-work-area clamp。
 - [x] 从 `mes/ingest/csharp` 运行 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过。
 - [x] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ## Comments
 
@@ -48,3 +48,18 @@
 - Tier 2/3, final real-window preview approval, evidence capture, and VM cleanup
   remain unchecked because `AGENTS.md` requires explicit user authorization
   before entering the interactive golden-machine workflow.
+
+### 2026-08-22 — golden-machine validation and visual approval complete
+
+- After explicit user authorization, ran the narrow Tier 2
+  `watch-ui-journeys` suite from clean commit `496842f3` on the interactive
+  `gpt_win11` golden desktop. Result: 1 passed, 0 failed, 0 skipped.
+- Unique evidence directory:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-06/run-20260822-003355-watch-ui-journeys`.
+- The run and post-cleanup environment checks passed at 1920x1080 and 96 DPI;
+  the scheduled task was absent after cleanup and residual process count was
+  zero.
+- The user reviewed and approved the final Settings, DemandSeries master,
+  Inspector first-observation, and related-events production screenshots.
+  Ticket 06 implementation and visual acceptance are complete.
+- Tier 3 was not run; no visual baseline was created, promoted, or overwritten.
