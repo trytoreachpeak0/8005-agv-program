@@ -123,3 +123,19 @@ ticket. The final Spec review reports no missing, partial, wrong, or scope-creep
 finding. `MesIngest.Watch.UiTests` builds with zero warnings/errors, and its
 production journey now captures `03c-demand-series-related-events` for the
 authorized golden-machine preview.
+
+## First golden-machine preview — visual rejection
+
+- Authorized suite: `watch-ui-journeys`, Release, clean source `f855ccf4`.
+- Evidence:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-203205-watch-ui-journeys`.
+- Runner: 1 total, 0 errors, 0 failed, 0 skipped, 0 not run, 121.108 seconds.
+- Environment and cleanup: interactive Session 1, Explorer/input desktop,
+  1920×1080, 96 DPI, light theme, zh-CN, China Standard Time, software
+  rendering; scheduled task absent, residual processes 0, post-cleanup gate 0.
+- Visual verdict: rejected. Four long technical headers were clipped in
+  `03c-demand-series-related-events.png`, preventing direct field
+  identification. This passing automation run remains red visual evidence.
+- Fix: widen all event evidence columns and apply `DataGridTextCell` so headers
+  remain legible and values use the repository's ellipsis/foreground rules.
+  Post-fix focused tests pass 29/29; UI test project builds 0 warnings/errors.

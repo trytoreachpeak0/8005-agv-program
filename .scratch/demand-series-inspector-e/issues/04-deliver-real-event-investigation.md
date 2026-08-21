@@ -46,3 +46,19 @@
   journey now captures `03c-demand-series-related-events`.
 - Tier 2 `watch-ui-journeys`, final preview approval, evidence recording, and
   VM cleanup remain unchecked because they require explicit user authorization.
+
+### 2026-08-21 — first golden preview retained as red visual evidence
+
+- User authorized Tier 2 `watch-ui-journeys`. The run used clean commit
+  `f855ccf4` on `gpt_win11` at 1920×1080 / 96 DPI and passed 1/1 with zero
+  failures, skips, or not-run tests.
+- Evidence is preserved at
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-203205-watch-ui-journeys`.
+- Human comparison with accepted E prototype commit `5ef7e367` rejected the
+  candidate: `SeriesSequence`, `SubjectKind`, `ProjectionCommitId`, and
+  `PayloadVersion` headers were visibly clipped, so field identity was not
+  directly readable even though automation found all eleven bindings.
+- Event columns now reserve enough width for every technical header and use the
+  shared `DataGridTextCell` style. Focused tests remain 29/29, and
+  `MesIngest.Watch.UiTests` builds with zero warnings/errors. A fresh Tier 2 run
+  is required; the passing rerun must not replace this red evidence.
