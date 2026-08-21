@@ -4,7 +4,7 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-human
+**Status:** done
 
 - [x] 监视失效时界面显示明确的降级提示
 - [x] 目录恢复后自动重建监视并刷新列表
@@ -17,13 +17,14 @@
 ## Golden renderer checklist
 
 - [x] Read [`docs/agents/golden-renderer.md`](../../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 > 本特性的金机验证在全部 ticket 完成后统一进行，单个 ticket 不单独上金机。
-> 实现阶段以 tier 1 为准。
+> 实现阶段以 tier 1 为准。2026-08-21 统一验收已完成，证据与结论记录在
+> [`spec.md`](../spec.md) 的 Golden renderer acceptance 一节。
 
 ## Comments
 

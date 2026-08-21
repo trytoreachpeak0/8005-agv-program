@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "intervalSeconds": {
+    "overview": 10,
+    "demandSeries": 10,
+    "readabilityAudit": 10,
+    "errorSearch": 10,
+    "currentIngestAttention": 10
+  },
+  "display": {
+    "rememberWindowSize": true,
+    "windowWidth": 1440,
+    "windowHeight": 900,
+    "isNavigationPaneOpen": false
+  }
+}

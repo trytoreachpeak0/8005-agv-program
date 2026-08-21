@@ -1,0 +1,7 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-21T01:33:12.8144638+08:00",
+  "Suite": "watch-production-preview",
+  "Runs": 1
+}

@@ -1,0 +1,13 @@
+journey=05-area-filter-profile
+reason=AREA filter page drops the applied-scope banner, the label strip, the reload row and the save/discard row; file commands move into the row context menu and the all-AREA row is pinned first. Editor gains the reclaimed vertical space.
+ticket=area-live-sync
+submitter=claude-code-agent
+reviewer=trytoreachpeak0@gmail.com
+changeType=Hierarchy
+productOrBusinessConfirmed=True
+candidateSha256=8304FBE324401BBCAEEBF65233F38D9DB55F7E1ECB969BE75DCF922DA6CD0ADA
+requiredConsecutiveCandidateRuns=3
+approvalState=APPROVED_BY_REVIEWER
+approvedAt=2026-08-21T11:20:00+08:00
+approvalMessage=一并批准，完成 promote
+promotedAt=2026-08-21T11:24:00+08:00

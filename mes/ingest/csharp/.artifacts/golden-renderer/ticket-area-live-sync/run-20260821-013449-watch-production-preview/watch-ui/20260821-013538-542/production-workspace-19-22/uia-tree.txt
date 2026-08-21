@@ -1,0 +1,163 @@
+Window id= name=MesIngest Watch help= itemStatus= enabled=True
+  Text id= name= help= itemStatus= enabled=True
+  Text id= name=MesIngest Watch help= itemStatus= enabled=True
+  Button id=TitleBarMinimizeButton name=最小化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarMaximizeButton name=最大化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarCloseButton name=关闭窗口 help= itemStatus= enabled=True
+  Button id=NavigationToggleButton name=展开或折叠主导航 help=在 48 epx 紧凑导航与 224 epx 展开导航之间切换 itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+  List id=NavigationItems name= help= itemStatus= enabled=True
+    DataItem id=OverviewNavigationItem name=概览导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=概览 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=DemandSeriesNavigationItem name=需求系列导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=需求系列 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ReadabilityAuditNavigationItem name=资格审计导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=资格审计 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ErrorSearchNavigationItem name=错误检索导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=错误检索 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=AreaFilterNavigationItem name=AREA 筛选导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=AREA 筛选 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=CurrentAttentionNavigationItem name=接入告警导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=接入告警 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  List id=NavigationFooterItems name= help= itemStatus= enabled=True
+    DataItem id=HostNavigationItem name=Host 状态：Host 已连接；打开连接设置 help=http://127.0.0.1:51543 · 契约兼容 itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=Host 已连接 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=SettingsNavigationItem name=设置导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=设置 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  Pane id=PART_NavigationViewContentPresenter name= help= itemStatus= enabled=True
+  ListItem id= name= help= itemStatus= enabled=False
+  ListItem id= name= help= itemStatus= enabled=False
+  ListItem id= name= help= itemStatus= enabled=False
+  ListItem id= name= help= itemStatus= enabled=False
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Pane id=AreaFilterPage name=AREA 筛选页面 help= itemStatus= enabled=True
+    Text id= name=AREA 筛选 help= itemStatus= enabled=True
+    Text id= name=当前 Windows 用户的本机命名 TXT 显示范围；不会改变外部资格、CatalogRevision 或 Dispatch 范围 help= itemStatus= enabled=True
+    Text id= name=筛选配置 help= itemStatus= enabled=True
+    Text id=AreaProfileListSummaryText name=AREA 配置列表摘要 help= itemStatus= enabled=True
+    Button id=AreaProfileOpenDirectoryButton name=打开 AREA 配置目录 help= itemStatus= enabled=True
+      Text id= name=打开配置文件夹 help= itemStatus= enabled=True
+    Button id=AreaProfileNewButton name=新建 AREA 配置 help= itemStatus= enabled=True
+      Text id= name=新建 help= itemStatus= enabled=True
+    Edit id=AreaProfileSearchInput name=搜索 AREA 配置 help= itemStatus= enabled=True
+    List id=AreaProfileList name=本机命名 AREA 配置列表 help= itemStatus= enabled=True
+      ListItem id= name=全部 AREA（不筛选）；有效；不限制显示范围 help= itemStatus= enabled=True
+        Text id=AreaProfileRowNameText name=全部 AREA（不筛选） help= itemStatus= enabled=True
+        Text id=AreaProfileRowMetadataText name=不限制显示范围 help= itemStatus= enabled=True
+      ListItem id= name=东区；12 个 AREA；当前应用；2026-08-14 13:02:00 +08:00 修改 help= itemStatus= enabled=True
+        Text id=AreaProfileRowNameText name=东区 help= itemStatus= enabled=True
+        Text id=AreaProfileRowStatus name=当前应用 help= itemStatus= enabled=True
+        Text id=AreaProfileRowMetadataText name=12 个 AREA · 2026-08-14 13:02:00 +08:00 修改 help= itemStatus= enabled=True
+      ListItem id= name=临时范围；1 个 AREA；无效；内容非法 · 需修复；2026-08-14 12:58:00 +08:00 修改 help= itemStatus= enabled=True
+        Text id=AreaProfileRowNameText name=临时范围 help= itemStatus= enabled=True
+        Text id=AreaProfileRowMetadataText name=1 个 AREA · 2026-08-14 12:58:00 +08:00 修改 help= itemStatus= enabled=True
+        Text id=AreaProfileRowAttentionText name=内容非法 · 需修复 help= itemStatus= enabled=True
+      ListItem id= name=焊线区域；24 个 AREA；有效；2026-08-10 08:15:00 +08:00 修改 help= itemStatus= enabled=True
+        Text id=AreaProfileRowNameText name=焊线区域 help= itemStatus= enabled=True
+        Text id=AreaProfileRowValidStatus name=有效 help= itemStatus= enabled=True
+        Text id=AreaProfileRowMetadataText name=24 个 AREA · 2026-08-10 08:15:00 +08:00 修改 help= itemStatus= enabled=True
+      ListItem id= name=西区；9 个 AREA；有效；2026-08-13 17:30:00 +08:00 修改 help= itemStatus= enabled=True
+        Text id=AreaProfileRowNameText name=西区 help= itemStatus= enabled=True
+        Text id=AreaProfileRowValidStatus name=有效 help= itemStatus= enabled=True
+        Text id=AreaProfileRowMetadataText name=9 个 AREA · 2026-08-13 17:30:00 +08:00 修改 help= itemStatus= enabled=True
+    Text id=AreaProfileLocalScopeText name=AREA 配置仅影响本机当前用户的显示 help= itemStatus= enabled=True
+    Button id=AreaProfileApplyButton name=选中 AREA 配置已是当前显示范围 help= itemStatus= enabled=False
+      Text id= name=已应用 help= itemStatus= enabled=False
+    Text id=AreaProfileFileTitleText name=当前 AREA TXT 文件：东区.txt help= itemStatus= enabled=True
+    Text id=AreaProfileValidCountText name=AREA 配置有效数量：✓ 12 个有效 AREA help= itemStatus= enabled=True
+    Text id=AreaProfileDirectoryText name=AREA 配置存储目录与格式 help=C:\MesIngest\area-live-sync\run-20260821-013449-watch-production-preview\Source\mes\ingest\csharp\TestResults\watch-ui\20260821-013538-542\runtime\production-workspace-19-22\local-app-data\MesIngest.Watch\area-filters itemStatus= enabled=True
+    Text id=AreaProfileLineNumbersText name=AREA 编辑器行号 help= itemStatus= enabled=True
+    Edit id=AreaProfileEditor name=AREA 配置 TXT 内容编辑器 help= itemStatus= enabled=True
+    Text id=AreaProfileValidationSummaryText name=AREA 配置校验：✓ 格式有效 · 81 B help= itemStatus= enabled=True
+    Text id=AreaProfileDiskStateText name=AREA 配置保存状态：已自动保存 help= itemStatus= enabled=True
+    Text id=AreaProfileAppliedStateText name=当前应用：东区 · 12 个 AREA · 2026-08-14 13:08:00 +08:00；AREA A1-1、A1-2、A2-1、A2-2、B1-1、B1-2、B2-1、B2-2、C1-1、C1-2、C2-1、C2-2 help= itemStatus= enabled=True

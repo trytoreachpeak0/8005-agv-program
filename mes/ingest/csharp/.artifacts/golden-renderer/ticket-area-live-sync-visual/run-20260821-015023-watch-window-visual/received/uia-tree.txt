@@ -1,0 +1,428 @@
+Window id= name=MesIngest Watch help= itemStatus= enabled=True
+  Text id= name= help= itemStatus= enabled=True
+  Text id= name=MesIngest Watch help= itemStatus= enabled=True
+  Button id=TitleBarMinimizeButton name=最小化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarMaximizeButton name=最大化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarCloseButton name=关闭窗口 help= itemStatus= enabled=True
+  Button id=NavigationToggleButton name=展开或折叠主导航 help=在 48 epx 紧凑导航与 224 epx 展开导航之间切换 itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+  List id=NavigationItems name= help= itemStatus= enabled=True
+    DataItem id=OverviewNavigationItem name=概览导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=概览 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=DemandSeriesNavigationItem name=需求系列导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=需求系列 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ReadabilityAuditNavigationItem name=资格审计导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=资格审计 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ErrorSearchNavigationItem name=错误检索导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=错误检索 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=AreaFilterNavigationItem name=AREA 筛选导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=AREA 筛选 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=CurrentAttentionNavigationItem name=接入告警导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=接入告警 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  List id=NavigationFooterItems name= help= itemStatus= enabled=True
+    DataItem id=HostNavigationItem name=Host 状态：Host 已连接；打开连接设置 help=http://127.0.0.1:51543 · 契约兼容 itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=Host 已连接 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=SettingsNavigationItem name=设置导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=设置 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  Pane id=PART_NavigationViewContentPresenter name= help= itemStatus= enabled=True
+  Pane id=DemandSeriesScrollViewer name=需求系列工作区 help= itemStatus= enabled=True
+    Text id= name=DemandSeries help= itemStatus= enabled=True
+    Text id=DemandSeriesContextText name=需求系列快照与 AREA 范围：本机 AREA：东区 · 本机已应用 · A1-1、A1-2、A2-1、A2-2、B1-1、B1-2、B2-1、B2-2、C1-1、C1-2、C2-1、C2-2 · Host 已提交范围：A1-1、A1-2、A2-1、A2-2、B1-1、B1-2、B2-1、B2-2、C1-1、C1-2、C2-1、C2-2 · Host 投影提交 2026-08-14 13:06:07 +08:00 · commit-demand-series-20 · 序列 201 · PollTrace poll-demand-series-20 · Watch 最近成功 2026-08-14 13:08:00 +08:00 · 自动刷新 10 秒 help=本机 AREA：东区 · 本机已应用 · A1-1、A1-2、A2-1、A2-2、B1-1、B1-2、B2-1、B2-2、C1-1、C1-2、C2-1、C2-2 · Host 已提交范围：A1-1、A1-2、A2-1、A2-2、B1-1、B1-2、B2-1、B2-2、C1-1、C1-2、C2-1、C2-2 · Host 投影提交 2026-08-14 13:06:07 +08:00 · commit-demand-series-20 · 序列 201 · PollTrace poll-demand-series-20 · Watch 最近成功 2026-08-14 13:08:00 +08:00 · 自动刷新 10 秒 itemStatus= enabled=True
+    Text id=DemandSeriesTrackingFacetText name=Tracking 4 help= itemStatus= enabled=True
+    Text id=DemandSeriesArchivedFacetText name=Archived 2 help= itemStatus= enabled=True
+    Pane id=DemandSeriesFilterScroller name= help= itemStatus= enabled=True
+      Text id=DemandSeriesLifecycleFilterLabel name=生命周期 help= itemStatus= enabled=True
+      Button id=DemandSeriesLifecycleAllButton name=生命周期：全部 help= itemStatus=已选择 enabled=True
+        Text id= name=全部 help= itemStatus= enabled=True
+      Button id=DemandSeriesLifecycleTrackingButton name=生命周期：Tracking help= itemStatus=未选择 enabled=True
+        Text id= name=Tracking help= itemStatus= enabled=True
+      Button id=DemandSeriesLifecycleArchivedButton name=生命周期：Archived help= itemStatus=未选择 enabled=True
+        Text id= name=Archived help= itemStatus= enabled=True
+      Text id= name=当前出现 help= itemStatus= enabled=True
+      ComboBox id=DemandSeriesPresenceFilter name=当前出现状态筛选 help= itemStatus= enabled=True
+      Text id= name=WORKTYPE help= itemStatus= enabled=True
+      ComboBox id=DemandSeriesWorkTypeFilter name=WorkType 筛选 help= itemStatus= enabled=True
+        Edit id=PART_EditableTextBox name= help= itemStatus= enabled=True
+      Text id= name=SUBLOT help= itemStatus= enabled=True
+      Edit id=DemandSeriesSublotFilter name=SUBLOT 筛选 help= itemStatus= enabled=True
+      Text id= name=SeriesId / DemandId help= itemStatus= enabled=True
+      Edit id=DemandSeriesSeriesIdFilter name=SeriesId 筛选 help= itemStatus= enabled=True
+      Edit id=DemandSeriesDemandIdFilter name=DemandId 筛选 help= itemStatus= enabled=True
+      Text id= name=AREA 筛选 help= itemStatus= enabled=True
+      ComboBox id=DemandSeriesAreaProfileSelector name=需求系列 AREA 配置选择器 help= itemStatus= enabled=True
+      Button id=DemandSeriesApplyFiltersButton name=应用需求系列筛选 help= itemStatus= enabled=True
+        Text id= name=应用条件 help= itemStatus= enabled=True
+      Button id=DemandSeriesClearFiltersButton name=清空需求系列筛选条件 help= itemStatus= enabled=False
+        Text id= name=清除 help= itemStatus= enabled=False
+    Text id=DemandSeriesMasterHeadingText name=当前范围内的 DemandSeries help= itemStatus= enabled=True
+    Text id=DemandSeriesOrderText name=需求系列固定排序 help= itemStatus= enabled=True
+    Button id=DemandSeriesDetailVisibilityToggle name=需求系列详情已展开；关闭可让主列表占满可用高度 help= itemStatus= enabled=True
+      Text id= name=已展开 help= itemStatus= enabled=True
+    DataGrid id=DemandSeriesGrid name=需求系列列表 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=SeriesId help= itemStatus= enabled=True
+          Text id= name=SeriesId help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=WorkType help= itemStatus= enabled=True
+          Text id= name=WorkType help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=SUBLOT help= itemStatus= enabled=True
+          Text id= name=SUBLOT help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=生命周期 / 当前出现 help= itemStatus= enabled=True
+          Text id= name=生命周期 / 当前出现 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=当前 AREA help= itemStatus= enabled=True
+          Text id= name=当前 AREA help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=当前 Demand help= itemStatus= enabled=True
+          Text id= name=当前 Demand help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=世代 help= itemStatus= enabled=True
+          Text id= name=世代 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=事件 help= itemStatus= enabled=True
+          Text id= name=事件 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=开始 help= itemStatus= enabled=True
+          Text id= name=开始 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=LAST SEEN help= itemStatus= enabled=True
+          Text id= name=LAST SEEN help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=GONE SINCE help= itemStatus= enabled=True
+          Text id= name=GONE SINCE help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=ARCHIVED help= itemStatus= enabled=True
+          Text id= name=ARCHIVED help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20, WorkType = WIRE_TO_GATE, Sublot = SL-CURRENT-AREA, StartedAt = 2026-08-14 12:46:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · VISIBLE, CurrentDemandId = demand-current-area, CurrentGeneration = 2, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 13:05:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 5, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = A1-1, Eqp = EQP-01, Step = STEP-01, MesSourceDate = 2026-08-13 13:06:07 +08:00, Package = PKG-01 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = READABLE, LatestPollTraceId = poll-demand-series-20, LatestProjectionCommitId = commit-demand-series-20 } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-PREVIEW-20 help= itemStatus= enabled=True
+          Text id= name=SERIES-PREVIEW-20 help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+          Text id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+        Custom id= name=SL-CURRENT-AREA help= itemStatus= enabled=True
+          Text id= name=SL-CURRENT-AREA help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20, WorkType = WIRE_TO_GATE, Sublot = SL-CURRENT-AREA, StartedAt = 2026-08-14 12:46:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · VISIBLE, CurrentDemandId = demand-current-area, CurrentGeneration = 2, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 13:05:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 5, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = A1-1, Eqp = EQP-01, Step = STEP-01, MesSourceDate = 2026-08-13 13:06:07 +08:00, Package = PKG-01 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = READABLE, LatestPollTraceId = poll-demand-series-20, LatestProjectionCommitId = commit-demand-series-20 }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+          Text id= name=TRACKING · VISIBLE help= itemStatus= enabled=True
+        Custom id= name=A1-1 help= itemStatus= enabled=True
+          Text id= name=A1-1 help= itemStatus= enabled=True
+        Custom id= name=demand-current-area help= itemStatus= enabled=True
+          Text id= name=demand-current-area help= itemStatus= enabled=True
+        Custom id= name=2 help= itemStatus= enabled=True
+          Text id= name=2 help= itemStatus= enabled=True
+        Custom id= name=5 help= itemStatus= enabled=True
+          Text id= name=5 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:46:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:46:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 13:05:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 13:05:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-B, WorkType = WIRE_TO_NITROGEN, Sublot = SL-PREVIEW-B, StartedAt = 2026-08-14 12:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · VISIBLE, CurrentDemandId = demand-preview-20-b, CurrentGeneration = 1, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 13:02:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 4, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = A1-2, Eqp = EQP-02, Step = STEP-02, MesSourceDate = 2026-08-12 13:06:07 +08:00, Package = PKG-02 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = READABLE, LatestPollTraceId = poll-demand-preview-20-b, LatestProjectionCommitId = commit-demand-preview-20-b } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-PREVIEW-20-B help= itemStatus= enabled=True
+          Text id= name=SERIES-PREVIEW-20-B help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_NITROGEN help= itemStatus= enabled=True
+          Text id= name=WIRE_TO_NITROGEN help= itemStatus= enabled=True
+        Custom id= name=SL-PREVIEW-B help= itemStatus= enabled=True
+          Text id= name=SL-PREVIEW-B help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-B, WorkType = WIRE_TO_NITROGEN, Sublot = SL-PREVIEW-B, StartedAt = 2026-08-14 12:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · VISIBLE, CurrentDemandId = demand-preview-20-b, CurrentGeneration = 1, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 13:02:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 4, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = A1-2, Eqp = EQP-02, Step = STEP-02, MesSourceDate = 2026-08-12 13:06:07 +08:00, Package = PKG-02 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = READABLE, LatestPollTraceId = poll-demand-preview-20-b, LatestProjectionCommitId = commit-demand-preview-20-b }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+          Text id= name=TRACKING · VISIBLE help= itemStatus= enabled=True
+        Custom id= name=A1-2 help= itemStatus= enabled=True
+          Text id= name=A1-2 help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-b help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-b help= itemStatus= enabled=True
+        Custom id= name=1 help= itemStatus= enabled=True
+          Text id= name=1 help= itemStatus= enabled=True
+        Custom id= name=4 help= itemStatus= enabled=True
+          Text id= name=4 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:06:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 13:02:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 13:02:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-C, WorkType = WIRE_TO_BUFFER, Sublot = SL-PREVIEW-C, StartedAt = 2026-08-14 10:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · GONE, CurrentDemandId = demand-preview-20-c, CurrentGeneration = 3, CurrentDemandStatus = GONE, DemandLastSeenAt = 2026-08-14 12:48:07 +08:00, GoneConfirmedAt = 2026-08-14 12:51:07 +08:00, LastSeriesSequence = 11, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = DEMAND_GONE, LatestPollTraceId = poll-demand-preview-20-c, LatestProjectionCommitId = commit-demand-preview-20-c } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-PREVIEW-20-C help= itemStatus= enabled=True
+          Text id= name=SERIES-PREVIEW-20-C help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_BUFFER help= itemStatus= enabled=True
+          Text id= name=WIRE_TO_BUFFER help= itemStatus= enabled=True
+        Custom id= name=SL-PREVIEW-C help= itemStatus= enabled=True
+          Text id= name=SL-PREVIEW-C help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-C, WorkType = WIRE_TO_BUFFER, Sublot = SL-PREVIEW-C, StartedAt = 2026-08-14 10:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · GONE, CurrentDemandId = demand-preview-20-c, CurrentGeneration = 3, CurrentDemandStatus = GONE, DemandLastSeenAt = 2026-08-14 12:48:07 +08:00, GoneConfirmedAt = 2026-08-14 12:51:07 +08:00, LastSeriesSequence = 11, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = DEMAND_GONE, LatestPollTraceId = poll-demand-preview-20-c, LatestProjectionCommitId = commit-demand-preview-20-c }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+          Text id= name=TRACKING · GONE help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-C, WorkType = WIRE_TO_BUFFER, Sublot = SL-PREVIEW-C, StartedAt = 2026-08-14 10:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · GONE, CurrentDemandId = demand-preview-20-c, CurrentGeneration = 3, CurrentDemandStatus = GONE, DemandLastSeenAt = 2026-08-14 12:48:07 +08:00, GoneConfirmedAt = 2026-08-14 12:51:07 +08:00, LastSeriesSequence = 11, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = DEMAND_GONE, LatestPollTraceId = poll-demand-preview-20-c, LatestProjectionCommitId = commit-demand-preview-20-c }，列显示索引: 4 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-c help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-c help= itemStatus= enabled=True
+        Custom id= name=3 help= itemStatus= enabled=True
+          Text id= name=3 help= itemStatus= enabled=True
+        Custom id= name=11 help= itemStatus= enabled=True
+          Text id= name=11 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 10:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 10:06:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:48:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:48:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:51:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:51:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-D, WorkType = WIRE_TO_GATE, Sublot = SL-PREVIEW-D, StartedAt = 2026-08-14 05:06:07 +08:00, ArchivedAt = 2026-08-14 12:06:07 +08:00, LifecycleAndPresence = ARCHIVED · GONE, CurrentDemandId = demand-preview-20-d, CurrentGeneration = 2, CurrentDemandStatus = GONE, DemandLastSeenAt = 2026-08-14 11:06:07 +08:00, GoneConfirmedAt = 2026-08-14 11:36:07 +08:00, LastSeriesSequence = 9, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = SERIES_ARCHIVED、DEMAND_GONE, LatestPollTraceId = poll-demand-preview-20-d, LatestProjectionCommitId = commit-demand-preview-20-d } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-PREVIEW-20-D help= itemStatus= enabled=True
+          Text id= name=SERIES-PREVIEW-20-D help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+          Text id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+        Custom id= name=SL-PREVIEW-D help= itemStatus= enabled=True
+          Text id= name=SL-PREVIEW-D help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-D, WorkType = WIRE_TO_GATE, Sublot = SL-PREVIEW-D, StartedAt = 2026-08-14 05:06:07 +08:00, ArchivedAt = 2026-08-14 12:06:07 +08:00, LifecycleAndPresence = ARCHIVED · GONE, CurrentDemandId = demand-preview-20-d, CurrentGeneration = 2, CurrentDemandStatus = GONE, DemandLastSeenAt = 2026-08-14 11:06:07 +08:00, GoneConfirmedAt = 2026-08-14 11:36:07 +08:00, LastSeriesSequence = 9, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = SERIES_ARCHIVED、DEMAND_GONE, LatestPollTraceId = poll-demand-preview-20-d, LatestProjectionCommitId = commit-demand-preview-20-d }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+          Text id= name=ARCHIVED · GONE help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-D, WorkType = WIRE_TO_GATE, Sublot = SL-PREVIEW-D, StartedAt = 2026-08-14 05:06:07 +08:00, ArchivedAt = 2026-08-14 12:06:07 +08:00, LifecycleAndPresence = ARCHIVED · GONE, CurrentDemandId = demand-preview-20-d, CurrentGeneration = 2, CurrentDemandStatus = GONE, DemandLastSeenAt = 2026-08-14 11:06:07 +08:00, GoneConfirmedAt = 2026-08-14 11:36:07 +08:00, LastSeriesSequence = 9, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = SERIES_ARCHIVED、DEMAND_GONE, LatestPollTraceId = poll-demand-preview-20-d, LatestProjectionCommitId = commit-demand-preview-20-d }，列显示索引: 4 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-d help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-d help= itemStatus= enabled=True
+        Custom id= name=2 help= itemStatus= enabled=True
+          Text id= name=2 help= itemStatus= enabled=True
+        Custom id= name=9 help= itemStatus= enabled=True
+          Text id= name=9 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 05:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 05:06:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 11:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 11:06:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 11:36:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 11:36:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:06:07 +08:00 help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-E, WorkType = WIRE_TO_STORAGE, Sublot = SL-PREVIEW-E, StartedAt = 2026-08-14 01:06:07 +08:00, ArchivedAt = 2026-08-14 11:06:07 +08:00, LifecycleAndPresence = ARCHIVED · LONG_GONE_BUT_VISIBLE, CurrentDemandId = demand-preview-20-e, CurrentGeneration = 4, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 12:59:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 14, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = B1-1, Eqp = EQP-05, Step = STEP-05, MesSourceDate = 2026-08-09 13:06:07 +08:00, Package = PKG-05 }, ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = LONG_GONE_BUT_VISIBLE、SERIES_ARCHIVED, LatestPollTraceId = poll-demand-preview-20-e, LatestProjectionCommitId = commit-demand-preview-20-e } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-PREVIEW-20-E help= itemStatus= enabled=True
+          Text id= name=SERIES-PREVIEW-20-E help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_STORAGE help= itemStatus= enabled=True
+          Text id= name=WIRE_TO_STORAGE help= itemStatus= enabled=True
+        Custom id= name=SL-PREVIEW-E help= itemStatus= enabled=True
+          Text id= name=SL-PREVIEW-E help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-E, WorkType = WIRE_TO_STORAGE, Sublot = SL-PREVIEW-E, StartedAt = 2026-08-14 01:06:07 +08:00, ArchivedAt = 2026-08-14 11:06:07 +08:00, LifecycleAndPresence = ARCHIVED · LONG_GONE_BUT_VISIBLE, CurrentDemandId = demand-preview-20-e, CurrentGeneration = 4, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 12:59:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 14, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = B1-1, Eqp = EQP-05, Step = STEP-05, MesSourceDate = 2026-08-09 13:06:07 +08:00, Package = PKG-05 }, ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = LONG_GONE_BUT_VISIBLE、SERIES_ARCHIVED, LatestPollTraceId = poll-demand-preview-20-e, LatestProjectionCommitId = commit-demand-preview-20-e }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+          Text id= name=ARCHIVED · LONG_GONE_BUT_VISIBLE help= itemStatus= enabled=True
+        Custom id= name=B1-1 help= itemStatus= enabled=True
+          Text id= name=B1-1 help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-e help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-e help= itemStatus= enabled=True
+        Custom id= name=4 help= itemStatus= enabled=True
+          Text id= name=4 help= itemStatus= enabled=True
+        Custom id= name=14 help= itemStatus= enabled=True
+          Text id= name=14 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 01:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 01:06:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:59:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:59:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 11:06:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 11:06:07 +08:00 help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-F, WorkType = WIRE_TO_GATE, Sublot = SL-PREVIEW-F, StartedAt = 2026-08-13 21:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · VISIBLE, CurrentDemandId = demand-preview-20-f, CurrentGeneration = 1, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 12:57:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 3, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = B1-2, Eqp = EQP-06, Step = STEP-06, MesSourceDate = 2026-08-08 13:06:07 +08:00, Package = PKG-06 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = READABLE, LatestPollTraceId = poll-demand-preview-20-f, LatestProjectionCommitId = commit-demand-preview-20-f } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-PREVIEW-20-F help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+        Custom id= name=SL-PREVIEW-F help= itemStatus= enabled=True
+        Custom id= name=项: WatchDemandSeriesRowPresentation { SeriesId = SERIES-PREVIEW-20-F, WorkType = WIRE_TO_GATE, Sublot = SL-PREVIEW-F, StartedAt = 2026-08-13 21:06:07 +08:00, ArchivedAt = —, LifecycleAndPresence = TRACKING · VISIBLE, CurrentDemandId = demand-preview-20-f, CurrentGeneration = 1, CurrentDemandStatus = VISIBLE, DemandLastSeenAt = 2026-08-14 12:57:07 +08:00, GoneConfirmedAt = —, LastSeriesSequence = 3, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = B1-2, Eqp = EQP-06, Step = STEP-06, MesSourceDate = 2026-08-08 13:06:07 +08:00, Package = PKG-06 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], Attention = READABLE, LatestPollTraceId = poll-demand-preview-20-f, LatestProjectionCommitId = commit-demand-preview-20-f }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name= help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+    Text id=DemandSeriesPageSummaryText name=需求系列精确分页摘要：精确 6 个 Series · 第 1 / 1 页 help= itemStatus= enabled=True
+    Text id= name=每页 help= itemStatus= enabled=True
+    ComboBox id=DemandSeriesPageSizeFilter name=每页数量 help= itemStatus= enabled=True
+    Button id=DemandSeriesPreviousButton name=需求系列上一页 help= itemStatus= enabled=False
+      Text id= name=上一页 help= itemStatus= enabled=False
+    Edit id=DemandSeriesPageNumberInput name=需求系列页码 help= itemStatus= enabled=True
+    Button id=DemandSeriesGoToPageButton name=跳转到需求系列页码 help= itemStatus= enabled=True
+      Text id= name=跳转 help= itemStatus= enabled=True
+    Button id=DemandSeriesNextButton name=需求系列下一页 help= itemStatus= enabled=False
+      Text id= name=下一页 help= itemStatus= enabled=False
+    Thumb id=DemandSeriesMasterDetailSplitter name=调整需求系列列表与详情高度 help= itemStatus= enabled=True
+    Text id=DemandSeriesDetailHeadingText name=选中需求系列详情：SERIES-PREVIEW-20 · WIRE_TO_GATE + SL-CURRENT-AREA help= itemStatus= enabled=True
+    Text id=DemandSeriesDetailPresenceText name=当前 VISIBLE help= itemStatus= enabled=True
+    Text id=DemandSeriesDetailSummaryText name=TRACKING · 当前 Demand demand-current-area · 2 个 Demand 世代 · 5 个事件 help= itemStatus= enabled=True
+    Button id=DemandSeriesFullEvidenceButton name=显示完整需求系列证据 help= itemStatus= enabled=True
+      Text id= name=完整证据 help= itemStatus= enabled=True
+    Text id= name=生命周期与 Demand 世代 help= itemStatus= enabled=True
+    List id=DemandSeriesLifecycleMilestones name=需求系列四节点生命周期里程碑 help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandLifecycleMilestonePresentation { Label = 首次发现, OccurredAt = 2026/8/14 3:06:07 +00:00, Status = SERIES_STARTED, SemanticSeverity = Informational, Value = 2026-08-14 11:06:07 +08:00, SemanticState = Informational, AutomationName = 首次发现；SERIES_STARTED；2026-08-14 11:06:07 +08:00 } help= itemStatus= enabled=True
+        Text id= name=首次发现 help= itemStatus= enabled=True
+        Text id= name=2026-08-14 11:06:07 +08:00 help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandLifecycleMilestonePresentation { Label = 第 1 代 GONE, OccurredAt = 2026/8/14 2:42:07 +00:00, Status = GONE_CONFIRMED, SemanticSeverity = Warning, Value = 2026-08-14 10:42:07 +08:00, SemanticState = Warning, AutomationName = 第 1 代 GONE；GONE_CONFIRMED；2026-08-14 10:42:07 +08:00 } help= itemStatus= enabled=True
+        Text id= name=第 1 代 GONE help= itemStatus= enabled=True
+        Text id= name=2026-08-14 10:42:07 +08:00 help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandLifecycleMilestonePresentation { Label = 第 2 代 · VISIBLE, OccurredAt = 2026/8/14 4:36:07 +00:00, Status = VISIBLE, SemanticSeverity = Informational, Value = 2026-08-14 12:36:07 +08:00, SemanticState = Informational, AutomationName = 第 2 代 · VISIBLE；VISIBLE；2026-08-14 12:36:07 +08:00 } help= itemStatus= enabled=True
+        Text id= name=第 2 代 · VISIBLE help= itemStatus= enabled=True
+        Text id= name=2026-08-14 12:36:07 +08:00 help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandLifecycleMilestonePresentation { Label = 当前外部可读, OccurredAt = 2026/8/14 5:06:07 +00:00, Status = READABLE, SemanticSeverity = Success, Value = 2026-08-14 13:06:07 +08:00, SemanticState = Success, AutomationName = 当前外部可读；READABLE；2026-08-14 13:06:07 +08:00 } help= itemStatus= enabled=True
+        Text id= name=当前外部可读 help= itemStatus= enabled=True
+        Text id= name=2026-08-14 13:06:07 +08:00 help= itemStatus= enabled=True
+    DataGrid id=DemandSeriesGenerationGrid name=Demand 世代关系 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=DemandId help= itemStatus= enabled=True
+          Text id= name=DemandId help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=代 help= itemStatus= enabled=True
+          Text id= name=代 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=状态 help= itemStatus= enabled=True
+          Text id= name=状态 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=创建 help= itemStatus= enabled=True
+          Text id= name=创建 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=外部可读 help= itemStatus= enabled=True
+          Text id= name=外部可读 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandGenerationPresentation { Generation = 1, DemandId = demand-preview-20-generation-1, PredecessorDemandId = —, Status = GONE, CreatedAt = 2026-08-14 06:36:07 +08:00, DemandLastSeenAt = 2026-08-14 10:36:07 +08:00, GoneConfirmedAt = 2026-08-14 10:42:07 +08:00, CreatedPollTraceId = poll-demand-preview-generation-1, CreatedProjectionCommitId = commit-demand-preview-generation-1, LatestProjectionCommitId = commit-demand-preview-generation-1-gone, LiveMesFields = , ExternalReadabilityState = NOT_READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], LatestObservationPollTraceId = poll-demand-preview-generation-1, LatestObservationProjectionCommitId = commit-demand-preview-generation-1-gone, LatestObservationAt = 2026-08-14 10:36:07 +08:00, LiveMesSummary = 无可信 LiveMesFieldSet, ReadabilitySummary = NOT_READABLE · DEMAND_GONE } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-generation-1 help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-generation-1 help= itemStatus= enabled=True
+        Custom id= name=1 help= itemStatus= enabled=True
+          Text id= name=1 help= itemStatus= enabled=True
+        Custom id= name=GONE help= itemStatus= enabled=True
+          Text id= name=GONE help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 06:36:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 06:36:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=NOT_READABLE help= itemStatus= enabled=True
+          Text id= name=NOT_READABLE help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandGenerationPresentation { Generation = 2, DemandId = demand-current-area, PredecessorDemandId = demand-prior-area, Status = VISIBLE, CreatedAt = 2026-08-14 12:36:07 +08:00, DemandLastSeenAt = 2026-08-14 13:05:07 +08:00, GoneConfirmedAt = —, CreatedPollTraceId = poll-demand-created-20, CreatedProjectionCommitId = commit-demand-created-20, LatestProjectionCommitId = commit-demand-series-20, LiveMesFields = WatchLiveMesFieldSetPresentation { Area = A1-1, Eqp = EQP-20, Step = STEP-20, MesSourceDate = 2026-08-13 13:06:07 +08:00, Package = PKG-20 }, ExternalReadabilityState = READABLE, ReadabilityBlockers = System.Collections.Generic.List`1[System.String], LatestObservationPollTraceId = poll-demand-series-20, LatestObservationProjectionCommitId = commit-demand-series-20, LatestObservationAt = 2026-08-14 13:06:07 +08:00, LiveMesSummary = AREA A1-1 · EQP EQP-20 · STEP STEP-20 · MesSourceDate 2026-08-13 13:06:07 +08:00 · PACKAGE PKG-20, ReadabilitySummary = READABLE } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=demand-current-area help= itemStatus= enabled=True
+          Text id= name=demand-current-area help= itemStatus= enabled=True
+        Custom id= name=2 help= itemStatus= enabled=True
+          Text id= name=2 help= itemStatus= enabled=True
+        Custom id= name=VISIBLE help= itemStatus= enabled=True
+          Text id= name=VISIBLE help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:36:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:36:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=READABLE help= itemStatus= enabled=True
+          Text id= name=READABLE help= itemStatus= enabled=True
+    Text id= name=不可变 DemandSeriesEvent help= itemStatus= enabled=True
+    Text id= name=按 SeriesSequence 固定排序，并保留 PollTrace 与 ProjectionCommit 轮次证据。 help= itemStatus= enabled=True
+    DataGrid id=DemandSeriesEventGrid name=需求系列永久事件与轮次证据 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=SEQ help= itemStatus= enabled=True
+          Text id= name=SEQ help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=EVENT KIND help= itemStatus= enabled=True
+          Text id= name=EVENT KIND help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=OBSERVED help= itemStatus= enabled=True
+          Text id= name=OBSERVED help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=DemandId help= itemStatus= enabled=True
+          Text id= name=DemandId help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=摘要 help= itemStatus= enabled=True
+          Text id= name=摘要 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesEventPresentation { EventId = event-preview-20-1, SeriesId = SERIES-PREVIEW-20, SeriesSequence = 1, EventType = DEMAND_CREATED, OccurredAt = 2026-08-14 06:36:07 +08:00, SubjectKind = DEMAND, SubjectId = demand-preview-20-generation-1, PollTraceId = poll-demand-preview-generation-1, ProjectionCommitId = commit-preview-20-1, PayloadVersion = 1, PayloadJson = {}, DemandId = demand-preview-20-generation-1, Summary = {} } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=1 help= itemStatus= enabled=True
+          Text id= name=1 help= itemStatus= enabled=True
+        Custom id= name=DEMAND_CREATED help= itemStatus= enabled=True
+          Text id= name=DEMAND_CREATED help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 06:36:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 06:36:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-generation-1 help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-generation-1 help= itemStatus= enabled=True
+        Custom id= name={} help= itemStatus= enabled=True
+          Text id= name={} help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesEventPresentation { EventId = event-preview-20-2, SeriesId = SERIES-PREVIEW-20, SeriesSequence = 2, EventType = DEMAND_GONE_CONFIRMED, OccurredAt = 2026-08-14 10:42:07 +08:00, SubjectKind = DEMAND, SubjectId = demand-preview-20-generation-1, PollTraceId = poll-demand-preview-generation-1-gone, ProjectionCommitId = commit-preview-20-2, PayloadVersion = 1, PayloadJson = {}, DemandId = demand-preview-20-generation-1, Summary = {} } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=2 help= itemStatus= enabled=True
+          Text id= name=2 help= itemStatus= enabled=True
+        Custom id= name=DEMAND_GONE_CONFIRMED help= itemStatus= enabled=True
+          Text id= name=DEMAND_GONE_CONFIRMED help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 10:42:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 10:42:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=demand-preview-20-generation-1 help= itemStatus= enabled=True
+          Text id= name=demand-preview-20-generation-1 help= itemStatus= enabled=True
+        Custom id= name={} help= itemStatus= enabled=True
+          Text id= name={} help= itemStatus= enabled=True
+      DataItem id= name=WatchDemandSeriesEventPresentation { EventId = event-preview-20-3, SeriesId = SERIES-PREVIEW-20, SeriesSequence = 3, EventType = DEMAND_REAPPEARED, OccurredAt = 2026-08-14 12:35:07 +08:00, SubjectKind = DEMAND, SubjectId = demand-current-area, PollTraceId = poll-demand-created-20, ProjectionCommitId = commit-preview-20-3, PayloadVersion = 1, PayloadJson = {}, DemandId = demand-current-area, Summary = {} } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=3 help= itemStatus= enabled=True
+          Text id= name=3 help= itemStatus= enabled=True
+        Custom id= name=DEMAND_REAPPEARED help= itemStatus= enabled=True
+          Text id= name=DEMAND_REAPPEARED help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 12:35:07 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 12:35:07 +08:00 help= itemStatus= enabled=True
+        Custom id= name=demand-current-area help= itemStatus= enabled=True
+          Text id= name=demand-current-area help= itemStatus= enabled=True
+        Custom id= name={} help= itemStatus= enabled=True
+          Text id= name={} help= itemStatus= enabled=True

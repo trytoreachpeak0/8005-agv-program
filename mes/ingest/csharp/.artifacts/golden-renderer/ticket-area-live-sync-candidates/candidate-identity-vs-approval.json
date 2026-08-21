@@ -1,0 +1,49 @@
+{
+  "purpose": "Proves the candidate about to be promoted is the exact frame the maintainer approved, so the approval licenses this promotion.",
+  "candidateGate": {
+    "run": "run-20260821-015645-watch-window-stability",
+    "runs": 3,
+    "result": "PASSED",
+    "allRunsByteIdentical": true,
+    "visualEquivalenceToleranceUsed": false,
+    "note": "All 11 candidates were byte-identical across all three runs; no visual-equivalence-accepted.json was produced."
+  },
+  "approvedPreview": {
+    "run": "ticket-area-live-sync/run-20260821-014058-watch-production-preview",
+    "scenario": "05-area-filter-profile",
+    "sha256": "8304FBE324401BBCAEEBF65233F38D9DB55F7E1ECB969BE75DCF922DA6CD0ADA"
+  },
+  "candidate": {
+    "scenario": "05-area-filter-profile",
+    "sha256": "8304FBE324401BBCAEEBF65233F38D9DB55F7E1ECB969BE75DCF922DA6CD0ADA"
+  },
+  "identical": true,
+  "matrixComparisonAgainstCurrentBaselines": {
+    "identical": [
+      "01-overview",
+      "01e-overview-navigation-expanded",
+      "01f-overview-offline-retained",
+      "02-settings",
+      "02v-settings-timeout-validation"
+    ],
+    "changed": {
+      "05-area-filter-profile": "28.24% pixels, maxDelta 255 - this feature, approved by the maintainer",
+      "03-demand-series-detail": "22.66% pixels, maxDelta 255 - ticket 28, carried",
+      "06-error-search-variant-a": "0.17% pixels, maxDelta 219, all neutral - ticket 28 pager, carried",
+      "07-current-ingest-attention": "0.17% pixels, maxDelta 218, all neutral - ticket 28 pager, carried",
+      "08-current-attention-error-drill": "0.17% pixels, maxDelta 219, all neutral - ticket 28 pager, carried",
+      "04-readability-audit-detail": "0.21% pixels, maxDelta 3 - antialiasing only, glyph ink unchanged"
+    }
+  },
+  "carriedApproval": {
+    "subject": "ticket 28 visual changes (DemandSeries layout, shared pager width)",
+    "approvedBy": "trytoreachpeak0@gmail.com",
+    "approvedAt": "2026-08-21T11:20:00+08:00",
+    "userMessage": "一并批准，完成 promote",
+    "shownBeforeApproval": [
+      "03-demand-series-detail baseline vs candidate, full frames",
+      "shared pager control, 3x magnified crop, baseline vs candidate"
+    ],
+    "note": "These changes landed in fec18303/63dc2a6a/2f8cad24/e5934c08 and never had their own golden-machine approval. The matrix promotes as a whole, so the maintainer approved them explicitly rather than letting them ride unnoticed."
+  }
+}
