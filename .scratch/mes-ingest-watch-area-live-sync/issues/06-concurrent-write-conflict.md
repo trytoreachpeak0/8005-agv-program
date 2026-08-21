@@ -30,19 +30,14 @@
 - 已知边界：冲突未解决时直接关闭窗口，未落盘的缓冲随进程一并丢失。阻止关窗
   与自动替用户选一份都不可取，spec 亦未定义该出口，故不在本 ticket 处理。
 
-`RetiredContractAndCutoverSafetyTests.The_attended_cutover_drill_is_the_only_thing_that_deletes_a_database`
-在本机红，与本 ticket 无关：该用例扫到了被 `.gitignore` 排除的本地打包产物
-`mes/ingest/csharp/dist/MesIngest/scripts/cutover/CutoverSqlTools.ps1`，其内容与被
-允许的 `pack/cutover/CutoverSqlTools.ps1` 逐字节相同，只是落在排除前缀之外。
-本 ticket 未触碰任何 `.ps1`。
-
 ## Golden renderer checklist
 
 - [ ] Read [`docs/agents/golden-renderer.md`](../../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 > 本特性的金机验证在全部 ticket 完成后统一进行，单个 ticket 不单独上金机。
-> 实现阶段以 tier 1 为准。
+> 实现阶段以 tier 1 为准。2026-08-21 统一验收已完成，证据与结论记录在
+> [`spec.md`](../spec.md) 的 Golden renderer acceptance 一节。

@@ -222,3 +222,39 @@ E 落选是因为顶部芯片条对非法配置没有任何标记，用户视线
 ### 待 `/to-tickets` 决定的切分
 
 本特性明确是多会话构建。四块工作相对独立：目录级实时刷新、编辑器自动落盘与冲突、界面布局清理、快照与漂移状态表达。切分方式与阻塞关系由 `/to-tickets` 确定。
+
+## Golden renderer acceptance
+
+2026-08-21，全部 12 个 ticket 完成后按 `docs/agents/golden-renderer.md` 统一验收，源 commit `2db69a37`，工作区无与本特性无关的已跟踪改动（watch-v2 那条线的改动在验收期间 stash）。
+
+### Tier 2
+
+`Invoke-GoldenRendererValidation.ps1 -Ticket area-live-sync -Suite watch-production-preview`，
+证据 `.artifacts/golden-renderer/ticket-area-live-sync/`。
+
+首轮 `watch-vm-tests` 15 项失败，全部是本特性改版后未同步的 tier 2 UI 契约测试——这批只在金机跑，实现阶段的 tier 1 碰不到。逐轮修复，红证据全部保留未覆盖：
+
+| 运行 | watch-vm-tests | watch-ui-journeys |
+| --- | --- | --- |
+| `run-20260821-010618` | 15 failed / 149 | 未执行 |
+| `run-20260821-012918` | 1 failed / 149 | 未执行 |
+| `run-20260821-013449` | 0 failed / 149 | 1 failed（AREA 列表项数） |
+| `run-20260821-014058` | **0 failed / 149 / 5 skipped** | **0 failed / 1** |
+
+修复只动测试，生产代码一行未改。两处曾疑为产品缺陷的失败经查都是测试债：`SelectedIndex = 0` 选到了 ticket 11 钉在首位的「全部 AREA」虚拟行；「磁盘已变更 · 等待选择」是 ticket 06 冲突二选一的正确状态。`Delete_confirmation_discloses_and_honors_a_profile_applied_by_another_instance` 原本断言「删除当前应用配置后回退到全部 AREA」，正是 ticket 08 要推翻的语义，按新语义重写而非改产品。
+
+5 项 skip 均有名有姓：`WatchWindowCandidateEquivalenceTests.Candidate_directories_are_visually_equivalent`（由 tier 3 稳定性门驱动）与 `WatchWindowVisualEquivalenceGoldenFixtureTests` 的 4 项（`MESINGEST_WATCH_GOLDEN_FIXTURES` 未设置）。
+
+### Tier 3
+
+按批准顺序执行，证据分别在 `ticket-area-live-sync-visual/`、`ticket-area-live-sync-candidates/`、`ticket-area-live-sync-promoted/`。
+
+- 用户批准 AREA 页真实窗口预览，记录于 `ticket-area-live-sync/visual-approval.json`。
+- 候选矩阵 `-Runs 3`：11 张候选在三次运行间全部逐字节一致，未触发任何视觉等价容忍。
+- 候选与被批准预览逐字节相同（`8304FBE3…`），记录于 `candidate-identity-vs-approval.json`。
+- 11 张中 5 张与原基线完全一致；6 张更新，提案在 `proposals/<journey>/`。
+- promoted 门 `-Runs 3`：`receivedFiles=0`，无容忍。
+
+`03-demand-series-detail` 与 `06`/`07`/`08` 的差异来自 ticket 28（`fec18303`、`63dc2a6a`、`2f8cad24`、`e5934c08`），不属于本特性：DemandSeries 每页默认 10→100 与列宽重排、共享分页控件页码输入框加宽约 45 px。基线按整个矩阵 promote，无法只换一张，用户看过新旧对比后明确批准搭车，提案的 `ticket=` 字段标为 `ticket-28-carried` 以便日后区分。`04-readability-audit-detail` 的差异 maxDelta=3、字形墨迹未变，是 `docs/agents/golden-renderer.md` 记录的抗锯齿强度翻转。
+
+DPI 125%/150% 未在本轮执行——本特性未改变 DPI 相关行为，且 `docs/agents/golden-renderer.md` 要求为此使用一次性离线克隆。

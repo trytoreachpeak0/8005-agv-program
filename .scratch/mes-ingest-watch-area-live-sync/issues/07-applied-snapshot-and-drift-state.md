@@ -57,18 +57,16 @@
 - 列表项右上角的徽标位按 spec 只留给「当前应用」：有效项显示绿色「有效」字样，非法
   与漂移一律走该行新增的副标题 `AttentionText`，两个维度因此并存而不互相顶替。
 
-`RetiredContractAndCutoverSafetyTests.The_attended_cutover_drill_is_the_only_thing_that_deletes_a_database`
-在本机红，与本 ticket 无关，原因与 06 记录的一致：该用例扫到了被 `.gitignore` 排除
-的本地打包产物 `mes/ingest/csharp/dist/MesIngest/scripts/cutover/CutoverSqlTools.ps1`。
-本 ticket 未触碰任何 `.ps1`。除该用例外 tier 1 全绿（550 通过 / 82 跳过）。
+tier 1 全绿（550 通过 / 82 跳过）。
 
 ## Golden renderer checklist
 
 - [ ] Read [`docs/agents/golden-renderer.md`](../../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 > 本特性的金机验证在全部 ticket 完成后统一进行，单个 ticket 不单独上金机。
-> 实现阶段以 tier 1 为准。
+> 实现阶段以 tier 1 为准。2026-08-21 统一验收已完成，证据与结论记录在
+> [`spec.md`](../spec.md) 的 Golden renderer acceptance 一节。
