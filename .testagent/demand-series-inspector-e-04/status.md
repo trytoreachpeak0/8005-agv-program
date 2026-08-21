@@ -154,3 +154,20 @@ authorized golden-machine preview.
   width, forcing horizontal scrolling instead of header compression. The
   public real-window test asserts both `ActualWidth` and `MinWidth` for all
   eleven columns. Focused tests pass 29/29; UI tests build cleanly.
+
+## Third golden-machine preview — user visual rejection
+
+- Clean source `63bbba6b`; runner 1 total, 0 errors, 0 failed, 0 skipped,
+  0 not run, 128.906 seconds.
+- Evidence:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-204939-watch-ui-journeys`.
+- Environment/cleanup passed at 1920×1080 / 96 DPI with task absent and
+  residual processes 0.
+- User verdict: rejected because column names and values were not horizontally
+  aligned. A real-window regression reproduced a deterministic 8px offset on
+  three consecutive runs.
+- Root cause: the header renders its 10px padding, but the default WPF
+  `DataGridCell` template ignores the shared cell's 8px padding, leaving only a
+  2px text margin. A ticket-local event text style now uses a 10px margin. The
+  same real-window regression passes within ±1px; focused tests pass 34/34, UI
+  tests build cleanly, and Tier 1 passes 611/0/82/693.
