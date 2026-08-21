@@ -62,3 +62,19 @@
   shared `DataGridTextCell` style. Focused tests remain 29/29, and
   `MesIngest.Watch.UiTests` builds with zero warnings/errors. A fresh Tier 2 run
   is required; the passing rerun must not replace this red evidence.
+
+### 2026-08-21 — second golden preview exposed runtime column compression
+
+- Clean commit `fefafd52` again passed `watch-ui-journeys` 1/1 with zero skips;
+  cleanup left no scheduled task or residual process and restored the 96 DPI
+  environment.
+- Evidence is preserved at
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/run-20260821-204023-watch-ui-journeys`.
+- The shared cell style improved value separation, but visual inspection still
+  found long technical headers compressed. A real-window regression confirms
+  the declared `ActualWidth`; explicit per-column `MinWidth` is now required so
+  the golden renderer must use horizontal scrolling instead of shrinking field
+  identity.
+- Focused tests remain 29/29 and now assert both actual and minimum widths for
+  all eleven fields. A third clean Tier 2 run is required; both prior visual
+  rejections remain preserved.
