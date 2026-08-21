@@ -117,3 +117,16 @@ entered.
   719 total in 1m56s. The 82 skips are the existing SQL Server environment gate;
   its three required `MES_INGEST_TICKET01_*` variables were absent.
 - Tier 2/3 was not run without explicit user authorization.
+
+## Tier 2 and visual approval closure
+
+- After explicit user authorization, `watch-ui-journeys` ran on the calibrated
+  interactive golden desktop from clean commit `496842f3`: 1 passed, 0 failed,
+  0 skipped.
+- Evidence is preserved at
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-06/run-20260822-003355-watch-ui-journeys`.
+- The original VM recheck passed at 1920x1080 and 96 DPI. Cleanup evidence
+  records no remaining scheduled task and zero residual processes.
+- The user approved the Settings, master-list, first-observation, and
+  related-events real-window previews on 2026-08-22.
+- Tier 3 was not run and no baseline was created, promoted, or overwritten.
