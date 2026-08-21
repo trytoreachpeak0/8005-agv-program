@@ -27,5 +27,6 @@
 
 ## Comments
 
-- 2026-08-21：实现完成并通过 Tier 1：`Passed 620 / Failed 0 / Skipped 82 / Total 702`。82 项均为未配置 `MES_INGEST_TICKET01_SQLSERVER`、`MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR`、`MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL` 时按仓库约定跳过的真实 SQL Server 集成测试；本票据未改 SQL。
+- 2026-08-21：实现与双轴审查修复完成并通过最终 Tier 1：`Passed 623 / Failed 0 / Skipped 82 / Total 705`。82 项均为未配置 `MES_INGEST_TICKET01_SQLSERVER`、`MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR`、`MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL` 时按仓库约定跳过的真实 SQL Server 集成测试；本票据未改 SQL。
+- 2026-08-21：`/code-review` 的 Standards 与 Spec 复核均确认无剩余硬缺口；审查中发现的新旧冻结快照混合、真实滚动视口保留、overview 之外三条精确下钻测试缺口均已修复。
 - 2026-08-21：本次增加 Inspector 加载/失败/陈旧 `InfoBar` 和 Current Attention 精确下钻命令，属于 WPF UI 变更。按 `AGENTS.md` 未自行进入 Tier 2/3；需用户授权后在交互式 golden VM 上运行最窄受影响套件并完成预览审批。
