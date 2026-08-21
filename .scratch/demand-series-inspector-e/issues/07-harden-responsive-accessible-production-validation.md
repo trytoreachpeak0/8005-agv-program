@@ -8,21 +8,21 @@
 
 **UI authority:** [Fluent UI guidance](../../../docs/agents/fluent-ui.md) · [Golden Renderer workflow](../../../docs/agents/golden-renderer.md)
 
-- [ ] Inspector 在 720×600 最小尺寸下纵向重排并可滚动；紧凑上下文、Tab、世代列表、事实、MES 证据和事件均可达且不裁切。
-- [ ] 1440×900 与 1920×1080、100%/96 DPI 下保持 E 信息层级、紧凑密度和可读性，世代列表在多项数据下继续虚拟化。
+- [x] Inspector 在 720×600 最小尺寸下纵向重排并可滚动；紧凑上下文、Tab、世代列表、事实、MES 证据和事件均可达且不裁切。
+- [x] 1440×900 与 1920×1080、100%/96 DPI 下保持 E 信息层级、紧凑密度和可读性，世代列表在多项数据下继续虚拟化。
 - [x] 打开/显示动作、一级 Tab、世代导航、当前/选中状态、形成原因、相关事件、事件过滤、stale/failure、absence/conflict 和证据网格具有稳定且有意义的 AutomationProperties。
 - [x] 720×600 下键盘 Tab 顺序完整可预测；Enter、Space、Tab 切换、过滤和世代选择不依赖鼠标，Escape/Alt+F4 遵守窗口约定。
 - [x] 生产壳测试证明旧内联详情、splitter 和 toggle 已完全移除，列表满高且没有并存的第二套详情实现或 runtime feature flag。
 - [x] 自动化场景覆盖空列表、初始首行、第一代单侧证据、归档前再现、归档后 `LONG_GONE_BUT_VISIBLE`、未知原因、重复原始行、多世代滚动、相关事件、stale detail 和 target-switch failure。
 - [x] 从 `mes/ingest/csharp` 运行完整 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过；不把 Golden Renderer 计入“full test suite”。
 - [x] Tier 2/3 不自行运行：先说明所选最窄 suite、预计成本和验证目的，并取得用户许可。
-- [ ] Golden-machine 预览必须来自校准的 `gpt_win11` interactive task；本机、PowerShell Direct、RDP 或未批准 candidate 不构成视觉验收。
+- [x] Golden-machine 预览必须来自校准的 `gpt_win11` interactive task；本机、PowerShell Direct、RDP 或未批准 candidate 不构成视觉验收。
 - [ ] 任何 baseline promotion 都在用户审阅最终真实窗口预览并明确批准后进行，保留 red evidence，并遵守 candidate stability、before/after/diff 和 promoted-baseline `0 received` 顺序。
 - [x] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
+- [x] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ## Comments
 
@@ -50,3 +50,22 @@
   one responsive-layout duplication smell, and one 720×600 keyboard-coverage
   gap. The spacing now follows the 8/12/16/24 rhythm, shared reflow uses one
   helper, and real Tab traversal covers both event and conflict-evidence grids.
+
+### 2026-08-22 — golden-machine Tier 2 previews ready for user approval
+
+- After explicit user authorization, ran the narrow `watch-ui-journeys` suite
+  twice from clean detached commit `7111f77c` on the calibrated interactive
+  `gpt_win11` desktop. No Tier 3 suite or baseline comparison/promotion ran.
+- 720×600 evidence-only run (`JourneyClientEpx=720x600`): 1 passed, 0 failed,
+  0 skipped. Unique evidence directory:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-07/run-20260822-031219-watch-ui-journeys-720x600`.
+- Default 1440×900 run on the 1920×1080/96 DPI desktop: 1 passed, 0 failed,
+  0 skipped. Unique evidence directory:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-07/run-20260822-031653-watch-ui-journeys-1440x900`.
+- Both pre/post environment gates reported 1920×1080, 96 DPI, interactive
+  Explorer, light theme, zh-CN, China Standard Time, required fonts, and
+  SoftwareOnly rendering. Both cleanups reported no scheduled task, no residual
+  process, successful post-cleanup environment recheck, and zero named skips.
+- The isolated validation worktree was clean, copied evidence was retained in
+  the main workspace, and the temporary worktree was removed. Final visual user
+  approval remains unchecked pending review of the real Inspector screenshots.
