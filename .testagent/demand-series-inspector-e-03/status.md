@@ -170,5 +170,6 @@ explicit user authorization.
   failed 0, skipped 0, not run 0; scheduled-task/native result 0.
 - Cleanup: task absent, residual processes 0, post-cleanup environment result 0,
   original VM 1920×1080 / 96 DPI.
-- Final preview approval is pending. No candidate matrix or baseline promotion
-  was performed.
+- The user explicitly approved both final Inspector previews from
+  `run-20260821-190440-watch-ui-journeys`. No candidate matrix or baseline
+  promotion was performed.

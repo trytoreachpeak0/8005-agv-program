@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — 切换为单实例 Inspector 并贯通首次观察。
 
-**Status:** ready-for-human
+**Status:** done
 
 **UI authority:** [Fluent UI guidance](../../../docs/agents/fluent-ui.md) · [Golden Renderer workflow](../../../docs/agents/golden-renderer.md)
 
@@ -22,7 +22,7 @@
 - [x] 从 `mes/ingest/csharp` 运行 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过。
 - [x] Read `docs/agents/golden-renderer.md`.
 - [x] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
+- [x] User approved the final real-window preview (visual changes only).
 - [x] Recorded the unique evidence directory and all named skips.
 - [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
@@ -64,5 +64,11 @@
 - Final cleanup evidence reports scheduled-task result 0, no task remaining,
   zero residual processes, and a passing post-cleanup environment check at
   1920×1080 / 96 DPI.
-- Final user preview approval remains pending; no baseline was generated,
-  approved, or promoted.
+- At capture completion, final user preview approval was still pending; no
+  baseline was generated, approved, or promoted.
+
+### 2026-08-21 — final preview approved
+
+- The user explicitly approved both final real-window Inspector previews from
+  `run-20260821-190440-watch-ui-journeys`.
+- Ticket 03 is complete. No baseline candidate was generated or promoted.
