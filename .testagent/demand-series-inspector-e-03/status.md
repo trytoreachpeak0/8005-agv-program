@@ -42,7 +42,7 @@ inline rather than skipped.
 ## Tier 1
 
 After the two-axis review fixes, from `mes/ingest/csharp`,
-`dotnet test MesIngest.Tests` completed in 1m24s:
+`dotnet test MesIngest.Tests` completed in 1m22s:
 
 - Passed: 606
 - Failed: 0
@@ -157,3 +157,18 @@ regression assertion.
 Post-fix focused tests passed 29/29 and final Tier 1 passed 606 with 82 named SQL
 environment skips. Tier 2/3 golden-machine work remains deferred pending
 explicit user authorization.
+
+## Golden-machine preview
+
+- Authorized Tier 2 suite: `watch-ui-journeys` on `gpt_win11`, Release,
+  1920×1080, 96 DPI, light theme, software rendering.
+- Preserved red visual run:
+  `run-20260821-185456-watch-ui-journeys` — runner 1/1 passed, but review found
+  the `DATES / MesSourceDate` field label clipped at 150 epx.
+- Fix: commit `cdf877b8` widened the field-name column to 190 epx.
+- Final run: `run-20260821-190440-watch-ui-journeys` — runner total 1, errors 0,
+  failed 0, skipped 0, not run 0; scheduled-task/native result 0.
+- Cleanup: task absent, residual processes 0, post-cleanup environment result 0,
+  original VM 1920×1080 / 96 DPI.
+- Final preview approval is pending. No candidate matrix or baseline promotion
+  was performed.

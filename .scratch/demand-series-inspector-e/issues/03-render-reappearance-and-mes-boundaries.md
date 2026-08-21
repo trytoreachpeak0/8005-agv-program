@@ -21,10 +21,10 @@
 - [x] 自动化名称覆盖形成事实、MES 对比、absence、conflict 和完整原始行网格。
 - [x] 从 `mes/ingest/csharp` 运行 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过。
 - [x] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
+- [x] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ## Comments
 
@@ -44,3 +44,25 @@
   was green.
 - Golden-machine execution, final preview approval, evidence directory, and VM
   cleanup remain unchecked because Tier 2/3 requires explicit user authorization.
+
+### 2026-08-21 — golden-machine preview evidence
+
+- User authorized the Tier 2 `watch-ui-journeys` run. The narrowest available
+  wrapper suite contains one real-window production journey; it ran serially on
+  `gpt_win11` at 1920×1080 / 96 DPI.
+- First evidence directory:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-03/run-20260821-185456-watch-ui-journeys`.
+  The runner passed 1/1 with zero skips, but human inspection rejected the
+  preview because the 150 epx field column clipped `DATES / MesSourceDate`.
+  This red visual evidence is preserved.
+- Commit `cdf877b8` widened the scalar field column to 190 epx. Inspector tests
+  then passed 29/29 and final Tier 1 passed 606/0/82/688 in 1m22s; the same 82
+  named SQL environment skips remain recorded in the test status.
+- Final evidence directory:
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-03/run-20260821-190440-watch-ui-journeys`.
+  The real-window runner passed 1/1 with zero failures, skips, or not-run tests.
+- Final cleanup evidence reports scheduled-task result 0, no task remaining,
+  zero residual processes, and a passing post-cleanup environment check at
+  1920×1080 / 96 DPI.
+- Final user preview approval remains pending; no baseline was generated,
+  approved, or promoted.
