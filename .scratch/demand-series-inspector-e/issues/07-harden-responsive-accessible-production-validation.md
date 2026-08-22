@@ -17,10 +17,10 @@
 - [x] 从 `mes/ingest/csharp` 运行完整 Tier 1：`dotnet test MesIngest.Tests`，记录所有通过、失败和跳过；不把 Golden Renderer 计入“full test suite”。
 - [x] Tier 2/3 不自行运行：先说明所选最窄 suite、预计成本和验证目的，并取得用户许可。
 - [x] Golden-machine 预览必须来自校准的 `gpt_win11` interactive task；本机、PowerShell Direct、RDP 或未批准 candidate 不构成视觉验收。
-- [ ] 任何 baseline promotion 都在用户审阅最终真实窗口预览并明确批准后进行，保留 red evidence，并遵守 candidate stability、before/after/diff 和 promoted-baseline `0 received` 顺序。
+- [x] 任何 baseline promotion 都在用户审阅最终真实窗口预览并明确批准后进行，保留 red evidence，并遵守 candidate stability、before/after/diff 和 promoted-baseline `0 received` 顺序。
 - [x] Read `docs/agents/golden-renderer.md`.
 - [x] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
+- [x] User approved the final real-window preview (visual changes only).
 - [x] Recorded the unique evidence directory and all named skips.
 - [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
@@ -67,5 +67,12 @@
   SoftwareOnly rendering. Both cleanups reported no scheduled task, no residual
   process, successful post-cleanup environment recheck, and zero named skips.
 - The isolated validation worktree was clean, copied evidence was retained in
-  the main workspace, and the temporary worktree was removed. Final visual user
-  approval remains unchecked pending review of the real Inspector screenshots.
+  the main workspace, and the temporary worktree was removed before user review.
+
+### 2026-08-22 — final visual approval complete
+
+- The user reviewed the calibrated 720×600 and 1440×900 production Inspector
+  previews for the current generation, first-observation one-sided evidence,
+  and related-event filtering, then explicitly replied “批准”.
+- Ticket 07 visual acceptance is complete. Tier 3 was not run and no candidate
+  or approved baseline was created, compared, overwritten, or promoted.
