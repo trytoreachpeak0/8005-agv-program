@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 — 呈现再现原因与完整 MES 边界证据；04 — 交付真实事件调查与相关事件跳转。
 
-**Status:** ready-for-human
+**Status:** done
 
 **UI authority:** [Fluent UI guidance](../../../docs/agents/fluent-ui.md) · [Golden Renderer workflow](../../../docs/agents/golden-renderer.md)
 
