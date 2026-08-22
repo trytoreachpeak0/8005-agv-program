@@ -4,7 +4,7 @@
 
 **Blocked by:** 05 — 保证冻结快照、刷新和精确导航一致性。
 
-**Status:** ready-for-human
+**Status:** done
 
 **UI authority:** [Fluent UI guidance](../../../docs/agents/fluent-ui.md) · [Golden Renderer workflow](../../../docs/agents/golden-renderer.md)
 

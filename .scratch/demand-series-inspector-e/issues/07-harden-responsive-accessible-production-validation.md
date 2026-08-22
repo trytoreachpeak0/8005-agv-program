@@ -4,7 +4,7 @@
 
 **Blocked by:** 06 — 完成普通顶层窗口生命周期与布局持久化。
 
-**Status:** ready-for-human
+**Status:** done
 
 **UI authority:** [Fluent UI guidance](../../../docs/agents/fluent-ui.md) · [Golden Renderer workflow](../../../docs/agents/golden-renderer.md)
 
