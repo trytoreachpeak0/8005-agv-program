@@ -36,8 +36,12 @@
   已知禁止的 800 MB 实例上限恢复为规范常态 1536 MB；这些维护动作在只读收集器之外执行。测试后
   无残留 `MesIngest_Ticket01_*` 数据库，Host 已恢复运行。
 - 真实 SQL Server 16 / compatibility 160 Tier 1 通过：`Failed 0 / Passed 725 / Skipped 0 / Total 725`，
-  耗时 7 分 22 秒；TRX 与证明由
-  `mes/ingest/csharp/.artifacts/runtime-feedback-tier1-attested/run-20260823T061834Z/` 保存并相互哈希绑定。
+  耗时 7 分 22 秒；原始
+  [脱敏 TRX](../evidence/runtime-feedback/run-20260823T070216Z-34150355/runtime-feedback-tier1.redacted.trx)、
+  [`attestation`](../evidence/runtime-feedback/run-20260823T070216Z-34150355/runtime-feedback-tier1-attestation.json)
+  与[脱敏清单](../evidence/runtime-feedback/run-20260823T070216Z-34150355/runtime-feedback-tier1-redaction.json)
+  已随最终快照保存并纳入 SHA-256 inventory；清单保留 attestation 绑定的原始 TRX 哈希，脱敏副本只移除
+  4 处凭据扫描器合成测试参数，不改变 725 个结果或计数。
 - 最终当前快照见
   [`runtime-feedback.md`](../evidence/runtime-feedback/run-20260823T070216Z-34150355/runtime-feedback.md)：
   Host、监听、契约和 SQL 均可用，契约仍与部署包精确匹配，真实 SQL 证明校验为 `True`。当前
