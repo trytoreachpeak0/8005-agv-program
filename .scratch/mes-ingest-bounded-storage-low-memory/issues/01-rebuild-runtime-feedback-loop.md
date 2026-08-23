@@ -51,3 +51,6 @@
 - 反馈环还识别出后续票据必须处理的红色事实：`watch-overview` 与 `demand-series` 在 10 秒门槛超时，
   当前缓存计划 `total_spills=963`、`max_last_spills=546`；采样时 RESOURCE_SEMAPHORE 等待和 waiter
   均为 0。故本票只宣称反馈环和真实 SQL 门禁已重建，不宣称查询性能已经修复。
+- Windows Application 中最新 Error 701 为 `2026-08-23T06:22:35.7985796Z`，落在真实 SQL Tier 1
+  的 `06:18:34Z–06:26:06Z` 窗口内。725 项通过、采样时 DMV 无等待和当前 SQL error log 搜索为 0
+  都不能抵消该事件；1536 MB 只恢复了可运行门禁，尚未证明并发测试期间无内存错误。
