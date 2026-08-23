@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "sourceTrxFile": "runtime-feedback-tier1.trx",
+  "sourceTrxSha256": "5664b0ba0514f89d9d25970a2846ddff7df1252bab74fc88972f9a393cb0b1b8",
+  "redactedTrxFile": "runtime-feedback-tier1.redacted.trx",
+  "redactedTrxSha256": "21691802dd64d40ff57aa8869566396ab816a24806ab83c8e1c870f4ed857e0b",
+  "attestationFile": "runtime-feedback-tier1-attestation.json",
+  "attestationSha256": "e237e5d34e7e8248707734e42d80420622ecedb146f2997f390d576bed0747cd",
+  "redactions": {
+    "syntheticCredentialFixtureOccurrences": 2,
+    "placeholderFixtureOccurrences": 2,
+    "actualCredentialOccurrences": 0
+  },
+  "counts": {
+    "total": 725,
+    "executed": 725,
+    "passed": 725,
+    "failed": 0,
+    "skipped": 0
+  }
+}
