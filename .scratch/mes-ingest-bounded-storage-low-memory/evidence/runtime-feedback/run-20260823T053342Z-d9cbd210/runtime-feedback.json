@@ -1,0 +1,693 @@
+﻿{
+    "schemaVersion":  1,
+    "runId":  "run-20260823T053342Z-d9cbd210",
+    "startedAt":  "2026-08-23T05:33:42.1317078+00:00",
+    "completedAt":  "2026-08-23T05:34:18.8290331+00:00",
+    "machine":  {
+                    "name":  "LAB-WIN-01",
+                    "os":  "Microsoft Windows NT 10.0.26200.0",
+                    "powershell":  "5.1.26100.9168"
+                },
+    "diagnosis":  {
+                      "primaryState":  "SQL_UNAVAILABLE",
+                      "observations":  [
+                                           "HOST_LISTENING",
+                                           "CONTRACT_OK",
+                                           "SQL_UNAVAILABLE",
+                                           "QUERY_TIMEOUT"
+                                       ]
+                  },
+    "host":  {
+                 "service":  {
+                                 "name":  "MesIngest",
+                                 "displayName":  "MesIngest MES Task Ingest",
+                                 "state":  "Running",
+                                 "startMode":  "Auto",
+                                 "startName":  "LocalSystem",
+                                 "processId":  12144,
+                                 "executablePath":  "C:\\MesIngest\\service\\MesIngest.Host.exe"
+                             },
+                 "process":  {
+                                 "id":  12144,
+                                 "name":  "MesIngest.Host",
+                                 "workingSetBytes":  109158400,
+                                 "privateMemoryBytes":  183558144,
+                                 "startTime":  null
+                             },
+                 "listeners":  [
+                                   {
+                                       "LocalAddress":  "127.0.0.1",
+                                       "LocalPort":  5088,
+                                       "OwningProcess":  12144,
+                                       "State":  2
+                                   }
+                               ],
+                 "baseUrl":  "http://127.0.0.1:5088",
+                 "configuration":  {
+                                       "localFilePresent":  true,
+                                       "snapshotSource":  "Oracle",
+                                       "hasSqlConnectionString":  true,
+                                       "hasSharedSecret":  false
+                                   }
+             },
+    "deployment":  {
+                       "installRoot":  "C:\\MesIngest",
+                       "manifestPresent":  true,
+                       "sourceCommit":  "93dd1dc75f9791cc8226f223929ab61885be8770",
+                       "sourceDirty":  true,
+                       "assemblies":  [
+                                          {
+                                              "file":  "MesIngest.Host.exe",
+                                              "length":  151552,
+                                              "fileVersion":  "1.0.0.0",
+                                              "productVersion":  "1.0.0+93dd1dc75f9791cc8226f223929ab61885be8770",
+                                              "sha256":  "088a499baea05c2e3cb06213472ed7bc54fb494de49ee7dbaef3e306867232d5",
+                                              "lastWriteTimeUtc":  "2026-08-20T06:39:42.8413982Z"
+                                          },
+                                          {
+                                              "file":  "MesIngest.Host.dll",
+                                              "length":  384512,
+                                              "fileVersion":  "1.0.0.0",
+                                              "productVersion":  "1.0.0+93dd1dc75f9791cc8226f223929ab61885be8770",
+                                              "sha256":  "81dd49d5c272147b2b1d644f34d183c440033efcda92387e5efd70e4041d6cda",
+                                              "lastWriteTimeUtc":  "2026-08-20T06:39:42.8357223Z"
+                                          },
+                                          {
+                                              "file":  "MesIngest.Core.dll",
+                                              "length":  411136,
+                                              "fileVersion":  "1.0.0.0",
+                                              "productVersion":  "1.0.0+93dd1dc75f9791cc8226f223929ab61885be8770",
+                                              "sha256":  "484e7779e7cf0e0c9b8aede9ba4a8d0a93ac0d49b48578e583f61ec39e4374e2",
+                                              "lastWriteTimeUtc":  "2026-08-20T06:35:32.9446854Z"
+                                          },
+                                          {
+                                              "file":  "MesIngest.Infrastructure.dll",
+                                              "length":  1052160,
+                                              "fileVersion":  "1.0.0.0",
+                                              "productVersion":  "1.0.0+93dd1dc75f9791cc8226f223929ab61885be8770",
+                                              "sha256":  "b89a2263bd6aaf0918e81d3922ec49e788cdaadced005fd05ad27a8f6da1f17b",
+                                              "lastWriteTimeUtc":  "2026-08-20T06:35:36.8791940Z"
+                                          }
+                                      ],
+                       "contract":  {
+                                        "available":  true,
+                                        "contractVersion":  "2026.08.new-mes-ingest.v2.0",
+                                        "schemaVersion":  17,
+                                        "compatibilityPolicy":  "EXACT_VERSION_SCHEMA_AND_CAPABILITIES",
+                                        "capabilityCount":  9,
+                                        "capabilityIdentitySha256":  "f3148e59e7b9791207939ff4dc88bf7aa4fb648732874e57672ff6e7ac3c17fe",
+                                        "expectedCapabilityCount":  9,
+                                        "expectedCapabilityIdentitySha256":  "f3148e59e7b9791207939ff4dc88bf7aa4fb648732874e57672ff6e7ac3c17fe",
+                                        "expectedContractVersion":  "2026.08.new-mes-ingest.v2.0",
+                                        "expectedSchemaVersion":  17,
+                                        "exactPackageMatch":  true,
+                                        "classification":  "SUCCESS"
+                                    },
+                       "openApi":  {
+                                       "packageFilePresent":  true,
+                                       "packageFileSha256":  "59ba855272427f9a92346c1ac8bc136da4ebc120827ce4cfb843df80c49967c3",
+                                       "manifestSha256":  "59ba855272427f9a92346c1ac8bc136da4ebc120827ce4cfb843df80c49967c3",
+                                       "runtimeDocumentSha256":  "6eec5bc6a67137cef3fdf22ccf5c8728bada6792da4ea88bde936f094d095c16",
+                                       "runtimeContractVersion":  "2026.08.new-mes-ingest.v2.0",
+                                       "runtimePathCount":  17,
+                                       "packageMatchesManifest":  true,
+                                       "runtimeVersionMatchesManifest":  true
+                                   }
+                   },
+    "endpoints":  [
+                      {
+                          "name":  "contract",
+                          "path":  "/api/v2/contract",
+                          "statusCode":  200,
+                          "durationMs":  64,
+                          "responseBytes":  4683,
+                          "correlationId":  "5dbddc496dd749d497b13f23023700f3",
+                          "diagnosticCode":  "",
+                          "classification":  "SUCCESS"
+                      },
+                      {
+                          "name":  "openapi",
+                          "path":  "/openapi/v2.json",
+                          "statusCode":  200,
+                          "durationMs":  51,
+                          "responseBytes":  198188,
+                          "correlationId":  "4a8b41e77926432ea2597ee084e317a6",
+                          "diagnosticCode":  "",
+                          "classification":  "SUCCESS"
+                      },
+                      {
+                          "name":  "watch-overview",
+                          "path":  "/api/v2/watch-overview",
+                          "statusCode":  0,
+                          "durationMs":  3019,
+                          "responseBytes":  0,
+                          "correlationId":  "",
+                          "diagnosticCode":  "REQUEST_TIMEOUT",
+                          "classification":  "QUERY_TIMEOUT"
+                      },
+                      {
+                          "name":  "current-ingest-attention",
+                          "path":  "/api/v2/current-ingest-attention?pageNumber=1\u0026pageSize=1",
+                          "statusCode":  0,
+                          "durationMs":  3008,
+                          "responseBytes":  0,
+                          "correlationId":  "",
+                          "diagnosticCode":  "REQUEST_TIMEOUT",
+                          "classification":  "QUERY_TIMEOUT"
+                      },
+                      {
+                          "name":  "externally-readable-demand-catalog",
+                          "path":  "/api/v2/externally-readable-demand-catalog",
+                          "statusCode":  0,
+                          "durationMs":  3016,
+                          "responseBytes":  0,
+                          "correlationId":  "",
+                          "diagnosticCode":  "REQUEST_TIMEOUT",
+                          "classification":  "QUERY_TIMEOUT"
+                      },
+                      {
+                          "name":  "demand-series-current-page",
+                          "path":  "/api/v2/demand-series?presence=VISIBLE\u0026page=1\u0026pageSize=1",
+                          "statusCode":  0,
+                          "durationMs":  3007,
+                          "responseBytes":  0,
+                          "correlationId":  "",
+                          "diagnosticCode":  "REQUEST_TIMEOUT",
+                          "classification":  "QUERY_TIMEOUT"
+                      }
+                  ],
+    "sqlServer":  {
+                      "service":  {
+                                      "name":  "MSSQLSERVER",
+                                      "state":  "Stopped",
+                                      "startMode":  "Auto",
+                                      "startName":  "NT Service\\MSSQLSERVER",
+                                      "executablePath":  "C:\\Program Files\\Microsoft SQL Server\\MSSQL16.MSSQLSERVER\\MSSQL\\Binn\\sqlservr.exe"
+                                  },
+                      "target":  {
+                                     "configured":  true,
+                                     "dataSource":  "localhost",
+                                     "database":  "MesIngest_V2",
+                                     "integratedSecurity":  true,
+                                     "credentialMode":  "integrated"
+                                 },
+                      "connection":  {
+                                         "connected":  false,
+                                         "classification":  "SQL_UNAVAILABLE",
+                                         "connectDurationMs":  4110,
+                                         "errorType":  "System.Management.Automation.MethodInvocationException",
+                                         "diagnosticCode":  "SQL_CONNECTION_FAILED_2"
+                                     },
+                      "evidenceAvailability":  {
+                                                   "maxServerMemory":  false,
+                                                   "recoveryModel":  false,
+                                                   "databaseFiles":  false,
+                                                   "processMemory":  false,
+                                                   "memoryGrants":  false,
+                                                   "resourceSemaphore":  false,
+                                                   "spillDmv":  false
+                                               },
+                      "queries":  [
+
+                                  ],
+                      "windowsEventLookbackHours":  168,
+                      "windowsEventSignals":  [
+                                                  {
+                                                      "signal":  "701",
+                                                      "count":  22,
+                                                      "firstObservedAt":  "2026-08-18T08:48:37.5101942Z",
+                                                      "lastObservedAt":  "2026-08-22T01:33:33.0335019Z"
+                                                  },
+                                                  {
+                                                      "signal":  "17300",
+                                                      "count":  12,
+                                                      "firstObservedAt":  "2026-08-18T14:20:40.9094267Z",
+                                                      "lastObservedAt":  "2026-08-22T01:33:32.9400037Z"
+                                                  },
+                                                  {
+                                                      "signal":  "17312",
+                                                      "count":  7,
+                                                      "firstObservedAt":  "2026-08-18T14:20:40.9108916Z",
+                                                      "lastObservedAt":  "2026-08-22T01:33:32.9522568Z"
+                                                  },
+                                                  {
+                                                      "signal":  "RESOURCE_SEMAPHORE",
+                                                      "count":  0,
+                                                      "firstObservedAt":  null,
+                                                      "lastObservedAt":  null
+                                                  },
+                                                  {
+                                                      "signal":  "spill",
+                                                      "count":  0,
+                                                      "firstObservedAt":  null,
+                                                      "lastObservedAt":  null
+                                                  }
+                                              ],
+                      "lastObservedMaxServerMemoryChange":  {
+                                                                "observedAt":  "2026-08-21T07:37:19.9916572Z",
+                                                                "fromMb":  4096,
+                                                                "toMb":  800,
+                                                                "authority":  "WINDOWS_APPLICATION_EVENT_LAST_OBSERVED_NOT_CURRENT_CONFIGURATION"
+                                                            }
+                  },
+    "tests":  {
+                  "provided":  true,
+                  "trxPath":  "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\runtime-feedback-tier1-final3\\runtime-feedback-tier1.trx",
+                  "total":  725,
+                  "executed":  643,
+                  "passed":  643,
+                  "failed":  0,
+                  "notExecuted":  0,
+                  "skipped":  82,
+                  "sqlEnvironmentConfigured":  false,
+                  "sqlTarget":  {
+                                    "dataSource":  "",
+                                    "database":  "",
+                                    "realInstance":  false
+                                },
+                  "expectedProductMajor":  null,
+                  "expectedCompatibilityLevel":  null,
+                  "minimumTier1Total":  700,
+                  "attestationProvided":  false,
+                  "attestationValid":  false,
+                  "realSqlTier1Satisfied":  false,
+                  "diagnosticCode":  "REAL_SQL_TIER1_TRX_NOT_FULL_SUITE",
+                  "exactCommand":  "dotnet test MesIngest.Tests --configuration Release --results-directory \u003cpath\u003e --logger \"trx;LogFileName=runtime-feedback-tier1.trx\""
+              },
+    "worktree":  {
+                     "available":  true,
+                     "entries":  [
+                                     {
+                                         "status":  " M",
+                                         "path":  "AGENTS.md",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "CONTEXT.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "docs/adr/README.md",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "docs/adr/mes/0008-full-source-snapshot-incremental-local-projection.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "docs/adr/mes/0012-series-error-history-retained-with-demand-series-events.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.Attention.cs",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.Browse.cs",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.Catalog.cs",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.ReadabilityAudit.cs",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Infrastructure/SqlServer/SqlServerMesIngestSchema.cs",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Tests/RetiredContractAndCutoverSafetyTests.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Tests/WatchV2AutoRefreshTests.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/CatalogEmbeddedVariant.xaml",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/CatalogEmbeddedVariant.xaml.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/MainWindow.xaml.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/README.md",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  " M",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch/WatchV2AutoRefresh.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  ".artifacts/ticket23-font-calibration/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  ".artifacts/ticket23-rootcause/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  ".scratch/mes-ingest-bounded-storage-low-memory/",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  ".scratch/mes-ingest-watch-v2/research/04-demand-series-detail-interaction-alternatives.md",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  ".scratch/mes-ingest-watch-v2/research/visuals/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "CLAUDE.md",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0019-routine-raw-observations-expire-critical-evidence-persists.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0020-pause-mes-polling-before-storage-exhaustion.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0021-empty-cutover-deletes-old-database-after-inline-gate.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0022-mesingest-history-bounded-with-archived-key-tombstones.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0023-simple-recovery-without-database-backups.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0024-host-owns-bounded-history-cleanup.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0025-history-reset-requires-new-epoch-and-operator-acknowledgement.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0026-current-and-historical-reads-use-separate-physical-paths.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0027-frozen-reads-are-nonblocking-and-commit-consistent.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0028-high-risk-state-recovery-is-local-administration.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0029-retention-contract-cuts-over-as-one-exact-v2-identity.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "docs/adr/mes/0030-one-time-cutover-mode-drops-only-the-proven-old-database.md",
+                                         "scope":  "optimization-path-overlap-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-24/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-25/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-28/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-02-redesign-current/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-02-redesign/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-02/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-03/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-04/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-05/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-06/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-demand-series-inspector-e-07/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/golden-renderer/ticket-ticket-23-preview-v2/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/runtime-feedback-tier1-final/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/runtime-feedback-tier1-final2/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/runtime-feedback-tier1-final3/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/text-probe/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/.artifacts/ticket-28/",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLivePage.xaml",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLivePage.xaml.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantD.xaml",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantD.xaml.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantE.xaml",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantE.xaml.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantF.xaml",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantF.xaml.cs",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-baseline-current.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-d-invalid.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-d-valid.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-e-invalid.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-e-valid.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-f-invalid.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     },
+                                     {
+                                         "status":  "??",
+                                         "path":  "mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-f-valid.png",
+                                         "scope":  "other-path-unattributed",
+                                         "ownership":  "preserve-unattributed"
+                                     }
+                                 ],
+                     "diagnosticCode":  ""
+                 },
+    "safety":  {
+                   "readOnly":  true,
+                   "credentialsWritten":  false,
+                   "connectionStringWritten":  false,
+                   "serviceStateChanged":  false,
+                   "databaseChanged":  false,
+                   "productionConfigurationChanged":  false
+               }
+}
