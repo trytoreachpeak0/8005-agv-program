@@ -19,6 +19,7 @@
 - Final focused run after every revert: 3 passed / 0 failed / 0 skipped.
 - Assertion review: the safety test observes exit code, pre-connect diagnostic, credential non-disclosure and absence of output; the fixture test observes exit code, exact missing-surface identity and proof that SQL configuration was not read. The static packaging test remains intentionally broad because package inclusion and evidence vocabulary are deployment contracts; behavior-critical guards have separate process tests.
 - No remaining verified high-risk survivor. `assertion-quality` was unavailable; assertions were re-read manually against the script and final real-SQL report.
+- Post-review focused run: 7 passed / 0 failed / 0 skipped. Tail percentiles now use nearest-rank; Tier 1 schema 2 binds the TRX and current Host build.
 
 ## Real SQL smoke
 
