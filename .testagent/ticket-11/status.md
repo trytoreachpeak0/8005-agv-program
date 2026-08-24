@@ -68,22 +68,31 @@ was retained as red evidence and was not treated as approval. The implementation
 shared `HistoryEpoch` + `EarliestAvailableHostUtc` boundary in `SchemaInfo`, and the plan gate fails
 closed unless PollTrace/raw evidence use their stable object-key seeks with zero related-table scans.
 
-The corrected build passed a fresh real-SQL Tier 1: `Failed: 0, Passed: 784, Skipped: 0`, duration
-`10m16s`. Attestation:
-`mes/ingest/csharp/.artifacts/ticket11-tier1-review-fix/run-20260824T005432Z/runtime-feedback-tier1-attestation.json`.
+The second spec review then found that the RawEvidence endpoint still entered ErrorSearch page
+matching before reading the exact evidence. That path read the Series/Demand raw history to derive
+list-only MES area fields, and the old ShowPlan parser hid it by mixing statement events with
+duplicated parent-operator counters. The final implementation removes that list path, validates the
+snapshot filter using the exact evidence/period/series identities, counts only actual access
+operators, and includes raw-object logical reads in the growth gate.
+
+The final committed build passed real-SQL Tier 1: `Failed: 0, Passed: 784, Skipped: 0`, duration
+`9m25s`. Attestation:
+`mes/ingest/csharp/.artifacts/ticket11-tier1-final-exact-raw/run-20260824T013535Z/runtime-feedback-tier1-attestation.json`.
 
 The corrected build then ran the same two fixed samples for both historical object surfaces:
 
-| Surface/sample | Raw observations | Response bytes | Logical reads | Max grant KB | Spills | PollTrace PK seeks | Raw PK seeks | Related scans | Gate |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| PollTrace baseline | 600 | 256,826 | 10 | 0 | 0 | 5 | 5 | 0 | passed |
-| PollTrace representative | 240,600 | 259,232 | 10 | 0 | 0 | 5 | 5 | 0 | passed |
-| RawEvidence baseline | 600 | 1,749 | 20 | 1,616 | 0 | 5 | 10 | 0 | passed |
-| RawEvidence representative | 240,600 | 1,754 | 20 | 1,616 | 0 | 5 | 10 | 0 | passed |
+| Surface/sample | Raw observations | Response bytes | Access reads | Raw reads | Max grant KB | Spills | PollTrace PK seeks | Raw PK seeks | Related scans | Gate |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| PollTrace baseline | 600 | 256,826 | 65 | 25 | 0 | 0 | 5 | 5 | 0 | passed |
+| PollTrace representative | 240,600 | 259,232 | 75 | 35 | 0 | 0 | 5 | 5 | 0 | passed |
+| RawEvidence baseline | 600 | 1,749 | 215 | 20 | 1,024 | 0 | 5 | 5 | 0 | passed |
+| RawEvidence representative | 240,600 | 1,754 | 225 | 30 | 1,024 | 0 | 5 | 5 | 0 | passed |
 
-Evidence is under `mes/ingest/csharp/.artifacts/ticket11-object-key-scale/`, runs
-`scale-20260824T010521Z-b5ed330c`, `scale-20260824T010551Z-e88d8ca7`,
-`scale-20260824T010639Z-be4fcdb6`, and `scale-20260824T010723Z-ce85b0b8`.
+Evidence is under `mes/ingest/csharp/.artifacts/ticket11-final-scale-exact-raw/`, runs
+`scale-20260824T014540Z-a4166d6c`, `scale-20260824T014614Z-b0bd8ff3`,
+`scale-20260824T014657Z-5239af9d`, and `scale-20260824T014723Z-6e8d774e`.
 Every run recorded `objectKeySeekComplete=true`, `unrelatedHistoryScanCount=0`, and a passing
-gate; both PollTrace runs also recorded `earliestIdentityComplete=true`. Logical reads stayed
-exactly flat between the two samples. No escalation condition remained, so no larger sample ran.
+gate; both PollTrace runs also recorded `earliestIdentityComplete=true`. From 600 to 240,600 raw
+rows, PollTrace access/raw reads changed only 65/25 to 75/35 (limits 85/45), while RawEvidence
+changed only 215/20 to 225/30 (limits 237/40). No escalation condition remained, so no larger
+sample ran.
