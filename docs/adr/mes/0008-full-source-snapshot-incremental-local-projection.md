@@ -15,3 +15,5 @@ MesIngest 判断 Demand 消失需要同一轮客户批准 SQL 的完整活动集
 - GONE 可永久按 DemandId 追溯，但默认浏览窗口按 GoneAt 有界，所有 VISIBLE 永远可见。
 - SQL Server schema、store 接口和 Watch HTTP 契约需要一次兼容升级；当前无旧外部消费者需保留裸数组。
 
+ADR-mes-0022 仅取代本 ADR 中 GONE 与详细历史永久保留的部分；完整 Oracle 源快照、本地差异投影和有界读取的架构决定继续有效。
+

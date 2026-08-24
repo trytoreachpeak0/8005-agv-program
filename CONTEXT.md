@@ -516,9 +516,25 @@ _Avoid_: MES 模块（泛称）、任务服务（易含调度）、调度取消�
 面向现场实施与运维工程师的只读 MES 接入运维台，用于判断接入健康、核验 TransportDemand、分析 IngestAlert 与 MES→MesIngest 链路延迟；它不拥有投影真相，也不执行调度或生产操作命令。
 _Avoid_: 生产操作 HMI、调度台、TransportDemand 编辑器、只看列表的盯盘页
 
+**MesIngestLocalAdministration（MesIngest 本地管理）**:
+仅由数据库主机上的授权运维人员执行、用于提交 HistoryResetAcknowledgement 或恢复 StoragePressurePause 等高风险运行状态的管理边界；MesIngestWatch 只呈现状态和指引，不承载这些写操作。
+_Avoid_: Watch 业务按钮、远程管理 API、直接修改业务表、普通只读 Host 查询
+
+**MesIngestCutoverRun（MesIngest 切换运行）**:
+由唯一 CutoverRunId 标识、在一次计划停机窗口内完成墓碑播种、新库门禁和旧库自动删除的一次性受控运行；它结束后临时删库权限随之失效，不能变成常驻 Host 后台任务。
+_Avoid_: 日常 Host 启动、无人值守重试、按名称前缀批量删库、长期迁移模式
+
 **NewMesIngestContract（新版 MesIngest 契约）**:
 Host、Watch 与 reference consumer 同时使用的唯一 V2 业务读取契约；身份由精确 contractVersion、schemaVersion 和完整 capability ID/version 集合共同组成，规范文档固定为 `/openapi/v2.json`。任何身份差异都先拒绝业务解释，不把缺字段、未知状态、附加能力或客户端单页过滤当作兼容降级；旧 V1 只可作为 Development 隔离面存在。
 _Avoid_: 仅比较主版本、宽松 capability 子集、旧 DTO fallback、用 `/openapi/v1.json` 证明 V2、生产双契约
+
+**HistoryEpoch（历史纪元）**:
+一次连续可追溯 MesIngest 数据库历史的稳定身份；计划空库切换或不可恢复的数据库重建会产生新纪元，所有快照、目录与游标身份都不得跨纪元复用。
+_Avoid_: HostSessionId、ProjectionCommitId、CatalogRevision、应用版本
+
+**HistoryResetAcknowledgement（历史重置确认）**:
+数据库无备份丢失后，由运维人员明确接受旧历史和 ArchivedDemandKeyTombstone 已不可恢复、授权新 HistoryEpoch 重新开放外部当前读取的确认事实。
+_Avoid_: Host 自动重启、RestartBarrier 完成、Watch 关闭错误横幅、自动重试
 
 **PollTrace（轮询追踪）**:
 一次 MesIngest 轮询从读取 MES_TASK_UNION 到本地处理结束的不可重复因果记录；无论结果为 SUCCESS、FAILURE 或 INCOMPLETE，都以稳定标识、查询版本、规范化内容摘要和行数证据关联该轮各阶段，但不包含后来发起的 Watch 查询。
@@ -547,6 +563,14 @@ _Avoid_: DemandSeriesIssue、Issue SeriesKey、每轮告警消息、WatchConnect
 **DemandSeries**:
 以 TransportDemandKey（SUBLOT + WorkType）标识的一条 MES 搬运候选完整生命周期；只记录该 SUBLOT 在这一工序类型内的变化，第一次在本地 Poll 中观察到该复合键时开始，连续 GONE 满 12 小时后归档。
 _Avoid_: TransportDemand、告警实例、同键归档后新建的 Series
+
+**RetentionEligibleDemandSeries（可清理需求系列）**:
+已经归档、当前 Demand 不处于 `VISIBLE` 或 `LONG_GONE_BUT_VISIBLE`、且没有活动 DemandSeriesCurrentCondition 或 DemandSeriesErrorPeriod 的 DemandSeries；任一新观测、条件或事件都会取消其历史清理倒计时。
+_Avoid_: 单纯超过创建时间、仍可见的归档 Series、仍有活动错误的 Series
+
+**ArchivedDemandKeyTombstone（归档需求键墓碑）**:
+RetentionEligibleDemandSeries 的详细历史清理后永久保留的最小 TransportDemandKey 归档事实；它维持原 Series 身份与不可重新外读的结论，使后来重现仍属于 `LONG_GONE_BUT_VISIBLE`。
+_Avoid_: 完整归档历史、可恢复 DemandSeries、临时缓存、允许旧键重新成为新 Series
 
 **DemandSeriesEvent**:
 DemandSeries 生命周期中已经发生的不可变事实；只在首次发生、事实变化、条件消失或状态转换时记录，不把每轮相同观测重复写成事件。
@@ -781,8 +805,16 @@ _Avoid_: 当前工序、SUBLOT+STEP 业务键、字段为空就隐藏 Demand
 _Avoid_: 字段为空就隐藏 Demand、外部程序补写的封装、首次值永久冻结
 
 **DemandRawObservation（Demand 原始观测）**:
-一轮 MES 快照中属于同一 TransportDemandKey 的全部原始行；无论字段空值、单行还是重复多行都保留给 Watch，不能通过任选、补值或冻结旧值掩盖源数据。
+一轮完整成功 MES 快照中属于同一 TransportDemandKey 的全部原始行；在其原始观测可用窗口内必须按原样提供给 Watch，不能通过任选、补值或冻结旧值掩盖源数据。
 _Avoid_: 只保留第一行、用历史值填充当前 NULL、只保存外部合格数据
+
+**RawObservationAvailabilityWindow（原始观测可用窗口）**:
+DemandRawObservation 自所属 PollTrace 完成起保证可按 PollTrace 与 ProjectionCommit 完整读取的 30×24 小时 Host UTC 窗口；窗口外清理表示历史已过期，不能解释为源轮次当时没有观测。
+_Avoid_: 自然月、MES `DATES` 窗口、全部历史永久在线、Watch 缓存期限
+
+**StoragePressurePause（存储压力暂停）**:
+Host 因持久化空间低于安全边界而在读取 MES 前进入的保护状态；它保留并继续提供最后成功投影，但没有取得新快照或判定 Demand 缺席的权威。
+_Avoid_: Oracle 查询失败、查询后落库失败、继续轮询但丢弃证据、自动伪造 GONE
 
 **DuplicateTransportDemandKeyObservation（重复运输需求键观测）**:
 同一 SUBLOT + TASK_TYPE 在一份完整 UNION 快照中出现两条或更多条记录的异常事实；仍生成一个保存全部 DemandRawObservation 的 TransportDemand 并明确标注重复，但没有可信唯一单值投影，也不能进入外部可读集合。
