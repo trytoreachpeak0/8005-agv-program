@@ -18,6 +18,7 @@ Label: wayfinder:map
 - 当前工作区已有未提交代码修改；它们属于用户现有工作，只登记为工作区状态，不作为正确需求，也不得被本地图工作覆盖。
 - 地图与票据是本次新建的治理记录，不代表相关规则在历史上已经存在。
 - 用户于 2026-08-03 明确供应商手册可忽略；本次只为无损性保留其路径、哈希与来源记录，不再把手册内容作为当前基线候选、外部约束来源或继续调查对象。
+- 用户于 2026-08-24 指示后续 HITL 对话默认采用代理给出的推荐值；每项推荐仍须明确展示其结论、取舍和证据边界，涉及新增外部权限、破坏性操作或路线图范围扩张时必须另行取得明确授权。
 
 ## Decisions so far
 
@@ -96,17 +97,122 @@ Label: wayfinder:map
 - [决定监控新鲜度、告警升级、重试与日志留存规则](issues/73-decide-monitoring-freshness-alert-retry-and-log-retention.md) — 车队/仓位看板采用 2 秒非重入刷新和明确不可用原因，告警按现有角色可见，业务审计与车载技术日志分别至少保留 180/30 天，MES 运维定义及调用特定重试转交对应后续票据。
 - [决定账户恢复与密码增强策略](issues/74-decide-account-recovery-and-password-hardening-policy.md) — 当前只允许系统管理员按统一基础格式设置密码，首次改密仅用于具名系统管理员部署初始化；不做泄露恢复、策略增强或会话自动超时。
 - [决定充电阈值、配置变更与异常生命周期](issues/75-decide-charging-threshold-configuration-and-abnormal-lifecycle.md) — 固定 `C > T ≥ M`、版本化策略、充电异常双向隔离、失联不自动释放及维修暂停边界，禁止原桩盲重试和车辆逐桩试错。
+- [决定地图拓扑同步与历史快照产品边界](issues/77-decide-map-topology-sync-and-snapshot-product-boundary.md) — 自动维护全量原子 Map/Station 目录而不缓存 Edge，以有界新鲜度、冻结任务站点、引用留存和实时 RouteCost 封闭变化与失败边界。
 - [决定归档 AGV 的恢复与身份连续性](issues/78-decide-archived-agv-restoration-and-identity-continuity.md) — 恢复沿用唯一 `agvId` 并开启新生命周期代次，RIoT 绑定可换版、运行态清零、历史保留，且只有系统管理员能在完整阻断、核验和审计边界内恢复。
 - [决定 AREA 显式覆盖的维护与生效治理](issues/79-decide-area-override-maintenance-and-effectivity-governance.md) — 当前 8005 不提供 AREA 显式覆盖；机台站点只按 AREA 命名规则识别，公共业务点改用 PublicStationFunction 到 FixedTaskStation 的独立显式绑定。
 - [决定 RIoT 建单未确认时任务绑定、重试与释放边界](issues/80-decide-riot-order-creation-uncertainty-binding-retry-release.md) — 以 DispatchGeneration 和稳定 `upperId` 封闭建单确认，只在唯一匹配订单通过接管核验后进入进行中，并对拒绝、双重未知、重试暂停、终态对账及重派建立唯一性与审计门禁。
+- [回流并核对 MesIngestWatch V2 运维定义](issues/81-reconcile-mes-ingest-watch-v2-operability-definitions.md) — 旧 V2 只回流单 Host 只读、代次隔离、失败保留成功快照和告警不可处置等跨版本一致边界；已裁出或被新版替代的告警、刷新、保留、cursor 与可观测性语义不得升级为当前基线。
+- [决定空闲返回、停靠点资格与调度竞争边界](issues/76-decide-idle-return-parking-point-eligibility-and-arbitration.md) — 首版采用专用等待点与统一用途占有，空闲返回只作不可抢占的兜底单段移动，并以连续点位独占和失败式对账封闭资源释放。
+- [决定公共业务点绑定的维护与生效治理](issues/83-decide-public-station-binding-maintenance-and-effectivity-governance.md) — 每图公共站点按实际启用功能以不可变整集原子激活，并以变化暂停、任务冻结、重校验回滚和审计封闭变更。
+- [决定首版基线如何处理初始快照后的替代性需求](issues/84-decide-first-baseline-treatment-of-post-snapshot-superseding-requirements.md) — 首版以补充证据快照吸收冻结点前的最新获批来源，按明确层叠排除已替代旧语义，并只为正式基线要求建立永久 REQ 身份。
+- [固定并分类首版发布前补充证据快照](issues/85-capture-and-classify-pre-release-supplemental-evidence-snapshot.md) — 已固定 9,319 条补充变化及四类材料分流，四份获批规格身份零漂移，并把唯一未批准规范候选转入独立 HITL 去留决定。
+- [决定补充快照中未批准规范候选的首版去留](issues/86-decide-supplemental-unapproved-normative-candidate-disposition.md) — 当前 MES_TASK_UNION README 只作实现、发布完整性和验证支持证据，不再生成首版原子候选；旧重复键措辞保留为首版前替代历史。
+- [建立首版规范需求候选与来源层叠总账](issues/87-build-v1-canonical-requirement-candidate-ledger.md) — 已形成 348 条等待最终批准的唯一当前候选，并以独立去留账无损保留 12,452 条旧声明且批准升级为零。
+- [生成首版原子需求最终批准批次](issues/88-create-v1-final-approval-batches.md) — 旧 102 批建议已逐项退出最终批准单位，348 条当前候选按来源与责任边界重组为 95 张逐项 HITL 批准票，并以全部批准为首版发布硬阻塞。
+- [最终批准 REQ-0001–REQ-0004：新版 MesIngest 当前规范](issues/89-approve-req-0001-req-0004.md) — 已按候选总账 `9ba7f613…` 与 V1-APP-001 当前身份逐项批准 MesIngest 职责边界、完整技术栈、唯一联合查询原稿及轮次结果语义。
+- [最终批准 REQ-0005–REQ-0008：新版 MesIngest 当前规范](issues/90-approve-req-0005-req-0008.md) — 已按候选总账 `9ba7f613…` 与 V1-APP-002 当前身份逐项批准轮次幂等、ProjectionCommit 原子提交、稳定多重集合比较及未归属 MES 观测处置。
+- [最终批准 REQ-0009–REQ-0012：新版 MesIngest 当前规范](issues/91-approve-req-0009-req-0012.md) — 已按候选总账 `9ba7f613…` 与 V1-APP-003 当前身份逐项批准 TransportDemandKey 跨层比较一致性、Series 身份连续性、Demand 世代连接及实时 MES 字段语义。
+- [最终批准 REQ-0013–REQ-0016：新版 MesIngest 当前规范](issues/92-approve-req-0013-req-0016.md) — 已按候选总账 `9ba7f613…` 与 V1-APP-004 当前身份逐项批准重复键原始行保存、多 WorkType 独立 Series、内部缺席权威及两轮重启保护语义。
+
+- [最终批准 REQ-0017–REQ-0020：新版 MesIngest 当前规范](issues/93-approve-req-0017-req-0020.md) — 用户逐项批准 REQ-0017–REQ-0020 的当前精确文本、范围与验证方法，绑定 V1-APP-005、payload `cdf5b1adfbe042fdad4d96c33f508bb707461ebcf445c83c4ef676e3c6fd4193`、当前候选总账及 manifest。
+- [最终批准 REQ-0021–REQ-0024：新版 MesIngest 当前规范](issues/94-approve-req-0021-req-0024.md) — 用户逐项批准 REQ-0021–REQ-0024 的当前精确文本、范围与验证方法，绑定 V1-APP-006、payload `115809e553becc7853d1e689921481825d97d07ebda0077c15c8c54a1b0516c5`、当前候选总账及 manifest。
+- [最终批准 REQ-0025–REQ-0028：新版 MesIngest 当前规范](issues/95-approve-req-0025-req-0028.md) — 用户逐项批准 REQ-0025–REQ-0028 的当前精确文本、范围与验证方法，绑定 V1-APP-007、payload `e45de05e9325758851dcc04e96f8f29fe6f9722ef58e8783f489b51c053d38b5`、当前候选总账及 manifest。
+- [最终批准 REQ-0029–REQ-0032：新版 MesIngest 当前规范](issues/96-approve-req-0029-req-0032.md) — 用户逐项批准 REQ-0029–REQ-0032 的当前精确文本、范围与验证方法，绑定 V1-APP-008、payload `a92dc0a5ce94512eea438c90003a8749405a7e0856544aefe99030fa395be33c`、当前候选总账及 manifest。
+- [最终批准 REQ-0033–REQ-0036：新版 MesIngest 当前规范](issues/97-approve-req-0033-req-0036.md) — 用户逐项批准 REQ-0033–REQ-0036 的当前精确文本、范围与验证方法，绑定 V1-APP-009、payload `8acb7d0ef00985fd1501bf2cff04f3249c7e8be06c61f90c882a86f995ded172`、当前候选总账及 manifest。
+- [最终批准 REQ-0037–REQ-0040：新版 MesIngest 当前规范](issues/98-approve-req-0037-req-0040.md) — 用户逐项批准 REQ-0037–REQ-0040 的当前精确文本、范围与验证方法，绑定 V1-APP-010、payload `a2714477c8d103f9149e642385fcf1479998198d602c5230da2b54abd3672483`、当前候选总账及 manifest。
+- [最终批准 REQ-0041–REQ-0044：新版 MesIngest 当前规范](issues/99-approve-req-0041-req-0044.md) — 用户逐项批准 REQ-0041–REQ-0044 的当前精确文本、范围与验证方法，绑定 V1-APP-011、payload `5431c7b1ae2b1d44bbd6d07d52b1d31df9a6114ba994344100a7180aaf1a8e23`、当前候选总账及 manifest。
+- [最终批准 REQ-0045–REQ-0048：新版 MesIngest 当前规范](issues/100-approve-req-0045-req-0048.md) — 用户逐项批准 REQ-0045–REQ-0048 的当前精确文本、范围与验证方法，绑定 V1-APP-012、payload `f23c93a50c9d1f6c918bc1a16b7f65a43f6534a00cba15a01ee896e391e3da16`、当前候选总账及 manifest。
+- [最终批准 REQ-0049–REQ-0052：新版 MesIngest 当前规范](issues/101-approve-req-0049-req-0052.md) — 用户逐项批准 REQ-0049–REQ-0052 的当前精确文本、范围与验证方法，绑定 V1-APP-013、payload `f9f2738669b6c3255ea00d0f976db69a8179a7ba6da26ef761b102de1132dfa9`、当前候选总账及 manifest。
+- [最终批准 REQ-0053–REQ-0056：有界存储与低内存规范](issues/102-approve-req-0053-req-0056.md) — 用户逐项批准 REQ-0053–REQ-0056 的当前精确文本、范围与验证方法，绑定 V1-APP-014、payload `5a7bb5fa40e257e14bbe05076ef61509583ebc145d8fdb88114dbfb21e1c31c6`、当前候选总账及 manifest。
+- [最终批准 REQ-0057–REQ-0060：有界存储与低内存规范](issues/103-approve-req-0057-req-0060.md) — 用户逐项批准 REQ-0057–REQ-0060 的当前精确文本、范围与验证方法，绑定 V1-APP-015、payload `579e44b26f72511f58cddded1a8456b73866f413998de871dc7f07f4884beba1`、当前候选总账及 manifest。
+- [最终批准 REQ-0061–REQ-0064：有界存储与低内存规范](issues/104-approve-req-0061-req-0064.md) — 用户逐项批准 REQ-0061–REQ-0064 的当前精确文本、范围与验证方法，绑定 V1-APP-016、payload `965055389b02d86b095e8c303328e8b62a266e37a21befa391091f02009b29b3`、当前候选总账及 manifest。
+- [最终批准 REQ-0065–REQ-0068：有界存储与低内存规范](issues/105-approve-req-0065-req-0068.md) — 用户逐项批准 REQ-0065–REQ-0068 的当前精确文本、范围与验证方法，绑定 V1-APP-017、payload `6627ce7530a08b1629eeea65ea03a0098562f3f6038025ed5f8bb01070efd0e5`、当前候选总账及 manifest。
+- [最终批准 REQ-0069–REQ-0072：有界存储与低内存规范](issues/106-approve-req-0069-req-0072.md) — 用户逐项批准 REQ-0069–REQ-0072 的当前精确文本、范围与验证方法，绑定 V1-APP-018、payload `2e1f8328ee2ac81de83012aea5e588782f001bd5073fdf71f552695ce7731352`、当前候选总账及 manifest。
+- [最终批准 REQ-0073–REQ-0076：有界存储与低内存规范](issues/107-approve-req-0073-req-0076.md) — 用户逐项批准 REQ-0073–REQ-0076 的当前精确文本、范围与验证方法，绑定 V1-APP-019、payload `d57f614cd12d078cfa3070a99c0e33451d25ca1cea3a38513350f1056c80c2a1`、当前候选总账及 manifest。
+- [最终批准 REQ-0077–REQ-0080：有界存储与低内存规范](issues/108-approve-req-0077-req-0080.md) — 用户逐项批准 REQ-0077–REQ-0080 的当前精确文本、范围与验证方法，绑定 V1-APP-020、payload `0f1edc076c3aa16483a7ca13412ac4e653127ade0fa88b98223fb50df30116a7`、当前候选总账及 manifest。
+- [最终批准 REQ-0081–REQ-0084：有界存储与低内存规范](issues/109-approve-req-0081-req-0084.md) — 用户逐项批准 REQ-0081–REQ-0084 的当前精确文本、范围与验证方法，绑定 V1-APP-021、payload `d764f1a7f3fc154d6a9ecd22c4ed42709bbf45fa8a0e1e23b8f8231762f62c30`、当前候选总账及 manifest。
+- [最终批准 REQ-0085–REQ-0088：有界存储与低内存规范](issues/110-approve-req-0085-req-0088.md) — 用户逐项批准 REQ-0085–REQ-0088 的当前精确文本、范围与验证方法，绑定 V1-APP-022、payload `e84ec20e23a41c9f570adcb3df97b3cfd1f1302ae5dfda4f61b54255a2e9e4da`、当前候选总账及 manifest。
+- [最终批准 REQ-0089–REQ-0089：有界存储与低内存规范](issues/111-approve-req-0089-req-0089.md) — 用户逐项批准 REQ-0089–REQ-0089 的当前精确文本、范围与验证方法，绑定 V1-APP-023、payload `97436982aff16bac551260437d5dc55f403283e3490763646e62afebc677ffa7`、当前候选总账及 manifest。
+- [最终批准 REQ-0090–REQ-0093：Watch AREA 实时同步规范](issues/112-approve-req-0090-req-0093.md) — 用户逐项批准 REQ-0090–REQ-0093 的当前精确文本、范围与验证方法，绑定 V1-APP-024、payload `a572ecb4391c0ee2dc45f4c50b3d92a6b4243836db275d85584666e43309da73`、当前候选总账及 manifest。
+- [最终批准 REQ-0094–REQ-0097：Watch AREA 实时同步规范](issues/113-approve-req-0094-req-0097.md) — 用户逐项批准 REQ-0094–REQ-0097 的当前精确文本、范围与验证方法，绑定 V1-APP-025、payload `791617e60455fba202396511934ebf19fbf265db9129ce2fe3edcca805ff97df`、当前候选总账及 manifest。
+- [最终批准 REQ-0098–REQ-0101：Watch AREA 实时同步规范](issues/114-approve-req-0098-req-0101.md) — 用户逐项批准 REQ-0098–REQ-0101 的当前精确文本、范围与验证方法，绑定 V1-APP-026、payload `51bc22ed356fe21e631fe0acdd902559917510158fa22d48be471a6c909ee6c8`、当前候选总账及 manifest。
+- [最终批准 REQ-0102–REQ-0105：Watch AREA 实时同步规范](issues/115-approve-req-0102-req-0105.md) — 用户逐项批准 REQ-0102–REQ-0105 的当前精确文本、范围与验证方法，绑定 V1-APP-027、payload `e55bbcc94a24a1d78d8f62f5a018ed7f6e1c24b0ca1a491e02c362064a6ea01d`、当前候选总账及 manifest。
+- [最终批准 REQ-0106–REQ-0109：Watch AREA 实时同步规范](issues/116-approve-req-0106-req-0109.md) — 用户逐项批准 REQ-0106–REQ-0109 的当前精确文本、范围与验证方法，绑定 V1-APP-028、payload `a56dc83f7a1c09a4fdafe3193c48c3d71163f7ae0847cd6fb64c2027a4f01fa2`、当前候选总账及 manifest。
+- [最终批准 REQ-0110–REQ-0113：Watch AREA 实时同步规范](issues/117-approve-req-0110-req-0113.md) — 用户逐项批准 REQ-0110–REQ-0113 的当前精确文本、范围与验证方法，绑定 V1-APP-029、payload `12c09bd1e3f8cd5cac2c895abaa7719d63bfaed2244165fafff9ad06bba3d021`、当前候选总账及 manifest。
+- [最终批准 REQ-0114–REQ-0115：Watch AREA 实时同步规范](issues/118-approve-req-0114-req-0115.md) — 用户逐项批准 REQ-0114–REQ-0115 的当前精确文本、范围与验证方法，绑定 V1-APP-030、payload `e72116a19c12a04d9800ecd536316228b4806d3a82bafd22fd261e5529a2ca4f`、当前候选总账及 manifest。
+- [最终批准 REQ-0116–REQ-0119：Demand Series Inspector E 规范](issues/119-approve-req-0116-req-0119.md) — 用户逐项批准 REQ-0116–REQ-0119 的当前精确文本、范围与验证方法，绑定 V1-APP-031、payload `c3b92e51b6fd3dce81d1c8ba857776e1ba20ebc01e117f55edc5ff2bbd64c21b`、当前候选总账及 manifest。
+- [最终批准 REQ-0120–REQ-0123：Demand Series Inspector E 规范](issues/120-approve-req-0120-req-0123.md) — 用户逐项批准 REQ-0120–REQ-0123 的当前精确文本、范围与验证方法，绑定 V1-APP-032、payload `e03e5d34c589c3eb2912e56e3d74359063fef06a11420e6f1aecf9d7cd2fb8a2`、当前候选总账及 manifest。
+- [最终批准 REQ-0124–REQ-0127：Demand Series Inspector E 规范](issues/121-approve-req-0124-req-0127.md) — 用户逐项批准 REQ-0124–REQ-0127 的当前精确文本、范围与验证方法，绑定 V1-APP-033、payload `f9b8c34f83fe6dff6d5ee829fe5c29b05a6314dc09b06a3d4b184e8735f2eed5`、当前候选总账及 manifest。
+- [最终批准 REQ-0128–REQ-0131：Demand Series Inspector E 规范](issues/122-approve-req-0128-req-0131.md) — 用户逐项批准 REQ-0128–REQ-0131 的当前精确文本、范围与验证方法，绑定 V1-APP-034、payload `11a365b0f0b7796ed85037e36b235357fd7375b8696a4238d4a7daa6a6d7aeaf`、当前候选总账及 manifest。
+- [最终批准 REQ-0132–REQ-0135：Demand Series Inspector E 规范](issues/123-approve-req-0132-req-0135.md) — 用户逐项批准 REQ-0132–REQ-0135 的当前精确文本、范围与验证方法，绑定 V1-APP-035、payload `33fe072b6b526ba74acc26cc84ed18f24227c2ae5996f3fc073ee4d8199ab4d1`、当前候选总账及 manifest。
+- [最终批准 REQ-0136–REQ-0139：Demand Series Inspector E 规范](issues/124-approve-req-0136-req-0139.md) — 用户逐项批准 REQ-0136–REQ-0139 的当前精确文本、范围与验证方法，绑定 V1-APP-036、payload `859cd1d3494fd1f8d7c056c0e7f0ffe5f082c668ca2f5177e6337bbde6eeabfe`、当前候选总账及 manifest。
+- [最终批准 REQ-0140–REQ-0143：Demand Series Inspector E 规范](issues/125-approve-req-0140-req-0143.md) — 用户逐项批准 REQ-0140–REQ-0143 的当前精确文本、范围与验证方法，绑定 V1-APP-037、payload `0c8a1b4587e69825c566bea2b92b902a3e0886b268aa2752fa109872f4e00dee`、当前候选总账及 manifest。
+- [最终批准 REQ-0144–REQ-0145：Demand Series Inspector E 规范](issues/126-approve-req-0144-req-0145.md) — 用户逐项批准 REQ-0144–REQ-0145 的当前精确文本、范围与验证方法，绑定 V1-APP-038、payload `c617cb8979978ea1b0b00c20504d125df213b1a037b052e17e53a11ca013e48a`、当前候选总账及 manifest。
+- [最终批准 REQ-0146–REQ-0149：决定 RIoT 项目 API 白名单与调用安全边界](issues/127-approve-req-0146-req-0149.md) — 用户逐项批准 REQ-0146–REQ-0149 的当前精确文本、范围与验证方法，绑定 V1-APP-039、payload `54e87924094ecb63c19c7a445320a16043c5122917ab79df9382cabad57d224e`、当前候选总账及 manifest。
+- [最终批准 REQ-0150–REQ-0153：决定运输需求身份、对账键与取消抑制边界](issues/128-approve-req-0150-req-0153.md) — 用户逐项批准 REQ-0150–REQ-0153 的当前精确文本、范围与验证方法，绑定 V1-APP-040、payload `3db5a6ae0b6a0fb02cd8a418356bf753830422e760ba2686d3d59a816b6a61ca`、当前候选总账及 manifest。
+- [最终批准 REQ-0154–REQ-0157：决定运输需求身份、对账键与取消抑制边界](issues/129-approve-req-0154-req-0157.md) — 用户逐项批准 REQ-0154–REQ-0157 的当前精确文本、范围与验证方法，绑定 V1-APP-041、payload `3642de1360a5bf0eef23d7ff4cb452b3a6402d96bb0cdd818024d58a0b172417`、当前候选总账及 manifest。
+- [最终批准 REQ-0158–REQ-0161：决定当前 MES 只读与卸货、完工回写边界](issues/130-approve-req-0158-req-0161.md) — 用户逐项批准 REQ-0158–REQ-0161 的当前精确文本、范围与验证方法，绑定 V1-APP-042、payload `191394d79ebd998e010645785c39012d241a6c9428b70d6ad036508cd387bd31`、当前候选总账及 manifest。
+- [最终批准 REQ-0162–REQ-0163：决定当前 MES 只读与卸货、完工回写边界](issues/131-approve-req-0162-req-0163.md) — 用户逐项批准 REQ-0162–REQ-0163 的当前精确文本、范围与验证方法，绑定 V1-APP-043、payload `5dd8fdce17f5aadce23ba5933e79a93dbce35c646c7edf7d9ace1a667e30ee27`、当前候选总账及 manifest。
+- [最终批准 REQ-0164–REQ-0167：决定 QUEUEING 滞留与下单前清积压策略](issues/132-approve-req-0164-req-0167.md) — 用户逐项批准 REQ-0164–REQ-0167 的当前精确文本、范围与验证方法，绑定 V1-APP-044、payload `02cd2a80eadd9ac909231bff89182e2bd5cd81634a1c6ffdcdb1ae43b4213394`、当前候选总账及 manifest。
+- [最终批准 REQ-0168–REQ-0169：决定 QUEUEING 滞留与下单前清积压策略](issues/133-approve-req-0168-req-0169.md) — 用户逐项批准 REQ-0168–REQ-0169 的当前精确文本、范围与验证方法，绑定 V1-APP-045、payload `57fec533c8e53ea63f5274e510a21a0eb9f07ce781e8c52e3ee295b5e2479832`、当前候选总账及 manifest。
+- [最终批准 REQ-0170–REQ-0173：决定充电失败改派的备用桩筛选与排队关系](issues/134-approve-req-0170-req-0173.md) — 用户逐项批准 REQ-0170–REQ-0173 的当前精确文本、范围与验证方法，绑定 V1-APP-046、payload `2c62f6d6ef64ee597a8dbe668b8b2d5004fd30064e02578e0c737f66908ae57b`、当前候选总账及 manifest。
+- [最终批准 REQ-0174–REQ-0177：决定无联网充电桩的充电失败确认与暂停触发边界](issues/135-approve-req-0174-req-0177.md) — 用户逐项批准 REQ-0174–REQ-0177 的当前精确文本、范围与验证方法，绑定 V1-APP-047、payload `5c904f0e27fdfde9dd0b6d1d6ae95e1d2a68fb206f3b5e33a54e05b1a809ea93`、当前候选总账及 manifest。
+- [最终批准 REQ-0178–REQ-0180：决定无联网充电桩的充电失败确认与暂停触发边界](issues/136-approve-req-0178-req-0180.md) — 用户逐项批准 REQ-0178–REQ-0180 的当前精确文本、范围与验证方法，绑定 V1-APP-048、payload `4ce27ab90472bc3dc2d88a82870a4f7fb93b903d998dde080c2c636d28e43556`、当前候选总账及 manifest。
+- [最终批准 REQ-0181–REQ-0184：决定 MES 运输候选的业务纳入与排除边界](issues/137-approve-req-0181-req-0184.md) — 用户逐项批准 REQ-0181–REQ-0184 的当前精确文本、范围与验证方法，绑定 V1-APP-049、payload `b98d7929fd369c178834f54b7b3852c9ba334052f4fcc7aa150f0e8cd36f32d7`、当前候选总账及 manifest。
+- [最终批准 REQ-0185–REQ-0188：决定 MES 运输候选的业务纳入与排除边界](issues/138-approve-req-0185-req-0188.md) — 用户逐项批准 REQ-0185–REQ-0188 的当前精确文本、范围与验证方法，绑定 V1-APP-050、payload `ad0f52567bbd04d766aef447924c0b9401ce881e114aeed05c956bdc448c340b`、当前候选总账及 manifest。
+- [最终批准 REQ-0189–REQ-0192：决定复合运输、分区与多 SUBLOT 组合边界](issues/139-approve-req-0189-req-0192.md) — 用户逐项批准 REQ-0189–REQ-0192 的当前精确文本、范围与验证方法，绑定 V1-APP-051、payload `5b69f3c7cdcc84a87aa661380e3933ab338f01d80a8446074d4415cec69bd4a6`、当前候选总账及 manifest。
+- [最终批准 REQ-0193–REQ-0196：决定复合运输、分区与多 SUBLOT 组合边界](issues/140-approve-req-0193-req-0196.md) — 用户逐项批准 REQ-0193–REQ-0196 的当前精确文本、范围与验证方法，绑定 V1-APP-052、payload `b006e063eaf246b5c8cb1ab7161e955b372f26fd1836c8533abc0f8b2a31c10a`、当前候选总账及 manifest。
+- [最终批准 REQ-0197–REQ-0199：决定复合运输、分区与多 SUBLOT 组合边界](issues/141-approve-req-0197-req-0199.md) — 用户逐项批准 REQ-0197–REQ-0199 的当前精确文本、范围与验证方法，绑定 V1-APP-053、payload `a37badf9cf83865412d9f8d833a208372a1ac930925bdc980e9446c3a9b4374b`、当前候选总账及 manifest。
+- [最终批准 REQ-0200–REQ-0203：决定派车评分、路网成本与无车响应升级规则](issues/142-approve-req-0200-req-0203.md) — 用户逐项批准 REQ-0200–REQ-0203 的当前精确文本、范围与验证方法，绑定 V1-APP-054、payload `6e5425cfbec39a879cedc731353a43339364341a3e22be9508dc2f0b598a41b4`、当前候选总账及 manifest。
+- [最终批准 REQ-0204–REQ-0207：决定派车评分、路网成本与无车响应升级规则](issues/143-approve-req-0204-req-0207.md) — 用户逐项批准 REQ-0204–REQ-0207 的当前精确文本、范围与验证方法，绑定 V1-APP-055、payload `851bd4e0a1d215a43ca21c674912ad8fbe2d6d97ff1998b28919832c37904a46`、当前候选总账及 manifest。
+- [最终批准 REQ-0208–REQ-0210：决定派车评分、路网成本与无车响应升级规则](issues/144-approve-req-0208-req-0210.md) — 用户逐项批准 REQ-0208–REQ-0210 的当前精确文本、范围与验证方法，绑定 V1-APP-056、payload `c1fabbe5fe5540110ef05552502dafe4522e247015abf8294f750d541ed914b7`、当前候选总账及 manifest。
+- [最终批准 REQ-0211–REQ-0214：决定同站多任务取消与人工选任务开门边界](issues/145-approve-req-0211-req-0214.md) — 用户逐项批准 REQ-0211–REQ-0214 的当前精确文本、范围与验证方法，绑定 V1-APP-057、payload `8b83487d402bea0823c3be6c60b67c2a56494ca9fe970d7c1cccf03df6bc2017`、当前候选总账及 manifest。
+- [最终批准 REQ-0215–REQ-0218：决定同站多任务取消与人工选任务开门边界](issues/146-approve-req-0215-req-0218.md) — 用户逐项批准 REQ-0215–REQ-0218 的当前精确文本、范围与验证方法，绑定 V1-APP-058、payload `bcbdbf2e43c49252299a20f839d06541c1ba142814267b9c6b37ba237962896a`、当前候选总账及 manifest。
+- [最终批准 REQ-0219–REQ-0220：决定同站多任务取消与人工选任务开门边界](issues/147-approve-req-0219-req-0220.md) — 用户逐项批准 REQ-0219–REQ-0220 的当前精确文本、范围与验证方法，绑定 V1-APP-059、payload `f10238efe0aac7e3dce9bd64de814c15496e523460e8bcb12421aeaed640ab27`、当前候选总账及 manifest。
+- [最终批准 REQ-0221–REQ-0224：决定到站拒收、取消与完工后纠错边界](issues/148-approve-req-0221-req-0224.md) — 用户逐项批准 REQ-0221–REQ-0224 的当前精确文本、范围与验证方法，绑定 V1-APP-060、payload `0f515b4a5c1edfc6ad369156d16348bae573e96073d5d35a2e21c15e6d2a2999`、当前候选总账及 manifest。
+- [最终批准 REQ-0225–REQ-0228：决定到站拒收、取消与完工后纠错边界](issues/149-approve-req-0225-req-0228.md) — 用户逐项批准 REQ-0225–REQ-0228 的当前精确文本、范围与验证方法，绑定 V1-APP-061、payload `d7f8cfef98fc36c351fb3426ca7e0baaf4dbed8a2a425943b499903f8a622aac`、当前候选总账及 manifest。
+- [最终批准 REQ-0229–REQ-0231：决定到站拒收、取消与完工后纠错边界](issues/150-approve-req-0229-req-0231.md) — 用户逐项批准 REQ-0229–REQ-0231 的当前精确文本、范围与验证方法，绑定 V1-APP-062、payload `67952d3e38d778c6f08fa48dc629687c251ad4f963502a184ff52e13e71798bf`、当前候选总账及 manifest。
+- [最终批准 REQ-0232–REQ-0235：决定故障车辆隔离、货物处置与人工越权边界](issues/151-approve-req-0232-req-0235.md) — 用户逐项批准 REQ-0232–REQ-0235 的当前精确文本、范围与验证方法，绑定 V1-APP-063、payload `602f661a024452178960d8751f7f51e5b91ad503434a57561f959739f9615dd5`、当前候选总账及 manifest。
+- [最终批准 REQ-0236–REQ-0239：决定故障车辆隔离、货物处置与人工越权边界](issues/152-approve-req-0236-req-0239.md) — 用户逐项批准 REQ-0236–REQ-0239 的当前精确文本、范围与验证方法，绑定 V1-APP-064、payload `1216f885fea36d02f4f1c866ed34d14cbe1f001f16c191c12014a566621c9787`、当前候选总账及 manifest。
+- [最终批准 REQ-0240–REQ-0242：决定故障车辆隔离、货物处置与人工越权边界](issues/153-approve-req-0240-req-0242.md) — 用户逐项批准 REQ-0240–REQ-0242 的当前精确文本、范围与验证方法，绑定 V1-APP-065、payload `a66010dbd25763921ab33d4d7b7586ae2f64b46596cd0be7e5213cc804b3ba35`、当前候选总账及 manifest。
+- [最终批准 REQ-0243–REQ-0246：决定安全联锁失败升级与紧急停止边界](issues/154-approve-req-0243-req-0246.md) — 用户逐项批准 REQ-0243–REQ-0246 的当前精确文本、范围与验证方法，绑定 V1-APP-066、payload `7a0d1296d1c66fc6172f563f9ca15210583a2684d8d68cbe9e02e49c77c31ec6`、当前候选总账及 manifest。
+- [最终批准 REQ-0247–REQ-0249：决定安全联锁失败升级与紧急停止边界](issues/155-approve-req-0247-req-0249.md) — 用户逐项批准 REQ-0247–REQ-0249 的当前精确文本、范围与验证方法，绑定 V1-APP-067、payload `1cbcc9b99ca275a311dcea844a426a874f3a6ed8dae3dce9975f886919fa8013`、当前候选总账及 manifest。
+- [最终批准 REQ-0250–REQ-0253：决定人员登录、维护操作与高风险权限边界](issues/156-approve-req-0250-req-0253.md) — 用户逐项批准 REQ-0250–REQ-0253 的当前精确文本、范围与验证方法，绑定 V1-APP-068、payload `d337129ca98c4ada89a7b839263af6ffd1dfbea5df815c642956e7735c0a9f7a`、当前候选总账及 manifest。
+- [最终批准 REQ-0254–REQ-0256：决定人员登录、维护操作与高风险权限边界](issues/157-approve-req-0254-req-0256.md) — 用户逐项批准 REQ-0254–REQ-0256 的当前精确文本、范围与验证方法，绑定 V1-APP-069、payload `7fb56f4692f04d72db840dc7b41b7f9370ff59ecadf84776f1a9f154f916a4dd`、当前候选总账及 manifest。
+- [最终批准 REQ-0257–REQ-0260：决定仓位模型与 IO 映射配置、验证和启用门禁](issues/158-approve-req-0257-req-0260.md) — 用户逐项批准 REQ-0257–REQ-0260 的当前精确文本、范围与验证方法，绑定 V1-APP-070、payload `7b4818f9b629a96c73eb30c3619c6fdb36fc13920f5f341257ed0c03c58d97b5`、当前候选总账及 manifest。
+- [最终批准 REQ-0261–REQ-0264：决定仓位模型与 IO 映射配置、验证和启用门禁](issues/159-approve-req-0261-req-0264.md) — 用户逐项批准 REQ-0261–REQ-0264 的当前精确文本、范围与验证方法，绑定 V1-APP-071、payload `7439b089818b63f6181b1bc9a97e408bb15ca8edf6e44ea559ef1800758a4608`、当前候选总账及 manifest。
+- [最终批准 REQ-0265–REQ-0267：决定仓位模型与 IO 映射配置、验证和启用门禁](issues/160-approve-req-0265-req-0267.md) — 用户逐项批准 REQ-0265–REQ-0267 的当前精确文本、范围与验证方法，绑定 V1-APP-072、payload `e4d24b898bb1ac23e2285a8ebcad26c7458ca585877ba685af6d5956b841a14b`、当前候选总账及 manifest。
+- [最终批准 REQ-0268–REQ-0271：决定监控新鲜度、告警升级、重试与日志留存规则](issues/161-approve-req-0268-req-0271.md) — 用户逐项批准 REQ-0268–REQ-0271 的当前精确文本、范围与验证方法，绑定 V1-APP-073、payload `b8556b1a60034e91d02a7fb999ca2ab784d9bdb93356aa9ce666cd9c67336787`、当前候选总账及 manifest。
+- [最终批准 REQ-0272–REQ-0272：决定监控新鲜度、告警升级、重试与日志留存规则](issues/162-approve-req-0272-req-0272.md) — 用户逐项批准 REQ-0272–REQ-0272 的当前精确文本、范围与验证方法，绑定 V1-APP-074、payload `4f9678f09f57203671034f9ac4b0cfa941bb91447e52375e7f3eb4eeffd551f8`、当前候选总账及 manifest。
+- [最终批准 REQ-0273–REQ-0276：决定账户恢复与密码增强策略](issues/163-approve-req-0273-req-0276.md) — 用户逐项批准 REQ-0273–REQ-0276 的当前精确文本、范围与验证方法，绑定 V1-APP-075、payload `89e656424cdbcbbe787933a4ad29c7570783f6c3110bbfe7d24935f161a41fa5`、当前候选总账及 manifest。
+- [最终批准 REQ-0277–REQ-0280：决定账户恢复与密码增强策略](issues/164-approve-req-0277-req-0280.md) — 用户逐项批准 REQ-0277–REQ-0280 的当前精确文本、范围与验证方法，绑定 V1-APP-076、payload `521d0c8a056c7bca40fbcb93852fbea8378463cd4f3b3c38cc9230ae99990a18`、当前候选总账及 manifest。
+- [最终批准 REQ-0281–REQ-0284：决定充电阈值、配置变更与异常生命周期](issues/165-approve-req-0281-req-0284.md) — 用户逐项批准 REQ-0281–REQ-0284 的当前精确文本、范围与验证方法，绑定 V1-APP-077、payload `4e93e2533fd9153c09fdb7b0b8131eef309b5283e7949b7ad429b18dbf9c29c6`、当前候选总账及 manifest。
+- [最终批准 REQ-0285–REQ-0288：决定充电阈值、配置变更与异常生命周期](issues/166-approve-req-0285-req-0288.md) — 用户逐项批准 REQ-0285–REQ-0288 的当前精确文本、范围与验证方法，绑定 V1-APP-078、payload `506b95a3fa5f1d2f0aa2e4047b43ba7dbb6694dbf1ff164747addaa9c67bd604`、当前候选总账及 manifest。
+- [最终批准 REQ-0289–REQ-0292：决定空闲返回、停靠点资格与调度竞争边界](issues/167-approve-req-0289-req-0292.md) — 用户逐项批准 REQ-0289–REQ-0292 的当前精确文本、范围与验证方法，绑定 V1-APP-079、payload `e4f3d133645cb65185265056b8f6108400ebed24e9fcdda9f7c4c146ac199fca`、当前候选总账及 manifest。
+- [最终批准 REQ-0293–REQ-0296：决定空闲返回、停靠点资格与调度竞争边界](issues/168-approve-req-0293-req-0296.md) — 用户逐项批准 REQ-0293–REQ-0296 的当前精确文本、范围与验证方法，绑定 V1-APP-080、payload `0548ff695070487d1fdd9cf9d538b3e9d92bc2f7b4c1ff12469489641d6efe27`、当前候选总账及 manifest。
+- [最终批准 REQ-0297–REQ-0297：决定空闲返回、停靠点资格与调度竞争边界](issues/169-approve-req-0297-req-0297.md) — 用户逐项批准 REQ-0297–REQ-0297 的当前精确文本、范围与验证方法，绑定 V1-APP-081、payload `87a6354857886927fff743d2d9090b344b53aa318d70db11861b38fa80be8263`、当前候选总账及 manifest。
+- [最终批准 REQ-0298–REQ-0301：决定地图拓扑同步与历史快照产品边界](issues/170-approve-req-0298-req-0301.md) — 用户逐项批准 REQ-0298–REQ-0301 的当前精确文本、范围与验证方法，绑定 V1-APP-082、payload `69c523cec37c441ca0325b64226827d2935fd477282e18cbe05aacd5917872d7`、当前候选总账及 manifest。
+- [最终批准 REQ-0302–REQ-0305：决定地图拓扑同步与历史快照产品边界](issues/171-approve-req-0302-req-0305.md) — 用户逐项批准 REQ-0302–REQ-0305 的当前精确文本、范围与验证方法，绑定 V1-APP-083、payload `acb0effb5bc88d9812aea9c98fc4b1a42acd6021dc4f3ee2cc96406ab4db606f`、当前候选总账及 manifest。
+- [最终批准 REQ-0306–REQ-0309：决定地图拓扑同步与历史快照产品边界](issues/172-approve-req-0306-req-0309.md) — 用户逐项批准 REQ-0306–REQ-0309 的当前精确文本、范围与验证方法，绑定 V1-APP-084、payload `935ce29e076f740ef68d888796b3db8b6652152341dd9552a8f825352039ecf3`、当前候选总账及 manifest。
+- [最终批准 REQ-0310–REQ-0313：决定归档 AGV 的恢复与身份连续性](issues/173-approve-req-0310-req-0313.md) — 用户逐项批准 REQ-0310–REQ-0313 的当前精确文本、范围与验证方法，绑定 V1-APP-085、payload `bbc6ab0db7181819bd22b641ed3ca1c02f6d6d3aa8f7889c83219e92ae0c1dd5`、当前候选总账及 manifest。
+- [最终批准 REQ-0314–REQ-0317：决定归档 AGV 的恢复与身份连续性](issues/174-approve-req-0314-req-0317.md) — 用户逐项批准 REQ-0314–REQ-0317 的当前精确文本、范围与验证方法，绑定 V1-APP-086、payload `a9d831e008d0b6583e4d9bbe19934b07847485877209b23701b130ea3cf05cab`、当前候选总账及 manifest。
+- [最终批准 REQ-0318–REQ-0320：决定归档 AGV 的恢复与身份连续性](issues/175-approve-req-0318-req-0320.md) — 用户逐项批准 REQ-0318–REQ-0320 的当前精确文本、范围与验证方法，绑定 V1-APP-087、payload `3ac3fd43716355b5edf9824b2b54fccf687aa81736b72f6538a6305a9b98f145`、当前候选总账及 manifest。
+- [最终批准 REQ-0321–REQ-0324：决定 AREA 显式覆盖的维护与生效治理](issues/176-approve-req-0321-req-0324.md) — 用户逐项批准 REQ-0321–REQ-0324 的当前精确文本、范围与验证方法，绑定 V1-APP-088、payload `4a3b9574b15bf5d34c56190415dacd1c7a758fc7eee0d8e8f7f305fad6a1a8e3`、当前候选总账及 manifest。
+- [最终批准 REQ-0325–REQ-0326：决定 AREA 显式覆盖的维护与生效治理](issues/177-approve-req-0325-req-0326.md) — 用户逐项批准 REQ-0325–REQ-0326 的当前精确文本、范围与验证方法，绑定 V1-APP-089、payload `5f6e22b3288dd446e0b4109bdba36893828ffa8d75d74035b0b83fa5e7de7ade`、当前候选总账及 manifest。
+- [最终批准 REQ-0327–REQ-0330：决定 RIoT 建单未确认时任务绑定、重试与释放边界](issues/178-approve-req-0327-req-0330.md) — 用户逐项批准 REQ-0327–REQ-0330 的当前精确文本、范围与验证方法，绑定 V1-APP-090、payload `3dde53038df76772b12a1a673e88e1374894fb27a30c9b5e3f5aa9c629e7c0ff`、当前候选总账及 manifest。
+- [最终批准 REQ-0331–REQ-0333：决定 RIoT 建单未确认时任务绑定、重试与释放边界](issues/179-approve-req-0331-req-0333.md) — 用户逐项批准 REQ-0331–REQ-0333 的当前精确文本、范围与验证方法，绑定 V1-APP-091、payload `4dd30c49c45a026aa83b27089405125b1389a013a52cee59f5e9693655edb965`、当前候选总账及 manifest。
+- [最终批准 REQ-0334–REQ-0337：决定公共业务点绑定的维护与生效治理](issues/180-approve-req-0334-req-0337.md) — 用户逐项批准 REQ-0334–REQ-0337 的当前精确文本、范围与验证方法，绑定 V1-APP-092、payload `ed0b2656c7da73ec50a1931291aa821e71d3d420e340fd36f65fa0689f72568e`、当前候选总账及 manifest。
+- [最终批准 REQ-0338–REQ-0341：决定公共业务点绑定的维护与生效治理](issues/181-approve-req-0338-req-0341.md) — 用户逐项批准 REQ-0338–REQ-0341 的当前精确文本、范围与验证方法，绑定 V1-APP-093、payload `d9a77e430860aa572c3d932f72c0d6df4386b267768ff304a8633ceb90ad609e`、当前候选总账及 manifest。
+- [最终批准 REQ-0342–REQ-0345：决定公共业务点绑定的维护与生效治理](issues/182-approve-req-0342-req-0345.md) — 用户逐项批准 REQ-0342–REQ-0345 的当前精确文本、范围与验证方法，绑定 V1-APP-094、payload `98292014a93e96d66af354cf1652b62be0a0eac44a98ebe7b3545ec3d1a4bed2`、当前候选总账及 manifest。
+- [最终批准 REQ-0346–REQ-0348：决定公共业务点绑定的维护与生效治理](issues/183-approve-req-0346-req-0348.md) — 用户逐项批准 REQ-0346–REQ-0348 的当前精确文本、范围与验证方法，绑定 V1-APP-095、payload `60c23ed7b32ebff493041565bdc86c3fc13ca32997fe0f1cdc8327e79f73c2c3`、当前候选总账及 manifest。
 
 ## Not yet specified
 
-- 开放 HITL 决策全部解决并形成规范候选基线条目后，依据当前 102 个可审查批次建议生成最终批准票据；批次可随规范条目数量和责任边界调整，只有批准结果可以进入首个基线版本。
-- 批准完成后，生成首个可独立阅读、保留统一规范文本与不可变原始证据的当前需求基线版本；具体发布任务等待候选条目与批准批次明确后再生成。
+<!-- 当前没有仍处于雾中的范围；首版发布任务已毕业为开放票据并由全部最终批准票阻塞。 -->
 
 ## Out of scope
 
+- [验证 RIoT 重叠站点的车辆当前位置身份语义](issues/82-validate-riot-overlapping-station-current-position-semantics.md) — 用户于 2026-08-24 取消本项受控实测；它不再进入当前基线路线，且取消不产生 `currentPosition` 可区分同坐标站点角色的证据。
 - 车载端、服务端和共同协议的正式 spec 编写。
 - 系统设计、架构选择、接口设计和代码开发。
 - 将当前代码行为自动认定为正确需求。
