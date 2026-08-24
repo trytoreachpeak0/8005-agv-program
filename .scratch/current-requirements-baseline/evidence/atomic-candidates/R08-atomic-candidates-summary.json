@@ -1,0 +1,73 @@
+{
+  "approval_upgrades": 0,
+  "by_class": {
+    "canonical-term-and-prohibited-synonym-candidate": 130,
+    "cross-domain-business-rule-candidate": 248,
+    "domain-term-or-invariant-definition-candidate": 138,
+    "embedded-cross-domain-technical-design-decision": 291,
+    "identity-role-or-authorization-rule-candidate": 89,
+    "legacy-vocabulary-governance-or-history-evidence": 11,
+    "legacy-vocabulary-or-domain-claim-evidence": 109,
+    "operator-facing-product-behavior-candidate": 48,
+    "physical-fact-or-hardware-constraint-candidate": 35,
+    "source-status-rationale-or-derivation-evidence": 118
+  },
+  "by_route": {
+    "evidence-only": 238,
+    "exclude-from-requirement-approval": 291,
+    "needs-business-owner-and-explicit-approval": 248,
+    "needs-domain-owner-and-explicit-approval-before-context-update": 268,
+    "needs-hardware-field-evidence-and-explicit-approval": 35,
+    "needs-operator-product-owner-and-explicit-approval": 48,
+    "needs-role-authority-and-explicit-approval": 89
+  },
+  "by_source": {
+    "R08-01": 474,
+    "R08-16": 19,
+    "R08-19": 24,
+    "R08-37": 48,
+    "R08-38": 31,
+    "R08-40": 80,
+    "R08-41": 43,
+    "R08-42": 25,
+    "R08-43": 35,
+    "R08-44": 33,
+    "R08-45": 24,
+    "R08-47": 69,
+    "R08-48": 41,
+    "R08-50": 28,
+    "R08-53": 52,
+    "R08-54": 26,
+    "R08-55": 15,
+    "R08-56": 30,
+    "R08-57": 120
+  },
+  "context_avoid_entries": 130,
+  "context_terms": 130,
+  "exact_duplicate_rows": 49,
+  "excluded_batch_documents_not_extracted": 38,
+  "glossary_table_rows": 109,
+  "legacy_glossary_rows": 120,
+  "mixed_route_remaining": 0,
+  "permanent_requirement_ids": 0,
+  "pointer_counts": {
+    "CF-R01-001": 51,
+    "CF-R01-002": 4,
+    "EVID-R08-001": 82,
+    "RES-R08-001": 44,
+    "RES-R08-002": 6,
+    "RES-R08-003": 594
+  },
+  "pointer_definitions": {
+    "CF-R01-001": "TransportDemandKey / MES 需求业务键的跨批次冲突线索。",
+    "CF-R01-002": "MES 当前阶段只读与回写主张的跨批次冲突线索。",
+    "EVID-R08-001": "“补齐 8005 仓位硬件身份与现场信号证据”已绑定用户直接确认，但原文档本身不因此整份获批。",
+    "RES-R08-001": "“决定操作员上下文的清除时点”已以 StopClosureCommit 解决 ADR 0018/0055 冲突。",
+    "RES-R08-002": "“决定装货待整批确认阶段是否存在”已排除待整批确认阶段。",
+    "RES-R08-003": "“确定领域词汇唯一入口与旧术语表关系”已固定根 CONTEXT.md 唯一入口闭环。"
+  },
+  "reframing_original_rows": 29,
+  "reframing_output_rows": 72,
+  "source_documents": 19,
+  "total": 1217
+}

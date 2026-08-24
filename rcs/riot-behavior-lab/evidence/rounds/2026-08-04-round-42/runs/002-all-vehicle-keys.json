@@ -1,0 +1,42 @@
+{
+  "at": "2026-08-04T16:53:17.9504267+08:00",
+  "elapsedMs": 65,
+  "request": {
+    "method": "GET",
+    "url": "http://172.10.1.72:8888/api/task/vehicles/getAllVehicleKeys",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "bytes": 840,
+    "contentType": "application/json; charset=UTF-8",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": [
+        "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+        "BROKERX-6134f023aa654abead51ffe7bbbcd091",
+        "BROKERX-3929103234654e7bbceb972979ab02cf",
+        "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+        "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+        "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+        "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+        "BROKERX-52501bcbe60f4723bc815f24fc763c1e",
+        "BROKERX-6c2b93a073c74072a7ffa74c84c6d78d",
+        "BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4",
+        "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+        "BROKERX-03b0297e22f14df393a31e424dff7a80",
+        "BROKERX-7cfc7a2757674e56907162cb2f95c746",
+        "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+        "BROKERX-757de62710d84cec9fe9907691672cbc",
+        "BROKERX-f2b50ed499924f86b88f56fd4af9ae30",
+        "BROKERX-aab9786833544b9fb363b968049da7e5",
+        "BROKERX-a9984c6399a442ca987f60ddcb63a90c"
+      ],
+      "tid": ""
+    }
+  }
+}

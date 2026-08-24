@@ -59,3 +59,7 @@
 每个 **follow_up_ticket=yes** 批次的调查都必须记录：来源身份、捕获/形成时间、版本或历史关系、具名批准证据、批准适用范围、当前版本适用性、重复/派生关系和仍缺少的证据。调查只能做文档级证据分类；遇到真实冲突时另建逐项 HITL 票，遇到可独立批准的需求时留待后续原子需求分类与批准票。
 
 现状证据批次不单独升级为需求调查票。候选批次可按路径和哈希引用它们来验证实现、环境或外部接口事实，但代码行为、测试通过、配置存在、日志/实验观察均不构成批准。
+
+## Git 状态追加勘误
+
+本清单保留初始快照的原始 `git_status` 字段，不静默重写。调查时必须叠加 [initial-snapshot/git-status-corrections.tsv](../initial-snapshot/git-status-corrections.tsv)：58 条非 ASCII 路径由 `untracked` 修正为 `tracked-clean`，有效统计为 `tracked-clean=1762`、`untracked=47`。根因、逐路径证据和验证方法见 [初始快照 Git 状态追加勘误](../initial-snapshot/git-status-correction.md)。

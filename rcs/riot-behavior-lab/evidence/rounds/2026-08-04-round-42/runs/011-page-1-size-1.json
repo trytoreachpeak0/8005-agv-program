@@ -1,0 +1,67 @@
+{
+  "at": "2026-08-04T16:53:18.1980690+08:00",
+  "elapsedMs": 91,
+  "request": {
+    "method": "GET",
+    "url": "http://172.10.1.72:8888/api/task/vehicles?pageNum=1&pageSize=1",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "bytes": 904,
+    "contentType": "application/json; charset=UTF-8",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": [
+        {
+          "actionState": "AT_FINISHED",
+          "battery": 78,
+          "batteryState": "NO_CHARGE",
+          "breakSwitchState": "MOVABLE",
+          "confidence": "77%",
+          "currentMap": "华士新厂",
+          "currentPosition": 13,
+          "desc": "",
+          "deviceId": 42,
+          "deviceKey": "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+          "deviceName": "磨划晶圆AGV",
+          "emergencyState": "OK",
+          "enable": true,
+          "enableTime": "1970-01-01 08:00:00",
+          "existedInGroup": [],
+          "hostPort": "10.20.36.4:5001",
+          "loadState": 0,
+          "locationState": "LOCATION_STATE_RUNNING",
+          "lockStatus": 0,
+          "mode": "MODE_AUTO",
+          "modelVersion": "0",
+          "movementState": "MT_FINISHED",
+          "nodeType": 1,
+          "position": {
+            "confidence": 77,
+            "pitch": 0,
+            "roll": 0,
+            "x": -53549,
+            "y": -12060,
+            "yaw": -1579,
+            "z": 0
+          },
+          "powerMode": "POWER_MODE_FULLER",
+          "procState": "IDLE",
+          "productKey": "standard.oasis.300ul",
+          "robotModel": "oasis.300ul",
+          "speed": 0.0,
+          "status": 1,
+          "sysState": "IDLE",
+          "totalFinishOrder": 419,
+          "totalProcessOrder": 426
+        }
+      ],
+      "tid": ""
+    }
+  }
+}

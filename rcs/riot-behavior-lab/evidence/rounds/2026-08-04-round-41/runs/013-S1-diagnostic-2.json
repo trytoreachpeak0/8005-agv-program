@@ -1,0 +1,30 @@
+{
+    "at":  "2026-08-04T16:24:32.5801912+08:00",
+    "elapsedMs":  75,
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/task/vehicles/queryVehicleNotAssignOrder/BROKERX-aee2f93d717546cf9510c98c854fe83e/order-2084556488533213184",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  null
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"reason\":\"以车当前的坐标为起点,以订单目的地为终点,无法规划路径\",\"suggestList\":[\"1、检测地图路线，起点到终点要有可到达的路径\",\"2、若出现残缺路径，需要手动移动车辆到可到达的路网上\",\"3、或者取消订单，重新下发起点到终点可以规划路径的订单\"]},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "reason":  "以车当前的坐标为起点,以订单目的地为终点,无法规划路径",
+                                                   "suggestList":  [
+                                                                       "1、检测地图路线，起点到终点要有可到达的路径",
+                                                                       "2、若出现残缺路径，需要手动移动车辆到可到达的路网上",
+                                                                       "3、或者取消订单，重新下发起点到终点可以规划路径的订单"
+                                                                   ]
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

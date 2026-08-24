@@ -1,0 +1,80 @@
+{
+    "at":  "2026-08-04T16:09:26.4836801+08:00",
+    "elapsedMs":  125,
+    "request":  {
+                    "method":  "POST",
+                    "url":  "http://172.10.1.72:8888/api/order/v1/add/byDefaultMissions",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"isAppointEnable\":1,\"lockStatus\":0,\"orderName\":\"riot-behavior-lab-R40-S1-offline-20260804-160926\",\"upperId\":\"riot-behavior-lab-R40-S1-offline-20260804-160926\",\"mission\":[{\"type\":\"move\",\"mapId\":30,\"destination\":3}]}"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"appointVehicleGroupId\":0,\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"createTime\":\"2026-08-04 16:11:07\",\"createdBy\":\"api-test\",\"endStationName\":\"站点3\",\"endStationNo\":3,\"finalState\":false,\"id\":497177,\"isAppointEnable\":1,\"lockStatus\":0,\"missions\":[{\"actionId\":0,\"actionName\":\"\",\"actionParam1\":0,\"actionParam2\":0,\"actionParamStr\":\"\",\"createTime\":\"2026-08-04 16:11:07\",\"createType\":0,\"destination\":3,\"destinationName\":\"\",\"executingIndex\":0,\"failStrategy\":\"\",\"failValue\":\"\",\"functionKey\":\"\",\"id\":7539999,\"isDeleted\":0,\"length\":0,\"mapId\":30,\"mapName\":\"\",\"missionState\":0,\"orderId\":497177,\"orderUuid\":\"ff679bfa-1404-480a-b064-7a1691c31b5c\",\"resultCode\":0,\"resultStr\":\"\",\"speed\":0.0,\"successStrategy\":\"SUCCESS_STRATEGY_VOID\",\"type\":\"move\",\"updateTime\":\"2026-08-04 16:11:07\",\"width\":0}],\"modifiedBy\":\"api-test\",\"orderId\":\"order-2084552698480427008\",\"orderName\":\"riot-behavior-lab-R40-S1-offline-20260804-160926\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"source\":\"FMS\",\"startEndStationNameDetail\":\"null null \u003e null null\",\"startStationName\":\"站点3\",\"startStationNo\":3,\"updateTime\":\"2026-08-04 16:11:07\",\"upperId\":\"riot-behavior-lab-R40-S1-offline-20260804-160926\",\"userId\":0},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "appointVehicleGroupId":  0,
+                                                   "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                   "createTime":  "2026-08-04 16:11:07",
+                                                   "createdBy":  "api-test",
+                                                   "endStationName":  "站点3",
+                                                   "endStationNo":  3,
+                                                   "finalState":  false,
+                                                   "id":  497177,
+                                                   "isAppointEnable":  1,
+                                                   "lockStatus":  0,
+                                                   "missions":  [
+                                                                    {
+                                                                        "actionId":  0,
+                                                                        "actionName":  "",
+                                                                        "actionParam1":  0,
+                                                                        "actionParam2":  0,
+                                                                        "actionParamStr":  "",
+                                                                        "createTime":  "2026-08-04 16:11:07",
+                                                                        "createType":  0,
+                                                                        "destination":  3,
+                                                                        "destinationName":  "",
+                                                                        "executingIndex":  0,
+                                                                        "failStrategy":  "",
+                                                                        "failValue":  "",
+                                                                        "functionKey":  "",
+                                                                        "id":  7539999,
+                                                                        "isDeleted":  0,
+                                                                        "length":  0,
+                                                                        "mapId":  30,
+                                                                        "mapName":  "",
+                                                                        "missionState":  0,
+                                                                        "orderId":  497177,
+                                                                        "orderUuid":  "ff679bfa-1404-480a-b064-7a1691c31b5c",
+                                                                        "resultCode":  0,
+                                                                        "resultStr":  "",
+                                                                        "speed":  0.0,
+                                                                        "successStrategy":  "SUCCESS_STRATEGY_VOID",
+                                                                        "type":  "move",
+                                                                        "updateTime":  "2026-08-04 16:11:07",
+                                                                        "width":  0
+                                                                    }
+                                                                ],
+                                                   "modifiedBy":  "api-test",
+                                                   "orderId":  "order-2084552698480427008",
+                                                   "orderName":  "riot-behavior-lab-R40-S1-offline-20260804-160926",
+                                                   "orderState":  1,
+                                                   "orderType":  1,
+                                                   "priority":  0,
+                                                   "source":  "FMS",
+                                                   "startEndStationNameDetail":  "null null \u003e null null",
+                                                   "startStationName":  "站点3",
+                                                   "startStationNo":  3,
+                                                   "updateTime":  "2026-08-04 16:11:07",
+                                                   "upperId":  "riot-behavior-lab-R40-S1-offline-20260804-160926",
+                                                   "userId":  0
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

@@ -1,0 +1,37 @@
+{
+    "at":  "2026-08-04T15:53:25.6095062+08:00",
+    "elapsedMs":  30,
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=100\u0026filterByState=1",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "authCase":  "valid"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[],\"searchCount\":false,\"size\":100,\"total\":0},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "current":  1,
+                                                   "optimizeCountSql":  true,
+                                                   "orders":  [
+
+                                                              ],
+                                                   "pages":  0,
+                                                   "records":  [
+
+                                                               ],
+                                                   "searchCount":  false,
+                                                   "size":  100,
+                                                   "total":  0
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

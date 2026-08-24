@@ -1,0 +1,32 @@
+{
+    "at":  "2026-08-04T16:40:09.3481707+08:00",
+    "request":  {
+                    "method":  "POST",
+                    "url":  "http://172.10.1.72:8888/api/task/v1/route/getRouteCostsBy",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  "{\"mapId\":30,\"stationId\":3,\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"]}"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"deviceCostsList\":[{\"costs\":5952,\"deviceKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"message\":\"ok\"}],\"mapId\":30,\"stationId\":3},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "deviceCostsList":  [
+                                                                           {
+                                                                               "costs":  5952,
+                                                                               "deviceKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                                               "message":  "ok"
+                                                                           }
+                                                                       ],
+                                                   "mapId":  30,
+                                                   "stationId":  3
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

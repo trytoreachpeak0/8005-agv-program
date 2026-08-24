@@ -353,6 +353,31 @@
 - 证据：[`../evidence/rounds/2026-07-22-round-38/`](../evidence/rounds/2026-07-22-round-38/)
 - 消费影响：单机导航占用时勿期望新单立刻执行或 HANG 立刻恢复；以 `movementState`/`procState` 空闲后再下发或重试 CONTINUE。
 
+## BC-ORDER-019 QUEUEING 原因诊断的身份、短路与安全边界（Round39/40）
+
+- 结论：
+  1. `GET /api/task/vehicles/queryVehicleNotAssignOrder/{deviceKey}/{orderKey}` 的项目 `orderKey` 使用字符串 `orderId`。车辆恢复可分配后，已取消订单的字符串 `orderId` 仍得到“订单是非可调度状态”，而数值记录 id、`upperId` 与随机 key 均为“订单不存在”。
+  2. 诊断按内部优先级短路：车辆 OFF_LINE 时，真实三种身份、随机 key 和已取消订单都会先返回“车辆处于调度下线状态”，因此该分支不能证明 `orderKey` 有效，也不会因订单取消立即改变。
+  3. `code=0` 表示成功返回诊断，不表示车辆或订单存在，也不表示可以执行建议。结果只有自由文本 `reason` 与 `suggestList`，没有原因码、枚举、状态版本或观测时间。
+  4. 软件急停 `CAN_RECOVER` 下的实测原因是宽泛的“车辆处于非空闲的状态,不可分配订单”，同时公开 `procState` 仍为 IDLE；文本不能独立识别急停或授权解除。
+  5. `suggestList` 可建议系统级“重启 RIoT”。8005 绝不直接执行建议；只保留原文，并以独立状态、安全事实、动作来源和既有白名单决定自动恢复或人工升级。
+  6. 车辆仍定位但人工移离路线、map 30 六个站点均为 `costs=-1/unreachable` 时，实时 QUEUEING 诊断稳定返回“以车当前的坐标为起点,以订单目的地为终点,无法规划路径”。其建议包含人工移回路网或取消重发，但8005只保持阻断并转人工；诊断不授权自动移动、取消、重建或换号。
+- 证据等级：`OBSERVED`
+- 证据：[`../evidence/rounds/2026-08-04-round-39/`](../evidence/rounds/2026-08-04-round-39/)、[`../evidence/rounds/2026-08-04-round-40/`](../evidence/rounds/2026-08-04-round-40/)、[`../evidence/rounds/2026-08-04-round-41/`](../evidence/rounds/2026-08-04-round-41/)
+- 消费影响：先验证字符串 `orderId` 与订单归属，再把诊断与独立车态共同解释；未知文本、短路结果或身份不一致一律阻断转人工。
+
+## BC-VEH-006 全车快照可证明已在桩占用，但不能证明无外部在途目标（Round42）
+
+- 结论：
+  1. build `2.2.0.30` 上，`GET /api/task/vehicles?pageNum=1&pageSize=100` 与独立 `getAllVehicleKeys` 同为 18 个唯一 key，其中 17 辆不是本地测试车；分页参数生效，但响应没有 total、cursor、服务端快照版本或观测时间。
+  2. 三辆其它项目车辆持续以 `batteryState=CHARGING` 出现在独立地图元数据标识的充电站点。占用身份必须使用 `(currentMap,currentPosition)`，不能使用跨地图裸站点号。
+  3. `currentPosition=0` 同时出现在在线离站、移动和断线/定位错误车辆上；`0`、缺字段、失败或错误状态只能判未知，不能判空闲。
+  4. 普通任务完成后 `taskType/orderTaskId/endStationNo` 在一次约 5 秒轮询间隔内清空；但 24 轮没有 `taskType=CHARGE` 在途样本，正在充电车辆的任务字段均为空，不能证明外部车辆的充电目标覆盖或 CHARGE 清除时序。
+  5. 5 秒串行轮询 24/24 成功，p95 168 ms、约 15.7 KB/次；没有服务端资源指标。测试环境的保守上限为 12 次快照/分钟，另加每分钟 1 次 key 完整性核对，不构成生产授权。
+- 证据等级：`OBSERVED`，仅 `RIOT-CROSS-PROJECT-TEST` / build `2.2.0.30`；不是 `RIOT-8005-RUNTIME v2.2.0.14` 实测。
+- 证据：[Round 42](../evidence/rounds/2026-08-04-round-42/)
+- 消费影响：该接口可辅助证明“已经占用”，不能把未见本地预占解释为“空闲且无人正前往”；外部目标不可确认时必须 fail-closed，等待专用订阅、物理占用/人工确认或目标环境补证。
+
 ## 待晋升条件
 
 以下内容目前不能写成已验证契约：

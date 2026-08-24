@@ -1,0 +1,66 @@
+[
+    {
+        "scenario":  "vehicle-not-enabled",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-20-round-13/runs/S1-create-while-offline.json",
+        "orderId":  "order-2079079643343880192",
+        "numericId":  "488065",
+        "upperId":  "riot-behavior-lab-R13-S1-offcreate-20260720-134127",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "route-unreachable-cross-map",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-20-round-13/runs/S3-create-unreachable.json",
+        "orderId":  "order-2079079662562181120",
+        "numericId":  "488066",
+        "upperId":  "riot-behavior-lab-R13-S3-unreachable-20260720-134131",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "hardware-emergency",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-22-round-29/runs/A-create.json",
+        "orderId":  "order-2079731047146323968",
+        "numericId":  "489201",
+        "upperId":  "riot-behavior-lab-R29-A-20260722-084951",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "recoverable-software-emergency",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-22-round-29/runs/B-create.json",
+        "orderId":  "order-2079731933704749056",
+        "numericId":  "489202",
+        "upperId":  "riot-behavior-lab-R29-B-20260722-085323",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "vehicle-state-unmovable",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-22-round-29/runs/F-create.json",
+        "orderId":  "order-2079733117177954304",
+        "numericId":  "489203",
+        "upperId":  "riot-behavior-lab-R29-F-20260722-085805",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "vehicle-too-far-from-route",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-22-round-30/runs/D2-create.json",
+        "orderId":  "order-2079738858387406848",
+        "numericId":  "489214",
+        "upperId":  "riot-behavior-lab-R30-D2-20260722-092054",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "vehicle-unlocalized",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-22-round-30/runs/L-create.json",
+        "orderId":  "order-2079736076498501632",
+        "numericId":  "489208",
+        "upperId":  "riot-behavior-lab-R30-L-20260722-090950",
+        "originalOrderState":  1
+    },
+    {
+        "scenario":  "vehicle-powered-off",
+        "source":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-22-round-30/runs/P-create.json",
+        "orderId":  "order-2079742738877775872",
+        "numericId":  "489221",
+        "upperId":  "riot-behavior-lab-R30-P-20260722-093619",
+        "originalOrderState":  1
+    }
+]

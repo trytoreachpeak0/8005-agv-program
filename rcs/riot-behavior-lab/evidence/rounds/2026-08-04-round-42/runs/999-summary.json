@@ -1,0 +1,305 @@
+{
+  "completedAt": "2026-08-04T16:55:18.2386819+08:00",
+  "environmentId": "RIOT-CROSS-PROJECT-TEST",
+  "expectedBuild": "2.2.0.30",
+  "proxyEvidenceOnly": true,
+  "readOnlyRequestsOnly": true,
+  "pagination": [
+    {
+      "file": "010-default.json",
+      "query": "/api/task/vehicles",
+      "httpStatus": 200,
+      "code": "0",
+      "count": 18,
+      "deviceKeys": [
+        "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+        "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+        "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+        "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+        "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+        "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+        "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+        "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+        "BROKERX-aab9786833544b9fb363b968049da7e5",
+        "BROKERX-6134f023aa654abead51ffe7bbbcd091",
+        "BROKERX-6c2b93a073c74072a7ffa74c84c6d78d",
+        "BROKERX-03b0297e22f14df393a31e424dff7a80",
+        "BROKERX-757de62710d84cec9fe9907691672cbc",
+        "BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4",
+        "BROKERX-7cfc7a2757674e56907162cb2f95c746",
+        "BROKERX-3929103234654e7bbceb972979ab02cf",
+        "BROKERX-f2b50ed499924f86b88f56fd4af9ae30",
+        "BROKERX-52501bcbe60f4723bc815f24fc763c1e"
+      ],
+      "topLevelFields": [
+        "code",
+        "message",
+        "msgDetail",
+        "result",
+        "tid"
+      ],
+      "elapsedMs": 142,
+      "bytes": 15691
+    },
+    {
+      "file": "011-page-1-size-1.json",
+      "query": "/api/task/vehicles?pageNum=1&pageSize=1",
+      "httpStatus": 200,
+      "code": "0",
+      "count": 1,
+      "deviceKeys": [
+        "BROKERX-49628dfef58b49cb9f528853e489fbc8"
+      ],
+      "topLevelFields": [
+        "code",
+        "message",
+        "msgDetail",
+        "result",
+        "tid"
+      ],
+      "elapsedMs": 91,
+      "bytes": 904
+    },
+    {
+      "file": "012-page-2-size-1.json",
+      "query": "/api/task/vehicles?pageNum=2&pageSize=1",
+      "httpStatus": 200,
+      "code": "0",
+      "count": 1,
+      "deviceKeys": [
+        "BROKERX-a9984c6399a442ca987f60ddcb63a90c"
+      ],
+      "topLevelFields": [
+        "code",
+        "message",
+        "msgDetail",
+        "result",
+        "tid"
+      ],
+      "elapsedMs": 76,
+      "bytes": 824
+    },
+    {
+      "file": "013-page-1-size-5.json",
+      "query": "/api/task/vehicles?pageNum=1&pageSize=5",
+      "httpStatus": 200,
+      "code": "0",
+      "count": 5,
+      "deviceKeys": [
+        "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+        "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+        "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+        "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+        "BROKERX-8ffb2294db594d7480125d379b39cfd6"
+      ],
+      "topLevelFields": [
+        "code",
+        "message",
+        "msgDetail",
+        "result",
+        "tid"
+      ],
+      "elapsedMs": 106,
+      "bytes": 4187
+    },
+    {
+      "file": "014-page-2-size-5.json",
+      "query": "/api/task/vehicles?pageNum=2&pageSize=5",
+      "httpStatus": 200,
+      "code": "0",
+      "count": 5,
+      "deviceKeys": [
+        "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+        "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+        "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+        "BROKERX-aab9786833544b9fb363b968049da7e5",
+        "BROKERX-6134f023aa654abead51ffe7bbbcd091"
+      ],
+      "topLevelFields": [
+        "code",
+        "message",
+        "msgDetail",
+        "result",
+        "tid"
+      ],
+      "elapsedMs": 135,
+      "bytes": 4281
+    },
+    {
+      "file": "015-page-1-size-100.json",
+      "query": "/api/task/vehicles?pageNum=1&pageSize=100",
+      "httpStatus": 200,
+      "code": "0",
+      "count": 18,
+      "deviceKeys": [
+        "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+        "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+        "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+        "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+        "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+        "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+        "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+        "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+        "BROKERX-aab9786833544b9fb363b968049da7e5",
+        "BROKERX-6134f023aa654abead51ffe7bbbcd091",
+        "BROKERX-6c2b93a073c74072a7ffa74c84c6d78d",
+        "BROKERX-03b0297e22f14df393a31e424dff7a80",
+        "BROKERX-757de62710d84cec9fe9907691672cbc",
+        "BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4",
+        "BROKERX-7cfc7a2757674e56907162cb2f95c746",
+        "BROKERX-3929103234654e7bbceb972979ab02cf",
+        "BROKERX-f2b50ed499924f86b88f56fd4af9ae30",
+        "BROKERX-52501bcbe60f4723bc815f24fc763c1e"
+      ],
+      "topLevelFields": [
+        "code",
+        "message",
+        "msgDetail",
+        "result",
+        "tid"
+      ],
+      "elapsedMs": 120,
+      "bytes": 15691
+    }
+  ],
+  "coverage": {
+    "referenceKeyCount": 18,
+    "largePageUniqueKeyCount": 18,
+    "missingFromLargePage": [],
+    "unexpectedInLargePage": [],
+    "equalToIndependentKeySet": true,
+    "observedPollKeyCount": 18,
+    "nonTestVehicleCount": 17
+  },
+  "polling": {
+    "requestedPolls": 24,
+    "successfulPolls": 24,
+    "failureCount": 0,
+    "failureRate": 0.0,
+    "intervalSeconds": 5,
+    "latencyMs": {
+      "min": 123,
+      "median": 139,
+      "p95": 168,
+      "max": 186
+    },
+    "responseBytes": {
+      "min": 15458,
+      "median": 15688,
+      "p95": 15698,
+      "max": 15699
+    }
+  },
+  "occupiedChargingStations": [
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-aab9786833544b9fb363b968049da7e5",
+      "deviceName": "前线劈刀AGV2",
+      "map": "ZY_WB_Map",
+      "stationId": 308,
+      "stationName": "夹抱充电桩",
+      "stationType": 1,
+      "batteryState": "CHARGING"
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-6134f023aa654abead51ffe7bbbcd091",
+      "deviceName": "辅料多仓位2",
+      "map": "ZY_WB_Map",
+      "stationId": 378,
+      "stationName": "充电桩-新",
+      "stationType": 2,
+      "batteryState": "CHARGING"
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-f2b50ed499924f86b88f56fd4af9ae30",
+      "deviceName": "电镀内部AGV",
+      "map": "尊阳电镀线opt",
+      "stationId": 7,
+      "stationName": "充电站点",
+      "stationType": 2,
+      "batteryState": "CHARGING"
+    }
+  ],
+  "chargeTargetObservations": [],
+  "taskClearTransitions": [
+    {
+      "at": "2026-08-04T16:54:36.6964794+08:00",
+      "deviceKey": "BROKERX-757de62710d84cec9fe9907691672cbc",
+      "deviceName": "尊阳-多仓位1",
+      "previousOrderTaskId": "order-2084563200988282880"
+    }
+  ],
+  "unknownStateExamples": [
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-3929103234654e7bbceb972979ab02cf",
+      "deviceName": "磨划晶圆AGV2",
+      "status": 1,
+      "locationState": "LOCATION_STATE_RUNNING",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-6c2b93a073c74072a7ffa74c84c6d78d",
+      "deviceName": "新厂磨划刀片AGV",
+      "status": 2,
+      "locationState": "ERROR",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-757de62710d84cec9fe9907691672cbc",
+      "deviceName": "尊阳-多仓位1",
+      "status": 1,
+      "locationState": "LOCATION_STATE_RUNNING",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+      "deviceName": "新基测试300c多仓位1",
+      "status": 2,
+      "locationState": "LOCATION_STATE_RUNNING",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+      "deviceName": "新基测试300c顶升2",
+      "status": 2,
+      "locationState": "ERROR",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+      "deviceName": "送浮球",
+      "status": 0,
+      "locationState": "ERROR",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "deviceName": "新基测试300c协作1",
+      "status": 1,
+      "locationState": "LOCATION_STATE_RUNNING",
+      "currentPosition": 0
+    },
+    {
+      "at": "2026-08-04T16:53:19.1456422+08:00",
+      "deviceKey": "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+      "deviceName": "新基测试300c顶升1",
+      "status": 2,
+      "locationState": "ERROR",
+      "currentPosition": 0
+    }
+  ],
+  "limits": [
+    "No server-side CPU, database, queue, or saturation metrics were available; client latency and failure rate do not prove absence of server resource impact.",
+    "No state-changing action was used to manufacture a CHARGE or terminal transition sample.",
+    "Results are from build 2.2.0.30 and cannot be promoted to a live v2.2.0.14 observation without target-environment confirmation."
+  ]
+}

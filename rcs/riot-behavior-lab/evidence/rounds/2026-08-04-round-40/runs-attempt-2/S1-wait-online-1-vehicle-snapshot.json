@@ -1,0 +1,16 @@
+{
+    "at":  "2026-08-04T16:09:33.3755538+08:00",
+    "name":  "新基测试300c协作1",
+    "station":  2,
+    "mapName":  "api测试2",
+    "movementState":  "MT_FINISHED",
+    "controlState":  "CONTROL_STATE_OK",
+    "emergencyState":  "OK",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "speed":  0.0,
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "enable":  true,
+    "integrationLevel":  "ON_LINE"
+}
