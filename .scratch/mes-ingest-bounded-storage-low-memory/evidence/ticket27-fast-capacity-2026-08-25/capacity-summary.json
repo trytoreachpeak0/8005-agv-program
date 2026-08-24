@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "baselineRunId": "scale-20260824T211035Z-789c6a25",
+  "sampleRunId": "scale-20260824T211104Z-d5062cd5",
+  "passed": false,
+  "escalationRequired": true,
+  "failures": [
+    "CAPACITY_GROWTH_NONLINEAR",
+    "CAPACITY_LOGICAL_70_PERCENT_ESCALATION",
+    "CAPACITY_PHYSICAL_70_PERCENT_ESCALATION"
+  ],
+  "identity": {
+    "sourceCommit": "6a5a3c28f601641396671099fc967c272701a6e8",
+    "hostSha256": "c70c8b35ac1c91f3c27502323d752a58e1e72961bc2ab956853935af3895d67d",
+    "packageManifestSha256": "2be5aca3aac5ae9fa105ae89834eff49077bb013fbf90916d9f6b3ec46809088",
+    "contractVersion": "2026.08.new-mes-ingest.v2.1",
+    "schemaVersion": 28,
+    "sqlDataSource": "LAB-WIN-01",
+    "sqlWindowsService": "MSSQLSERVER",
+    "sqlProductVersion": "16.0.1190.2",
+    "compatibilityLevel": 160,
+    "recoveryModel": "SIMPLE",
+    "maxServerMemoryMb": 1536
+  },
+  "sample": {
+    "historyRounds": 415,
+    "historyRawObservationRows": 249000,
+    "totalRawObservationRows": 249600,
+    "series": 600,
+    "activeSeries": 420,
+    "archivedSeries": 180,
+    "errorSeries": 60
+  },
+  "model": {
+    "targetDays": 30,
+    "targetRounds": 185142,
+    "targetRawObservationRows": 111085200,
+    "safetyMarginFraction": 0.30,
+    "escalationFraction": 0.70,
+    "observedLogicalGrowthMb": 36.367185,
+    "logicalMbPerRound": 0.0876317710843374,
+    "logicalMbPerRow": 0.000146052951807229,
+    "linearityMaximumToMinimumSegmentRate": 2.4277798145421,
+    "projectedLogicalUsedMb": 21094.1669862253,
+    "projectedPhysicalDataMb": 21120.0,
+    "projectedLdfMb": 343.18984375,
+    "logicalLimitMb": 12288.0,
+    "physicalDataLimitMb": 16384.0,
+    "ldfLimitMb": 2048.0
+  },
+  "cleanup": {
+    "deletedRawObservationRows": 249600,
+    "remainingRawObservationRows": 0,
+    "deletedEligibleSeries": 25,
+    "remainingEligibleSeries": 0,
+    "tombstonesWritten": 25,
+    "activeGraphUnchanged": true,
+    "activeSeries": 420,
+    "activeDemands": 420,
+    "activeEvents": 480,
+    "activeCurrentConditions": 60,
+    "splitActiveSeries": 0,
+    "defaultCheckIntervalSeconds": 3600,
+    "defaultRawObservationBatch": 210000,
+    "defaultSeriesBatch": 25,
+    "defaultTimeBudgetSeconds": 15
+  },
+  "resources": {
+    "ldfIncrementMb": 255.9921875,
+    "peakPhysicalLdfMb": 263.9921875,
+    "peakUsedLogMb": 43.7734375,
+    "finalLogReuseWait": "NOTHING",
+    "databaseVersionStorePeakMb": 136.25,
+    "tempdbVersionStorePeakMb": 138.6875,
+    "tempdbUserObjectsDeltaThroughQueryMb": 0.0,
+    "tempdbInternalObjectsDeltaThroughQueryMb": 0.0625,
+    "dataFileGrowthMb": 64.0,
+    "logFileGrowthMb": 64.0,
+    "percentGrowth": false
+  },
+  "rawEvidence": {
+    "localRoot": "mes/ingest/csharp/.artifacts/ticket27-fast-capacity-2026-08-25",
+    "baselineJsonSha256": "a9337e24ea67088dbdcb3d5ca9c9c507c79fa7c453766e8dca2bb311834ca053",
+    "sampleJsonSha256": "855f5a0f5c1805a7449c344dcbbb6ded8c0025a9cd629a78b83bbe766fff1ede",
+    "sampleReplayManifestSha256": "46ee32375d2f8817530cd2d8837b4bec85a8ff951de7002e422f13e2618eb651",
+    "sampleMarkdownSha256": "c26cc58e0965872f68ecf7b66a0faa7d732e7c23d91126d838d72173a8169289"
+  },
+  "escalation": {
+    "releaseBlocked": true,
+    "nextValidation": "Invoke-ScaleAndQueryEvidence.ps1 -ProfileDays 30 -ConfirmFullScaleEscalation MESINGEST_FULL_SCALE_ESCALATION",
+    "contentAddressingDecision": "Re-evaluate only if full-scale validation also fails."
+  }
+}
