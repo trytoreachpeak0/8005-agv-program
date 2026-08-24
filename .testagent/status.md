@@ -43,3 +43,10 @@ in the worktree.
 - Final standards/code-quality and Ticket 16 specification reviews both
   reported no findings after the retry failure identity and restart-schema
   validation fixes.
+
+## Final gate
+
+`dotnet test MesIngest.Tests` passed against SQL Server ProductMajor 16 at
+compatibility level 160: 819 passed, 0 failed, 0 skipped in 10m 53s. The first
+attempt found one stale four-kind Watch presentation assertion; after updating
+that contract test to all five kinds, the closing run was green.
