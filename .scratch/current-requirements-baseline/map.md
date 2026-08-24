@@ -206,6 +206,8 @@ Label: wayfinder:map
 - [最终批准 REQ-0342–REQ-0345：决定公共业务点绑定的维护与生效治理](issues/182-approve-req-0342-req-0345.md) — 用户逐项批准 REQ-0342–REQ-0345 的当前精确文本、范围与验证方法，绑定 V1-APP-094、payload `98292014a93e96d66af354cf1652b62be0a0eac44a98ebe7b3545ec3d1a4bed2`、当前候选总账及 manifest。
 - [最终批准 REQ-0346–REQ-0348：决定公共业务点绑定的维护与生效治理](issues/183-approve-req-0346-req-0348.md) — 用户逐项批准 REQ-0346–REQ-0348 的当前精确文本、范围与验证方法，绑定 V1-APP-095、payload `60c23ed7b32ebff493041565bdc86c3fc13ca32997fe0f1cdc8327e79f73c2c3`、当前候选总账及 manifest。
 
+- [生成并发布首个当前需求基线 v1.0.0](issues/184-publish-v1-current-requirements-baseline.md) — 348 条逐项批准需求已冻结为正式版本文件，绑定内容 commit、SHA-256、旁置发布记录、唯一当前指针和 annotated tag。
+
 ## Not yet specified
 
 <!-- 当前没有仍处于雾中的范围；首版发布任务已毕业为开放票据并由全部最终批准票阻塞。 -->
