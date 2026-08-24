@@ -1,0 +1,11 @@
+journey=alert-to-demand
+reason=Post-approval Ticket 12 candidate re-established after code review; bytes match the user-approved preview
+ticket=.scratch/mes-ingest-watch-v2-implementation/issues/12-flaui-journeys-window-baselines-and-evidence.md
+submitter=Codex agent
+reviewer=User
+changeType=RenderingOnly
+productOrBusinessConfirmed=False
+candidateSha256=7282C5B229B50D1089E849DBEB098C79F0829E1722880E61FC071E42C0FD1707
+requiredConsecutiveCandidateRuns=10
+approvalState=APPROVED_BY_NON_SUBMITTER
+approvalEvidence=User message on 2026-08-10: 批准; post-approval candidate SHA-256 matches reviewed preview

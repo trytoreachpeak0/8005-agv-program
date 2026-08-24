@@ -1,0 +1,92 @@
+[
+  {
+    "path": "absence-authority.json",
+    "length": 304,
+    "sha256": "f8de8d4e1efcc760209454680a0a090d05502767fa476e979e01f5b82c1894bc"
+  },
+  {
+    "path": "environment.json",
+    "length": 956,
+    "sha256": "b1cc05c642e4eeb7042219026e92d8e3ae7ed2a7aaae651ac04848eb9300757d"
+  },
+  {
+    "path": "host-stage-log.txt",
+    "length": 23694,
+    "sha256": "3bcb2576f59a2e24a61ff50f32fe6863f81121e44aedcd513d1b490a2a94c46a"
+  },
+  {
+    "path": "oracle-probe-state.json",
+    "length": 558,
+    "sha256": "16c64dd237a58fc9f25a590514e9eed9bbc60131c6577e4a66568bc690eff2fb"
+  },
+  {
+    "path": "package-identity.json",
+    "length": 362,
+    "sha256": "b02d76639902eb7c0453c41c103568d8f72ac9f0168e89f1b7d56b17eafc1cc5"
+  },
+  {
+    "path": "probe-thin.txt",
+    "length": 452,
+    "sha256": "fe51aef907650603566b3e871f6181e0d4702d9fd403bd409ea82018b69ae87f"
+  },
+  {
+    "path": "read-surfaces.json",
+    "length": 1374,
+    "sha256": "b112ef8025fd39757c08038744f9d194fb4fd3dcdbfcdd4b1f0853b17635afae"
+  },
+  {
+    "path": "rounds.json",
+    "length": 1856,
+    "sha256": "18dd10181eb2c950fcac867d73b16ef3690594acaf24845594097737988f39fc"
+  },
+  {
+    "path": "task-type-protections.json",
+    "length": 1343,
+    "sha256": "28dee194fb50bb7e414fe29026de103f8997c50ecf73ee5dca6b45026a491494"
+  },
+  {
+    "path": "watch/page-01-OverviewPage.png",
+    "length": 137618,
+    "sha256": "fd044ffb5c464825047f2efcbee6a72cb0e09013c53e7d34012c3448dfe863db"
+  },
+  {
+    "path": "watch/page-02-DemandSeriesScrollViewer.png",
+    "length": 159673,
+    "sha256": "7f8ea665d0f9923bccee6cbd0aafc2f655a74a717bf6a2abe105bb1ef40b303b"
+  },
+  {
+    "path": "watch/page-03-ReadabilityAuditPage.png",
+    "length": 174811,
+    "sha256": "f1fd7a1d109585fedcbac8767c2182f57eb27b98d20ceeefcf4d0cb99e76ee3c"
+  },
+  {
+    "path": "watch/page-04-ErrorSearchBodyScrollViewer.png",
+    "length": 175845,
+    "sha256": "7b5e75b0b2cde99e8232c05a74303f7c04214dde126bae87fb39713a4a673f8b"
+  },
+  {
+    "path": "watch/page-05-AreaFilterPage.png",
+    "length": 128236,
+    "sha256": "b1fdccae250058e68d553999b5d242122c92da369d0aad7a53b88d3086f3b79d"
+  },
+  {
+    "path": "watch/page-06-CurrentAttentionPage.png",
+    "length": 200767,
+    "sha256": "f429126e3a7e604d946ee1b3503d37feea677a97284950ada162c93a70147ce6"
+  },
+  {
+    "path": "watch/page-07-SettingsPage.png",
+    "length": 188105,
+    "sha256": "ef2b58224c0ff5f964e1d17b74fc8843a957f99a359adebe285a75395967b53c"
+  },
+  {
+    "path": "watch/page-08-SettingsPage.png",
+    "length": 188464,
+    "sha256": "ad232a947ead6ca978e8a4facb9554e1b92f4ec01df05f7dba5d8381a047ba9e"
+  },
+  {
+    "path": "watch/watch-pages.json",
+    "length": 1244,
+    "sha256": "189f483f95797c503ec40da2dd7421730bd7bac25e0756384018501847eb1b43"
+  }
+]

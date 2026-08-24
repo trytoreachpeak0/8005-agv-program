@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-19T11:13:44.0407155+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\23-xaml-gate-fixed-2\\run-20260819-105020-watch-xaml-stability",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-23-xaml-gate-fixed-2\\run-20260819-105020-watch-xaml-stability"
+}

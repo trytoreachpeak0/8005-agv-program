@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "baseUrl": "http://127.0.0.1:51543",
+  "requestTimeoutSeconds": 30,
+  "credentialReference": "external-configuration"
+}

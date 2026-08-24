@@ -1,0 +1,7 @@
+{
+  "acceptedSteps": [
+    { "step": "07-current-ingest-attention", "differingPixels": 116, "maxAbsoluteDelta": 2, "regions": "visually equivalent: 116 pixels, max delta 2, 8 region(s) [327,856 10x4] [336,856 18x4] [328,859 3x1] [336,860 18x8] [343,860 2x1] [346,860 8x1] [326,862 8x2] [326,864 8x4]" }
+  ],
+  "totalAcceptedSteps": 1,
+  "totalAcceptedPixels": 116
+}

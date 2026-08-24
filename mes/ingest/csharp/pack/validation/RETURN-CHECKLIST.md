@@ -4,13 +4,22 @@
 
 ## 必含
 
-- [ ] `run-manifest.json`（由 `run-manifest.example.json` 填写；含 `experiment_id=mes-ingest-factory-validation`）
+- [ ] A/B/C 每个地点一个唯一 run 目录与 `run-manifest.json`（采集器自动生成；含 `experiment_id=mes-ingest-factory-validation`）
 - [ ] `execution-log.md`（脱敏后的执行与核验记录）
 - [ ] 探针日志：`probe-thin.txt` 和/或 `probe-thick.txt`（Host 已脱敏；仍勿粘贴密码）
 - [ ] 安装根 `VERSION.txt` 副本
-- [ ] 至少 3 轮 API 落盘：每轮 `poll-health` / `demands?status=VISIBLE` / `alerts`（或等价文件名，并在 manifest 引用）
+- [ ] `request-metrics.jsonl` 与 `api/`：包含 V2 contract、DemandSeries 冻结首/后续页、DemandId exact、CurrentIngestAttention、ExternallyReadableDemandCatalog、PollTrace
+- [ ] `dates-samples.tsv`：每个 TASK_TYPE 至少一条，人工确认列不再为 `PENDING`
+- [ ] `host-latency.log` 与 `watch-latency.log`：能对照 V2 Host endpoint、Watch total latency 和 correlation id；旧版 `ORACLE_QUERY` / `SQL_QUERY` / `SQL_WRITE` 标记不作为 V2 必需证据
+- [ ] manifest 状态为 `technical-capture-completed` 且 `missing_required_evidence` 为空；`technical-capture-incomplete` 不得作为通过证据
+- [ ] manifest 的 `canonical_poll_trace_identity_complete=true` 且 `live_oracle_probe_passed=true`；至少一份真实 Thin/Thick 探针为 `LIVE_ORACLE` + `PASSED`
+- [ ] `sha256.txt`：回传前复核文件哈希
 - [ ] 每轮在 manifest 中记录 **耗时**（`duration_ms`）、**行数**（`row_count`）、**成败**（`success` / `outcome`）
-- [ ] 脱敏日志：至少含探针日志；也可附 API JSON 中的健康/告警摘要
+- [ ] 脱敏日志：至少含探针日志；也可附 API JSON 中的 CurrentIngestAttention / 概览摘要
+- [ ] 每一类未运行的外部门禁都写成**具名 skip**（名称 + 原因 + 补跑所需环境）。发布烟测的
+      `release-smoke-result.json` 会自带 `PACKAGED_WATCH_PROCESS_INDEPENDENCE_AND_STARTUP_BUDGET` 等具名 skip；
+      不得把本机 / 黄金机通过、或 `FILE_REPLAY` 录制轮次写成现场 Oracle 通过（见
+      `FACTORY-VALIDATION.md` 的「证据分级」）
 
 ## 禁止回传
 

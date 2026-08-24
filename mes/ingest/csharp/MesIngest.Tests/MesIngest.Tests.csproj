@@ -22,11 +22,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MesIngest.Core\MesIngest.Core.csproj" />
     <ProjectReference Include="..\MesIngest.Host\MesIngest.Host.csproj" />
+    <ProjectReference Include="..\MesIngest.ReferenceConsumer\MesIngest.ReferenceConsumer.csproj" />
     <ProjectReference Include="..\MesIngest.Watch\MesIngest.Watch.csproj" />
   </ItemGroup>
 

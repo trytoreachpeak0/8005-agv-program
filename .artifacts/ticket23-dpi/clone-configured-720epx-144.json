@@ -1,0 +1,15 @@
+{
+  "CloneVm": "gpt_win11_ticket23_dpi720",
+  "CloneId": "83b0777b-1b34-42d1-9f6f-296fd1be2bd6",
+  "RequestedDpi": 144,
+  "RequestedScalePercent": 150,
+  "RegistryLogPixels": 144,
+  "RegistryWin8DpiScaling": 1,
+  "ExplorerSessions": [
+    1
+  ],
+  "Hostname": "GPT-WIN11",
+  "NetworkConnected": false,
+  "ConfiguredAt": "2026-08-19T11:51:24.8109087+08:00",
+  "EffectiveDpiProof": "Pending: the interactive environment report inside the run is the proof, not this record."
+}

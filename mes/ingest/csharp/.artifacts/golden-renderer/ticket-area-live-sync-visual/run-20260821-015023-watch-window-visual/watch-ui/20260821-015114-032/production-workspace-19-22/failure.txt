@@ -1,0 +1,8 @@
+step=demand-series-master-only
+exception=Xunit.Sdk.XunitException
+timeoutMs=20000
+message=Window baseline mismatch for 03-demand-series-detail: colour changed at 1315,263: delta (-55,-32,-13) is not neutral. See C:\MesIngest\area-live-sync-visual\run-20260821-015023-watch-window-visual\Source\mes\ingest\csharp\TestResults\watch-ui\20260821-015114-032\production-workspace-19-22.
+firstFailureRetained=true
+   at MesIngest.Watch.UiTests.WatchWindowBaseline.Verify(String baselineName, Byte[] actual, WatchJourneyEvidence evidence) in C:\MesIngest\area-live-sync-visual\run-20260821-015023-watch-window-visual\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowBaseline.cs:line 73
+   at MesIngest.Watch.UiTests.WatchWorkspaceProductionJourneyTests.CaptureApprovedBaseline(WatchJourneyEvidence evidence, IntPtr windowHandle, String step) in C:\MesIngest\area-live-sync-visual\run-20260821-015023-watch-window-visual\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWorkspaceProductionJourneyTests.cs:line 2590
+   at MesIngest.Watch.UiTests.WatchWorkspaceProductionJourneyTests.Operator_reviews_the_complete_production_workspace_and_records_the_shared_preview() in C:\MesIngest\area-live-sync-visual\run-20260821-015023-watch-window-visual\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWorkspaceProductionJourneyTests.cs:line 848

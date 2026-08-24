@@ -1,0 +1,23 @@
+{
+  "Ticket": "23-acceptance-preview",
+  "Suite": "watch-production-preview",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\23-acceptance-preview\\run-20260819-001953-watch-production-preview",
+  "CreatedAt": "2026-08-19T00:20:07.5524803+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "5b32ace415ebef8241c58c1b0ba724bcb17494a9",
+  "GitDirty": false,
+  "GitStatus": [],
+  "PayloadSha256": "89AA72AE85DCC65A3FFCAA2D7516BAE2399D30B34BFBB57E1464346D4345348E",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

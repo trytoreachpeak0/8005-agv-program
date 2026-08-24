@@ -1,0 +1,26 @@
+{
+  "Ticket": "23-candidate-gate",
+  "Suite": "watch-window-stability",
+  "Configuration": "Release",
+  "RequestedRuns": 10,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\23-candidate-gate\\run-20260819-010449-watch-window-stability",
+  "CreatedAt": "2026-08-19T01:05:05.4588044+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "5b32ace415ebef8241c58c1b0ba724bcb17494a9",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs",
+    " M mes/ingest/csharp/New-WatchWindowBaselineProposal.ps1"
+  ],
+  "PayloadSha256": "0C0973B462DFFAE0A28A518A6A86FC26EBB1D74A427C0FEAA501E9AA34BD5A6A",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

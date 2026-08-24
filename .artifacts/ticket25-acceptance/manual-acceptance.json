@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "ticket": 25,
+  "approvedBy": "Zhengyu Shao",
+  "approvedAt": "2026-08-19T22:52:19+08:00",
+  "userMessage": "签",
+  "confirmedChecks": [
+    "startup-within-25-seconds",
+    "demand-alert-visual-contract",
+    "v2-pages-and-settings",
+    "package-run-not-source"
+  ],
+  "reviewedEvidence": {
+    "note": "Recorded by the agent, not the approver's words. The approver replied '签' after reviewing the run below.",
+    "run": "run-20260819-223129-watch-package-release",
+    "screenshotsSent": 10,
+    "screenshotsCaptured": 16,
+    "releaseSmoke": "PASSED",
+    "packagedWatchStartupToMainWindowMs": 14231.6,
+    "packagedWatchStartupBudgetSeconds": 25,
+    "regression": {
+      "total": 533,
+      "executed": 533,
+      "passed": 533,
+      "failed": 0,
+      "skipped": 0
+    },
+    "packagedWatchAcceptanceSuites": [
+      "watch-ui-journeys",
+      "watch-vm-tests"
+    ],
+    "packagedWatchUiSkipsMatchExpectedNamedSet": true,
+    "ticket25NewSmokeChecks": {
+      "retiredConfigurationKeyRejected": "ChangeFeedRetentionHours",
+      "retiredConfigurationKeyExitCode": -532462766,
+      "retiredRouteStatuses": {
+        "/api/contract": 404,
+        "/api/demands": 404,
+        "/api/demands/legacy-probe": 404,
+        "/api/alerts": 404,
+        "/api/poll-health": 404,
+        "/api/demand-changes": 404,
+        "/openapi/v1.json": 404
+      }
+    },
+    "ticket23VisualBaselinesReused": true,
+    "ticket23ReuseBasis": "PACKAGING_DID_NOT_CHANGE_APPROVED_PNG_XML_UIA_OR_DPI_OUTPUT",
+    "ticket23ReuseCaveatShownToApprover": "The eleven approved production window baselines were not pixel-compared in this run. The reuse rests on the non-pixel suites plus the approver's screenshot review, because this ticket did not change WatchWorkspaceWindow or its XAML; it deleted the retired shell's own scenarios and baselines."
+  }
+}

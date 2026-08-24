@@ -1,0 +1,13 @@
+journey=04-readability-audit-detail
+reason=No semantic change: 2769 pixels differ with a maximum delta of 3 and unchanged glyph ink, the antialiasing intensity flip documented in docs/agents/golden-renderer.md.
+ticket=area-live-sync
+submitter=claude-code-agent
+reviewer=trytoreachpeak0@gmail.com
+changeType=RenderingOnly
+productOrBusinessConfirmed=False
+candidateSha256=0007A5E67EF5E0762A0E6F41D70D1961C048D78AD0B4F50EAF084BF07DDE8299
+requiredConsecutiveCandidateRuns=3
+approvalState=APPROVED_BY_REVIEWER
+approvedAt=2026-08-21T11:20:00+08:00
+approvalMessage=一并批准，完成 promote
+promotedAt=2026-08-21T11:24:00+08:00

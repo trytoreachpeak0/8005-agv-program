@@ -1,0 +1,11 @@
+journey=visible-gone-paging-details
+reason=Ticket 12 initial real-window baseline for the user-approved Ticket 11 UI
+ticket=.scratch/mes-ingest-watch-v2-implementation/issues/12-flaui-journeys-window-baselines-and-evidence.md
+submitter=Codex agent
+reviewer=User
+changeType=Initial
+productOrBusinessConfirmed=False
+candidateSha256=BBED42D4867D864BC94B395FA3839189FCE403128F426BC39678E87749447AE8
+requiredConsecutiveCandidateRuns=10
+approvalState=APPROVED_BY_NON_SUBMITTER
+approvalEvidence=User message on 2026-08-10: 批准

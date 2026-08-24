@@ -1,0 +1,28 @@
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-11T10:06:47.1650147+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}

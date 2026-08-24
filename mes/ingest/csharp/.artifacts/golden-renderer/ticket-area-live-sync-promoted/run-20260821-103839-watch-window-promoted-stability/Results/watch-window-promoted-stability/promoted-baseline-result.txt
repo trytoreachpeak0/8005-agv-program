@@ -1,0 +1,4 @@
+status=PASSED
+mode=Promoted
+consecutivePasses=3
+receivedFiles=0

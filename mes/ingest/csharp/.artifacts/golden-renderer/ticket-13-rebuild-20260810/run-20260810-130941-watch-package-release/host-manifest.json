@@ -1,0 +1,32 @@
+{
+  "Ticket": "13-rebuild-20260810",
+  "Suite": "watch-package-release",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\13-rebuild-20260810\\run-20260810-130941-watch-package-release",
+  "CreatedAt": "2026-08-10T13:09:46.2325823+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "34698a980a507325b9a969618fe76826de663689",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/Invoke-GoldenRendererValidation.ps1",
+    " M mes/ingest/csharp/MesIngest.Tests/InstallPackageLayoutTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch/appsettings.Local.json.example",
+    " M mes/ingest/csharp/pack/INSTALL.md",
+    " M mes/ingest/csharp/pack/Publish-MesIngest.ps1",
+    "?? mes/ingest/csharp/.artifacts/",
+    "?? mes/ingest/csharp/MesIngest.Tests/ReleasePackageValidationTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Tests/TestResults/",
+    "?? mes/ingest/csharp/pack/Test-ReleasePackage.ps1",
+    "?? mes/ingest/csharp/pack/validation/Invoke-ReleaseSmoke.ps1",
+    "?? mes/ingest/csharp/pack/validation/Invoke-WatchAcceptance.ps1"
+  ],
+  "PayloadSha256": "FA64CB17F01479460A37D82A27E3DF6BB723418B55ECABDA6B77D4324D5DA625",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  }
+}

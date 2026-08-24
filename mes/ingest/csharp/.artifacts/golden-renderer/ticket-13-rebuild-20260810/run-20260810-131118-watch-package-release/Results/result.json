@@ -1,0 +1,6 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-10T13:12:03.2563723+08:00",
+  "Error": "System.Management.Automation.RuntimeException: Host publish failed (1)"
+}

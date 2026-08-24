@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-19T09:00:05.4325235+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\23-final-vm-recheck\\run-20260819-085538-watch-vm-tests",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-23-final-vm-recheck\\run-20260819-085538-watch-vm-tests"
+}

@@ -1,0 +1,25 @@
+{
+  "Ticket": "13-final-gate-audit",
+  "Suite": "watch-package-release",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\13-final-gate-audit\\run-20260810-133724-watch-package-release",
+  "CreatedAt": "2026-08-10T13:37:47.6291806+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "082e98585f783535bda5fa135dd98aadcaf5e145",
+  "GitDirty": true,
+  "GitStatus": [
+    "?? mes/ingest/csharp/.artifacts/",
+    "?? mes/ingest/csharp/MesIngest.Tests/TestResults/"
+  ],
+  "PayloadSha256": "30CD4323B9BF8698D08DF72FED54ADB9D6A66BB286035235FAACFEBC7AA1AB95",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null
+}

@@ -1,0 +1,8 @@
+GET /api/contract
+GET /api/poll-health
+GET /api/poll-health
+GET /api/demands?keys=direction,limit,sortBy,status
+GET /api/alerts?keys=active,limit
+GET /api/demands?keys=direction,limit,sortBy,status
+GET /api/demands?keys=cursor,direction,limit,sortBy,status
+GET /api/demands?keys=direction,goneAtFrom,limit,sortBy,status

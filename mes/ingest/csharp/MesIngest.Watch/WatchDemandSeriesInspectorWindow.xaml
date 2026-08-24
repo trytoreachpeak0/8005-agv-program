@@ -1,0 +1,691 @@
+<ui:FluentWindow x:Class="MesIngest.Watch.WatchDemandSeriesInspectorWindow"
+                 x:ClassModifier="internal"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:local="clr-namespace:MesIngest.Watch"
+                 Title="DemandSeries Inspector"
+                 Width="{x:Static local:WatchWindowLayoutTokens.InspectorDefaultWidth}"
+                 Height="{x:Static local:WatchWindowLayoutTokens.InspectorDefaultHeight}"
+                 MinWidth="{x:Static local:WatchWindowLayoutTokens.MinimumWidth}"
+                 MinHeight="{x:Static local:WatchWindowLayoutTokens.MinimumHeight}"
+                 ResizeMode="CanResize"
+                 WindowStartupLocation="Manual"
+                 WindowStyle="SingleBorderWindow"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round"
+                 ShowInTaskbar="True"
+                 Topmost="False"
+                 Background="{DynamicResource ApplicationBackgroundBrush}"
+                 FontFamily="Segoe UI Variable, Microsoft YaHei UI"
+                 FontSize="14"
+                 UseLayoutRounding="True"
+                 SnapsToDevicePixels="True"
+                 SizeChanged="OnInspectorSizeChanged"
+                 AutomationProperties.Name="DemandSeries Inspector"
+                 AutomationProperties.AutomationId="DemandSeriesInspectorWindow">
+    <ui:FluentWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="WatchFluentDesign.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="InspectorReadOnlyGrid"
+                   TargetType="DataGrid"
+                   BasedOn="{StaticResource WatchDataGrid}">
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="CanUserDeleteRows" Value="False" />
+                <Setter Property="CanUserReorderColumns" Value="False" />
+                <Setter Property="CanUserSortColumns" Value="False" />
+                <Setter Property="SelectionUnit" Value="FullRow" />
+                <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="Focusable" Value="True" />
+                <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
+            </Style>
+            <Style x:Key="InspectorGenerationItem" TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="AutomationProperties.Name"
+                        Value="{Binding NavigationAutomationName}" />
+            </Style>
+            <Style x:Key="InspectorEventGridTextCell"
+                   TargetType="TextBlock"
+                   BasedOn="{StaticResource DataGridTextCell}">
+                <Setter Property="Margin" Value="10,0" />
+            </Style>
+        </ResourceDictionary>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar x:Name="InspectorTitleBar"
+                     Grid.Row="0"
+                     Title="MesIngest Watch · DemandSeries Inspector"
+                     ShowMinimize="True"
+                     ShowMaximize="True"
+                     ShowClose="True"
+                     AutomationProperties.Name="DemandSeries Inspector 标题栏">
+            <ui:TitleBar.Icon>
+                <ui:SymbolIcon Symbol="Timeline24" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <Grid Grid.Row="1" Margin="24,8,24,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="DemandSeriesInspectorContext"
+                  MinHeight="34"
+                  AutomationProperties.Name="Series 与冻结快照上下文"
+                  AutomationProperties.AutomationId="DemandSeriesInspectorContext">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="0" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid x:Name="DemandSeriesInspectorPrimaryContext"
+                      VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="0" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock x:Name="InspectorSeriesContextText"
+                                  FontSize="16"
+                                  FontWeight="SemiBold"
+                                  Text="尚未选择 DemandSeries"
+                                  TextTrimming="CharacterEllipsis"
+                                  AutomationProperties.AutomationId="DemandSeriesInspectorSeriesIdentity" />
+                    <Border x:Name="DemandSeriesInspectorPresencePill"
+                            Grid.Column="1"
+                            Margin="10,0,0,0"
+                            Style="{StaticResource StatusPillSuccess}"
+                            VerticalAlignment="Center">
+                        <ui:TextBlock x:Name="InspectorPresenceText"
+                                      FontSize="11"
+                                      FontWeight="SemiBold"
+                                      Text="—"
+                                      AutomationProperties.AutomationId="DemandSeriesInspectorCurrentPresence" />
+                    </Border>
+                    <ui:TextBlock x:Name="InspectorLifecycleText"
+                                  Grid.Column="2"
+                                  Margin="12,0,0,0"
+                                  Style="{StaticResource SecondaryText}"
+                                  VerticalAlignment="Center"
+                                  Text="—"
+                                  TextTrimming="CharacterEllipsis"
+                                  AutomationProperties.AutomationId="DemandSeriesInspectorLifecycle" />
+                </Grid>
+                <ui:TextBlock x:Name="InspectorSnapshotContextText"
+                              Grid.Column="1"
+                              Style="{StaticResource CaptionText}"
+                              VerticalAlignment="Center"
+                              Text="尚无冻结快照"
+                              TextWrapping="Wrap"
+                              AutomationProperties.AutomationId="DemandSeriesInspectorFrozenSnapshot" />
+            </Grid>
+
+            <ui:InfoBar x:Name="DemandSeriesInspectorStatusInfoBar"
+                        Grid.Row="2"
+                        IsOpen="False"
+                        IsClosable="False"
+                        Severity="Informational"
+                        Margin="0,0,0,8"
+                        AutomationProperties.Name="DemandSeries Inspector 读取状态" />
+
+            <TabControl x:Name="DemandSeriesInspectorTabs"
+                        Grid.Row="3"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="0"
+                        Focusable="True"
+                        KeyboardNavigation.IsTabStop="True"
+                        KeyboardNavigation.TabIndex="0"
+                        AutomationProperties.Name="DemandSeries Inspector 调查任务"
+                        AutomationProperties.AutomationId="DemandSeriesInspectorTabs">
+                <TabItem Header="世代分析"
+                         AutomationProperties.Name="世代分析"
+                         AutomationProperties.AutomationId="DemandSeriesInspectorGenerationTab">
+                    <ScrollViewer x:Name="DemandSeriesInspectorGenerationScrollViewer"
+                                  Margin="0,12,0,0"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Disabled">
+                    <Grid x:Name="DemandSeriesInspectorGenerationWorkbench"
+                          MinHeight="{Binding ActualHeight, ElementName=DemandSeriesInspectorGenerationScrollViewer}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="0" />
+                            <RowDefinition Height="0" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border x:Name="DemandSeriesInspectorGenerationNavigator"
+                                Style="{StaticResource SurfaceCard}"
+                                Padding="0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid Margin="16,14,16,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <ui:TextBlock Text="Demand 世代"
+                                                      Style="{StaticResource SectionTitleText}" />
+                                        <ui:TextBlock Margin="0,3,0,0"
+                                                      Text="滚动并选择 DemandId"
+                                                      Style="{StaticResource SecondaryText}" />
+                                    </StackPanel>
+                                    <Border Grid.Column="1"
+                                            Padding="9,4"
+                                            CornerRadius="12"
+                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                            VerticalAlignment="Center">
+                                        <ui:TextBlock x:Name="DemandSeriesInspectorGenerationCountText"
+                                                      Style="{StaticResource CaptionText}"
+                                                      FontWeight="SemiBold"
+                                                      Text="0 个世代" />
+                                    </Border>
+                                </Grid>
+
+                                <ListBox x:Name="DemandSeriesInspectorGenerationList"
+                                         Grid.Row="1"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         ItemContainerStyle="{StaticResource InspectorGenerationItem}"
+                                         SelectionChanged="OnGenerationSelectionChanged"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.CanContentScroll="True"
+                                         VirtualizingStackPanel.IsVirtualizing="True"
+                                         VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                         KeyboardNavigation.TabIndex="10"
+                                         AutomationProperties.Name="Demand 世代导航"
+                                         AutomationProperties.AutomationId="DemandSeriesInspectorGenerationList">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border x:Name="GenerationNavCard"
+                                                    Margin="10,3"
+                                                    Padding="10,8"
+                                                    CornerRadius="4"
+                                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                                    BorderThickness="1">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="42" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <ui:TextBlock Text="{Binding Generation}"
+                                                                  FontSize="18"
+                                                                  FontWeight="SemiBold"
+                                                                  VerticalAlignment="Center"
+                                                                  HorizontalAlignment="Center" />
+                                                    <StackPanel Grid.Column="1">
+                                                        <ui:TextBlock Text="{Binding DemandId}"
+                                                                      FontWeight="SemiBold" />
+                                                        <ui:TextBlock Margin="0,2,0,0"
+                                                                      Style="{StaticResource CaptionText}">
+                                                            <Run Text="{Binding Status}" />
+                                                            <Run Text=" · " />
+                                                            <Run Text="{Binding CurrentMarker, Mode=OneWay}" />
+                                                        </ui:TextBlock>
+                                                    </StackPanel>
+                                                    <Border x:Name="GenerationCurrentPill"
+                                                            Grid.Column="2"
+                                                            Visibility="Collapsed"
+                                                            Padding="7,3"
+                                                            CornerRadius="10"
+                                                            Background="{DynamicResource AccentFillColorSecondaryBrush}"
+                                                            VerticalAlignment="Center">
+                                                        <ui:TextBlock Text="当前"
+                                                                      Foreground="White"
+                                                                      FontSize="11"
+                                                                      FontWeight="SemiBold" />
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                    <Setter TargetName="GenerationNavCard"
+                                                            Property="BorderBrush"
+                                                            Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                                    <Setter TargetName="GenerationCurrentPill"
+                                                            Property="Visibility"
+                                                            Value="Visible" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                                             Value="True">
+                                                    <Setter TargetName="GenerationNavCard"
+                                                            Property="BorderBrush"
+                                                            Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                                    <Setter TargetName="GenerationNavCard"
+                                                            Property="BorderThickness"
+                                                            Value="2" />
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                        </Border>
+
+                        <Grid x:Name="DemandSeriesInspectorGenerationDetail"
+                              Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="12" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Border Style="{StaticResource SurfaceCard}" Padding="14,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="8" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid x:Name="DemandSeriesInspectorGenerationHeader">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="0" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid x:Name="DemandSeriesInspectorGenerationIdentityContext"
+                                              VerticalAlignment="Center">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="0" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:TextBlock x:Name="DemandSeriesInspectorGenerationIdentityText"
+                                                          Style="{StaticResource SectionTitleText}"
+                                                          TextTrimming="CharacterEllipsis"
+                                                          AutomationProperties.Name="选中 Demand 世代身份"
+                                                          AutomationProperties.AutomationId="DemandSeriesInspectorGenerationIdentity" />
+                                            <ui:TextBlock x:Name="DemandSeriesInspectorGenerationSummaryText"
+                                                          Grid.Column="1"
+                                                          Margin="12,0,0,0"
+                                                          Style="{StaticResource SecondaryText}"
+                                                          TextTrimming="CharacterEllipsis" />
+                                        </Grid>
+                                        <StackPanel x:Name="DemandSeriesInspectorGenerationActions"
+                                                    Grid.Column="1"
+                                                    Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <Border Padding="10,4"
+                                                    CornerRadius="12"
+                                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                    VerticalAlignment="Center">
+                                                <ui:TextBlock x:Name="DemandSeriesInspectorFormationReasonText"
+                                                              FontSize="12"
+                                                              FontWeight="SemiBold"
+                                                              AutomationProperties.Name="Demand 形成原因"
+                                                              AutomationProperties.AutomationId="DemandSeriesInspectorFormationReason" />
+                                            </Border>
+                                            <ui:Button x:Name="DemandSeriesInspectorRelatedEventsButton"
+                                                       Margin="8,0,0,0"
+                                                       Padding="10,5"
+                                                       Content="相关事件"
+                                                       Appearance="Secondary"
+                                                       Click="OnRelatedEventsClick"
+                                                       KeyboardNavigation.TabIndex="20"
+                                                       AutomationProperties.Name="查看选中世代的相关事件"
+                                                       AutomationProperties.AutomationId="DemandSeriesInspectorRelatedEventsButton" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <ui:TextBlock x:Name="DemandSeriesInspectorFormationReasonCodeText"
+                                                  Visibility="Collapsed"
+                                                  Style="{StaticResource CodeText}"
+                                                  AutomationProperties.Name="Demand 形成原因原始码" />
+                                    <ItemsControl x:Name="DemandSeriesInspectorFormationFacts"
+                                                  Grid.Row="2"
+                                                  AutomationProperties.Name="Demand 形成事实"
+                                                  AutomationProperties.AutomationId="DemandSeriesInspectorFormationFacts">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border MinWidth="210"
+                                                        MaxWidth="300"
+                                                        Margin="0,0,8,8"
+                                                        Padding="10,7"
+                                                        CornerRadius="4"
+                                                        Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                        AutomationProperties.Name="{Binding AutomationName}">
+                                                    <StackPanel>
+                                                        <ui:TextBlock Text="{Binding Label}"
+                                                                      Style="{StaticResource CaptionText}" />
+                                                        <ui:TextBlock Margin="0,3,0,0"
+                                                                      Text="{Binding Value}"
+                                                                      FontWeight="SemiBold"
+                                                                      TextTrimming="CharacterEllipsis" />
+                                                        <ui:TextBlock Margin="0,2,0,0"
+                                                                      Style="{StaticResource CaptionText}"
+                                                                      Text="{Binding OccurrenceSummary}"
+                                                                      TextTrimming="CharacterEllipsis" />
+                                                        <ui:TextBlock Margin="0,8,0,0"
+                                                                      Style="{StaticResource CaptionText}"
+                                                                      Text="{Binding EvidenceSummary}"
+                                                                      TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="2" Style="{StaticResource SurfaceCard}" Padding="14,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="8" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <ui:TextBlock Text="选中世代的 MES 查询前后差异"
+                                                          Style="{StaticResource SectionTitleText}" />
+                                            <ui:TextBlock Margin="0,3,0,0"
+                                                          Text="左侧切换 DemandId 时，此处原子切换为对应边界的原始值"
+                                                          Style="{StaticResource SecondaryText}" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1"
+                                                Padding="9,4"
+                                                CornerRadius="12"
+                                                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                VerticalAlignment="Center">
+                                            <ui:TextBlock x:Name="DemandSeriesInspectorMesFieldCountText"
+                                                          Style="{StaticResource CaptionText}"
+                                                          FontWeight="SemiBold"
+                                                          Text="0 个原生字段" />
+                                        </Border>
+                                    </Grid>
+
+                                    <Grid x:Name="DemandSeriesInspectorScalarEvidencePanel" Grid.Row="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <ui:TextBlock x:Name="DemandSeriesInspectorScalarBoundaryEvidenceText"
+                                                      Margin="0,0,0,8"
+                                                      Style="{StaticResource CaptionText}"
+                                                      TextWrapping="Wrap"
+                                                      AutomationProperties.Name="MES 标量对比边界来源"
+                                                      AutomationProperties.AutomationId="DemandSeriesInspectorScalarBoundaryEvidence" />
+                                        <Grid Grid.Row="1"
+                                              Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="190" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="105" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:TextBlock Margin="12,7" Text="MES 原生字段" FontSize="12" FontWeight="SemiBold" />
+                                            <ui:TextBlock Grid.Column="1" Margin="10,7" Text="前驱最后查询值" FontSize="12" FontWeight="SemiBold" />
+                                            <ui:TextBlock Grid.Column="2" Margin="10,7" Text="选中世代首次查询值" FontSize="12" FontWeight="SemiBold" />
+                                            <ui:TextBlock Grid.Column="3" Margin="10,7" Text="变化" FontSize="12" FontWeight="SemiBold" />
+                                        </Grid>
+                                        <ItemsControl x:Name="DemandSeriesInspectorMesScalarFields"
+                                                      Grid.Row="2"
+                                                      AutomationProperties.Name="MES 查询前后字段差异"
+                                                      AutomationProperties.AutomationId="DemandSeriesInspectorMesScalarFields">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border x:Name="MesDiffRow"
+                                                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                                            BorderThickness="0,0,0,1"
+                                                            AutomationProperties.Name="{Binding AutomationName}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="190" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="105" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Border x:Name="MesDiffMarker"
+                                                                    Width="3"
+                                                                    HorizontalAlignment="Left"
+                                                                    Background="{DynamicResource SystemFillColorCautionBrush}"
+                                                                    Visibility="Collapsed" />
+                                                            <ui:TextBlock Margin="12,6"
+                                                                          Text="{Binding FieldName}"
+                                                                          FontFamily="Consolas"
+                                                                          FontWeight="SemiBold" />
+                                                            <ui:TextBlock Grid.Column="1"
+                                                                          Margin="10,6"
+                                                                          Text="{Binding BeforeValue}"
+                                                                          FontFamily="Consolas"
+                                                                          TextTrimming="CharacterEllipsis" />
+                                                            <ui:TextBlock Grid.Column="2"
+                                                                          Margin="10,6"
+                                                                          Text="{Binding AfterValue}"
+                                                                          FontFamily="Consolas"
+                                                                          TextTrimming="CharacterEllipsis" />
+                                                            <ui:TextBlock x:Name="MesDiffState"
+                                                                          Grid.Column="3"
+                                                                          Margin="10,6"
+                                                                          Text="{Binding ChangeLabel}"
+                                                                          Style="{StaticResource CaptionText}" />
+                                                        </Grid>
+                                                    </Border>
+                                                    <DataTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                                                            <Setter TargetName="MesDiffMarker" Property="Visibility" Value="Visible" />
+                                                            <Setter TargetName="MesDiffRow" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                                            <Setter TargetName="MesDiffState" Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                                                            <Setter TargetName="MesDiffState" Property="FontWeight" Value="SemiBold" />
+                                                        </DataTrigger>
+                                                    </DataTemplate.Triggers>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+
+                                    <Grid x:Name="DemandSeriesInspectorRawEvidencePanel"
+                                          Grid.Row="2"
+                                          Visibility="Collapsed">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <ui:TextBlock x:Name="DemandSeriesInspectorBeforeEvidenceText"
+                                                      Style="{StaticResource SecondaryText}"
+                                                      AutomationProperties.Name="前代 MES 观察状态"
+                                                      AutomationProperties.AutomationId="DemandSeriesInspectorBeforeEvidence" />
+                                        <ui:TextBlock x:Name="DemandSeriesInspectorAfterEvidenceText"
+                                                      Grid.Row="1"
+                                                      Margin="0,6,0,8"
+                                                      Style="{StaticResource BodyStrong}"
+                                                      AutomationProperties.Name="首次观察 MES 证据"
+                                                      AutomationProperties.AutomationId="DemandSeriesInspectorAfterEvidence" />
+                                        <DataGrid x:Name="DemandSeriesInspectorAfterObservationGrid"
+                                                  Grid.Row="2"
+                                                  Style="{StaticResource InspectorReadOnlyGrid}"
+                                                  KeyboardNavigation.TabIndex="30"
+                                                  PreviewGotKeyboardFocus="OnScrollableEvidenceGotKeyboardFocus"
+                                                  AutomationProperties.Name="MES 边界原始行"
+                                                  AutomationProperties.AutomationId="DemandSeriesInspectorAfterObservationGrid">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="边界" Binding="{Binding BoundaryLabel}" Width="150" />
+                                                <DataGridTextColumn Header="#" Binding="{Binding RawRow.Ordinal}" Width="45" />
+                                                <DataGridTextColumn Header="Assignment" Binding="{Binding RawRow.Assignment}" Width="105" />
+                                                <DataGridTextColumn Header="SeriesId" Binding="{Binding RawRow.SeriesId}" Width="150" />
+                                                <DataGridTextColumn Header="DemandId" Binding="{Binding RawRow.DemandId}" Width="150" />
+                                                <DataGridTextColumn Header="TASK_TYPE" Binding="{Binding RawRow.WorkType}" Width="130" />
+                                                <DataGridTextColumn Header="SUBLOT" Binding="{Binding RawRow.Sublot}" Width="120" />
+                                                <DataGridTextColumn Header="AREA" Binding="{Binding RawRow.Area}" Width="90" />
+                                                <DataGridTextColumn Header="EQP" Binding="{Binding RawRow.Eqp}" Width="110" />
+                                                <DataGridTextColumn Header="STEP" Binding="{Binding RawRow.Step}" Width="120" />
+                                                <DataGridTextColumn Header="DATES / MesSourceDate" Binding="{Binding RawRow.MesSourceDate}" Width="180" />
+                                                <DataGridTextColumn Header="PACKAGE" Binding="{Binding RawRow.Package}" Width="120" />
+                                                <DataGridTextColumn Header="PollTrace" Binding="{Binding RawRow.PollTraceId}" Width="150" />
+                                                <DataGridTextColumn Header="ProjectionCommit" Binding="{Binding RawRow.ProjectionCommitId}" Width="170" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+
+                                    <Border Grid.Row="3"
+                                            Margin="0,8,0,0"
+                                            Padding="10,6"
+                                            CornerRadius="4"
+                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                                        <ui:TextBlock x:Name="DemandSeriesInspectorMesExplanationText"
+                                                      Style="{StaticResource CaptionText}"
+                                                      FontWeight="SemiBold" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="事件"
+                         AutomationProperties.Name="事件"
+                         AutomationProperties.AutomationId="DemandSeriesInspectorEventsTab">
+                    <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding}" />
+                                <Border Margin="8,0,0,0"
+                                        Padding="7,1"
+                                        CornerRadius="9"
+                                        Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                                    <ui:TextBlock Text="{Binding DataContext.Events.Count, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"
+                                                  Style="{StaticResource CaptionText}"
+                                                  FontWeight="SemiBold"
+                                                  AutomationProperties.Name="{Binding DataContext.Events.Count, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, StringFormat='冻结事件总数 {0}'}"
+                                                  AutomationProperties.AutomationId="DemandSeriesInspectorEventTabCount" />
+                                </Border>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabItem.HeaderTemplate>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid x:Name="DemandSeriesInspectorEventHeader">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="0" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <ui:TextBlock Text="永久事件" Style="{StaticResource SectionTitleText}" />
+                                <ui:TextBlock x:Name="DemandSeriesInspectorEventContextText"
+                                              Margin="0,3,0,0"
+                                              Style="{StaticResource SecondaryText}"
+                                              AutomationProperties.Name="事件 DemandId 过滤上下文"
+                                              AutomationProperties.AutomationId="DemandSeriesInspectorEventContext" />
+                            </StackPanel>
+                            <StackPanel x:Name="DemandSeriesInspectorEventFilters"
+                                        Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <RadioButton x:Name="DemandSeriesInspectorAllEventsRadio"
+                                             Content="全部 Series 事件"
+                                             IsChecked="True"
+                                             Padding="10,6"
+                                             Checked="OnAllEventsChecked"
+                                             KeyboardNavigation.TabIndex="10"
+                                             AutomationProperties.Name="显示全部 Series 事件"
+                                             AutomationProperties.AutomationId="DemandSeriesInspectorAllEventsFilter" />
+                                <RadioButton x:Name="DemandSeriesInspectorSelectedEventsRadio"
+                                             Margin="12,0,0,0"
+                                             Content="当前 Demand 相关事件"
+                                             Padding="10,6"
+                                             Checked="OnSelectedEventsChecked"
+                                             KeyboardNavigation.TabIndex="20"
+                                             AutomationProperties.Name="显示当前 Demand 相关事件"
+                                             AutomationProperties.AutomationId="DemandSeriesInspectorSelectedEventsFilter" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2" Style="{StaticResource SurfaceCard}" Padding="0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="16,12">
+                                    <ui:TextBlock Text="事件日志" FontWeight="SemiBold" />
+                                    <ui:TextBlock Margin="0,3,0,0"
+                                                  Text="事件是冻结审计事实；切换过滤不会改变世代分析中的选择"
+                                                  Style="{StaticResource CaptionText}" />
+                                </StackPanel>
+                                <DataGrid x:Name="DemandSeriesInspectorEventGrid"
+                                          Grid.Row="1"
+                                          Style="{StaticResource InspectorReadOnlyGrid}"
+                                          KeyboardNavigation.TabIndex="30"
+                                          AutomationProperties.Name="DemandSeries 永久事件"
+                                          AutomationProperties.AutomationId="DemandSeriesInspectorEventGrid">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="SeriesSequence" Binding="{Binding SeriesSequence}" Width="140" MinWidth="140" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="EventId" Binding="{Binding EventId}" Width="180" MinWidth="180" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="SeriesId" Binding="{Binding SeriesId}" Width="180" MinWidth="180" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="OccurredAt" Binding="{Binding OccurredAt}" Width="190" MinWidth="190" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="EventType" Binding="{Binding EventType}" Width="230" MinWidth="230" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="SubjectKind" Binding="{Binding SubjectKind}" Width="150" MinWidth="150" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="SubjectId" Binding="{Binding SubjectId}" Width="180" MinWidth="180" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="PollTraceId" Binding="{Binding PollTraceId}" Width="180" MinWidth="180" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="ProjectionCommitId" Binding="{Binding ProjectionCommitId}" Width="210" MinWidth="210" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="PayloadVersion" Binding="{Binding PayloadVersion}" Width="150" MinWidth="150" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                        <DataGridTextColumn Header="PayloadJson" Binding="{Binding PayloadJson}" Width="*" MinWidth="360" ElementStyle="{StaticResource InspectorEventGridTextCell}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

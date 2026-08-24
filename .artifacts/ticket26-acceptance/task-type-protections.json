@@ -1,0 +1,50 @@
+[
+  {
+    "workType": "DIE_TO_OVEN",
+    "phase": "MONITORING",
+    "isCurrentAttention": false,
+    "latestObservedCount": 74,
+    "lastHealthyNonZeroCount": 74,
+    "protectionAllowsAbsenceAuthority": true
+  },
+  {
+    "workType": "DIE_TO_WIRE_STAGING",
+    "phase": "MONITORING",
+    "isCurrentAttention": false,
+    "latestObservedCount": 51,
+    "lastHealthyNonZeroCount": 51,
+    "protectionAllowsAbsenceAuthority": true
+  },
+  {
+    "workType": "STAGING_TO_WIRE",
+    "phase": "MONITORING",
+    "isCurrentAttention": false,
+    "latestObservedCount": 229,
+    "lastHealthyNonZeroCount": 229,
+    "protectionAllowsAbsenceAuthority": true
+  },
+  {
+    "workType": "WIRE_TO_GATE",
+    "phase": "MONITORING",
+    "isCurrentAttention": false,
+    "latestObservedCount": 52,
+    "lastHealthyNonZeroCount": 52,
+    "protectionAllowsAbsenceAuthority": true
+  },
+  {
+    "workType": "WIRE_TO_NITROGEN",
+    "phase": "MONITORING",
+    "isCurrentAttention": false,
+    "latestObservedCount": 90,
+    "lastHealthyNonZeroCount": 90,
+    "protectionAllowsAbsenceAuthority": true
+  },
+  {
+    "workType": "WIRE_TO_OPTICAL",
+    "phase": "MONITORING",
+    "isCurrentAttention": false,
+    "latestObservedCount": 65,
+    "lastHealthyNonZeroCount": 65,
+    "protectionAllowsAbsenceAuthority": true
+  }
+]

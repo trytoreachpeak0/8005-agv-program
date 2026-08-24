@@ -1,0 +1,30 @@
+**********************
+PowerShell transcript start
+Start time: 20260810151457
+Username: LAB-WIN-01\szy
+RunAs User: LAB-WIN-01\szy
+Configuration Name: 
+Machine: LAB-WIN-01 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -NoProfile -ExecutionPolicy Bypass -File C:\Users\szy\Desktop\8005---AGV\.artifacts\ticket13-golden-sql-environment.ps1 -Action Cleanup
+Process ID: 25340
+PSVersion: 7.6.4
+PSEdition: Core
+GitCommitId: 7.6.4
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.4
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+
+Status                : CLEANED
+LoginMode             : 1
+TcpEnabled            : 0
+VmSwitch              : 
+CredentialFilePresent : False
+
+**********************
+PowerShell transcript end
+End time: 20260810151504
+**********************

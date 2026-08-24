@@ -17,9 +17,13 @@ internal static class WatchGridClipboardBehavior
         "复制整行（含列名）",
     ];
 
-    public static void Attach(DataGrid grid)
+    public static void Attach(DataGrid grid, bool preserveSelectionUnit = false)
     {
-        grid.SelectionUnit = DataGridSelectionUnit.CellOrRowHeader;
+        if (!preserveSelectionUnit)
+        {
+            grid.SelectionUnit = DataGridSelectionUnit.CellOrRowHeader;
+        }
+
         grid.ClipboardCopyMode = DataGridClipboardCopyMode.None;
         if (grid.HeadersVisibility == DataGridHeadersVisibility.Column)
         {
@@ -108,7 +112,7 @@ internal static class WatchGridClipboardBehavior
         }
 
         var value = ReadCellValue(cell.Value.Item, cell.Value.Column);
-        SetClipboardText(WatchGridClipboard.FormatValue(value));
+        TrySetClipboardText(WatchGridClipboard.FormatValue(value));
     }
 
     private static void CopyRow(DataGrid grid, bool includeHeaders)
@@ -130,7 +134,7 @@ internal static class WatchGridClipboardBehavior
         var text = includeHeaders
             ? WatchGridClipboard.FormatRowWithHeaders(headers, values)
             : WatchGridClipboard.FormatRow(values);
-        SetClipboardText(text);
+        TrySetClipboardText(text);
     }
 
     private static object? ResolveRowItem(DataGrid grid)
@@ -172,6 +176,11 @@ internal static class WatchGridClipboardBehavior
             return WatchGridClipboard.ReadProperty(rowItem, binding.Path.Path);
         }
 
+        if (!string.IsNullOrWhiteSpace(column.SortMemberPath))
+        {
+            return WatchGridClipboard.ReadProperty(rowItem, column.SortMemberPath);
+        }
+
         return null;
     }
 
@@ -190,6 +199,7 @@ internal static class WatchGridClipboardBehavior
         {
             grid.Focus();
             grid.SelectedCells.Clear();
+            grid.SelectedItem = cell.DataContext;
             var info = new DataGridCellInfo(cell);
             grid.CurrentCell = info;
             if (!grid.SelectedCells.Contains(info))
@@ -240,7 +250,7 @@ internal static class WatchGridClipboardBehavior
         return null;
     }
 
-    private static void SetClipboardText(string text)
+    internal static void TrySetClipboardText(string text)
     {
         try
         {

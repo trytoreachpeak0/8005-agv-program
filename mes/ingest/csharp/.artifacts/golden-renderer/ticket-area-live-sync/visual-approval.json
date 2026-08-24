@@ -1,0 +1,23 @@
+{
+  "feature": "mes-ingest-watch-area-live-sync",
+  "approvedBy": "trytoreachpeak0@gmail.com",
+  "approvedAt": "2026-08-21T01:50:00+08:00",
+  "userMessage": "批准，进 tier 3",
+  "question": "金机真实窗口预览（AREA 页改版后）是否批准？批准后我才能生成候选矩阵并 promote baseline。",
+  "approvedPreview": {
+    "run": "run-20260821-014058-watch-production-preview",
+    "suite": "watch-production-preview",
+    "scenario": "05-area-filter-profile",
+    "path": "run-20260821-014058-watch-production-preview/watch-ui/20260821-014148-660/production-workspace-19-22/05-area-filter-profile.png",
+    "sha256": "8304FBE324401BBCAEEBF65233F38D9DB55F7E1ECB969BE75DCF922DA6CD0ADA",
+    "clientSize": "1440x900",
+    "dpi": 96,
+    "renderingMode": "SoftwareOnly"
+  },
+  "sourceCommit": "2db69a37b71ea89243100e4551631642ae002591",
+  "notes": [
+    "Approval covers the AREA filter page after the area-live-sync feature. A later UI change invalidates it.",
+    "The user was shown the approved preview next to the current promoted baseline 05-area-filter-profile-1440x900.verified.png.",
+    "Raised at approval time and deliberately left as is: the editor card still ends with 当前应用：… , which repeats what the list row already says. The user chose to keep it."
+  ]
+}

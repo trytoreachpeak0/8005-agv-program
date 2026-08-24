@@ -1,0 +1,9 @@
+--- watch-latency-20260809.log ---
+recordedAt=2026-08-09T18:11:39.9835245+00:00 correlationId=5cf136b3d8db4521b04930e39632196c component=Watch stage=HTTP_OK elapsedMs=553 endpoint=/api/contract statusCode=200 rowCount=1 bytes=59
+recordedAt=2026-08-09T18:11:40.0272484+00:00 correlationId=60655eeeffe347d885f6056c07857eb3 component=Watch stage=HTTP_OK elapsedMs=40 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-09T18:11:40.0413948+00:00 correlationId=ef0f082b5c064512b57b84bca5f82d22 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-09T18:11:40.0654590+00:00 correlationId=5a4157197b754022a73f4f1fea0cb355 component=Watch stage=HTTP_OK elapsedMs=21 endpoint=/api/alerts statusCode=200 rowCount=1 bytes=519
+recordedAt=2026-08-09T18:11:40.0654528+00:00 correlationId=075f1931d33e44d7875ccd0bd8390bb0 component=Watch stage=HTTP_OK elapsedMs=18 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-09T18:11:44.8047057+00:00 correlationId=87ca0f793f67442bbd88f6971b4469fa component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-09T18:11:45.3085046+00:00 correlationId=7fec7538497e4db199e38996b5de8a4f component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/alerts statusCode=200 rowCount=1 bytes=519
+

@@ -1,0 +1,72 @@
+{
+  "Ticket": "23",
+  "Purpose": "125% (120 DPI) and 150% (144 DPI) watch-ui-journeys on a disposable offline clone, per docs/agents/golden-renderer.md 'DPI validation'.",
+  "Clone": {
+    "Name": "gpt_win11_ticket23_dpi",
+    "Id": "4e3e5252-b7be-412e-b557-3b0253dcc446",
+    "SourceVm": "gpt_win11",
+    "SourceId": "7d804f09-8e93-48f9-9bff-07e85f6adc45",
+    "NewVmIdGenerated": true,
+    "NetworkConnected": false,
+    "DisksIsolated": "Clone disks confined to F:\\ticket23-dpi-import-20260819; asserted not shared with the source before boot.",
+    "Identity": ".artifacts/ticket23-dpi/clone-identity.json"
+  },
+  "HostConstraintEncountered": {
+    "Problem": "The clone imported correctly but could not start: the host has 15.3 GB RAM and gpt_win11 holds a static 4 GB, so two 4 GB VMs do not fit.",
+    "Resolution": "gpt_win11 was gracefully shut down for the duration of the DPI phase and restarted afterwards. This is a power cycle, not a calibration change, and the runbook forbids running two desktop suites in parallel anyway.",
+    "ApprovedBy": "user",
+    "SideEffectObserved": "gpt_win11 carried a Hyper-V automatic checkpoint, which merges into the parent VHDX on shutdown. Its disk path therefore changed from the .avhdx to gpt_win11.vhdx. Guest state is preserved by the merge; nothing was lost."
+  },
+  "Runs": [
+    {
+      "Scale": "125%",
+      "Dpi": 120,
+      "Suite": "watch-ui-journeys",
+      "Evidence": "mes/ingest/csharp/.artifacts/golden-renderer/ticket-23-dpi-120/run-20260819-083824-watch-ui-journeys",
+      "Status": "PASSED",
+      "Tests": "1 total, 0 failed, 0 skipped",
+      "EffectiveDpiProof": "Interactive environment report before and after the suite: Dpi=120, ScalePercent=125, DesktopWidth=1920, DesktopHeight=1080, Interactive=true, SessionId=1, ExplorerInSession=true, InputDesktop=true, Culture=zh-CN, RenderingMode=SoftwareOnly.",
+      "ClientAreaEpx": "1440x900 physical = 1152x720 epx",
+      "Screenshots": 16
+    },
+    {
+      "Scale": "150%",
+      "Dpi": 144,
+      "Suite": "watch-ui-journeys",
+      "Evidence": "mes/ingest/csharp/.artifacts/golden-renderer/ticket-23-dpi-144/run-20260819-084741-watch-ui-journeys",
+      "Status": "PASSED",
+      "Tests": "1 total, 0 failed, 0 skipped",
+      "EffectiveDpiProof": "Interactive environment report before and after the suite: Dpi=144, ScalePercent=150, DesktopWidth=1920, DesktopHeight=1080, Interactive=true, SessionId=1, ExplorerInSession=true, InputDesktop=true, Culture=zh-CN, RenderingMode=SoftwareOnly.",
+      "ClientAreaEpx": "1440x900 physical = 960x600 epx",
+      "Screenshots": 16
+    }
+  ],
+  "ReflowObservations": {
+    "125-percent-03-demand-series-detail": "Page scrolls vertically; the series grid and the event grid each carry their own horizontal scrollbar rather than clipping columns. Title bar minimise/maximise/close, the navigation rail, the pagination row (previous / page number / 跳转 / next) and the detail card's 完整证据 command are all fully rendered.",
+    "150-percent-06-error-search-variant-a": "The three-card layout collapses to a single column and scrolls inside the card. Title bar buttons, navigation rail, the 活动错误 page-state badge and the category search field remain fully rendered; the long Host snapshot header line is ellipsised by the text layout rather than clipped by the container."
+  },
+  "ScopeHonesty": {
+    "Claim": "These runs prove reflow and scrolling under 125% and 150% scaling at the real interactive DPI.",
+    "NotClaimed": "They do not exercise the 720 epx minimum width. The narrowest client they reach is 960x600 epx at 150%.",
+    "WhereTheFloorIsCovered": [
+      "MesIngest.Tests/WatchV2ProductionShellTests.cs - Production_shell_keeps_native_caption_commands_accessible_and_reflows_at_720_epx and Demand_series_page_keeps_filter_list_exact_paging_and_evidence_journeys_accessible_at_720_epx set window.Width = 720 directly (host suite, 919 tests).",
+      "MesIngest.Watch.UiTests/WatchTicket22ResponsiveIntegrationTests.cs - sets window.Width = 720 for the Error Search and CurrentIngestAttention surfaces (guest watch-vm-tests, 227 tests)."
+    ]
+  },
+  "Cleanup": {
+    "Record": ".artifacts/ticket23-dpi/clone-cleanup.json",
+    "CloneRemoved": true,
+    "ExportRootRemoved": "F:\\ticket23-dpi-export-20260819",
+    "ImportRootRemoved": "F:\\ticket23-dpi-import-20260819",
+    "RemainingDpiVms": [],
+    "ScopeGuard": "The cleanup script refuses to delete a directory that holds any disk of the live gpt_win11. This matters because the calibrated VM's own disk lives under F:\\ticket23-font-import-20260818, a directory left by the earlier font session; a broad cleanup would have destroyed the golden machine.",
+    "SourceVmAfterRestart": {
+      "State": "Running",
+      "LogPixels": 96,
+      "Win8DpiScaling": 0,
+      "ExplorerSessions": [1],
+      "ResidualWatchOrTestProcesses": [],
+      "FormalRecheck": "mes/ingest/csharp/.artifacts/golden-renderer/ticket-23-final-vm-recheck"
+    }
+  }
+}

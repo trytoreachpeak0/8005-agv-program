@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="3863b738-8383-42a4-a3e7-2fa2d60b5dce" name="szy@LAB-WIN-01 2026-08-12 23:08:20" runUser="LAB-WIN-01\szy" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-08-12T23:08:20.5139623+08:00" queuing="2026-08-12T23:08:20.5139637+08:00" start="2026-08-12T23:08:03.4396830+08:00" finish="2026-08-12T23:08:20.5195208+08:00" />
+  <TestSettings name="default" id="0404a14c-b680-4059-886f-96f3d638ced0">
+    <Deployment runDeploymentRoot="szy_LAB-WIN-01_2026-08-12_23_08_20" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="ba5f476e-12e9-463f-8a99-d7af365721ee" testId="129c9c84-4a4f-0102-1f8e-4272d399ae9a" testName="MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence" computerName="LAB-WIN-01" duration="00:00:00.0063337" startTime="2026-08-12T23:08:20.4035997+08:00" endTime="2026-08-12T23:08:20.4036139+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ba5f476e-12e9-463f-8a99-d7af365721ee">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Ticket 01 expected SQL Server product major 15, but the connected server reports 16 (ProductVersion 16.0.1190.2).</Message>
+          <StackTrace>   at MesIngest.Tests.Ticket01SqlServerDatabase.CreateAsync() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs:line 539&#xD;
+   at MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs:line 34&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4b762e5c-ff4f-49bd-85a3-20d7533092c5" testId="947e2ddb-fe4d-a3da-9407-582f700219aa" testName="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events" computerName="LAB-WIN-01" duration="00:00:00.0013824" startTime="2026-08-12T23:08:20.4087055+08:00" endTime="2026-08-12T23:08:20.4087056+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4b762e5c-ff4f-49bd-85a3-20d7533092c5">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Ticket 01 expected SQL Server product major 15, but the connected server reports 16 (ProductVersion 16.0.1190.2).</Message>
+          <StackTrace>   at MesIngest.Tests.Ticket01SqlServerDatabase.CreateAsync() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs:line 539&#xD;
+   at MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs:line 182&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8de9e910-5303-426d-b31c-4ccd75c83a8b" testId="c35e2e2a-b57b-2dbb-b423-e6879cdba101" testName="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection" computerName="LAB-WIN-01" duration="00:00:00.0014923" startTime="2026-08-12T23:08:20.4076081+08:00" endTime="2026-08-12T23:08:20.4076083+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8de9e910-5303-426d-b31c-4ccd75c83a8b">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Ticket 01 expected SQL Server product major 15, but the connected server reports 16 (ProductVersion 16.0.1190.2).</Message>
+          <StackTrace>   at MesIngest.Tests.Ticket01SqlServerDatabase.CreateAsync() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs:line 539&#xD;
+   at MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs:line 268&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence" storage="c:\users\szy\desktop\8005---agv\mes\ingest\csharp\mesingest.tests\bin\release\net8.0-windows\mesingest.tests.dll" id="129c9c84-4a4f-0102-1f8e-4272d399ae9a">
+      <Execution id="ba5f476e-12e9-463f-8a99-d7af365721ee" />
+      <TestMethod codeBase="C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesIngest.Tests.NewSuccessRoundTracerSpineTests" name="First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence" />
+    </UnitTest>
+    <UnitTest name="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events" storage="c:\users\szy\desktop\8005---agv\mes\ingest\csharp\mesingest.tests\bin\release\net8.0-windows\mesingest.tests.dll" id="947e2ddb-fe4d-a3da-9407-582f700219aa">
+      <Execution id="4b762e5c-ff4f-49bd-85a3-20d7533092c5" />
+      <TestMethod codeBase="C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesIngest.Tests.NewSuccessRoundTracerSpineTests" name="Equivalent_success_round_preserves_identity_and_does_not_append_business_events" />
+    </UnitTest>
+    <UnitTest name="MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection" storage="c:\users\szy\desktop\8005---agv\mes\ingest\csharp\mesingest.tests\bin\release\net8.0-windows\mesingest.tests.dll" id="c35e2e2a-b57b-2dbb-b423-e6879cdba101">
+      <Execution id="8de9e910-5303-426d-b31c-4ccd75c83a8b" />
+      <TestMethod codeBase="C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="MesIngest.Tests.NewSuccessRoundTracerSpineTests" name="Restarted_host_reads_the_same_persisted_projection" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="129c9c84-4a4f-0102-1f8e-4272d399ae9a" executionId="ba5f476e-12e9-463f-8a99-d7af365721ee" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="947e2ddb-fe4d-a3da-9407-582f700219aa" executionId="4b762e5c-ff4f-49bd-85a3-20d7533092c5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c35e2e2a-b57b-2dbb-b423-e6879cdba101" executionId="8de9e910-5303-426d-b31c-4ccd75c83a8b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="3" executed="3" passed="0" failed="3" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 8.0.30)&#xD;
+[xUnit.net 00:00:01.19]   Discovering: MesIngest.Tests&#xD;
+[xUnit.net 00:00:16.08]   Discovered:  MesIngest.Tests&#xD;
+[xUnit.net 00:00:16.08]   Starting:    MesIngest.Tests&#xD;
+[xUnit.net 00:00:16.15]       System.InvalidOperationException : Ticket 01 expected SQL Server product major 15, but the connected server reports 16 (ProductVersion 16.0.1190.2).&#xD;
+[xUnit.net 00:00:16.15]       Stack Trace:&#xD;
+[xUnit.net 00:00:16.15]         C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs(539,0): at MesIngest.Tests.Ticket01SqlServerDatabase.CreateAsync()&#xD;
+[xUnit.net 00:00:16.15]         C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs(34,0): at MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence()&#xD;
+[xUnit.net 00:00:16.15]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:16.16]       System.InvalidOperationException : Ticket 01 expected SQL Server product major 15, but the connected server reports 16 (ProductVersion 16.0.1190.2).&#xD;
+[xUnit.net 00:00:16.16]       Stack Trace:&#xD;
+[xUnit.net 00:00:16.16]         C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs(539,0): at MesIngest.Tests.Ticket01SqlServerDatabase.CreateAsync()&#xD;
+[xUnit.net 00:00:16.16]         C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs(268,0): at MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection()&#xD;
+[xUnit.net 00:00:16.16]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:16.16]       System.InvalidOperationException : Ticket 01 expected SQL Server product major 15, but the connected server reports 16 (ProductVersion 16.0.1190.2).&#xD;
+[xUnit.net 00:00:16.16]       Stack Trace:&#xD;
+[xUnit.net 00:00:16.16]         C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs(539,0): at MesIngest.Tests.Ticket01SqlServerDatabase.CreateAsync()&#xD;
+[xUnit.net 00:00:16.16]         C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Tests\NewSuccessRoundTracerSpineTests.cs(182,0): at MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events()&#xD;
+[xUnit.net 00:00:16.16]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:16.16]   Finished:    MesIngest.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="LAB-WIN-01" outcome="Error" timestamp="2026-08-12T23:08:20.4018257+08:00">
+        <Text>[xUnit.net 00:00:16.15]     MesIngest.Tests.NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="LAB-WIN-01" outcome="Error" timestamp="2026-08-12T23:08:20.4075363+08:00">
+        <Text>[xUnit.net 00:00:16.16]     MesIngest.Tests.NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="LAB-WIN-01" outcome="Error" timestamp="2026-08-12T23:08:20.4083668+08:00">
+        <Text>[xUnit.net 00:00:16.16]     MesIngest.Tests.NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

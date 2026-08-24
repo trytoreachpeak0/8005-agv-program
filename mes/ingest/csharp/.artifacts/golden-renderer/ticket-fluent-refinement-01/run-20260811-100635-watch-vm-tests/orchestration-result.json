@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-11T10:08:54.3860645+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\fluent-refinement-01\\run-20260811-100635-watch-vm-tests",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-fluent-refinement-01\\run-20260811-100635-watch-vm-tests"
+}

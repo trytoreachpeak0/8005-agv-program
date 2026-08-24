@@ -1,0 +1,29 @@
+{
+  "Ticket": "23-xaml-gate-fixed-2",
+  "Suite": "watch-xaml-stability",
+  "Configuration": "Release",
+  "RequestedRuns": 3,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\23-xaml-gate-fixed-2\\run-20260819-105020-watch-xaml-stability",
+  "CreatedAt": "2026-08-19T10:50:33.7932994+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "d725be1ddda248bf047dfbfc750a57d63a750d50",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/Invoke-WatchUiTests.ps1",
+    " M mes/ingest/csharp/MesIngest.Tests/InstallPackageLayoutTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchVisualScenario.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchXamlVisualTests.cs",
+    " M mes/ingest/csharp/Test-WatchXamlBaselineStability.ps1"
+  ],
+  "PayloadSha256": "AC92E1EB3604BF9382AFBA3C41ADA75BA6B9E82E6F3EFC9C82FE3C13CA757217",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

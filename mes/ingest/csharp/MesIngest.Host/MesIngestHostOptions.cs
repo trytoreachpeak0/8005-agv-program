@@ -1,4 +1,5 @@
 using MesIngest.Core;
+using MesIngest.Core.SeriesProjection;
 
 namespace MesIngest.Host;
 
@@ -6,11 +7,17 @@ public sealed class MesIngestHostOptions
 {
     public const string SectionName = "MesIngest";
 
-    /// <summary>Snapshot adapter: File (recorded CSV) or Oracle (production MES_TASK_UNION).</summary>
-    public string SnapshotSource { get; set; } = "File";
+    /// <summary>Round source value that hosts no MES round source at all.</summary>
+    public const string NoRoundSource = "None";
 
-    /// <summary>Path to a recorded MES_TASK_UNION CSV. Required for file snapshot mode.</summary>
-    public string SnapshotCsvPath { get; set; } = "";
+    /// <summary>Round source value that hosts the production Oracle MES_TASK_UNION source.</summary>
+    public const string OracleRoundSource = "Oracle";
+
+    /// <summary>
+    /// Round source adapter. <c>Oracle</c> hosts the production MES_TASK_UNION round source;
+    /// <c>None</c> hosts no round source and is only for API-surface fixtures.
+    /// </summary>
+    public string SnapshotSource { get; set; } = NoRoundSource;
 
     /// <summary>
     /// Directory containing published query folders (default: queries beside the host).
@@ -33,15 +40,14 @@ public sealed class MesIngestHostOptions
     /// <summary>Instant Client directory for Thick mode (or set ORACLE_CLIENT_LIB_DIR).</summary>
     public string OracleInstantClientDir { get; set; } = "";
 
+    /// <summary>Registered Oracle ODBC driver name for the Thick/OCI adapter.</summary>
+    public string OracleThickOdbcDriver { get; set; } = "";
+
     public int OracleConnectTimeoutSeconds { get; set; } = 30;
 
     public int OracleMinPoolSize { get; set; }
 
     public int OracleMaxPoolSize { get; set; } = 4;
-
-    /// <summary>Go-live baseline; rows with DATES earlier are not created as VISIBLE.</summary>
-    public DateTimeOffset GoLiveBaseline { get; set; } =
-        new(2026, 8, 1, 0, 0, 0, TimeSpan.FromHours(8));
 
     /// <summary>
     /// When true, run one ingest round during host startup (before listening).
@@ -61,9 +67,6 @@ public sealed class MesIngestHostOptions
     /// <summary>Per-round snapshot read timeout in seconds.</summary>
     public int QueryTimeoutSeconds { get; set; } = 30;
 
-    /// <summary>Consecutive successful absences before a VISIBLE demand becomes GONE.</summary>
-    public int DisappearThreshold { get; set; } = 2;
-
     /// <summary>
     /// Enter PAUSED_ZERO_DROP when prior healthy non-zero count for a TASK_TYPE
     /// is at/above this threshold and the next successful count is 0.
@@ -73,7 +76,7 @@ public sealed class MesIngestHostOptions
     /// <summary>
     /// Consecutive successful non-zero rounds required to clear PAUSED_ZERO_DROP.
     /// </summary>
-    public int ZeroDropClearStreak { get; set; } = TransportDemandReconciler.DefaultZeroDropClearStreak;
+    public int ZeroDropClearStreak { get; set; } = TaskTypeProtectionPolicy.RequiredRecoveryStreak;
 
     /// <summary>
     /// Kestrel listen URLs. Default is localhost-only. Binding beyond localhost requires SharedSecret.
@@ -81,30 +84,84 @@ public sealed class MesIngestHostOptions
     public string Urls { get; set; } = "http://127.0.0.1:5088";
 
     /// <summary>
-    /// Shared secret for read-only HTTP when Urls binds beyond localhost.
+    /// Shared secret for read-only HTTP when Urls binds beyond localhost and for
+    /// restricted raw-evidence reads on every binding, including localhost.
     /// Callers send <c>Authorization: Bearer &lt;SharedSecret&gt;</c>. Local/env only — never commit a real value.
     /// </summary>
     public string SharedSecret { get; set; } = "";
 
     /// <summary>
-    /// SQL Server connection string for durable projection. When empty, Host uses in-memory store
-    /// (tests / local CSV demos). Put real credentials in appsettings.Local.json or env vars — never commit.
+    /// SQL Server connection string for the MesIngest projection schema. Required by the
+    /// production Host; only API-surface fixtures may omit it. The key keeps its
+    /// <c>New</c> prefix on purpose: a configuration file written for the retired contract
+    /// cannot carry it, so a stale file fails startup instead of pointing this Host at the
+    /// retired database. Put real credentials in local configuration or environment
+    /// variables only.
     /// </summary>
-    public string SqlServerConnectionString { get; set; } = "";
+    public string NewSqlServerConnectionString { get; set; } = "";
 
     /// <summary>
-    /// DemandChangeFeed retention in hours. Default 48. 0 keeps the ledger permanently.
+    /// Path to a recorded MES_TASK_UNION rounds file. When set, the production round
+    /// source reads its statement results from that file instead of the plant database,
+    /// so a release smoke can drive repeatable rounds with no factory Oracle. Requires
+    /// <see cref="ReplayRoundsAcknowledgement"/>; see <c>ReleaseSmokeRoundReplay</c>.
     /// </summary>
-    public int ChangeFeedRetentionHours { get; set; } = 48;
+    public string ReplayRoundsFromRecordingPath { get; set; } = "";
 
     /// <summary>
-    /// Resolved IngestAlert retention in days. Default 365. 0 keeps resolved incidents permanently.
-    /// Active incidents are never purged by retention.
+    /// Must equal <c>ReleaseSmokeRoundReplay.RequiredAcknowledgement</c> whenever
+    /// <see cref="ReplayRoundsFromRecordingPath"/> is set. Recorded rounds are never
+    /// factory acceptance evidence.
     /// </summary>
-    public int AlertRetentionDays { get; set; } = 365;
+    public string ReplayRoundsAcknowledgement { get; set; } = "";
 
     public bool IsOracleSnapshotSource() =>
-        SnapshotSource.Equals("Oracle", StringComparison.OrdinalIgnoreCase);
+        SnapshotSource.Equals(OracleRoundSource, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Configuration keys that belonged to the retired MesIngest contract. They are rejected
+    /// rather than ignored so a stale deployment file cannot look accepted while the value it
+    /// carries — a retired database, a change-feed retention, a frozen-field switch — silently
+    /// does nothing.
+    /// </summary>
+    public static readonly string[] RetiredConfigurationKeys =
+    [
+        "AlertRetentionDays",
+        "ChangeFeedRetentionHours",
+        "DisappearThreshold",
+        "EnableLegacyDevelopmentEndpoints",
+        "GoLiveBaseline",
+        "SnapshotCsvPath",
+        "SqlServerConnectionString",
+    ];
+
+    /// <summary>
+    /// Fails startup when the bound configuration still carries a retired key, or names a
+    /// round source this release does not have.
+    /// </summary>
+    public void ValidateContractShape(IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        var section = configuration.GetSection(SectionName);
+        var present = RetiredConfigurationKeys
+            .Where(key => section.GetSection(key).Exists())
+            .ToArray();
+        if (present.Length > 0)
+        {
+            throw new InvalidOperationException(
+                $"{SectionName} configuration still contains retired keys: "
+                + string.Join(", ", present)
+                + ". They belonged to the replaced MesIngest contract; remove them and use the "
+                + "current appsettings template.");
+        }
+
+        if (!SnapshotSource.Equals(OracleRoundSource, StringComparison.OrdinalIgnoreCase)
+            && !SnapshotSource.Equals(NoRoundSource, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:SnapshotSource must be {OracleRoundSource} or {NoRoundSource}.");
+        }
+    }
 
     public OracleClientMode ParseOracleMode()
     {
@@ -126,13 +183,17 @@ public sealed class MesIngestHostOptions
     public OracleSnapshotOptions ToOracleSnapshotOptions(string? contentRoot = null)
     {
         var queriesRoot = ResolveQueriesDirectory(contentRoot);
+        var instantClientDir = string.IsNullOrWhiteSpace(OracleInstantClientDir)
+            ? Environment.GetEnvironmentVariable("ORACLE_CLIENT_LIB_DIR")?.Trim() ?? string.Empty
+            : OracleInstantClientDir.Trim();
         return new OracleSnapshotOptions
         {
             User = OracleUser,
             Password = OraclePassword,
             DataSource = OracleDataSource,
             Mode = ParseOracleMode(),
-            InstantClientDir = OracleInstantClientDir,
+            InstantClientDir = instantClientDir,
+            ThickOdbcDriver = OracleThickOdbcDriver,
             ConnectTimeoutSeconds = OracleConnectTimeoutSeconds,
             CommandTimeoutSeconds = Math.Max(1, QueryTimeoutSeconds),
             MinPoolSize = OracleMinPoolSize,

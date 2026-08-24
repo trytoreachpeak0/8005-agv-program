@@ -527,7 +527,7 @@ _Avoid_: 车载配置文件、手工无审计改库、双端各存一份
 _Avoid_: 瞬间撤回 SlotOperationCommand、只清空所选任务的部分仓位、取消一个 SUBLOT 时整车清空、车辆离站后的普通取消
 
 **整站结束取消（StopClosureCancellation）**:
-StationDepartureWaiting 中结束本站时，由服务端一次性终结全部尚未开始的待装 DemandId；等待到期记为 `CANCELLED_BY_STATION_TIMEOUT`，操作员确认本站装货完成记为 `CANCELLED_BY_STOP_COMPLETE`。两者均持久抑制对应 TransportDemandKey 再次接入且不影响已经提交的 LoadBatch；同一 SUBLOT 以后命中其它任务类型时属于不同业务键。
+StationDepartureWaiting 中结束本站时，由服务端一次性终结全部尚未开始的待装 DemandId；等待到期记为 `CANCELLED_BY_STATION_TIMEOUT`，操作员确认本站装货完成记为 `CANCELLED_BY_STOP_COMPLETE`。两者均持久抑制对应 TransportDemandKey 再次接入且不影响已经提交的 LoadBatch；同一 SUBLOT 以后命中其它 WorkType 时属于不同业务键。
 _Avoid_: CANCELLED_BY_OPERATOR、LoadTaskCancellation、清空已装仓位、按 SUBLOT 永久拉黑
 
 **整站结束提交（StopClosureCommit）**:
@@ -1002,6 +1002,10 @@ _Avoid_: 告警可见即有处置权、只在车载端显示、只在服务端�
 
 ### MES 焊线工序与运输任务
 
+**MesTaskUnionRound（MES 联合查询轮次）**:
+对六类运输候选执行一次 MES_TASK_UNION Oracle 语句所得的完整轮次；六个 UNION ALL 分支共享同一语句级一致性快照，结构完整但字段值异常的原始行仍属于 SUCCESS 证据，只有执行或结构契约不能成立的 FAILURE / INCOMPLETE 才保持 Demand 投影不变。
+_Avoid_: 六次独立查询、成功的部分快照、调用方自行声明 snapshotComplete
+
 **MesIngest**:
 MES 任务接入：轮询只读 MES 快照、对账并投影 TransportDemand；GONE 后同一业务键再现时可以产生新的本地投影实例。它不读取调度侧取消抑制，也不决定是否创建业务任务或派车。
 _Avoid_: MES 模块（泛称）、任务服务（易含调度）、调度取消过滤器、薄模块（口语）
@@ -1022,10 +1026,6 @@ _Avoid_: MES 状态变化作为卸货完成条件、等待 PDA 确认后放车�
 车辆到达目的站并满足既有卸货安全条件后，8005 直接开始开仓卸货，不先征询目的站人员是否接收，也不提供暂不收货、拒收或稍后接收的业务状态；开仓后的货物取出仍按既有卸货物理闭环收敛，目的站人员后续是否以及何时执行其自身流程不构成 8005 的任务门禁。
 _Avoid_: 到站接收确认、暂不收货等待、拒收状态、等待目的站后续流程才开仓
 
-**IngestAlert**:
-MesIngest 在 MES 查询执行、返回契约、行字段完整性、对账唯一性或任务观测过程中检出的一个可追踪问题实例；相同原因持续存在时累计次数并更新最后发现时间，而不是每轮新增重复记录，问题消失后保留解除时间供追溯。选任务、任务分发、端点解析或装货准备阶段发现的后续业务问题不属于 IngestAlert；Watch 自身的连接故障也不属于 IngestAlert。
-_Avoid_: 每轮告警消息、WatchConnectionEvent、横幅、选任务告警、任务分发告警
-
 **TransportSelectionAlert（选任务告警）**:
 8005 项目在从已保留的 TransportDemand 中选择可执行需求时，因起点或终点无法解析、命中执行排除规则或其它执行资格无法成立而形成的后续业务告警；它不由 MesIngest 产生，也不删除或改写 TransportDemand。
 _Avoid_: IngestAlert、MES 查询失败、删除不可执行需求、把调度资格判断塞回接入层
@@ -1034,25 +1034,13 @@ _Avoid_: IngestAlert、MES 查询失败、删除不可执行需求、把调度�
 8005 项目在已选运输需求进入仓位分配和装货准备时，因 PACKAGE 容量未覆盖、ExpectedBasketCount 无法形成或其它装货前置条件不成立而产生的业务告警；它不由 MesIngest 产生，也不允许用人工估算绕过阻断。
 _Avoid_: IngestAlert、TransportSelectionAlert、默认花篮容量、报警后仍开锁
 
-**MesCurrentStepEnteredAt**:
-一批产品进入当前工序的 MES 来源时间；由查询字段 `DATES` 提供并在 TransportDemand 首次创建时冻结，只保留用于展示、审计和数据质量调查，不参与自动派车排序。查询字段 `STEP` 指向下一工序，不是这个时间所属的工序。
-_Avoid_: MesLastSeenAt、TransportDemand 创建时间、进入 STEP 的时间、派车排序时间、可靠单调时钟
-
 **TransportDemandWaitingAge（运输需求等待时长）**:
 从 TransportDemand 在 8005 首次创建起连续累积的本地等待时间；任何业务门禁、车辆短缺或资源占用都不暂停或重置它，但只有任务当前通过硬准入时才参与派车排序。
 _Avoid_: MES `DATES`、仅可派时长、门禁阻断时暂停、恢复可派后重新计时
 
-**TransportDemand**:
-MesIngest 依据工厂 IT 提供的当前六类 MES 查询结果产出的一条运输需求实例，主键为稳定 `demand_id`；携带冻结的任务类型、SUBLOT 与 MES 字段投影。即使现有 AREA、EQP、PACKAGE 或状态证据尚不足以判断它是否属于 8005 可执行范围，仍生成 TransportDemand；范围判断由 8005 项目后续处理。六类查询对候选集合具有权威性，未被 SQL 返回的任务直接忽略；已返回且字段完整的交接班部分完工、扣留出站部分完工等记录按普通需求处理，8005 不猜测 MES 状态或追加二次过滤。
-_Avoid_: 本地任务（厚状态机用语）、Order（RIoT 订单）、MES 行（未投影的原始查询行）、接入层范围过滤结果、重建 SQL 未返回的任务、项目侧猜测 MES 状态
-
 **FactoryMesTaskQueryVersion（工厂 MES 任务查询版本）**:
 工厂 IT 正式提供、用于形成当前六类候选集合的具体 SQL 版本；每版必须绑定提供方、接收日期与 SHA-256。对当前版本的信任不自动延伸到未知未来版本；任务类型、输出字段或筛选语义变化时必须重新审查。
 _Avoid_: 永久信任任意同名 SQL、无来源版本、只按文件名识别查询
-
-**TransportDemandFieldCompleteness（运输需求字段完整性）**:
-8005 对当前 MES 六类查询输出逐列判定是否具备形成运输需求所需的数据；`AREA` 允许为空，`TASK_TYPE`、`SUBLOT`、`EQP`、`STEP`、`DATES` 与 `PACKAGE` 必须存在，任何必填值缺失都形成 IngestAlert，并只阻断该行的创建或刷新，其他正常行继续处理；同键已有 TransportDemand 保持冻结值且该轮不计作消失。若缺少任一必需列，或整轮查询失败、不完整，则整轮不改变已有投影。字段完整性与“是否属于 8005 可执行范围”是两个独立判断。
-_Avoid_: AREA 必填、单行坏数据拖垮整轮、把坏行当作需求消失、用范围过滤掩盖字段缺失、把空字段静默补成默认值
 
 **MesAreaEndpoint（MES AREA 机台端点）**:
 TransportDemand 中由 `EQP + AREA` 表达的唯一机台端点；TASK_TYPE 决定它的运输方向：`STAGING_TO_WIRE` 中是终点，其余五类任务中是起点。另一端由 FixedTaskStation 提供，不从 MES 推导第二个 AREA。
@@ -1066,25 +1054,429 @@ _Avoid_: 用 STEP 限定机台—AREA 唯一性、一台机台多个 AREA、把�
 8005 对 DispatchZoneAreaAssignment 中每个 AREA 持续验证其在设备主数据中恰好对应一个 EQP 的项目工具；服务启动、分区 AREA 归属变更时立即检查，并按可配置周期重复检查。结果为零、多台、查询失败或超过新鲜度期限时形成选任务告警并暂停新的相关选任务，已在执行中的任务不受影响；EQP 是否对应多个 AREA 由客户 MES 自身卡控，8005 不做反向重复检查。
 _Avoid_: 只取第一台机台、按 STEP 检查、使用过期结果继续选任务、影响已执行任务、全厂 EQP 反向唯一性检查、MesIngest 告警
 
-**TransportDemandKey（运输需求业务键）**:
-由任务类型与 SUBLOT 组成，标识当前 8005 MES 搬运候选的业务对账身份；同一次完整成功快照中至多对应一行，同一时刻至多对应一个 `VISIBLE` TransportDemand。原实例 `GONE` 后同键再现时，原 DemandId 永久保留并为再现候选创建新的 DemandId。
-_Avoid_: DemandId、只用 SUBLOT、`product_lot + machine_no + finish_time`、MES 事务 ID
+**MesIngestWatch**:
+面向现场实施与运维工程师的只读 MES 接入运维台，用于判断接入健康、核验 TransportDemand、分析 IngestAlert 与 MES→MesIngest 链路延迟；它不拥有投影真相，也不执行调度或生产操作命令。
+_Avoid_: 生产操作 HMI、调度台、TransportDemand 编辑器、只看列表的盯盘页
 
-**SublotTaskTypeConflict（SUBLOT 任务类型冲突）**:
-正常业务中同一个 SUBLOT 同一时刻只能对应一种任务类型；同一次完整成功 MES 快照中同时命中多个任务类型属于阻断性业务矛盾，该 SUBLOT 的全部候选均不得创建或刷新 TransportDemand，其他 SUBLOT 不受影响。不同时期依次命中不同任务类型不属于此冲突。
-_Avoid_: 上下游任务正常并存或等待、两个正常 TransportDemandKey、任选一个任务类型、同时创建多个运输需求
+**MesIngestLocalAdministration（MesIngest 本地管理）**:
+仅由数据库主机上的授权运维人员执行、用于提交 HistoryResetAcknowledgement 或恢复 StoragePressurePause 等高风险运行状态的管理边界；MesIngestWatch 只呈现状态和指引，不承载这些写操作。
+_Avoid_: Watch 业务按钮、远程管理 API、直接修改业务表、普通只读 Host 查询
+
+**MesIngestCutoverRun（MesIngest 切换运行）**:
+由唯一 CutoverRunId 标识、在一次计划停机窗口内完成墓碑播种、新库门禁和旧库自动删除的一次性受控运行；它结束后临时删库权限随之失效，不能变成常驻 Host 后台任务。
+_Avoid_: 日常 Host 启动、无人值守重试、按名称前缀批量删库、长期迁移模式
+
+**NewMesIngestContract（新版 MesIngest 契约）**:
+Host、Watch 与 reference consumer 同时使用的唯一 V2 业务读取契约；身份由精确 contractVersion、schemaVersion 和完整 capability ID/version 集合共同组成，规范文档固定为 `/openapi/v2.json`。任何身份差异都先拒绝业务解释，不把缺字段、未知状态、附加能力或客户端单页过滤当作兼容降级；旧 V1 只可作为 Development 隔离面存在。
+_Avoid_: 仅比较主版本、宽松 capability 子集、旧 DTO fallback、用 `/openapi/v1.json` 证明 V2、生产双契约
+
+**HistoryEpoch（历史纪元）**:
+一次连续可追溯 MesIngest 数据库历史的稳定身份；计划空库切换或不可恢复的数据库重建会产生新纪元，所有快照、目录与游标身份都不得跨纪元复用。
+_Avoid_: HostSessionId、ProjectionCommitId、CatalogRevision、应用版本
+
+**HistoryResetAcknowledgement（历史重置确认）**:
+数据库无备份丢失后，由运维人员明确接受旧历史和 ArchivedDemandKeyTombstone 已不可恢复、授权新 HistoryEpoch 重新开放外部当前读取的确认事实。
+_Avoid_: Host 自动重启、RestartBarrier 完成、Watch 关闭错误横幅、自动重试
+
+**PollTrace（轮询追踪）**:
+一次 MesIngest 轮询从读取 MES_TASK_UNION 到本地处理结束的不可重复因果记录；无论结果为 SUCCESS、FAILURE 或 INCOMPLETE，都以稳定标识、查询版本、规范化内容摘要和行数证据关联该轮各阶段，但不包含后来发起的 Watch 查询。
+_Avoid_: WatchRefreshTrace、把时间相近的 Watch 请求当作同一 trace
+
+**WatchRefreshTrace（Watch 刷新追踪）**:
+一次 MesIngestWatch 页面刷新从触发到页面呈现的因果记录；以稳定标识关联该次刷新的只读请求与客户端阶段，并显式引用其读取到的 PollTrace。
+_Avoid_: PollTrace、每个 HTTP 请求各自冒充完整页面刷新
+
+**WatchTelemetryIngest（Watch 遥测接入）**:
+Watch 向 Host 追加刷新追踪证据的受限观测通道；它不创建或修改 TransportDemand、IngestAlert、PollHealth 或其它业务投影，因此不改变 MesIngestWatch 的业务只读边界。
+_Avoid_: 业务写 API、任意日志上传、TransportDemand 回写
+
+**ProjectionVisibilityLag（投影可见滞后）**:
+Watch 将某轮已提交投影呈现给操作员所经历的时间，按同一 PollTrace 的投影提交时间到页面呈现时间计算；无法关联 PollTrace 或跨机时钟校准误差超限时为未知。
+_Avoid_: MES `DATES` 值、把时间接近推断为同一轮投影
+
+**PerformanceState（性能状态）**:
+由有足够样本的链路耗时统计经阈值和迟滞规则得出的 `HEALTHY`、`DEGRADED`、`CRITICAL` 或 `INSUFFICIENT_DATA` 状态；它解释系统性能趋势，不是 IngestAlert，也不替代即时故障状态。
+_Avoid_: IngestAlert、PollHealth、单次最大耗时直接判红
+
+**IngestAlert**:
+MesIngestWatch 面向运维查询展示的当前异常投影；它可以来自 DemandSeriesCurrentCondition、PollRunFailure 或 TaskTypeProtection，但不是拥有独立生命周期的领域实体。
+_Avoid_: DemandSeriesIssue、Issue SeriesKey、每轮告警消息、WatchConnectionEvent、横幅
+
+**DemandSeries**:
+以 TransportDemandKey（SUBLOT + WorkType）标识的一条 MES 搬运候选完整生命周期；只记录该 SUBLOT 在这一工序类型内的变化，第一次在本地 Poll 中观察到该复合键时开始，连续 GONE 满 12 小时后归档。
+_Avoid_: TransportDemand、告警实例、同键归档后新建的 Series
+
+**RetentionEligibleDemandSeries（可清理需求系列）**:
+已经归档、当前 Demand 不处于 `VISIBLE` 或 `LONG_GONE_BUT_VISIBLE`、且没有活动 DemandSeriesCurrentCondition 或 DemandSeriesErrorPeriod 的 DemandSeries；任一新观测、条件或事件都会取消其历史清理倒计时。
+_Avoid_: 单纯超过创建时间、仍可见的归档 Series、仍有活动错误的 Series
+
+**ArchivedDemandKeyTombstone（归档需求键墓碑）**:
+RetentionEligibleDemandSeries 的详细历史清理后永久保留的最小 TransportDemandKey 归档事实；它维持原 Series 身份与不可重新外读的结论，使后来重现仍属于 `LONG_GONE_BUT_VISIBLE`。
+_Avoid_: 完整归档历史、可恢复 DemandSeries、临时缓存、允许旧键重新成为新 Series
+
+**DemandSeriesEvent**:
+DemandSeries 生命周期中已经发生的不可变事实；只在首次发生、事实变化、条件消失或状态转换时记录，不把每轮相同观测重复写成事件。
+_Avoid_: DemandSeriesIssue、可变告警状态、每轮 MES 快照行
+
+**DemandSeriesCurrentCondition**:
+根据 DemandSeriesEvent 推导出的当前异常视图，用于回答某个 Series 现在存在哪些异常；它不是独立领域事实，也不拥有 Issue ID、Issue SeriesKey 或 Revision。
+_Avoid_: DemandSeriesIssue、事件历史、告警聚合根
+
+**SeriesErrorCatalog（Series 错误目录）**:
+由 MesIngest 领域契约拥有并随 Host/API 版本发布的全部 SeriesErrorCode 定义；它规定稳定含义、唯一主分类、固定严重度和展示文案，Watch 只能读取而不能另建本地目录。
+_Avoid_: Watch 错误白名单、数据库可编辑分类、运行时自定义错误码
+
+**SeriesErrorCode（Series 错误码）**:
+Series 错误规则的稳定机器标识；发布后不得换义或复用，每个代码恰好属于一个 SeriesErrorCategory，具体字段或关联对象由错误主体区分。
+_Avoid_: IngestAlert code、用户可编辑名称、每个字段值一个新错误码
+
+**RequiredMesFieldMissing（MES 必填字段缺失）**:
+错误码 `REQUIRED_MES_FIELD_MISSING` 表示当前 Demand 世代的必填 MES 字段没有值，主体为 `AREA`、`EQP`、`STEP`、`DATES` 或 `PACKAGE`，主分类为 `DATA_COMPLETENESS`。
+_Avoid_: FIELD_DRIFT、每个字段各建一个错误码、用旧值填充 NULL
+
+**InvalidMesFieldFormat（MES 字段格式无效）**:
+错误码 `INVALID_MES_FIELD_FORMAT` 表示当前 Demand 世代的字段值存在但不符合领域格式，第一版主体仅为 `AREA`，主分类为 `DATA_FORMAT`。
+_Avoid_: FIELD_DRIFT、AREA 自动规范化、字段缺失
+
+**DuplicateTransportDemandKeyError（重复运输需求键错误）**:
+错误码 `DUPLICATE_TRANSPORT_DEMAND_KEY` 表示当前 Demand 世代存在 DuplicateTransportDemandKeyObservation，主体引用该 DemandId，主分类为 `OBSERVATION_CONFLICT`。
+_Avoid_: DUPLICATE_RECONCILE_KEY、为每条重复原始行分别建期间
+
+**SublotMultipleWorkTypesError（子批次多工序类型错误）**:
+错误码 `SUBLOT_MULTIPLE_WORK_TYPES` 在每个受影响 DemandSeries 的当前 Demand 世代分别形成，SubjectKind 为 `WORK_TYPE_MEMBERSHIP`，同轮涉及的全部 WorkType 作为可变化证据，主分类为 `OBSERVATION_CONFLICT`。
+_Avoid_: 跨 Series 共享错误期间、只记录一个 WorkType、合并 DemandSeries
+
+**LongGoneButVisibleError（长期消失后仍可见错误）**:
+错误码 `LONG_GONE_BUT_VISIBLE` 表示 Series 归档后又观察到 TransportDemandKey，Target 为所属 Series、SubjectKind 为 `ARCHIVED_SERIES_VISIBILITY`，异常 DemandId 只作证据，主分类为 `LIFECYCLE_CONFLICT`。
+_Avoid_: REAPPEAR_AFTER_GONE、归档恢复、每个异常 Demand 世代强制重开期间
+
+**SeriesErrorCategory（Series 错误主分类）**:
+SeriesErrorCatalog 中用于导航、互斥计数和分页的稳定分类；第一版分为 `DATA_COMPLETENESS`、`DATA_FORMAT`、`OBSERVATION_CONFLICT`、`LIFECYCLE_CONFLICT`，每个 SeriesErrorCode 只有一个主分类。
+_Avoid_: 错误标签、多分类归属、Watch 本地分组
+
+**DemandSeriesErrorPeriod（需求系列错误期间）**:
+由 `SeriesId + SeriesErrorCode + Target + SubjectKind` 标识的可唯一归属错误从出现或复发到消失的连续期间；相同身份持续存在时，错误值或关联对象集合变化只追加证据而不切断期间，条件消失即关闭，后来再现必须新开。
+_Avoid_: 每轮错误、IngestAlert incident、全局轮询故障、无法归属 Series 的任务类型保护
+
+**SeriesErrorPeriodEndReason（Series 错误期间结束原因）**:
+完整成功 MesTaskUnionRound 提供明确反证后记录的 `CONDITION_CLEARED` 或 `DEMAND_GONE`；轮询失败、不完整、Host 断联和 Watch 刷新失败都不能结束错误期间。
+_Avoid_: 未再收到即恢复、连接失败即关闭、把 Demand 消失写成数据修复
+
+**SeriesErrorPeriodEvidence（Series 错误期间证据）**:
+错误期间的开启、诊断值或关联对象变化、涉及 Demand 世代、PollTrace 引用以及结束事实；相同内容持续存在不按轮询重复记录，也不以 OccurrenceCount 代替历史事实。
+_Avoid_: 每轮重复事件、IngestAlert OccurrenceCount、只保留最后一条消息
+
+**SeriesErrorBootstrap（Series 错误初始建立）**:
+新错误模型部署后的首个完整成功 MesTaskUnionRound 将当时存在的错误以该轮时间开启，并标记 `BOOTSTRAPPED_CURRENT_CONDITION`；不转换旧 IngestAlert 历史，也不推测部署前开始时间。
+_Avoid_: 从旧 incident 猜测期间、失败轮次完成 bootstrap、回扫制造历史错误
+
+**SeriesErrorScope（Series 错误作用域）**:
+错误期间的目标边界：Demand 世代级使用 `DEMAND:<DemandId>`，不得跨 DemandId 延续；Series 级使用 `SERIES:<SeriesId>`，可以跨世代持续但须保留逐世代证据。
+_Avoid_: UI 分组、错误分类、把新 Demand 世代并入旧的 Demand 级期间
+
+**SeriesErrorSubject（Series 错误主体）**:
+错误规则作用的稳定对象种类，例如 `AREA`、`PACKAGE`、`RAW_OBSERVATION_SET`、`WORK_TYPE_MEMBERSHIP` 或 `ARCHIVED_SERIES_VISIBILITY`；实际错误值和关联对象集合只属于证据，不进入身份键。
+_Avoid_: 为每个 MES 字段复制规则码、把错误值或 WorkType 集合放入身份键、展示文案
+
+**SeriesErrorEvidenceTime（Series 错误证据时间）**:
+Host 在产生错误事实的完整 MesTaskUnionRound 中记录的 UTC 时间；它决定错误期间边界和历史查询，不使用 MesSourceDate。
+_Avoid_: MES `DATES`、Watch 本机接收时间、无 offset 的本地时间
+
+**ErrorSearchMatch（错误检索命中）**:
+DemandSeriesErrorPeriod 与所选错误条件及 UTC 半开查询区间 `[from, to)` 存在交集时形成的一次检索命中；结果以 DemandSeries 去重，详情保留跨 Demand 世代的全部命中证据。
+_Avoid_: 只查窗口内首次发生、按 LastSeenAt 过滤、每个 DemandId 单独作为列表结果
+
+**ErrorSearchActivityState（错误检索活动状态）**:
+相对当前错误筛选条件在查询时刻汇总的 `ACTIVE` 或 `ENDED`：存在任一匹配的活动 DemandSeriesErrorPeriod 时为 `ACTIVE`，只有已经结束的历史命中时为 `ENDED`；详情以 SeriesErrorPeriodEndReason 区分条件恢复与 Demand 消失。
+_Avoid_: RECOVERED、Series 全局健康状态、时间窗结束时状态、把 Demand 消失称为修复
+
+**ErrorSearchAsOf（错误检索查询时点）**:
+Host 在错误检索首个分页请求开始时冻结并由后续游标沿用的 UTC 时点；未显式给出 `to` 时它也是查询区间的排他上界，并用于判定匹配条件的当前活动状态。
+_Avoid_: 每页重新取当前时间、Watch 客户端时间、时间窗结束时的历史回放状态
+
+**ErrorSearchSnapshot（错误检索历史快照）**:
+按同一 ErrorSearchAsOf 从 DemandSeriesEvent 重建的列表、分面数量、活动状态和证据详情一致视图；该时点之后的新开、变化或关闭只在刷新后的新快照中出现。
+_Avoid_: 当前投影拼接、翻页时混入新事件、列表与详情使用不同 asOf
+
+**ErrorSearchTimeInterval（错误检索时间区间）**:
+错误期间和查询窗口都使用 UTC 半开区间 `[start, end)`；边界相接不算重叠，活动期间在快照内以 ErrorSearchAsOf 为临时排他上界，全部历史表示无下界至 asOf。
+_Avoid_: 双端包含、自动交换 from/to、把显式 to 静默截断到 asOf
+
+**ErrorSearchDefaultWindow（错误检索默认窗口）**:
+错误检索默认查看截至 ErrorSearchAsOf 的最近 7 天，并提供最近 24 小时、7 天、30 天和全部历史；全部历史仍由 Host 有界分页。
+_Avoid_: 默认全部历史、Watch 下载后本地分页、沿用 IngestAlert LastSeenAt 窗口
+
+**ErrorSearchRollingWindow（错误检索滚动窗口）**:
+最近 24 小时、7 天和 30 天分别表示以 ErrorSearchAsOf 为终点的精确 `24`、`7×24`、`30×24` 小时；显示可转换为带时区标识的用户本地时间，但不按本地自然日或午夜取整。
+_Avoid_: 今天、本周、本月、无时区日期输入、本地零点边界
+
+**ErrorSearchDefaultState（错误检索默认状态）**:
+错误检索默认同时包含 `ACTIVE` 与 `ENDED`；概览等入口若只表达当前错误，必须显式携带 `ACTIVE` 条件。
+_Avoid_: 默认只看活动、依赖页面隐含默认值表达当前错误
+
+**SeriesErrorCodeEvolution（Series 错误码演进）**:
+SeriesErrorCatalog 可以新增代码或将旧码标为 deprecated，但不得改变已发布代码的含义、主分类、作用域或严重度；新规则只从部署生效时产生事实，不回扫并重写旧历史。
+_Avoid_: 物理删除旧码、复用代码、静默重分类、部署后追溯制造历史错误
+
+**SeriesErrorSeverity（Series 错误严重度）**:
+SeriesErrorCatalog 为每个代码固定的历史解释属性；第一版五个代码均为 `ERROR`，DTO 保留该值但错误检索页不显示只有单值的严重度筛选或分面。
+_Avoid_: IngestAlert severity、期间动态升降级、单值筛选控件
+
+**ErrorSearchAreaScope（错误检索 AREA 范围）**:
+错误检索不受当前 AreaFilterProfile 静默影响；未来若增加 AREA 条件，必须是页面上的显式筛选并能单独选择 `UNKNOWN` 与 `INVALID`。
+_Avoid_: 共享当前 AREA 配置、因 AREA 缺失或非法而隐藏错误、Dispatch AREA 范围
+
+**ErrorSearchFilter（错误检索条件）**:
+分类、错误码、活动状态、时间和标识等不同维度之间取交集，同一维度多值取并集，空选择表示不限；错误码隐含唯一主分类，不接受互相矛盾的分类与错误码组合。
+_Avoid_: 空字符串作为真实值、Series 全局健康状态、矛盾条件静默返回空集
+
+**ErrorSearchIdentifierMatch（错误检索标识匹配）**:
+SeriesId、DemandId 和 SeriesErrorCode 去除首尾空白后按不区分大小写精确匹配，SUBLOT 去除首尾空白后按不区分大小写包含匹配；DemandId 命中任一世代时返回所属 Series，但只标记满足全部条件的错误证据。
+_Avoid_: 正则、通配符、模糊纠错、把所属 Series 的全部证据冒充命中
+
+**ErrorSearchResultOrder（错误检索结果顺序）**:
+Host 在完成筛选、DemandSeries 去重和汇总后，依次按匹配范围内 `ACTIVE` 优先、最近匹配证据时间降序、SeriesId 升序稳定排序，再使用绑定完整规范化筛选、顺序和 ErrorSearchAsOf 的 keyset 游标分页。
+_Avoid_: Watch 本地去重、分页后过滤、AlertId tie-break、跨筛选复用游标
+
+**ErrorSearchPage（错误检索结果页）**:
+ErrorSearchSnapshot 中默认 100、最多 200 个按固定 ErrorSearchResultOrder 排列的 DemandSeries，并返回精确 totalSeriesCount；第一版不开放任意列排序。
+_Avoid_: 估算总数、错误期间总数、客户端分页、任意排序
+
+**ErrorSearchCursor（错误检索游标）**:
+绑定完整规范化筛选、固定顺序、ErrorSearchAsOf 和契约版本的 keyset 位置；结构无效或验签失败返回 `INVALID_ERROR_SEARCH_CURSOR`，已验签但跨快照、筛选、窗口、顺序、页大小或契约复用返回 `ERROR_SEARCH_CURSOR_MISMATCH`，引用的投影提交不再保留则返回 410 `ERROR_SEARCH_SNAPSHOT_NOT_FOUND`。Watch 保留旧结果并提示失败，不自动冒充第一页。
+_Avoid_: 跨筛选复用、静默重解释、翻页失败自动刷新第一页
+
+**ErrorSearchFacetCount（错误检索分面数量）**:
+排除自身维度后计算的去重 DemandSeries 数：分类数量应用时间、状态与标识条件，状态数量应用时间、分类/错误码与标识条件；错误码的主分类互斥，但 Series 可命中多类，因此全部数量不等于分类数量之和。
+_Avoid_: 错误期间数、证据数、分类数量机械相加、受自身选择压缩的 facet
+
+**ErrorSearchEvidenceDetail（错误检索证据详情）**:
+所选 Series 中只展示满足当前分类、错误码和时间窗的错误期间及证据，并标明与窗口重叠但边界位于窗口外的期间；完整世代与全部事件通过需求系列页查看。
+_Avoid_: 偷偷混入未命中错误、在错误页复制完整 Series 历史、裁掉窗口外的期间边界
+
+**ErrorSearchResultSummary（错误检索结果摘要）**:
+结果行显示 SeriesId、SUBLOT、WorkType、活动或已结束状态、匹配错误码与主分类、最近匹配证据时间、命中期间数、Demand 世代数以及当前或最后可信 MesArea；无可信 AREA 时明确显示未知或无效。
+_Avoid_: 长错误消息、把未知 AREA 留空、Series 全局健康摘要
+
+**ErrorSearchDiagnosticEvidence（错误检索诊断证据）**:
+详情默认展示字段、观测值、期望规则、相关 DemandId 或 WorkType、证据时间和 PollTrace；完整 DemandRawObservation 仅经有大小上限和敏感字段白名单的按需展开查看。
+_Avoid_: 首屏复制完整原始行、任意日志、无限大小响应、未脱敏字段
+
+**ErrorSearchRefreshState（错误检索刷新状态）**:
+刷新成功后仍命中的 Series 按 SeriesId 在新快照中重选，不再命中时清除详情并提示；刷新失败保留并明确标注上次成功快照及失败时间，旧结果不得冒充新筛选的结果。
+_Avoid_: 新旧快照混显、失败即清空、在新筛选旁展示旧筛选结果
+
+**ErrorSearchEmptyResult（错误检索空结果）**:
+只有查询成功且零命中时才表示该条件和时间范围内没有错误历史，并可提供清除筛选入口；尚未完成、失败或取消均不得显示无错误，零命中也不代表系统健康。
+_Avoid_: 加载中即无错误、失败即健康、把检索空集作为接入健康结论
+
+**ErrorSearchExport（错误检索导出）**:
+第一版不导出错误历史；筛选快照、权限、脱敏和大数据量导出须在确有现场需求时另行定义。
+_Avoid_: 前端导出当前页、同步导出全部历史、未经脱敏的原始证据
+
+**CurrentIngestAttention（当前接入关注项）**:
+接入告警页展示当前需要关注的运维异常，可包含活动 Series 错误和无法归属 Series 的轮询或 WorkType 异常；Series 项直接引用稳定错误身份并跳转错误检索，不另建 fingerprint incident 生命周期。
+_Avoid_: 已恢复错误历史、错误检索副本、Series 错误的独立 IngestAlert incident
+
+**WatchOverviewSnapshot（Watch 概览快照）**:
+Host 在同一投影提交时点给出的当前接入态势：包含需求系列、外部可读资格、活动 Series 错误、当前接入关注项的精确摘要及跨页重点动态；各部分必须共享同一快照身份和时间。
+_Avoid_: 各页第一页拼盘、不同成功时间的卡片组合、用零错误或零阻断单独证明健康
+
+**OverviewSeriesSummary（概览 Series 摘要）**:
+当前 AreaFilterProfile 范围内的精确去重 DemandSeries 总数及 Tracking、Archived 等生命周期分面，并单独列出 GONE 与 LongGoneButVisible 等关注数量；分面可以重叠，不机械相加。
+_Avoid_: Demand 数量、第一页数量、把关注项当作互斥生命周期
+
+**OverviewReadabilitySummary（概览资格摘要）**:
+当前 AreaFilterProfile 范围内的精确 TransportDemand 总数、READABLE 数和 NOT_READABLE 数；单位始终为 Demand 世代，三者来自同一 ReadabilityAuditSnapshot 口径。
+_Avoid_: DemandSeries 数量、Catalog 条目数除以 Series、不同投影时点的分子分母
+
+**OverviewErrorSummary（概览错误摘要）**:
+不受 AreaFilterProfile 影响的当前 `ACTIVE` Series 精确数，以及截至概览快照最近 7 天曾命中的去重 Series 数；两项都使用 ErrorSearch 既定语义。
+_Avoid_: IngestAlert incident 数、最近 24 小时假数据、默认包含 ENDED 的错误页数量
+
+**OverviewIngestAttentionSummary（概览接入关注摘要）**:
+当前 CurrentIngestAttention 的精确项数及类型、严重度构成，只表达当前关注项，不包含已经结束的历史。
+_Avoid_: IngestAlert 历史总数、错误期间总数、Watch 连接横幅数量
+
+**OverviewAttentionEvent（概览关注事件）**:
+WatchOverviewSnapshot 中由真实状态转换形成、值得跨页下钻的近期事实，例如 Series 生命周期转换、错误期间开闭、轮询失败或恢复及 TaskTypeProtection 变化；静态总数本身不是动态。
+_Avoid_: 页面摘要变化猜测、当前数量排行、重复轮询观测、旧 IngestAlert occurrence
+
+**OverviewAttentionOrder（概览关注顺序）**:
+概览只显示最近 24 小时内最新的五个 OverviewAttentionEvent，按发生时间降序和稳定事件标识排序；同一领域转换只出现一次，没有事件时明确表示近期无重点动态而不宣称系统健康。
+_Avoid_: 无限动态流、每页各取一条、静态卡片补位、空列表即健康
+
+**OverviewNavigationIntent（概览导航意图）**:
+概览卡片或子摘要指向目标页的明确查询含义；整卡进入目标页默认范围，子摘要携带对应显式条件，错误卡固定进入最近 7 天的 `ACTIVE` Series，所有跳转从第一页开始。
+_Avoid_: 依赖目标页隐含默认值、沿用旧游标、点击后丢失摘要含义
+
+**OverviewAreaContext（概览 AREA 上下文）**:
+概览中的 AreaFilterProfile 名称、AREA 数量和本地状态，以及它对需求系列与资格审计摘要的显示范围；它不影响错误检索或接入告警，也不属于 Host 业务快照事实。
+_Avoid_: 全局业务范围、错误检索 AREA 条件、Dispatch AREA 范围、把本地配置时间当作投影时间
+
+**OverviewStaleness（概览陈旧状态）**:
+Host 概览刷新失败时保留的上一份完整 WatchOverviewSnapshot 及其时点，并与当前失败时间和实时 Host 连接状态明确区分；不得把新旧业务卡混成一个当前快照。
+_Avoid_: 单卡静默保旧、失败即清空、当前离线时隐藏最后成功摘要
+
+**LongGoneButVisible**:
+DemandSeries 已归档后，同一 TransportDemandKey 再次出现在 MES 快照中的异常事实；它记录到原 DemandSeries，并生成供 Watch 查看实时原始数据的新 TransportDemand，但该 Demand 不属于 ExternallyReadableDemand。
+_Avoid_: ReappearAfterGone、归档恢复、向外部程序开放归档后 Demand
+
+**WorkType（工序类型）**:
+DemandSeries 所属的工序维度，由 MES 查询字段 `TASK_TYPE` 表示；同一 SUBLOT 出现在不同 WorkType 时属于不同 TransportDemandKey 和不同 DemandSeries，同时出现在多个 WorkType 是需要在各相关 Demand 上展示的数据异常。
+_Avoid_: STEP、把同一 SUBLOT 的全部可查询工序合并成一个 Series
+
+**SublotMultipleWorkTypesObservation（子批次多工序类型观测）**:
+同一 SUBLOT 在一份完整 MES 快照中同时出现于多个 WorkType 的异常事实；每个复合键仍生成独立 TransportDemand 并保存各自原始数据，但全部相关 Demand 都不能进入外部可读集合。
+_Avoid_: 合并成一个 DemandSeries、只保留一个 TASK_TYPE、因异常而隐藏 Demand
+
+**MesSourceDate（MES 来源时间值）**:
+查询字段 `DATES` 提供的必填来源值，在 TransportDemand 中随每轮唯一 MES 观测实时更新并记录变化事件；其来源会随 TASK_TYPE 分支变化，不能用作 DemandSeries 开始时间或生命周期计时基准。
+_Avoid_: MesCurrentStepEnteredAt、MesDataAge、DemandSeries StartedAt、MesLastSeenAt
+
+**DemandLastSeenAt（Demand 最后看见时间）**:
+本地最后一次在完整成功 MesTaskUnionRound 中看见该 Demand 原始行的时间；缺席证据只更新 GoneConfirmedAt，不得把缺席轮次伪装成最后看见时间。
+_Avoid_: MesSourceDate、GoneConfirmedAt、用 GONE 轮次覆盖最后看见时间
+
+**MesNextStep（MES 下一工序）**:
+SUBLOT 下一步将进入的 MES 工序，由查询字段 `STEP` 提供；空值不会阻止 TransportDemand 生成，但会成为可见的数据异常并阻断外部读取，不参与 TransportDemandKey。
+_Avoid_: 当前工序、SUBLOT+STEP 业务键、字段为空就隐藏 Demand
+
+**MesPackage（MES 封装形式）**:
+查询字段 `PACKAGE` 提供的产品封装形式，在 TransportDemand 中随唯一 MES 观测实时更新；空值不会阻止 Demand 生成，但会成为可见的数据异常并阻断外部读取。
+_Avoid_: 字段为空就隐藏 Demand、外部程序补写的封装、首次值永久冻结
+
+**DemandRawObservation（Demand 原始观测）**:
+一轮完整成功 MES 快照中属于同一 TransportDemandKey 的全部原始行；在其原始观测可用窗口内必须按原样提供给 Watch，不能通过任选、补值或冻结旧值掩盖源数据。
+_Avoid_: 只保留第一行、用历史值填充当前 NULL、只保存外部合格数据
+
+**RawObservationAvailabilityWindow（原始观测可用窗口）**:
+DemandRawObservation 自所属 PollTrace 完成起保证可按 PollTrace 与 ProjectionCommit 完整读取的 30×24 小时 Host UTC 窗口；窗口外清理表示历史已过期，不能解释为源轮次当时没有观测。
+_Avoid_: 自然月、MES `DATES` 窗口、全部历史永久在线、Watch 缓存期限
+
+**StoragePressurePause（存储压力暂停）**:
+Host 因持久化空间低于安全边界而在读取 MES 前进入的保护状态；它保留并继续提供最后成功投影，但没有取得新快照或判定 Demand 缺席的权威。
+_Avoid_: Oracle 查询失败、查询后落库失败、继续轮询但丢弃证据、自动伪造 GONE
+
+**DuplicateTransportDemandKeyObservation（重复运输需求键观测）**:
+同一 SUBLOT + TASK_TYPE 在一份完整 UNION 快照中出现两条或更多条记录的异常事实；仍生成一个保存全部 DemandRawObservation 的 TransportDemand 并明确标注重复，但没有可信唯一单值投影，也不能进入外部可读集合。
+_Avoid_: 多个不同 SUBLOT、正常批量快照、任选一行继续投影、因异常而隐藏 Demand
+
+**LiveMesFieldSet（实时 MES 字段集）**:
+TransportDemand 在唯一原始观测下实时呈现的 AREA、EQP、STEP、DATES、PACKAGE；每次变化覆盖当前值并记录事件，空值保持为真实 NULL 并形成具体字段异常。
+_Avoid_: FrozenMesFieldSet、首次值基线、字段漂移、用旧值覆盖当前 NULL
+
+**MesArea（MES 区域）**:
+MES 设备主数据中标识设备所属区域的规范值，格式为 `^[A-Z][1-9][0-9]?-[1-9][0-9]?$`，例如 `A1-1`、`A11-11`；数字范围为 1–99，带多余前导零的 `A01-01` 不是同一值的合法别名，而是无效源数据。
+_Avoid_: Station、Dispatch AREA 白名单、自动补零的 AREA、把非法 AREA 静默规范化
+
+**TransportDemand**:
+MesIngest 针对已观察 TransportDemandKey 产出的一条运输需求实例，主键为稳定 `demand_id`；它携带 DemandRawObservation、LiveMesFieldSet、当前异常和外部可读资格，数据异常不会阻止它生成或供 Watch 查看。
+_Avoid_: 本地任务（厚状态机用语）、Order（RIoT 订单）、MES 行（未投影的原始查询行）
+
+**ExternallyReadableDemand（外部可读 Demand）**:
+当前唯一原始行的必填字段有效、没有任何当前数据异常、处于 VISIBLE 且所属 DemandSeries 未归档的 TransportDemand；外部可读目录只能暴露这个集合，异常 Demand 仍完整保留给 Watch。
+_Avoid_: 全部 TransportDemand、WatchDemandProjection、把异常快照交给外部程序自行判断
+
+**ExternallyReadableDemandCatalog（外部可读 Demand 目录）**:
+MesIngest 提供的当前全部 ExternallyReadableDemand 集合；它不按调度程序的 WorkType、车间 AREA 范围、车辆或站点裁剪。外部程序按 CatalogRevision 条件读取并可随时丢弃本地缓存，不需要把它持久化成业务镜像，也不要求观察从未形成执行承诺的瞬时进出。
+_Avoid_: EligibleDemandMirror、WatchDemandProjection、按调度范围裁剪的目录、需要 Cursor 恢复的外部副本
+
+**CatalogRevision（目录修订号）**:
+ExternallyReadableDemandCatalog 的单调版本；仅在集合成员或成员业务值改变时递增，使外部程序能够判定当前目录未变化而无需重新传输正文。
+_Avoid_: Feed Sequence、业务任务版本、每轮 Poll 都递增的计数
+
+**AcceptedDemandSnapshot（已接受 Demand 快照）**:
+外部程序在创建 OrderIntent 或开始调度的执行承诺点，经最终读取确认后连同 CatalogRevision 与接受时间保存的不可变合格 Demand 事实；后续实时变化或退出目录不得改写它。
+_Avoid_: Ingest 冻结 TransportDemand、当前目录缓存、用最新 MES 数据改写历史决策证据
+
+**OrderIntent（建单意图）**:
+外部程序在执行承诺事务中与 AcceptedDemandSnapshot 一起保存的可靠 RIoT 建单意图；它以稳定幂等键承接事务外远程调用，并把超时视为结果未知而不是自动失败。
+_Avoid_: 已成功的 RIoT Order、在数据库事务内完成 HTTP、超时后换键重复建单
+
+**WatchDemandProjection（Watch Demand 投影）**:
+供 Ingest 与 Watch 查看全部 TransportDemand、原始行、实时字段、当前异常和外部阻断原因的运维投影；它不按 ExternallyReadableDemand 资格过滤。
+_Avoid_: ExternallyReadableDemand 快照、只显示可调度 Demand、隐藏 NULL 或重复行
+
+**ExternalReadabilityAudit（外部可读资格审计）**:
+按一个冻结投影提交检查每个已生成 TransportDemand 当前是否属于 ExternallyReadableDemand，并解释全部通过项与阻断原因；结果单位是 Demand 世代，包含 VISIBLE、GONE、所属 Series 已归档及 LongGoneButVisible 的 Demand。
+_Avoid_: DemandSeries 审计、只看当前 Catalog、资格历史回放、Dispatch 可派审计、UnassignedMesObservation
+
+**ReadabilityAuditSnapshot（资格审计快照）**:
+绑定一个投影提交时点的审计列表、精确总数、资格与原因分面及详情一致视图；它携带当时的 CatalogRevision，但不能仅用 CatalogRevision 代替自身快照身份。
+_Avoid_: 当前投影拼接、翻页混入新提交、CatalogRevision 同义词
+
+**ExternalReadabilityState（外部可读状态）**:
+TransportDemand 在 ReadabilityAuditSnapshot 中的 `READABLE` 或 `NOT_READABLE` 资格结论；它与 Demand 的 VISIBLE/GONE 生命周期状态是不同维度。
+_Avoid_: 可见/不可见、Demand 生命周期、Dispatch 可派状态
+
+**ReadabilityBlocker（外部可读阻断原因）**:
+使 TransportDemand 不属于 ExternallyReadableDemand 的稳定原因码；一个 Demand 可以同时具有多个原因，全部原因共同解释资格，任一原因筛选命中该 Demand，同一原因分面按 Demand 去重。
+_Avoid_: 单一失败原因、错误消息文本、SeriesErrorCode、原因数量相加作为不可读总数
+
+**ReadabilityBlockerCatalog（资格阻断目录）**:
+由 MesIngest 领域契约发布且不可换义复用的 ReadabilityBlocker 定义；第一版覆盖 `DEMAND_GONE`、`SERIES_ARCHIVED`、`LONG_GONE_BUT_VISIBLE`、`DUPLICATE_TRANSPORT_DEMAND_KEY`、`SUBLOT_MULTIPLE_WORK_TYPES`、`REQUIRED_MES_FIELD_MISSING` 与 `INVALID_MES_FIELD_FORMAT`，字段主体作为结构化证据。
+_Avoid_: Watch 本地原因字符串、IngestAlert code、每个字段复制阻断码、数据库可编辑目录
+
+**LeadReadabilityBlocker（主要外部可读阻断原因）**:
+Host 按稳定目录优先级为列表摘要选择的一个 ReadabilityBlocker；优先显示归档后可见、观测冲突和数据异常等当前可诊断问题，再显示 Demand GONE 与 Series 已归档，但它不改变完整原因集合或资格结论。
+_Avoid_: 唯一真实原因、丢弃次要原因、Watch 本地排序规则
+
+**ReadabilityAuditAreaScope（资格审计 AREA 范围）**:
+当前 AreaFilterProfile 对资格审计的显示范围：Host 在计数和分页前按 Demand 当前可信单值 MesArea 精确筛选；不可信 AREA 不借历史值，只在“全部 AREA”中接受审计，且该范围不改变资格或 CatalogRevision。
+_Avoid_: 外部可读规则、Dispatch AREA 白名单、客户端单页过滤、用历史 AREA 填补不可信当前值
+
+**ReadabilityAuditResultOrder（资格审计结果顺序）**:
+资格审计先列 `NOT_READABLE`，再按 LeadReadabilityBlocker 稳定优先级、DemandLastSeenAt 降序和 DemandId 升序排列；默认每页 100、最多 200，并返回当前筛选下的精确 Demand 总数。
+_Avoid_: 按 Series 去重、估算总数、Watch 本地排序、任意列排序
+
+**ReadabilityAuditFilter（资格审计条件）**:
+资格状态、WorkType、阻断原因和标识等不同维度取交集，同一维度多值取并集，默认同时包含 READABLE 与 NOT_READABLE；DemandId 按去空白后不区分大小写精确匹配，SUBLOT 按不区分大小写包含匹配。
+_Avoid_: 模糊 DemandId、正则、空字符串真实值、把 VISIBLE 当作资格状态
+
+**ReadabilityAuditFacetCount（资格审计分面数量）**:
+排除自身维度后计算的精确去重 Demand 数：资格分面应用其它条件与 AREA，原因分面只针对 NOT_READABLE 并应用其它条件与 AREA；一个 Demand 可计入多个原因，因此原因数之和不等于不可读总数。
+_Avoid_: Series 数、阻断实例数、原因数量机械相加、分页后客户端计数
+
+**ReadabilityAuditCursor（资格审计游标）**:
+绑定 ReadabilityAuditSnapshot、规范化筛选、AreaFilterProfile 的 MesArea 值集合、固定顺序和契约版本的 keyset 位置；结构无效或验签失败返回 `INVALID_READABILITY_AUDIT_CURSOR`，已验签但跨快照、筛选、AREA、顺序、页大小或契约复用返回 `READABILITY_AUDIT_CURSOR_MISMATCH`，引用的投影提交不再保留则返回 410 `READABILITY_AUDIT_SNAPSHOT_NOT_FOUND`。失败时保留旧结果，不自动冒充第一页。
+_Avoid_: 只绑定 CatalogRevision、跨 AREA 复用、静默刷新第一页、Watch 本地游标
+
+**ReadabilityAuditDetail（资格审计详情）**:
+同一审计快照中一个 Demand 的全部资格检查、完整阻断集合、可信字段或原始观测冲突、所属 Series、PollTrace、投影提交身份与 CatalogRevision；主要原因不能替代完整推导。
+_Avoid_: 只显示一个原因、只显示最终布尔值、把 Dispatch 条件加入资格、详情读取另一快照
+
+**ReadabilityAuditRefreshState（资格审计刷新状态）**:
+刷新成功后仍存在且仍命中的 Demand 按 DemandId 在新快照中重选，不再命中时清除详情并提示；刷新失败保留旧筛选、旧快照及其范围标签，不把旧结果挂在新条件下。
+_Avoid_: 新旧筛选混显、失败即清空、静默保留已移出范围的详情
+
+**ReadabilityAuditEmptyResult（资格审计空结果）**:
+只有审计查询成功且当前条件零命中时才表示没有符合条件的 Demand；失败、取消和加载中不得称为无 Demand，零个不可读 Demand 也不能单独证明接入健康。
+_Avoid_: 空页即健康、失败即零、加载中空态
+
+**ReadabilityAuditNavigationContext（资格审计跳转上下文）**:
+从审计项进入需求系列时携带 SeriesId、聚焦 DemandId 和来源审计快照摘要；目标页读取自身当前快照并允许显示已经变化，范围外对象仍须由用户确认切换到“全部 AREA”后打开。
+_Avoid_: 把旧资格结论冒充 Series 当前状态、静默绕过 AREA、丢失 Demand 世代定位
+
+**AreaFilterProfile（AREA 筛选配置）**:
+当前 MesIngestWatch 实例用于缩小 DemandSeries 与资格审计页面显示范围的本地命名配置，内容是一组合法 MesArea；两页共享当前选择并按 MesArea 精确匹配，它不改变 WatchDemandProjection、外部可读资格、ExternallyReadableDemandCatalog 或 Dispatch 的 AREA 范围。
+_Avoid_: AREA 白名单、调度范围、外部可读规则、Area 文件
+
+**TransportDemandKey（运输需求业务键）**:
+由 SUBLOT 与 WorkType（MES `TASK_TYPE`）组成，标识该 SUBLOT 在当前工序类型中的同一搬运候选，也是调度侧本地取消的永久抑制边界；同一 SUBLOT 命中其它 WorkType 时属于不同业务键。
+_Avoid_: DemandId、只用 SUBLOT、SUBLOT+STEP、MES 需求编号、取消后重建同键任务
 
 **TransportDemandSuppression（运输需求抑制）**:
 调度以 TransportDemandKey 记录的永久禁止业务执行事实；`CANCELLED_BY_OPERATOR`、`CANCELLED_BY_LOAD_COMPENSATION`、`CANCELLED_BY_STOP_COMPLETE`、`CANCELLED_BY_STATION_TIMEOUT` 与 `TERMINATED_BY_FAULT_CARGO_HANDOFF` 均写入该事实，单纯 `MES_DISAPPEARED` 或 `GONE` 不写入。命中后不得创建、恢复或派发业务任务，但被取消或终止的具体实例仍以 DemandId 保留终态，MesIngest 的事实投影不受影响；它不因时间、轮询、`GONE`、重启或新 DemandId 自动解除，当前版本不提供解除入口。
 _Avoid_: DemandId 抑制、只按 SUBLOT 拉黑、从 MesIngest 隐藏候选、自动过期、`GONE` 后解除
 
 **DemandId**:
-MesIngest 在创建 TransportDemand 时生成的本地实例身份；在该实例的全部生命周期内保持稳定且永久不复用，供状态挂接、精确引用与历史审计。
-_Avoid_: TransportDemandKey、SUBLOT、MES 事务 ID、每轮轮询生成的新编号
+TransportDemand 的本地稳定标识，也是车载 CurrentStopWorklist 精确选择当前任务实例的标识；调度等本地系统用它挂接状态，但它不是 MES 提供的需求编号，也不能代替 TransportDemandKey 的取消抑制。
+_Avoid_: SUBLOT、另造 stationTaskId、MOCK_TASK_ID
 
-**DemandChangeFeed**:
-供持有 TransportDemand 本地镜像的下游系统增量追赶的持久有序变化流；只发布 Demand 创建与转为 GONE，不发布每轮 MesLastSeenAt、DisappearCount 等观察变化。消费者以单调序号保存同步位置并幂等应用。
-_Avoid_: TransportDemand 列表分页、MES 原始变更流、每轮完整快照、Alert 流
+**UnassignedMesObservation（未归属 MES 观测）**:
+完整 MesTaskUnionRound 中因 SUBLOT 或 TASK_TYPE 缺失而无法形成 TransportDemandKey 的原始行；它属于 PollRun 运维证据，不生成 DemandSeries，但不能被静默丢弃。
+_Avoid_: 随机归到相似 Demand、因无业务键而隐藏、成功的部分快照
 
 **WireBond1**:
 业务上的第一次焊线；MES 机台侧 step 名为 `焊线`（不是 `焊线1`）。仅焊线工艺有分道，键合无对等的 1/2。

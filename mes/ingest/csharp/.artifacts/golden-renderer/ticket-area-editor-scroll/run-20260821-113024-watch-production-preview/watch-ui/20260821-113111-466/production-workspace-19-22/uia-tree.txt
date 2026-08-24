@@ -1,0 +1,390 @@
+CAPTION_SYSTEM_MENU_UIA
+menuItem=还原
+menuItem=移动(M)
+menuItem=大小(S)
+menuItem=最小化
+menuItem=最大化(X)
+menuItem=关闭
+Window id= name=MesIngest Watch help= itemStatus= enabled=True
+  Text id= name= help= itemStatus= enabled=True
+  Text id= name=MesIngest Watch help= itemStatus= enabled=True
+  Button id=TitleBarMinimizeButton name=最小化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarMaximizeButton name=最大化窗口 help= itemStatus= enabled=True
+  Button id=TitleBarCloseButton name=关闭窗口 help= itemStatus= enabled=True
+  Button id=NavigationToggleButton name=展开或折叠主导航 help=在 48 epx 紧凑导航与 224 epx 展开导航之间切换 itemStatus= enabled=True
+    Text id= name= help= itemStatus= enabled=True
+  List id=NavigationItems name= help= itemStatus= enabled=True
+    DataItem id=OverviewNavigationItem name=概览导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=概览 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=DemandSeriesNavigationItem name=需求系列导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=需求系列 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ReadabilityAuditNavigationItem name=资格审计导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=资格审计 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=ErrorSearchNavigationItem name=错误检索导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=错误检索 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=AreaFilterNavigationItem name=AREA 筛选导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=AREA 筛选 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=CurrentAttentionNavigationItem name=接入告警导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=接入告警 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  List id=NavigationFooterItems name= help= itemStatus= enabled=True
+    DataItem id=HostNavigationItem name=Host 状态：Host 已连接；打开连接设置 help=http://127.0.0.1:51543 · 契约兼容 itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=Host 已连接 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+    DataItem id=SettingsNavigationItem name=设置导航 help= itemStatus= enabled=True
+      Text id= name= help= itemStatus= enabled=True
+      Text id= name=设置 help= itemStatus= enabled=True
+      List id= name= help= itemStatus= enabled=True
+  Pane id=PART_NavigationViewContentPresenter name= help= itemStatus= enabled=True
+  ListItem id= name= help= itemStatus= enabled=False
+  ListItem id= name= help= itemStatus= enabled=False
+  ListItem id= name= help= itemStatus= enabled=False
+  ListItem id= name= help= itemStatus= enabled=False
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 5 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 6 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 7 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 8 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 9 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 10 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 11 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Text id= name=错误检索 help= itemStatus= enabled=True
+  Text id=ErrorSearchFreshnessText name=错误检索 Endpoint、最近成功与自动刷新：Endpoint http://127.0.0.1:51543/api/v2/error-search · Watch 最近成功 2026-08-14 13:08:00 +08:00 · 自动刷新 10 秒 help= itemStatus= enabled=True
+  Text id=ErrorSearchHeaderStatusText name=错误检索状态：活动错误 1 help= itemStatus= enabled=True
+  Text id=ErrorSearchCompactFactsText name=错误检索 Host 冻结快照、窗口与已提交条件：按 Host 冻结快照检索真正命中的错误期间；本机 AREA 配置不参与条件、分面或分页。
+ErrorSearchAsOf 2026-08-14 07:08:10 UTC · Host 投影提交 2026-08-14 15:08:10 +08:00 · error-preview-commit-22 · 序列 231 · PollTrace error-preview-poll-22
+UTC 半开窗口 [2026-08-07 07:08:10 UTC, 2026-08-14 07:08:10 UTC)
+Host 已提交条件：分类 DATA_COMPLETENESS · 错误码 REQUIRED_MES_FIELD_MISSING · 状态 ACTIVE · SeriesId SERIES-ATTENTION-22 help=按 Host 冻结快照检索真正命中的错误期间；本机 AREA 配置不参与条件、分面或分页。
+ErrorSearchAsOf 2026-08-14 07:08:10 UTC · Host 投影提交 2026-08-14 15:08:10 +08:00 · error-preview-commit-22 · 序列 231 · PollTrace error-preview-poll-22
+UTC 半开窗口 [2026-08-07 07:08:10 UTC, 2026-08-14 07:08:10 UTC)
+Host 已提交条件：分类 DATA_COMPLETENESS · 错误码 REQUIRED_MES_FIELD_MISSING · 状态 ACTIVE · SeriesId SERIES-ATTENTION-22 itemStatus= enabled=True
+  Pane id=ErrorSearchBodyScrollViewer name=错误检索三列工作区滚动区域 help= itemStatus= enabled=True
+    Text id= name=错误分类 help= itemStatus= enabled=True
+    Text id= name=选择一个或多个分类，再应用条件缩小中间结果；计数来自 Host 冻结快照。 help= itemStatus= enabled=True
+    Text id= name=搜索分类或错误码 help= itemStatus= enabled=True
+    Edit id=ErrorSearchCategorySearchInput name=错误分类搜索 help=输入分类或错误码的一部分；搜索只缩小左侧导航，不会清除已选择分类。 itemStatus= enabled=True
+    List id=ErrorSearchCategoryList name=错误分类导航（可多选） help=选择一个或多个分类后使用应用条件；每项数量来自当前保留的 Host 冻结快照。 itemStatus= enabled=True
+      ListItem id=ErrorSearchCategory_DATA_COMPLETENESS name=错误分类 DATA_COMPLETENESS，Host 精确 1 个 DemandSeries，可多选 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryNameText name=DATA_COMPLETENESS help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryCodesText name=REQUIRED_MES_FIELD_MISSING help=REQUIRED_MES_FIELD_MISSING itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCountText name=1 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCaptionText name=Series help= itemStatus= enabled=True
+      ListItem id=ErrorSearchCategory_DATA_FORMAT name=错误分类 DATA_FORMAT，Host 精确 0 个 DemandSeries，可多选 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryNameText name=DATA_FORMAT help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryCodesText name=INVALID_MES_FIELD_FORMAT help=INVALID_MES_FIELD_FORMAT itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCountText name=0 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCaptionText name=Series help= itemStatus= enabled=True
+      ListItem id=ErrorSearchCategory_OBSERVATION_CONFLICT name=错误分类 OBSERVATION_CONFLICT，Host 精确 0 个 DemandSeries，可多选 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryNameText name=OBSERVATION_CONFLICT help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryCodesText name=DUPLICATE_TRANSPORT_DEMAND_KEY · SUBLOT_MULTIPLE_WORK_TYPES help=DUPLICATE_TRANSPORT_DEMAND_KEY · SUBLOT_MULTIPLE_WORK_TYPES itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCountText name=0 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCaptionText name=Series help= itemStatus= enabled=True
+      ListItem id=ErrorSearchCategory_LIFECYCLE_CONFLICT name=错误分类 LIFECYCLE_CONFLICT，Host 精确 0 个 DemandSeries，可多选 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryNameText name=LIFECYCLE_CONFLICT help= itemStatus= enabled=True
+        Text id=ErrorSearchCategoryCodesText name=LONG_GONE_BUT_VISIBLE help=LONG_GONE_BUT_VISIBLE itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCountText name=0 help= itemStatus= enabled=True
+        Text id=ErrorSearchCategorySeriesCaptionText name=Series help= itemStatus= enabled=True
+    Text id= name=活动状态精确分面 help= itemStatus= enabled=True
+    DataGrid id=ErrorSearchActivityStateFacetGrid name=错误活动状态 Host 精确分面 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=状态 help= itemStatus= enabled=True
+          Text id= name=状态 help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=Series help= itemStatus= enabled=True
+          Text id= name=Series help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchErrorSearchActivityFacetPresentation { State = ACTIVE, SeriesCount = 1 } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+      DataItem id= name=WatchErrorSearchActivityFacetPresentation { State = ENDED, SeriesCount = 0 } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_TopHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+        Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+    Text id= name=去重 DemandSeries help= itemStatus= enabled=True
+    Text id=ErrorSearchPageSummaryText name=错误检索精确总数、页码与排序：精确 1 个 DemandSeries · 第 1 / 1 页 · Host 固定排序：ACTIVE_FIRST_LATEST_MATCHED_EVIDENCE_DESC_SERIES_ID_ASC help= itemStatus= enabled=True
+    Text id=ErrorSearchEmptyResultText name=错误检索空结果说明：当前非成功零结果 help= itemStatus= enabled=True
+    Button id=ErrorSearchClearFilterButton name=清除错误检索条件 help= itemStatus= enabled=True
+      Text id= name=清除条件 help= itemStatus= enabled=True
+    Text id= name=错误码 help= itemStatus= enabled=True
+    ComboBox id=ErrorSearchCodeFilter name=错误码筛选 help= itemStatus= enabled=True
+      Edit id=PART_EditableTextBox name= help= itemStatus= enabled=True
+    Text id= name=活动状态 help= itemStatus= enabled=True
+    ComboBox id=ErrorSearchActivityStateFilter name=错误活动状态筛选 help= itemStatus= enabled=True
+      Edit id=PART_EditableTextBox name= help= itemStatus= enabled=True
+    Text id= name=时间范围 help= itemStatus= enabled=True
+    ComboBox id=ErrorSearchWindowFilter name=错误检索时间范围 help= itemStatus= enabled=True
+    Text id= name=SeriesId（精确） help= itemStatus= enabled=True
+    Edit id=ErrorSearchSeriesIdFilter name=错误检索 SeriesId 精确筛选 help= itemStatus= enabled=True
+    Button id=ErrorSearchApplyFilterButton name=应用错误检索条件 help= itemStatus= enabled=True
+      Text id= name=应用条件 help= itemStatus= enabled=True
+    Group id= name=更多条件 help= itemStatus= enabled=True
+      Button id=ExpanderToggleButton name=更多条件 help= itemStatus= enabled=True
+        Text id= name=更多条件 help= itemStatus= enabled=True
+        Text id= name= help= itemStatus= enabled=True
+    DataGrid id=ErrorSearchSeriesGrid name=错误检索去重 Series 结果 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=SeriesId help= itemStatus= enabled=True
+          Text id= name=SeriesId help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=WorkType help= itemStatus= enabled=True
+          Text id= name=WorkType help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=SUBLOT help= itemStatus= enabled=True
+          Text id= name=SUBLOT help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=状态 help= itemStatus= enabled=True
+          Text id= name=状态 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=命中期间 help= itemStatus= enabled=True
+          Text id= name=命中期间 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=Demand 世代 help= itemStatus= enabled=True
+          Text id= name=Demand 世代 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=最新证据 help= itemStatus= enabled=True
+          Text id= name=最新证据 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=MES AREA help= itemStatus= enabled=True
+          Text id= name=MES AREA help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchErrorSearchRowPresentation { SeriesId = SERIES-ATTENTION-22, WorkType = WIRE_TO_GATE, Sublot = SUBLOT-ERROR-22, ActivityState = ACTIVE, MatchedErrors = MesIngest.Watch.WatchErrorSearchMatchedErrorPresentation[], LatestMatchedEvidenceAt = 2026-08-14 15:08:09 +08:00, MatchedPeriodCount = 1, MatchedPeriodSummary = 命中 1 个期间, MatchedDemandGenerationCount = 1, MatchedDemandGenerationSummary = 命中 1 个 Demand 世代, MesArea = A1-1, MesAreaAvailability = CURRENT_TRUSTED } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=SERIES-ATTENTION-22 help= itemStatus= enabled=True
+          Text id= name=SERIES-ATTENTION-22 help= itemStatus= enabled=True
+        Custom id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+          Text id= name=WIRE_TO_GATE help= itemStatus= enabled=True
+        Custom id= name=SUBLOT-ERROR-22 help= itemStatus= enabled=True
+          Text id= name=SUBLOT-ERROR-22 help= itemStatus= enabled=True
+        Custom id= name=项: WatchErrorSearchRowPresentation { SeriesId = SERIES-ATTENTION-22, WorkType = WIRE_TO_GATE, Sublot = SUBLOT-ERROR-22, ActivityState = ACTIVE, MatchedErrors = MesIngest.Watch.WatchErrorSearchMatchedErrorPresentation[], LatestMatchedEvidenceAt = 2026-08-14 15:08:09 +08:00, MatchedPeriodCount = 1, MatchedPeriodSummary = 命中 1 个期间, MatchedDemandGenerationCount = 1, MatchedDemandGenerationSummary = 命中 1 个 Demand 世代, MesArea = A1-1, MesAreaAvailability = CURRENT_TRUSTED }，列显示索引: 3 help= itemStatus= enabled=True
+          Text id= name=ACTIVE help= itemStatus= enabled=True
+        Custom id= name=命中 1 个期间 help= itemStatus= enabled=True
+          Text id= name=命中 1 个期间 help= itemStatus= enabled=True
+        Custom id= name=命中 1 个 Demand 世代 help= itemStatus= enabled=True
+          Text id= name=命中 1 个 Demand 世代 help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 15:08:09 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 15:08:09 +08:00 help= itemStatus= enabled=True
+        Custom id= name=A1-1 help= itemStatus= enabled=True
+          Text id= name=A1-1 help= itemStatus= enabled=True
+    Button id=ErrorSearchPreviousPageButton name=错误检索上一页 help= itemStatus= enabled=False
+      Text id= name=上一页 help= itemStatus= enabled=False
+    Button id=ErrorSearchNextPageButton name=错误检索下一页 help= itemStatus= enabled=False
+      Text id= name=下一页 help= itemStatus= enabled=False
+    Edit id=ErrorSearchPageNumberInput name=错误检索目标页码 help= itemStatus= enabled=True
+    Button id=ErrorSearchGoToPageButton name=错误检索直接页码跳转 help= itemStatus= enabled=True
+      Text id= name=跳转 help= itemStatus= enabled=True
+    Text id= name=命中证据详情 help= itemStatus= enabled=True
+    Text id=ErrorSearchDetailContextText name=错误检索窗口边界与 Demand 世代语义：SERIES-ATTENTION-22 · ACTIVE · 窗口命中边界：期间开始早于窗口，结束晚于窗口 · ErrorSearchAsOf 时仍为 ACTIVE · Demand 世代：DEMAND-ATTENTION-22 help= itemStatus= enabled=True
+    Text id= name=真正命中的期间 help= itemStatus= enabled=True
+    DataGrid id=ErrorSearchPeriodGrid name=错误检索真正命中期间 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=错误码 help= itemStatus= enabled=True
+          Text id= name=错误码 help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=分类 help= itemStatus= enabled=True
+          Text id= name=分类 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=状态边界 help= itemStatus= enabled=True
+          Text id= name=状态边界 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=开始 help= itemStatus= enabled=True
+          Text id= name=开始 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=结束 help= itemStatus= enabled=True
+          Text id= name=结束 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=结束原因 help= itemStatus= enabled=True
+          Text id= name=结束原因 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=主体种类 help= itemStatus= enabled=True
+          Text id= name=主体种类 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=Target help= itemStatus= enabled=True
+          Text id= name=Target help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchErrorSearchPeriodPresentation { PeriodId = PERIOD-BOUNDARY-22, Code = REQUIRED_MES_FIELD_MISSING, Category = DATA_COMPLETENESS, Severity = ERROR, Target = AREA, SubjectKind = DEMAND, StartReason = FIRST_OBSERVED, StartedAt = 2026-08-07 13:08:10 +08:00, EndedAt = —, EndReason = —, StartsBeforeWindow = True, EndsAfterWindow = True, ActiveAtAsOf = True, BoundarySummary = 期间开始早于窗口，结束晚于窗口 · ErrorSearchAsOf 时仍为 ACTIVE, Evidence = MesIngest.Watch.WatchErrorSearchEvidencePresentation[] } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=REQUIRED_MES_FIELD_MISSING help= itemStatus= enabled=True
+          Text id= name=REQUIRED_MES_FIELD_MISSING help= itemStatus= enabled=True
+        Custom id= name=DATA_COMPLETENESS help= itemStatus= enabled=True
+          Text id= name=DATA_COMPLETENESS help= itemStatus= enabled=True
+        Custom id= name=期间开始早于窗口，结束晚于窗口 · ErrorSearchAsOf 时仍为 ACTIVE help= itemStatus= enabled=True
+          Text id= name=期间开始早于窗口，结束晚于窗口 · ErrorSearchAsOf 时仍为 ACTIVE help= itemStatus= enabled=True
+        Custom id= name=2026-08-07 13:08:10 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-07 13:08:10 +08:00 help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+        Custom id= name=— help= itemStatus= enabled=True
+          Text id= name=— help= itemStatus= enabled=True
+        Custom id= name=DEMAND help= itemStatus= enabled=True
+          Text id= name=DEMAND help= itemStatus= enabled=True
+        Custom id= name=AREA help= itemStatus= enabled=True
+          Text id= name=AREA help= itemStatus= enabled=True
+    Text id= name=可解释证据 help= itemStatus= enabled=True
+    DataGrid id=ErrorSearchEvidenceGrid name=错误检索可解释证据 help= itemStatus= enabled=True
+      Header id=PART_ColumnHeadersPresenter name= help= itemStatus= enabled=True
+        HeaderItem id= name=证据 help= itemStatus= enabled=True
+          Text id= name=证据 help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=证据类型 help= itemStatus= enabled=True
+          Text id= name=证据类型 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=字段 / 主体 help= itemStatus= enabled=True
+          Text id= name=字段 / 主体 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=观测值 help= itemStatus= enabled=True
+          Text id= name=观测值 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=规则 help= itemStatus= enabled=True
+          Text id= name=规则 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=Demand / WorkType help= itemStatus= enabled=True
+          Text id= name=Demand / WorkType help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=时间 help= itemStatus= enabled=True
+          Text id= name=时间 help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+        HeaderItem id= name=PollTrace help= itemStatus= enabled=True
+          Text id= name=PollTrace help= itemStatus= enabled=True
+          Thumb id=PART_LeftHeaderGripper name= help= itemStatus= enabled=True
+          Thumb id=PART_RightHeaderGripper name= help= itemStatus= enabled=True
+      DataItem id= name=WatchErrorSearchEvidencePresentation { EvidenceId = EVIDENCE-BOUNDARY-22, EvidenceKind = MES_FIELD_DIAGNOSTIC, SubjectKind = DEMAND, ObservedAt = 2026-08-14 15:08:09 +08:00, PollTraceId = error-poll-22, ProjectionCommitId = error-commit-22, DemandId = DEMAND-ATTENTION-22, RelatedWorkTypes = System.Collections.Generic.List`1[System.String], SubjectReference = DemandId DEMAND-ATTENTION-22 · WorkType WIRE_TO_GATE、WIRE_TO_NITROGEN, DiagnosticSummary = 2 条原始观测 · SHA-256 AABBCCDD22, ExpectedRule = canonical value must be non-empty and match its domain, CanReadRawEvidence = True } help= itemStatus= enabled=True
+        HeaderItem id= name= help= itemStatus= enabled=True
+          Thumb id=PART_BottomHeaderGripper name= help= itemStatus= enabled=True
+        Custom id= name=EVIDENCE-BOUNDARY-22 help= itemStatus= enabled=True
+          Text id= name=EVIDENCE-BOUNDARY-22 help= itemStatus= enabled=True
+        Custom id= name=MES_FIELD_DIAGNOSTIC help= itemStatus= enabled=True
+          Text id= name=MES_FIELD_DIAGNOSTIC help= itemStatus= enabled=True
+        Custom id= name=DEMAND help= itemStatus= enabled=True
+          Text id= name=DEMAND help= itemStatus= enabled=True
+        Custom id= name=2 条原始观测 · SHA-256 AABBCCDD22 help= itemStatus= enabled=True
+          Text id= name=2 条原始观测 · SHA-256 AABBCCDD22 help= itemStatus= enabled=True
+        Custom id= name=canonical value must be non-empty and match its domain help= itemStatus= enabled=True
+          Text id= name=canonical value must be non-empty and match its domain help= itemStatus= enabled=True
+        Custom id= name=DemandId DEMAND-ATTENTION-22 · WorkType WIRE_TO_GATE、WIRE_TO_NITROGEN help= itemStatus= enabled=True
+          Text id= name=DemandId DEMAND-ATTENTION-22 · WorkType WIRE_TO_GATE、WIRE_TO_NITROGEN help= itemStatus= enabled=True
+        Custom id= name=2026-08-14 15:08:09 +08:00 help= itemStatus= enabled=True
+          Text id= name=2026-08-14 15:08:09 +08:00 help= itemStatus= enabled=True
+        Custom id= name=error-poll-22 help= itemStatus= enabled=True
+          Text id= name=error-poll-22 help= itemStatus= enabled=True
+    Group id= name= help= itemStatus= enabled=True
+      Button id=ExpanderToggleButton name= help= itemStatus= enabled=True
+        Text id= name=受限原始证据（显式按需） help= itemStatus= enabled=True
+        Text id=ErrorSearchRawEvidenceLimitsText name=错误检索原始证据白名单与上限：显式按需；允许字段 workType、sublot、area、eqp、step、mesSourceDate、package · 最多 20 条 · 单条 2048 字节 · 总计 65536 字节 help= itemStatus= enabled=True
+        Button id=ErrorSearchLoadRawEvidenceButton name=按需加载受限原始证据 help= itemStatus= enabled=False
+          Text id= name=加载原始证据 help= itemStatus= enabled=False
+        Text id= name= help= itemStatus= enabled=True
+    Button id=ErrorSearchOpenSeriesButton name=在 DemandSeries 中打开当前错误 Series help= itemStatus= enabled=True
+      Text id= name=在 DemandSeries 中打开 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 0 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 1 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 2 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 3 help= itemStatus= enabled=True
+  Custom id= name=项: ，列显示索引: 4 help= itemStatus= enabled=True

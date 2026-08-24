@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-19T01:27:04.5925012+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\23-candidate-gate\\run-20260819-010449-watch-window-stability",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-23-candidate-gate\\run-20260819-010449-watch-window-stability"
+}

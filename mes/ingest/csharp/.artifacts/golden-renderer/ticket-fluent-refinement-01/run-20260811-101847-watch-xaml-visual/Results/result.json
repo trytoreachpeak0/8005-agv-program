@@ -1,0 +1,7 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-11T10:25:05.1855810+08:00",
+  "Suite": "watch-xaml-visual",
+  "Runs": 1
+}
