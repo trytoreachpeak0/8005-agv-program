@@ -1,6 +1,6 @@
 # MesIngest.Watch：DemandSeries 详情显示交互替代方案
 
-研究日期：2026-08-20  
+研究日期：2026-08-20
 范围：只调研当前 `MesIngest.Watch` 的 DemandSeries 主列表/详情布局；不修改产品代码，不运行 Tier 2 / Tier 3。
 
 ## 结论

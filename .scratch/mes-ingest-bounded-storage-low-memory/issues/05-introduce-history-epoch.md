@@ -12,4 +12,3 @@
 - [ ] 投影提交与读取栅栏在内部携带 HistoryEpoch，使后续读取面不需要各自发明纪元来源。
 - [ ] 旧数据库缺少新纪元结构时严格拒绝，不把应用版本、HostSessionId、ProjectionCommit 或 CatalogRevision 当作纪元。
 - [ ] expand 阶段保持现有生产读取行为可运行，新增测试证明纪元持久性、重启稳定性与空库唯一性。
-
