@@ -30,3 +30,13 @@ in the worktree.
 - Cancellation evidence asserts the active operation receives cancellation,
   no failure is recorded, and the polling gate is immediately reacquirable.
 - No test was skipped or weakened to obtain a green run.
+
+## Review closure
+
+- The post-review focused suite passed 29/29 with SQL Server 16 and database
+  compatibility level 160; failed 0, skipped 0.
+- Added direct evidence for the hard 25,000-row PollTrace ceiling, exact
+  overrun scheduling, safe scheduler logging, poll-held yielding, graceful
+  interruption, and post-failure polling continuation.
+- The real-SQL default probe committed 25 whole-Series cleanup transactions
+  inside the frozen 15-second elapsed budget.
