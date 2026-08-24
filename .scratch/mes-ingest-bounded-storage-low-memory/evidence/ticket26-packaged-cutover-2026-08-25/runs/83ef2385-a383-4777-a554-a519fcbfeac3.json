@@ -1,0 +1,286 @@
+{
+  "SchemaVersion": 3,
+  "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+  "Status": "PASSED_OLD_DATABASE_DELETED",
+  "StartedAtUtc": "2026-08-24T20:40:15.3945838+00:00",
+  "CompletedAtUtc": "2026-08-24T20:40:31.0173207+00:00",
+  "Operator": "LAB-WIN-01\\szy",
+  "ExecutionLogin": "MesIngestTicket26App_d899fbe631ff4961948b0d3007f689f8",
+  "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23",
+  "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+  "SchemaIdentity": 28,
+  "ReleasePackage": {
+    "PackageRoot": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package",
+    "ManifestPath": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package\\RELEASE-MANIFEST.json",
+    "ManifestSha256": "15cb4db5c4d07cb85f61b03c28192f728ed15b484e9a44252d31454c675643fa",
+    "DeclaredFileCount": 1372,
+    "ManifestSchemaVersion": 3,
+    "ManifestGeneratedAt": "08/25/2026 04:39:39",
+    "SourceCommit": "0373531ba90cf0f5b525d84af505e3bf17f52afb",
+    "SourceDirty": false,
+    "Configuration": "Release",
+    "Runtime": "win-x64",
+    "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "SchemaVersion": 28,
+    "OpenApiSha256": "fc0d6fe405b9abceaaa08d27f39e0a4e04ea89a86b720a04a5d06860985bf6ae",
+    "SharedContractSha256": "c80b96c4df15cc2493c460b52d570cd9240647359c5a922ee40c1e37a6f80a66",
+    "ServiceAndWatchContractIdentical": true
+  },
+  "OldHostStop": {
+    "Mode": "WINDOWS_SCHEDULED_TASK",
+    "TaskName": "MesIngestCutoverOld_d8a201803d1d438f890af91a871ab5c8",
+    "State": "Disabled",
+    "LastRunTime": "2026-08-25T04:39:49.0000000+08:00",
+    "LastTaskResult": 267014,
+    "TriggerCount": 0,
+    "RestartCount": 0,
+    "Enabled": false,
+    "ExecutablePath": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package\\service\\MesIngest.Host.exe",
+    "ExecutableSha256": "2a97b5bfb4e59278d5acd7ff2072135664c00dffe8b3743da25b6c4ca261e0de",
+    "ActionArgumentsSha256": "8e188c94152108d24e037dc6d711046906065658a6a3ad34bc419721d0787ce8",
+    "OldDatabaseName": "MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old"
+  },
+  "OldDatabase": {
+    "ServerIdentity": "LAB-WIN-01\\MSSQLSERVER",
+    "DatabaseName": "MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old",
+    "DatabaseId": 13,
+    "CreateDateUtc": "2026-08-25T04:39:45.0830000Z",
+    "ContractVersion": "2026.08.new-mes-ingest.v2.0-test-old",
+    "SchemaIdentity": 27,
+    "DataDirectories": [
+      "F:\\MesIngestTicket26Cutover"
+    ],
+    "ForeignSessionCount": 0
+  },
+  "NewDatabase": {
+    "ServerIdentity": "LAB-WIN-01\\MSSQLSERVER",
+    "DatabaseName": "MesIngest_Ticket26_S_93174e1372f14dc2b916558a57e56436_New",
+    "DatabaseId": 14,
+    "CreateDateUtc": "2026-08-25T04:39:45.1670000Z",
+    "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "SchemaIdentity": 28,
+    "DataDirectories": [
+      "F:\\MesIngestTicket26Cutover"
+    ]
+  },
+  "TombstoneProof": {
+    "AlgorithmVersion": "ARCHIVED_DEMAND_KEY_TOMBSTONE_SHA256_V1",
+    "KeyTokenAlgorithmVersion": "TRANSPORT_DEMAND_KEY_SHA256_LENGTH_PREFIXED_V1",
+    "Count": 2,
+    "Sha256": "775703d896aebbf048947eb2e1cd8358e700e03b36cee75dcac0df93789a9544",
+    "InsertedCount": 2,
+    "ExistingCount": 0
+  },
+  "ProjectionRounds": [
+    {
+      "PollTraceSequence": 3,
+      "ProjectionCommitId": "00712f68a9da466dbfa1c0b55366ee1b",
+      "ProjectionSequence": 3,
+      "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23"
+    },
+    {
+      "PollTraceSequence": 2,
+      "ProjectionCommitId": "65df8e5bae4e4657b787116d66a16830",
+      "ProjectionSequence": 2,
+      "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23"
+    },
+    {
+      "PollTraceSequence": 1,
+      "ProjectionCommitId": "02c72d0edeec4a78820d0ab677ba7034",
+      "ProjectionSequence": 1,
+      "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23"
+    }
+  ],
+  "PostSeedPollTraceHighWater": 0,
+  "Gates": [
+    {
+      "Name": "OLD_HOST_STOPPED",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "task=MesIngestCutoverOld_d8a201803d1d438f890af91a871ab5c8;state=Disabled;executableSha256=2a97b5bfb4e59278d5acd7ff2072135664c00dffe8b3743da25b6c4ca261e0de;argumentsSha256=8e188c94152108d24e037dc6d711046906065658a6a3ad34bc419721d0787ce8"
+    },
+    {
+      "Name": "OLD_DATABASE_NO_BUSINESS_CONNECTIONS",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "foreignSessionCount=0"
+    },
+    {
+      "Name": "CONTRACT_SCHEMA_EXACT",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "old=2026.08.new-mes-ingest.v2.0-test-old/27;new=2026.08.new-mes-ingest.v2.1/28"
+    },
+    {
+      "Name": "OLD_DATABASE_IDENTITY",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "LAB-WIN-01\\MSSQLSERVER/MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old@F:\\MesIngestTicket26Cutover"
+    },
+    {
+      "Name": "RUN_IDENTITY_NO_DELETE_PERMISSION",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "no CONTROL database or ALTER ANY DATABASE permission"
+    },
+    {
+      "Name": "TOMBSTONE_PROOF_MATCH",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "algorithm=ARCHIVED_DEMAND_KEY_TOMBSTONE_SHA256_V1;keyAlgorithm=TRANSPORT_DEMAND_KEY_SHA256_LENGTH_PREFIXED_V1;count=2;sha256=775703d896aebbf048947eb2e1cd8358e700e03b36cee75dcac0df93789a9544"
+    },
+    {
+      "Name": "THREE_CONSECUTIVE_PROJECTIONS",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "projectionSequences=3,2,1"
+    },
+    {
+      "Name": "WATCH_API",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "paths=5;projectionCommitId=00712f68a9da466dbfa1c0b55366ee1b"
+    },
+    {
+      "Name": "EXTERNAL_CATALOG",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "itemCount=2;projectionCommitId=65df8e5bae4e4657b787116d66a16830;projectionSequence=2"
+    },
+    {
+      "Name": "REFERENCE_CONSUMER",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "historyEpoch=1e2dd82d-55ad-48dd-b622-4b48fd55cd23;projectionCommitId=65df8e5bae4e4657b787116d66a16830;postSeedRound=True"
+    },
+    {
+      "Name": "TOMBSTONE_KEYS_EXCLUDED",
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "Passed": true,
+      "Detail": "tombstoneCount=2;excluded=True"
+    }
+  ],
+  "GateCount": 11,
+  "StepTimings": [
+    {
+      "Name": "PACKAGE_IDENTITY",
+      "Outcome": "PASSED",
+      "DurationMs": 2262.4
+    },
+    {
+      "Name": "EVIDENCE_PREFLIGHT_AND_OLD_HOST_STOP",
+      "Outcome": "PASSED",
+      "DurationMs": 1255.7
+    },
+    {
+      "Name": "DATABASE_IDENTITY",
+      "Outcome": "PASSED",
+      "DurationMs": 132.8
+    },
+    {
+      "Name": "TOMBSTONE_SEED_AND_PROOF",
+      "Outcome": "PASSED",
+      "DurationMs": 104.9
+    },
+    {
+      "Name": "THREE_PROJECTION_ROUNDS",
+      "Outcome": "PASSED",
+      "DurationMs": 6099.4
+    },
+    {
+      "Name": "WATCH_API_AND_CONTRACT",
+      "Outcome": "PASSED",
+      "DurationMs": 782.3
+    },
+    {
+      "Name": "REFERENCE_CONSUMER_AND_CATALOG",
+      "Outcome": "PASSED",
+      "DurationMs": 398.9
+    },
+    {
+      "Name": "FINAL_DESTRUCTIVE_REVALIDATION",
+      "Outcome": "PASSED",
+      "DurationMs": 2480.3
+    },
+    {
+      "Name": "PRE_DELETE_EVIDENCE_AND_EVENT",
+      "Outcome": "PASSED",
+      "DurationMs": 46.5
+    },
+    {
+      "Name": "EXACT_OLD_DATABASE_DELETE_AND_PERMISSION_REVOCATION",
+      "Outcome": "PASSED",
+      "DurationMs": 2054.0
+    },
+    {
+      "Name": "FINAL_WINDOWS_EVENT",
+      "Outcome": "PASSED",
+      "DurationMs": 5.2
+    }
+  ],
+  "DeleteAuthorization": {
+    "AuthorizationType": "CUTOVER_DELETE_AUTHORIZATION_V1",
+    "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+    "GateCount": 11,
+    "ServerIdentity": "LAB-WIN-01\\MSSQLSERVER",
+    "OldDatabaseName": "MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old",
+    "OldDatabaseId": 13,
+    "OldDatabaseCreateDateUtc": "2026-08-25T04:39:45.0830000Z",
+    "OldSchemaVersion": 27,
+    "OldContractVersion": "2026.08.new-mes-ingest.v2.0-test-old",
+    "OldHistoryEpoch": "d589abf6-dea5-4a81-b0bb-7b47241efff0",
+    "NewDatabaseName": "MesIngest_Ticket26_S_93174e1372f14dc2b916558a57e56436_New",
+    "NewDatabaseId": 14,
+    "NewDatabaseCreateDateUtc": "2026-08-25T04:39:45.1670000Z",
+    "NewSchemaVersion": 28,
+    "NewContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "NewHistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23",
+    "SqlDataDirectory": "F:\\MesIngestTicket26Cutover",
+    "BaseExecutionLogin": "MesIngestTicket26App_d899fbe631ff4961948b0d3007f689f8",
+    "TombstoneAlgorithmVersion": "ARCHIVED_DEMAND_KEY_TOMBSTONE_SHA256_V1",
+    "KeyTokenAlgorithmVersion": "TRANSPORT_DEMAND_KEY_SHA256_LENGTH_PREFIXED_V1",
+    "TombstoneCount": 2,
+    "TombstoneSha256": "775703d896aebbf048947eb2e1cd8358e700e03b36cee75dcac0df93789a9544"
+  },
+  "PermissionLifecycle": {
+    "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+    "PrincipalName": "MesIngestCutover_83ef2385a3834777a554a519fcbfeac3",
+    "DeletePermission": "CONTROL DATABASE::MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old",
+    "SessionVisibilityPermission": "VIEW SERVER STATE; VIEW SERVER PERFORMANCE STATE",
+    "GrantedAtUtc": "2026-08-24T20:40:30.0076731+00:00",
+    "RevokedAtUtc": "2026-08-24T20:40:31.0135269+00:00",
+    "FinalStatus": "REVOKED_AND_PRINCIPAL_DROPPED",
+    "VerifiedAbsent": true,
+    "Events": [
+      {
+        "AtUtc": "2026-08-24T20:40:30.0076731+00:00",
+        "Action": "GRANTED",
+        "Detail": "principal=MesIngestCutover_83ef2385a3834777a554a519fcbfeac3;database=MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old"
+      },
+      {
+        "AtUtc": "2026-08-24T20:40:30.9806009+00:00",
+        "Action": "REVERIFIED_BEFORE_DROP",
+        "Detail": "databaseId=13;createDateUtc=2026-08-25T04:39:45.0830000Z"
+      },
+      {
+        "AtUtc": "2026-08-24T20:40:31.0027646+00:00",
+        "Action": "EXACT_DATABASE_DELETED",
+        "Detail": "database=MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old;databaseId=13"
+      },
+      {
+        "AtUtc": "2026-08-24T20:40:31.0044199+00:00",
+        "Action": "IMPERSONATED_SESSION_CLOSED",
+        "Detail": "MesIngestCutover_83ef2385a3834777a554a519fcbfeac3"
+      },
+      {
+        "AtUtc": "2026-08-24T20:40:31.0135269+00:00",
+        "Action": "VERIFIED_ABSENT",
+        "Detail": "MesIngestCutover_83ef2385a3834777a554a519fcbfeac3;cleanupAttempt=1"
+      }
+    ]
+  },
+  "DatabaseDeletion": "DELETED_EXACT_PROVEN_OLD_DATABASE",
+  "IsDatabaseBackup": false,
+  "HasRollbackPath": false,
+  "TotalDurationMs": 15622.8
+}
