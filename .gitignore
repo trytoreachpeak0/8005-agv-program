@@ -3,3 +3,8 @@ node_modules/
 __pycache__/
 *.py[cod]
 node.*.log
+# Local runtime state and logs (may contain factory environment details).
+.runtime/
+.artifacts/
+*.received.*
+mes/ingest/csharp/TestResults/

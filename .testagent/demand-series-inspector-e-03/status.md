@@ -1,0 +1,175 @@
+# Demand Series Inspector E / Ticket 03 test status
+
+## Red-green completion
+
+- Formation facts: known reappearance reasons now expose ordered available or
+  unavailable fact slots; unavailable facts carry no time, sequence, PollTrace,
+  or ProjectionCommit.
+- MES boundaries: assignment groups remain intact while the render view orders
+  every raw row globally by ordinal; scalar evidence remains disabled for
+  absence or conflict.
+- Window evidence: formation cards, scalar boundary sources, absence/conflict
+  states, and the complete raw grid expose visible text plus stable UIA names.
+- Navigation: a loaded Inspector re-scrolls a virtualized 80-generation list to
+  the focused historical generation without changing the distinct current
+  marker.
+
+## Empirical pseudo-mutation review
+
+Baseline: `WatchDemandSeriesInspector*` tests passed 29/29.
+
+| Mutation | Covering test | Result |
+| --- | --- | --- |
+| Mark unavailable formation facts as available | `Project_Known_reappearance_marks_missing_expected_facts_unavailable_without_placeholder_evidence` | Killed |
+| Remove global ordinal sorting after assignment grouping | `Project_Zero_and_multiple_assigned_boundaries_suppress_scalars_and_preserve_global_ordinal_evidence`; `Update_Zero_and_conflict_boundaries_name_absence_and_render_every_raw_row_in_global_ordinal_order` | Killed |
+| Remove the raw reason code from UIA help text | `Update_Unknown_reason_keeps_neutral_primary_text_and_secondary_raw_code` | Killed |
+| Remove the loaded-window focused-generation scroll | `Update_Many_generations_virtualizes_focused_history_and_preserves_a_distinct_current_marker` | Killed |
+
+All four mutations were reverted immediately. The final narrow run passed
+29/29 with zero skips. No substantive survivor remains in the ticket-specific
+logic reviewed here.
+
+## Assertion review
+
+The generated assertions were re-opened against the ticket checklist. They use
+independent literal expectations for reason labels, exact fact ordering,
+availability/null evidence, seven MES field names, changed/unchanged state,
+interleaved ordinal order, complete raw-grid columns, dynamic UIA names, and
+separate selected/current generation state. No assertion-quality skill is
+installed in this session, so the required equivalent review was performed
+inline rather than skipped.
+
+## Tier 1
+
+After the two-axis review fixes, from `mes/ingest/csharp`,
+`dotnet test MesIngest.Tests` completed in 1m22s:
+
+- Passed: 606
+- Failed: 0
+- Skipped: 82
+- Total: 688
+
+All 82 skips were the expected `Ticket01SqlServerFact` environment gate because
+`MES_INGEST_TICKET01_SQLSERVER`,
+`MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR`, and
+`MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL` were not supplied. Exact
+skipped tests:
+
+- `CurrentIngestAttentionTests.Four_sources_are_stable_and_only_complete_success_clears_current_items_while_history_remains`
+- `CurrentIngestAttentionTests.Routes_return_stable_validation_and_projection_unavailable_errors`
+- `DemandSeriesFrozenSnapshotTests.Frozen_conflict_detail_keeps_duplicate_multiset_and_multi_work_type_evidence_after_recovery`
+- `DemandSeriesFrozenSnapshotTests.Frozen_detail_retains_missing_field_period_after_recovery_without_leaking_its_future_close`
+- `DemandSeriesFrozenSnapshotTests.Frozen_pages_are_exact_stable_and_reject_tampered_or_mismatched_credentials`
+- `DemandSeriesFrozenSnapshotTests.Frozen_snapshot_combines_all_lifecycle_presence_states_with_exact_pages_and_provenance`
+- `DemandSeriesFrozenSnapshotTests.Old_snapshot_detail_remains_readable_after_the_production_host_restarts`
+- `DemandSeriesFrozenSnapshotTests.Old_snapshot_detail_stays_at_commit_a_until_a_latest_refresh_reads_commit_b`
+- `DemandSeriesFrozenSnapshotTests.Prearchive_reappearance_creates_a_frozen_successor_without_rewriting_the_gone_snapshot`
+- `DuplicateKeyAndMultipleWorkTypesTests.Duplicate_key_and_multiple_work_type_conditions_coexist_with_complete_raw_assignments`
+- `DuplicateKeyAndMultipleWorkTypesTests.Duplicate_multiset_reorders_without_noise_changes_evidence_in_place_and_recovers_the_same_demand_after_restart`
+- `DuplicateKeyAndMultipleWorkTypesTests.Exact_duplicate_observations_preserve_multiplicity_and_cannot_clear_a_field_error_without_unique_counterevidence`
+- `DuplicateKeyAndMultipleWorkTypesTests.Multiple_work_types_create_independent_series_update_complete_membership_evidence_and_clear_the_still_visible_demand_after_restart`
+- `EmptyDatabaseBootstrapTests.A_database_that_already_holds_other_tables_is_refused_and_left_alone`
+- `EmptyDatabaseBootstrapTests.An_empty_database_bootstraps_the_whole_schema_once`
+- `ErrorSearchDetailTests.Default_detail_summarizes_duplicate_missing_invalid_area_and_multi_worktype_diagnostics_without_raw_rows`
+- `ErrorSearchDetailTests.Detail_marks_window_overlap_preserves_clear_and_gone_reasons_and_deduplicates_unchanged_evidence`
+- `ErrorSearchDetailTests.Detail_separates_demand_generations_and_reconciles_series_generation_evidence_with_list_counts`
+- `ErrorSearchDetailTests.Frozen_detail_uses_the_list_snapshot_and_excludes_later_or_unmatched_periods`
+- `ErrorSearchDetailTests.Raw_evidence_rejections_are_stable_non_leaking_and_leave_the_snapshot_unchanged`
+- `ErrorSearchDetailTests.Raw_evidence_requires_explicit_authorization_and_returns_only_whitelisted_redacted_bounded_fields`
+- `ErrorSearchTests.Demand_id_filter_keeps_only_the_matching_generation_period_and_evidence`
+- `ErrorSearchTests.Filters_facets_series_dedup_and_all_four_categories_share_one_snapshot`
+- `ErrorSearchTests.Frozen_high_water_keeps_pages_state_facets_and_order_stable_after_backdated_commit`
+- `ErrorSearchTests.Http_failures_invalid_queries_and_successful_empty_results_remain_distinct`
+- `ErrorSearchTests.Rolling_and_custom_windows_use_utc_half_open_period_overlap`
+- `ExternallyReadableDemandCatalogTests.Catalog_only_contains_centrally_eligible_demands_while_operations_detail_keeps_every_rejected_demand`
+- `ExternallyReadableDemandCatalogTests.Catalog_returns_complete_stable_items_in_demand_id_order_and_rejects_dispatch_scope_queries`
+- `ExternallyReadableDemandCatalogTests.Catalog_revision_changes_once_only_for_member_or_member_value_changes`
+- `ExternallyReadableDemandCatalogTests.Conditional_catalog_read_returns_bodyless_304_or_one_atomically_committed_full_revision`
+- `ExternallyReadableDemandCatalogTests.Failure_incomplete_and_replay_leave_the_committed_catalog_unchanged`
+- `ExternallyReadableDemandCatalogTests.Field_duplicate_and_multiple_work_type_recovery_reenter_catalog_in_one_revision`
+- `ExternallyReadableDemandCatalogTests.Gone_demand_exits_and_postarchive_visible_successor_never_enters_catalog`
+- `ExternallyReadableDemandCatalogTests.Initial_empty_catalog_is_a_complete_stable_revision_zero_resource`
+- `ExternallyReadableDemandCatalogTests.Production_host_catalog_updates_leave_consumer_cancellation_and_dispatch_canaries_untouched`
+- `LiveMesFieldsAndErrorPeriodsTests.Bootstrapped_missing_fields_remain_visible_extend_the_same_periods_and_clear_on_complete_success`
+- `LiveMesFieldsAndErrorPeriodsTests.First_round_bootstraps_every_erroneous_series_and_exact_repeats_add_no_error_noise`
+- `LiveMesFieldsAndErrorPeriodsTests.Five_live_field_changes_update_the_same_demand_and_emit_exactly_five_auditable_events`
+- `LiveMesFieldsAndErrorPeriodsTests.Invalid_area_uses_one_persistent_period_non_success_rounds_cannot_clear_and_contract_publishes_catalog`
+- `NewMesIngestOpenApiContractTests.Runtime_round_sql_api_responses_conform_to_the_published_contract`
+- `NewSuccessRoundTracerSpineTests.Equivalent_success_round_preserves_identity_and_does_not_append_business_events`
+- `NewSuccessRoundTracerSpineTests.First_success_round_is_read_back_with_atomic_series_demand_and_round_evidence`
+- `NewSuccessRoundTracerSpineTests.Restarted_host_reads_the_same_persisted_projection`
+- `OracleMesTaskUnionProductionEntryTests.Canonical_Oracle_result_flows_through_Production_V2_runner_to_poll_trace_and_non_success_never_mutates_business_state`
+- `ProjectionCommitAtomicityConcurrencyTests.Combined_projection_covers_conflicts_lifecycle_protection_attention_and_is_identical_after_restart`
+- `ProjectionCommitAtomicityConcurrencyTests.Concurrent_writers_form_one_monotonic_sequence_one_generation_and_one_catalog_revision_per_round`
+- `ProjectionCommitAtomicityConcurrencyTests.Demand_catalog_and_attention_reads_are_wholly_old_or_new_at_a_concurrent_commit_fence`
+- `ProjectionCommitAtomicityConcurrencyTests.Failure_incomplete_and_mid_transaction_cancellation_preserve_business_projection_and_open_error_periods`
+- `ProjectionCommitAtomicityConcurrencyTests.Six_SQL_failpoints_roll_back_every_public_surface_then_retry_replay_and_conflict_are_atomic`
+- `ReadabilityAuditTests.Audit_filters_facets_area_order_and_detail_share_one_exact_snapshot`
+- `ReadabilityAuditTests.Audit_lists_every_demand_generation_with_readability_separate_from_lifecycle`
+- `ReadabilityAuditTests.Audit_order_and_bounded_pages_are_stable_and_credentials_fail_explicitly`
+- `ReadabilityAuditTests.Audit_snapshot_stays_frozen_when_a_new_commit_changes_blockers_without_changing_catalog_revision`
+- `RestartBarrierGoneAndPrearchiveReappearanceTests.Failure_incomplete_replay_and_conflict_never_advance_restart_barrier`
+- `RestartBarrierGoneAndPrearchiveReappearanceTests.First_authoritative_absence_marks_visible_demand_gone_preserves_last_seen_and_closes_conditions_as_demand_gone`
+- `RestartBarrierGoneAndPrearchiveReappearanceTests.Prearchive_reappearance_creates_persisted_successor_generation_without_rewriting_predecessor`
+- `RestartBarrierGoneAndPrearchiveReappearanceTests.Restart_barrier_still_creates_and_updates_visible_demands_without_marking_absent_demands_gone`
+- `RestartBarrierGoneAndPrearchiveReappearanceTests.Restarted_host_requires_two_successful_barrier_rounds_before_third_absence_marks_gone`
+- `RestartBarrierGoneAndPrearchiveReappearanceTests.Same_completed_at_uses_latest_accepted_success_instead_of_poll_trace_lexical_order_for_current_raw_multiplicity`
+- `RoundEvidenceIdempotencyTests.All_outcomes_expose_canonical_utc_round_evidence_without_projecting_unsuccessful_results`
+- `RoundEvidenceIdempotencyTests.Restarted_host_preserves_round_evidence_replay_and_projection_isolation`
+- `RoundEvidenceIdempotencyTests.Same_poll_trace_and_canonical_content_replays_the_original_accepted_result_without_duplicates`
+- `RoundEvidenceIdempotencyTests.Same_poll_trace_with_different_content_returns_versioned_conflict_without_partial_writes`
+- `RoundEvidenceIdempotencyTests.Success_preserves_unassigned_rows_while_projecting_every_assignable_key`
+- `TaskTypeProtectionTests.Distinct_recognizable_keys_define_healthy_count_without_raw_duplicate_inflation`
+- `TaskTypeProtectionTests.Failure_incomplete_replay_and_conflict_do_not_change_protection_recovery_or_events`
+- `TaskTypeProtectionTests.Protected_gone_series_does_not_archive_while_other_work_type_can_archive`
+- `TaskTypeProtectionTests.Protection_progress_survives_restart_and_both_gates_must_allow_absence_authority`
+- `TaskTypeProtectionTests.Two_nonzero_rounds_clear_protection_but_following_round_restores_authority_before_absence_can_mark_gone`
+- `TaskTypeProtectionTests.Zero_drop_enters_protection_and_only_unprotected_work_type_marks_gone`
+- `Ticket15RoundEvidenceTests.Failure_and_incomplete_diagnostics_are_durable_and_never_create_projection_commits`
+- `Ticket15RoundEvidenceTests.Invalid_dates_raw_is_durable_success_evidence_while_live_date_remains_untrusted`
+- `Ticket15RoundEvidenceTests.Same_poll_trace_with_different_diagnostic_is_a_content_conflict`
+- `TwelveHourArchiveAndLongGoneVisibleTests.Archived_series_is_irreversible_across_later_authoritative_absences_and_restart`
+- `TwelveHourArchiveAndLongGoneVisibleTests.Authoritative_success_archives_at_exact_twelve_hour_boundary_but_not_one_tick_before`
+- `TwelveHourArchiveAndLongGoneVisibleTests.Failure_incomplete_and_restart_barrier_do_not_archive_an_overdue_gone_series`
+- `TwelveHourArchiveAndLongGoneVisibleTests.Long_gone_visible_condition_and_readability_remain_permanent_for_valid_unique_observations_and_restart`
+- `TwelveHourArchiveAndLongGoneVisibleTests.Postarchive_reappearance_preserves_series_and_creates_long_gone_visible_successor`
+- `WatchOverviewSnapshotTests.Area_scope_changes_only_series_and_readability_and_never_leaks_profile_state`
+- `WatchOverviewSnapshotTests.Concurrent_commit_after_fence_does_not_block_and_overview_is_wholly_old_then_wholly_new`
+- `WatchOverviewSnapshotTests.Overview_returns_exact_same_commit_summaries_and_explicit_drill_intents`
+- `WatchOverviewSnapshotTests.Recent_activity_uses_real_transitions_a_strict_24_hour_window_and_stable_top_five`
+
+## Two-axis code review
+
+### Standards
+
+Initial findings: one hard Fluent spacing violation and two judgment-call smells
+(a forwarding raw-row middle man and repeated window-test setup). All three were
+fixed: spacing now uses 8 epx, XAML binds through `RawRow.*`, and shared test
+helpers own focused-presentation and window rendering setup.
+
+### Spec
+
+Initial finding: when the predecessor snapshot was absent, predecessor identity
+incorrectly borrowed the successor creation event's PollTrace/commit. It now
+uses an unavailable fact with null committed-evidence fields, backed by a new
+regression assertion.
+
+Post-fix focused tests passed 29/29 and final Tier 1 passed 606 with 82 named SQL
+environment skips. Tier 2/3 golden-machine work remains deferred pending
+explicit user authorization.
+
+## Golden-machine preview
+
+- Authorized Tier 2 suite: `watch-ui-journeys` on `gpt_win11`, Release,
+  1920×1080, 96 DPI, light theme, software rendering.
+- Preserved red visual run:
+  `run-20260821-185456-watch-ui-journeys` — runner 1/1 passed, but review found
+  the `DATES / MesSourceDate` field label clipped at 150 epx.
+- Fix: commit `cdf877b8` widened the field-name column to 190 epx.
+- Final run: `run-20260821-190440-watch-ui-journeys` — runner total 1, errors 0,
+  failed 0, skipped 0, not run 0; scheduled-task/native result 0.
+- Cleanup: task absent, residual processes 0, post-cleanup environment result 0,
+  original VM 1920×1080 / 96 DPI.
+- The user explicitly approved both final Inspector previews from
+  `run-20260821-190440-watch-ui-journeys`. No candidate matrix or baseline
+  promotion was performed.

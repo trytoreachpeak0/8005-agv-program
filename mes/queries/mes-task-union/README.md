@@ -7,8 +7,9 @@
 - 参数：无。
 - 输出顺序：`TASK_TYPE`、`SUBLOT`、`AREA`、`EQP`、`STEP`、`DATES`、`PACKAGE`。
 - `TASK_TYPE` 取值：`DIE_TO_WIRE_STAGING`、`DIE_TO_OVEN`、`WIRE_TO_GATE`、`WIRE_TO_OPTICAL`、`STAGING_TO_WIRE`、`WIRE_TO_NITROGEN`。
-- 使用 `UNION ALL`，不得用 `UNION` 静默去重；应用层以 `TASK_TYPE + SUBLOT` 为幂等键，单次结果中该键多行视为硬失败（阻断冲突键、其余继续）。
+- 使用 `UNION ALL`，不得用 `UNION` 静默去重；重复候选也是语句级一致快照中的原始证据，必须保留进 `SUCCESS` 轮次，再由投影层按确定性规则处理冲突。
 - 查询只读，不在 SQL 中增加上线时间过滤；上线时间及异常骤降保护由应用层处理。
+- 发布、部署和运行时只承认 `service/queries/mes-task-union/query.sql` 这一份原始字节稿；批准版本为 `MES_TASK_UNION/sha256:54a140ad2ca6e67413b24d0566991adcd665f6514a742b417b4ed818fbe439ae`。发布脚本会生成邻接 `query.manifest.json`，任何缺失、空文件、篡改或第二份 `.sql` 都必须拒绝。
 
 ## 实验与证据关系
 
