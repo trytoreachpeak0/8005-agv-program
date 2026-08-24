@@ -24,3 +24,11 @@
 - Real activity: half-open 24-hour window, latest five by `OccurredAt DESC, EventId ASC`, transition allowlist, and explicit neutral empty state.
 - Real SQL Server 16 / compatibility 160 gate: exactly 6 passed, 0 skipped; `mes/ingest/csharp/.artifacts/ticket14-tests/ticket14-current-attention-overview-sqlserver.trx`.
 - Release solution build passed. Ticket 14 changes no WPF/XAML or visual baseline; Ticket 19 owns the production overview UI.
+
+## 2026-08-24 current-branch remediation
+
+- Commits `d8401825` and `a8cb5f61` close the current-branch review gaps: every retained Demand generation now contributes to the readability summary using the audit's trusted-AREA rule; the rolling error summary uses the read-time half-open window; and Overview reads one non-blocking SQL Server Snapshot transaction.
+- The exact V2 database contract is now `2026.08.new-mes-ingest.v2.0` / schema `23`. Bootstrap enables and validation requires `ALLOW_SNAPSHOT_ISOLATION`; `CurrentOverviewErrorSeriesFacts` keeps the Overview hot read off error-period history.
+- `Invoke-Ticket14SqlServerGate.ps1` now requires both `WatchOverviewSnapshotTests` and `CurrentIngestAttentionTests` to be discovered, with every discovered test executed and passed and zero skips.
+- Local Tier 1 passed: 668 passed, 0 failed, 120 skipped, 788 total. The Release non-incremental solution build passed with 0 warnings and 0 errors.
+- The current machine has no approved real-SQL gate variables. All 9 Ticket 14 SQL/API tests (7 Overview + 2 Attention) were discovered but not executed here, and the ADR-0027 2 GB / 16 GB tempdb version-store measurement remains pending on the approved real SQL environment. The older six-test TRX above is historical evidence and does not validate these remediation commits.
