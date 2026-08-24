@@ -96,3 +96,16 @@ Architecture Decision Records for the whole repo. Cite as `ADR-<category>-<NNNN>
 | [ADR-mes-0015](mes/0015-overview-uses-one-consistent-host-snapshot.md) | Watch 概览使用一个一致的 Host 业务快照 |
 | [ADR-mes-0016](mes/0016-readability-audit-has-its-own-projection-snapshot.md) | 资格审计使用独立的投影快照身份 |
 | [ADR-mes-0017](mes/0017-new-mesingest-replaces-the-database-and-contract.md) | 新 MesIngest 以空库和新契约整体替换旧版 |
+| [ADR-mes-0018](mes/0018-demand-series-detail-uses-modeless-inspector.md) | DemandSeries 详情使用单实例非模态 Inspector |
+| [ADR-mes-0019](mes/0019-routine-raw-observations-expire-critical-evidence-persists.md) | 普通原始观测有限保留，关键边界原始证据永久保留 |
+| [ADR-mes-0020](mes/0020-pause-mes-polling-before-storage-exhaustion.md) | 持久化空间不足前暂停 MES 轮询 |
+| [ADR-mes-0021](mes/0021-empty-cutover-deletes-old-database-after-inline-gate.md) | 空库切换通过同窗门禁后立即删除旧库 |
+| [ADR-mes-0022](mes/0022-mesingest-history-bounded-with-archived-key-tombstones.md) | MesIngest 详细历史有界，归档业务键永久留墓碑 |
+| [ADR-mes-0023](mes/0023-simple-recovery-without-database-backups.md) | MesIngest 使用 SIMPLE 恢复且不保留数据库备份 |
+| [ADR-mes-0024](mes/0024-host-owns-bounded-history-cleanup.md) | Host 拥有有界历史清理 |
+| [ADR-mes-0025](mes/0025-history-reset-requires-new-epoch-and-operator-acknowledgement.md) | 历史重置产生新纪元并要求人工确认 |
+| [ADR-mes-0026](mes/0026-current-and-historical-reads-use-separate-physical-paths.md) | 当前态与历史态使用分离的物理读取路径 |
+| [ADR-mes-0027](mes/0027-frozen-reads-are-nonblocking-and-commit-consistent.md) | 冻结读取非阻塞且提交一致 |
+| [ADR-mes-0028](mes/0028-high-risk-state-recovery-is-local-administration.md) | 高风险状态恢复只允许本地管理 |
+| [ADR-mes-0029](mes/0029-retention-contract-cuts-over-as-one-exact-v2-identity.md) | 有界历史契约作为一个精确 V2 身份整体切换 |
+| [ADR-mes-0030](mes/0030-one-time-cutover-mode-drops-only-the-proven-old-database.md) | 一次性切换模式只自动删除已证明的旧库 |
