@@ -75,6 +75,14 @@ def normalized_saved_approval_base(path: Path) -> bytes:
     return (base.rstrip() + "\n").encode("utf-8")
 
 
+def normalized_saved_release_base(path: Path) -> bytes:
+    existing = path.read_text(encoding="utf-8-sig")
+    match = re.search(r"(?m)^## Answer\s*$", existing)
+    base = existing[:match.start()] if match else existing
+    base = re.sub(r"(?m)^Status:\s*(?:open|claimed|resolved)\s*$", "Status: open", base)
+    return (base.rstrip() + "\n").encode("utf-8")
+
+
 def clean_inline(value: str) -> str:
     return " ".join((value or "").replace("|", "／").split())
 
@@ -341,6 +349,9 @@ def main() -> None:
                 mismatches.append(str(path.relative_to(ROOT)))
             elif path.parent == ISSUES and "-approve-" in path.name:
                 if normalized_saved_approval_base(path) != data:
+                    mismatches.append(str(path.relative_to(ROOT)))
+            elif path.parent == ISSUES and "-publish-" in path.name:
+                if normalized_saved_release_base(path) != data:
                     mismatches.append(str(path.relative_to(ROOT)))
             elif path.read_bytes() != data:
                 mismatches.append(str(path.relative_to(ROOT)))
