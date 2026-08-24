@@ -1,0 +1,23 @@
+{
+    "at":  "2026-08-04T16:09:31.3058361+08:00",
+    "elapsedMs":  91,
+    "request":  {
+                    "method":  "POST",
+                    "url":  "http://172.10.1.72:8888/api/task/v1/order/command/order-2084552698480427008",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  "{\"commandType\":\"CMD_ORDER_CANCEL\",\"disableVehicle\":false,\"reason\":\"riot-behavior-lab-R40-S1-offline-cleanup\"}"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "tid":  ""
+                                }
+                 }
+}

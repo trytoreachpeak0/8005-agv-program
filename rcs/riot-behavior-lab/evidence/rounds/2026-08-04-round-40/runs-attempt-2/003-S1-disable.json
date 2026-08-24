@@ -1,0 +1,23 @@
+{
+    "at":  "2026-08-04T16:09:25.1447540+08:00",
+    "elapsedMs":  414,
+    "request":  {
+                    "method":  "POST",
+                    "url":  "http://172.10.1.72:8888/api/task/vehicles/updateVehicleIntegrationLevel",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  "{\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"],\"serviceId\":\"disable\"}"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "tid":  ""
+                                }
+                 }
+}

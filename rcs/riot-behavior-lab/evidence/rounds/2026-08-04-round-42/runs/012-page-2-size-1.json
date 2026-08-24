@@ -1,0 +1,68 @@
+{
+  "at": "2026-08-04T16:53:18.2934323+08:00",
+  "elapsedMs": 76,
+  "request": {
+    "method": "GET",
+    "url": "http://172.10.1.72:8888/api/task/vehicles?pageNum=2&pageSize=1",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "bytes": 824,
+    "contentType": "application/json; charset=UTF-8",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": [
+        {
+          "actionState": "AT_NA",
+          "battery": 0,
+          "batteryState": "UNKNOWN",
+          "breakSwitchState": "UNKNOWN",
+          "confidence": "0%",
+          "currentPosition": 0,
+          "desc": "",
+          "deviceId": 41,
+          "deviceKey": "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+          "deviceName": "送浮球",
+          "emergencyState": "OK",
+          "enable": true,
+          "enableTime": "1970-01-01 08:00:00",
+          "existedInGroup": [
+            "切割"
+          ],
+          "hostPort": "192.168.71.232:5001",
+          "loadState": 0,
+          "locationState": "ERROR",
+          "lockStatus": 0,
+          "mode": "UNKNOWN",
+          "modelVersion": "0",
+          "movementState": "MT_NA",
+          "nodeType": 1,
+          "position": {
+            "confidence": 0,
+            "pitch": 0,
+            "roll": 0,
+            "x": 0,
+            "y": 0,
+            "yaw": 0,
+            "z": 0
+          },
+          "powerMode": "POWER_MODE_NA",
+          "procState": "IDLE",
+          "productKey": "standard.oasis.300ul",
+          "robotModel": "oasis.300ul",
+          "speed": 0.0,
+          "status": 0,
+          "sysState": "ERROR",
+          "totalFinishOrder": 0,
+          "totalProcessOrder": 0
+        }
+      ],
+      "tid": ""
+    }
+  }
+}

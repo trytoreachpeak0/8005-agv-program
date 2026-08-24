@@ -362,6 +362,35 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
   2. **HANG 中单机去站点时 CONTINUE**：接口可 `code=0`，但订单**仍 HANG**，`failReason≈启动移动任务时,上一个任务在运行`；**单机到位后再 CONTINUE** 可 `9→3` 并 SUCCESS。
 - 证据：[`../evidence/rounds/2026-07-22-round-38/`](../evidence/rounds/2026-07-22-round-38/)
 
+### Q-040 QUEUEING 长期滞留原因诊断接口的真实契约
+
+- 状态：`SUPPORTED`
+- 待验证接口：`GET /api/task/vehicles/queryVehicleNotAssignOrder/{deviceKey}/{orderKey}`。
+- 已知 SCHEMA：两个 path 参数均为必填 string；成功包装为 `ResponseMsg<VehicleNotAssignReason>`，但 `reason` 是自由文本、`suggestList` 是 string 数组，没有受控枚举。
+- 本轮只读问题：
+  1. `orderKey` 实际接受字符串 `orderId`、数值记录 id、`upperId` 还是其它身份；
+  2. 有效鉴权、无鉴权与假鉴权的 HTTP/业务错误形态；
+  3. 已终结历史订单、当前 QUEUEING 订单、未知订单和未知车辆的响应；
+  4. 同一输入重复调用时 `reason`/`suggestList` 是否稳定，响应是否携带可判断新鲜度的字段；
+  5. 是否能观测到车辆距路线过远、车辆状态不可执行、车辆未启用、可恢复软件急停及其它/未知原因。
+- 安全边界：诊断结果只作证据，绝不直接执行 `suggestList`；没有独立写授权时不得为了制造样本而建单、禁用车辆或触发急停。
+- Round39（只读）部分结果：
+  1. 测试车前后均无当前 QUEUEING；历史 8 个场景的字符串 `orderId`、数值 id、`upperId` 共 24 次都返回 HTTP 200 / `code=0`，但诊断均为“订单不存在”。历史记录不在接口依赖的 RIoT 内存数据中，不能还原原场景原因，也不能据此判断有效 `orderKey` 口径。
+  2. 未知订单同样是 `code=0` + “订单不存在”；未知车辆是 `code=0` + “车辆不存在”。无鉴权和假鉴权均为 HTTP/业务 401。
+  3. `result` 只有自由文本 `reason` 与 `suggestList`，没有时间、状态版本、原因码或枚举；缺失订单分支重复三次文本一致，但不能外推到真实 QUEUEING 原因。
+  4. 前后车辆状态和 QUEUEING 身份集合一致，只支持“未观测到业务状态变化”，不构成内部无副作用证明。
+- 仍开放：需要有效的实时 QUEUEING 订单覆盖过远、不可执行、未启用、可恢复软件急停及其它原因；须由人工制造状态或另行批准受控写实验。
+- Round40（受控测试车）补充结果：
+  1. `OFF_LINE` + 实时 QUEUEING 返回“车辆处于调度下线状态”；`CAN_RECOVER` 软件急停 + 实时 QUEUEING 返回宽泛的“车辆处于非空闲的状态,不可分配订单”，即使独立 `procState=IDLE`。两类原因各重复三次文本一致。
+  2. 车辆不可分配分支优先于订单校验：OFF_LINE 时随机未知 key、三种真实身份以及已经取消的订单都返回车辆下线原因。
+  3. 车辆恢复 `ON_LINE/OK/IDLE` 后，只有字符串 `orderId` 仍被识别并返回“订单是非可调度状态”；数值 id、`upperId` 和随机 key 均为“订单不存在”。项目 `orderKey` 因此固定为字符串 `orderId`。
+  4. `suggestList` 可能提出系统级“重启 RIoT”，不得直接执行；诊断只提供证据，所有恢复仍须独立状态、安全与来源核验。
+  5. 两个自动场景均完成取消与恢复，最终测试车 `IDLE / ON_LINE / OK`、本车非终态订单为 0。
+- Round41（人工移离路线 + 受控订单）补充结果：map 30 六站在建单前和 QUEUEING 期间均为 `costs=-1/unreachable`；字符串 `orderId` 连续三次稳定返回“以车当前的坐标为起点,以订单目的地为终点,无法规划路径”。测试订单已取消，车辆保持静止且无非终态订单。
+- 当前覆盖：车辆未启用、可恢复软件急停下的宽泛不可分配类、离路线过远、订单不存在、车辆不存在、订单非可调度、鉴权失败及其它未知文本 fail-closed。硬件/其它不可执行状态未专项测试，但不得因此新增自动动作；它们继续走未知/独立状态核验边界。
+- 收尾完成：用户把车辆恢复到路网并复位 MOVABLE；第二次只读复核确认车辆安全状态正常、无非终态订单，map 30 六站全部恢复 `costs>0 / message=ok`。Q-040 已闭环。
+- 证据：[`../evidence/rounds/2026-08-04-round-39/`](../evidence/rounds/2026-08-04-round-39/)、[`../evidence/rounds/2026-08-04-round-40/`](../evidence/rounds/2026-08-04-round-40/)、[`../evidence/rounds/2026-08-04-round-41/`](../evidence/rounds/2026-08-04-round-41/)。
+
 ### Q-007 RIoT 通用成功与错误判定规则
 
 - 状态：`TESTING`

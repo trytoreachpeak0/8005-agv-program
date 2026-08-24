@@ -37,3 +37,7 @@ Dependency, build-output, test-output, IDE, and cache directory names are exclud
 ## Verification boundary
 
 The manifest fixes the observed bytes and Git state at capture time. Later file changes must not overwrite the meaning of this capture; compare current hashes to the manifest or create a separately timestamped snapshot.
+
+## Post-capture correction (2026-08-03)
+
+The original manifest and counts above are preserved as captured. A later fixed-HEAD audit found 58 non-ASCII tracked paths misclassified as `untracked` because Git's quoted path output was compared with raw Unicode paths. Apply [git-status-corrections.tsv](git-status-corrections.tsv) as an explicit overlay; see [git-status-correction.md](git-status-correction.md) for the root cause, corrected counts and verification.

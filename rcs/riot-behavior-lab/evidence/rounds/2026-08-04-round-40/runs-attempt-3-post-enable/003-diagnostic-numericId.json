@@ -1,0 +1,27 @@
+{
+    "at":  "2026-08-04T16:13:51.3415033+08:00",
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/task/vehicles/queryVehicleNotAssignOrder/BROKERX-aee2f93d717546cf9510c98c854fe83e/497182",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                }
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"reason\":\"订单不存在\",\"suggestList\":[\"1、订单在RIoT系统上不存在：内存数据和页面数据不对等\",\"2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在\"]},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "reason":  "订单不存在",
+                                                   "suggestList":  [
+                                                                       "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                       "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                   ]
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

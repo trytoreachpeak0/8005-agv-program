@@ -1,0 +1,386 @@
+{
+    "at":  "2026-08-04T16:12:18.3997877+08:00",
+    "elapsedMs":  102,
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/task/v1/task/getVehicleInfo/BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  null
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"vehicle\":{\"actionState\":\"AT_NA\",\"actionTaskNo\":0,\"agvInfoState\":\"NORMAL\",\"aliveState\":true,\"battery\":70,\"batteryState\":\"NO_CHARGE\",\"breakSwitchState\":\"MOVABLE\",\"confidence\":67,\"connected\":true,\"connectedTimestamp\":1785829697250,\"controlState\":\"CONTROL_STATE_OK\",\"curCheckPointNo\":0,\"curPathNo\":0,\"currentNode\":7,\"currentStation\":2,\"emergencyState\":\"OK\",\"faultCodes\":\"\",\"faultCodesList\":[],\"firstReportData\":true,\"fleetMode\":\"FLEET_MODE_OFFLINE\",\"freshState\":1,\"hardWareErrorCode\":0,\"hardwareState\":\"H_STATE_OK\",\"infoState\":{\"srcVersionStr\":\"SRTOS_v3.7.2(93d56ac6)[develop]Tue Apr 16 11:31:43 2024\\n(v0.0.0)\",\"srosVersionStr\":\"4.34.5(46f8d02)[v4.34.5] Apr 19 2024 08:07:35\"},\"key\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"lastErrorCode\":0,\"lastReportTime\":1785831239011,\"lastSyncRotateRadian\":0,\"length\":750,\"loadHandlingDevices\":[],\"loadState\":0,\"locationState\":\"LOCATION_STATE_RUNNING\",\"mode\":\"MODE_AUTO\",\"motorExceptionState\":\"NORMAL\",\"moveTaskNo\":2,\"movementState\":\"MT_FINISHED\",\"name\":\"新基测试300c协作1\",\"noNode\":false,\"noStation\":false,\"orientationAngle\":-3.117,\"originalLength\":750,\"originalWidth\":580,\"paused\":false,\"plantModel\":\"api测试2\",\"powerMode\":\"POWER_MODE_FULLER\",\"precisePosition\":{\"x\":-1450.0,\"y\":-491.0},\"previousState\":{\"actionTask\":{\"id\":0,\"no\":0,\"param0\":0,\"param1\":0,\"paramStr\":\"\",\"result\":0,\"resultCode\":0,\"resultStr\":\"\",\"state\":0},\"currentPosition\":{\"confidence\":67,\"pitch\":0,\"roll\":0,\"x\":-1450,\"y\":-491,\"yaw\":-3117,\"z\":0},\"emergencyState\":1,\"faultCodesList\":[],\"fleetMode\":1,\"freshState\":1,\"lastErrorCode\":0,\"locationState\":3,\"mapName\":\"api测试2\",\"motionControlState\":{\"pathNo\":0,\"state\":2,\"vX\":0,\"vY\":0,\"w\":0},\"movementState\":{\"avoidPolicy\":0,\"curCheckpointNo\":0,\"curPathNo\":0,\"dstStationType\":0,\"no\":2,\"remainDistance\":0,\"remainTime\":0,\"state\":5,\"taskResult\":1,\"totalDistance\":0,\"type\":0},\"multiLoadState\":0,\"newMovementTaskState\":1,\"operationState\":1,\"rotateValue\":0,\"stationNo\":2,\"syncRotate\":false,\"sysState\":2},\"productKey\":\"standard.oasis.300ul\",\"reference\":{\"key\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"name\":\"新基测试300c协作1\",\"referenceClass\":\"sr.riot.dispatch.kernel.model.Vehicle\"},\"rotateValue\":0,\"routingGroup\":\"EXECUTE_FREE\",\"running\":false,\"speed\":0.0,\"startPauseTime\":0,\"state\":\"IDLE\",\"status\":1,\"syncRotate\":false,\"vehicleHardware\":{\"batteryCurrent\":1570,\"batteryPercentage\":70,\"batteryState\":3,\"batteryTemperature\":26,\"batteryUseCycles\":17,\"batteryVoltage\":52190,\"boxTemperature\":42,\"breakSwState\":1,\"cpuTemperature\":47,\"cpuUsage\":78,\"deviceId\":0,\"devices\":[{\"deviceId\":\"\",\"errorCode\":0,\"id\":411,\"info\":\"state: 0\",\"interfaceName\":\"RS232-3\",\"modelNo\":\"2020/9/15\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"-\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":511,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"LC100\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":111,\"info\":\"\",\"interfaceName\":\"ETH1\",\"modelNo\":\"OMD30M-R2000-B23-V1V1D-HD-1L\",\"serialNo\":\"40000090621972\",\"state\":\"DEVICE_OK\",\"versionNo\":\"1.60/1.71\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":211,\"info\":\"00 00 00 00 00 \",\"interfaceName\":\"CAN2\",\"modelNo\":\"KINCO\",\"serialNo\":\"21\",\"state\":\"DEVICE_OK\",\"versionNo\":\"F123300XX171170073\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":212,\"info\":\"00 00 00 00 00 \",\"interfaceName\":\"CAN2\",\"modelNo\":\"KINCO\",\"serialNo\":\"21\",\"state\":\"DEVICE_OK\",\"versionNo\":\"F123300XX171170073\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":531,\"info\":\"\",\"interfaceName\":\"RS232-1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"-\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":632,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":633,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":231,\"info\":\"\",\"interfaceName\":\"RS232-2\",\"modelNo\":\"VC300(kernel:v9.0.0)\",\"serialNo\":\"\\\"\",\"state\":\"DEVICE_OK\",\"versionNo\":\"SRTOS_v3.7.2(93d56ac6)[develop]Tue Apr 16 11:31:43 2024\\n(v0.0.0)\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":633,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":632,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":632,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":632,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":632,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":633,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"-\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":711,\"info\":\"\",\"interfaceName\":\"RS232-3\",\"modelNo\":\"290030\",\"serialNo\":\"1901190001\",\"state\":\"DEVICE_OK\",\"versionNo\":\"3.7.4\"},{\"deviceId\":\"\",\"errorCode\":0,\"id\":521,\"info\":\"\",\"interfaceName\":\"CAN1\",\"modelNo\":\"speaker\",\"serialNo\":\"-\",\"state\":\"DEVICE_OK\",\"versionNo\":\"0.0.0\"}],\"diskUsage\":33,\"hardwareErrorCode\":0,\"hostPort\":\"10.20.36.16:5001\",\"hstate\":2,\"m1StatusCode\":0,\"m2StatusCode\":0,\"m3StatusCode\":0,\"m4StatusCode\":0,\"memoryUsage\":19,\"nodeType\":0,\"powerState\":1,\"remainDiskSpace\":9851,\"totalMileage\":5875,\"totalPowerCycle\":736663,\"totalPoweronTime\":736663},\"vehicleId\":40,\"width\":580},\"vehicleTaskInfo\":{\"batteryMaintenanceTime\":1762328282203,\"enable\":true,\"handlePauseTime\":0,\"integrationLevel\":\"ON_LINE\",\"integrationLevelTime\":1785831073147,\"key\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"lastExecuteOrderTimestamp\":1784700204210,\"name\":\"新基测试300c协作1\",\"procState\":\"IDLE\",\"processingOrder\":false,\"reference\":{\"key\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"name\":\"新基测试300c协作1\",\"referenceClass\":\"sr.riot.dispatch.kernel.model.VehicleTaskInfo\"},\"routeProgressIndex\":-1}}",
+                     "parsed":  {
+                                    "vehicle":  {
+                                                    "actionState":  "AT_NA",
+                                                    "actionTaskNo":  0,
+                                                    "agvInfoState":  "NORMAL",
+                                                    "aliveState":  true,
+                                                    "battery":  70,
+                                                    "batteryState":  "NO_CHARGE",
+                                                    "breakSwitchState":  "MOVABLE",
+                                                    "confidence":  67,
+                                                    "connected":  true,
+                                                    "connectedTimestamp":  1785829697250,
+                                                    "controlState":  "CONTROL_STATE_OK",
+                                                    "curCheckPointNo":  0,
+                                                    "curPathNo":  0,
+                                                    "currentNode":  7,
+                                                    "currentStation":  2,
+                                                    "emergencyState":  "OK",
+                                                    "faultCodes":  "",
+                                                    "faultCodesList":  [
+
+                                                                       ],
+                                                    "firstReportData":  true,
+                                                    "fleetMode":  "FLEET_MODE_OFFLINE",
+                                                    "freshState":  1,
+                                                    "hardWareErrorCode":  0,
+                                                    "hardwareState":  "H_STATE_OK",
+                                                    "infoState":  {
+                                                                      "srcVersionStr":  "SRTOS_v3.7.2(93d56ac6)[develop]Tue Apr 16 11:31:43 2024\n(v0.0.0)",
+                                                                      "srosVersionStr":  "4.34.5(46f8d02)[v4.34.5] Apr 19 2024 08:07:35"
+                                                                  },
+                                                    "key":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                    "lastErrorCode":  0,
+                                                    "lastReportTime":  1785831239011,
+                                                    "lastSyncRotateRadian":  0,
+                                                    "length":  750,
+                                                    "loadHandlingDevices":  [
+
+                                                                            ],
+                                                    "loadState":  0,
+                                                    "locationState":  "LOCATION_STATE_RUNNING",
+                                                    "mode":  "MODE_AUTO",
+                                                    "motorExceptionState":  "NORMAL",
+                                                    "moveTaskNo":  2,
+                                                    "movementState":  "MT_FINISHED",
+                                                    "name":  "新基测试300c协作1",
+                                                    "noNode":  false,
+                                                    "noStation":  false,
+                                                    "orientationAngle":  -3.117,
+                                                    "originalLength":  750,
+                                                    "originalWidth":  580,
+                                                    "paused":  false,
+                                                    "plantModel":  "api测试2",
+                                                    "powerMode":  "POWER_MODE_FULLER",
+                                                    "precisePosition":  {
+                                                                            "x":  -1450.0,
+                                                                            "y":  -491.0
+                                                                        },
+                                                    "previousState":  {
+                                                                          "actionTask":  {
+                                                                                             "id":  0,
+                                                                                             "no":  0,
+                                                                                             "param0":  0,
+                                                                                             "param1":  0,
+                                                                                             "paramStr":  "",
+                                                                                             "result":  0,
+                                                                                             "resultCode":  0,
+                                                                                             "resultStr":  "",
+                                                                                             "state":  0
+                                                                                         },
+                                                                          "currentPosition":  {
+                                                                                                  "confidence":  67,
+                                                                                                  "pitch":  0,
+                                                                                                  "roll":  0,
+                                                                                                  "x":  -1450,
+                                                                                                  "y":  -491,
+                                                                                                  "yaw":  -3117,
+                                                                                                  "z":  0
+                                                                                              },
+                                                                          "emergencyState":  1,
+                                                                          "faultCodesList":  [
+
+                                                                                             ],
+                                                                          "fleetMode":  1,
+                                                                          "freshState":  1,
+                                                                          "lastErrorCode":  0,
+                                                                          "locationState":  3,
+                                                                          "mapName":  "api测试2",
+                                                                          "motionControlState":  {
+                                                                                                     "pathNo":  0,
+                                                                                                     "state":  2,
+                                                                                                     "vX":  0,
+                                                                                                     "vY":  0,
+                                                                                                     "w":  0
+                                                                                                 },
+                                                                          "movementState":  {
+                                                                                                "avoidPolicy":  0,
+                                                                                                "curCheckpointNo":  0,
+                                                                                                "curPathNo":  0,
+                                                                                                "dstStationType":  0,
+                                                                                                "no":  2,
+                                                                                                "remainDistance":  0,
+                                                                                                "remainTime":  0,
+                                                                                                "state":  5,
+                                                                                                "taskResult":  1,
+                                                                                                "totalDistance":  0,
+                                                                                                "type":  0
+                                                                                            },
+                                                                          "multiLoadState":  0,
+                                                                          "newMovementTaskState":  1,
+                                                                          "operationState":  1,
+                                                                          "rotateValue":  0,
+                                                                          "stationNo":  2,
+                                                                          "syncRotate":  false,
+                                                                          "sysState":  2
+                                                                      },
+                                                    "productKey":  "standard.oasis.300ul",
+                                                    "reference":  {
+                                                                      "key":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                                      "name":  "新基测试300c协作1",
+                                                                      "referenceClass":  "sr.riot.dispatch.kernel.model.Vehicle"
+                                                                  },
+                                                    "rotateValue":  0,
+                                                    "routingGroup":  "EXECUTE_FREE",
+                                                    "running":  false,
+                                                    "speed":  0.0,
+                                                    "startPauseTime":  0,
+                                                    "state":  "IDLE",
+                                                    "status":  1,
+                                                    "syncRotate":  false,
+                                                    "vehicleHardware":  {
+                                                                            "batteryCurrent":  1570,
+                                                                            "batteryPercentage":  70,
+                                                                            "batteryState":  3,
+                                                                            "batteryTemperature":  26,
+                                                                            "batteryUseCycles":  17,
+                                                                            "batteryVoltage":  52190,
+                                                                            "boxTemperature":  42,
+                                                                            "breakSwState":  1,
+                                                                            "cpuTemperature":  47,
+                                                                            "cpuUsage":  78,
+                                                                            "deviceId":  0,
+                                                                            "devices":  [
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  411,
+                                                                                                "info":  "state: 0",
+                                                                                                "interfaceName":  "RS232-3",
+                                                                                                "modelNo":  "2020/9/15",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "-"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  511,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "LC100",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  111,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "ETH1",
+                                                                                                "modelNo":  "OMD30M-R2000-B23-V1V1D-HD-1L",
+                                                                                                "serialNo":  "40000090621972",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "1.60/1.71"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  211,
+                                                                                                "info":  "00 00 00 00 00 ",
+                                                                                                "interfaceName":  "CAN2",
+                                                                                                "modelNo":  "KINCO",
+                                                                                                "serialNo":  "21",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "F123300XX171170073"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  212,
+                                                                                                "info":  "00 00 00 00 00 ",
+                                                                                                "interfaceName":  "CAN2",
+                                                                                                "modelNo":  "KINCO",
+                                                                                                "serialNo":  "21",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "F123300XX171170073"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  531,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "RS232-1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "-"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  632,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  633,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  231,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "RS232-2",
+                                                                                                "modelNo":  "VC300(kernel:v9.0.0)",
+                                                                                                "serialNo":  "\"",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "SRTOS_v3.7.2(93d56ac6)[develop]Tue Apr 16 11:31:43 2024\n(v0.0.0)"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  633,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  632,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  632,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  632,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  632,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  633,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "-",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  711,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "RS232-3",
+                                                                                                "modelNo":  "290030",
+                                                                                                "serialNo":  "1901190001",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "3.7.4"
+                                                                                            },
+                                                                                            {
+                                                                                                "deviceId":  "",
+                                                                                                "errorCode":  0,
+                                                                                                "id":  521,
+                                                                                                "info":  "",
+                                                                                                "interfaceName":  "CAN1",
+                                                                                                "modelNo":  "speaker",
+                                                                                                "serialNo":  "-",
+                                                                                                "state":  "DEVICE_OK",
+                                                                                                "versionNo":  "0.0.0"
+                                                                                            }
+                                                                                        ],
+                                                                            "diskUsage":  33,
+                                                                            "hardwareErrorCode":  0,
+                                                                            "hostPort":  "10.20.36.16:5001",
+                                                                            "hstate":  2,
+                                                                            "m1StatusCode":  0,
+                                                                            "m2StatusCode":  0,
+                                                                            "m3StatusCode":  0,
+                                                                            "m4StatusCode":  0,
+                                                                            "memoryUsage":  19,
+                                                                            "nodeType":  0,
+                                                                            "powerState":  1,
+                                                                            "remainDiskSpace":  9851,
+                                                                            "totalMileage":  5875,
+                                                                            "totalPowerCycle":  736663,
+                                                                            "totalPoweronTime":  736663
+                                                                        },
+                                                    "vehicleId":  40,
+                                                    "width":  580
+                                                },
+                                    "vehicleTaskInfo":  {
+                                                            "batteryMaintenanceTime":  1762328282203,
+                                                            "enable":  true,
+                                                            "handlePauseTime":  0,
+                                                            "integrationLevel":  "ON_LINE",
+                                                            "integrationLevelTime":  1785831073147,
+                                                            "key":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                            "lastExecuteOrderTimestamp":  1784700204210,
+                                                            "name":  "新基测试300c协作1",
+                                                            "procState":  "IDLE",
+                                                            "processingOrder":  false,
+                                                            "reference":  {
+                                                                              "key":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                                              "name":  "新基测试300c协作1",
+                                                                              "referenceClass":  "sr.riot.dispatch.kernel.model.VehicleTaskInfo"
+                                                                          },
+                                                            "routeProgressIndex":  -1
+                                                        }
+                                }
+                 }
+}

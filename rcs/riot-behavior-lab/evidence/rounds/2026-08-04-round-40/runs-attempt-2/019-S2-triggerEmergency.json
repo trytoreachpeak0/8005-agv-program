@@ -1,0 +1,42 @@
+{
+    "at":  "2026-08-04T16:09:33.6220586+08:00",
+    "elapsedMs":  193,
+    "request":  {
+                    "method":  "POST",
+                    "url":  "http://172.10.1.72:8888/api/device/v1/command/sync/service/BROKERX-aee2f93d717546cf9510c98c854fe83e/triggerEmergency",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  "{\"messageId\":631417,\"mqCallback\":{\"tag\":\"string\",\"topic\":\"string\"},\"thingsProperties\":{}}"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"client\":{\"deviceKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"productKey\":\"standard.oasis.300ul\",\"productType\":1,\"thingModelVersion\":\"1\"},\"code\":200,\"data\":{\"reason\":\"RESPONSE_PROCESSING\",\"code\":\"RESULT_CODE_NONE\",\"responseState\":\"RESPONSE_OK\",\"state\":\"1\",\"responseCode\":\"0\"},\"fType\":\"SERVICE_CALL_REPLY\",\"id\":\"631417\",\"timestamp\":1785831074349},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "client":  {
+                                                                  "deviceKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                                  "productKey":  "standard.oasis.300ul",
+                                                                  "productType":  1,
+                                                                  "thingModelVersion":  "1"
+                                                              },
+                                                   "code":  200,
+                                                   "data":  {
+                                                                "reason":  "RESPONSE_PROCESSING",
+                                                                "code":  "RESULT_CODE_NONE",
+                                                                "responseState":  "RESPONSE_OK",
+                                                                "state":  "1",
+                                                                "responseCode":  "0"
+                                                            },
+                                                   "fType":  "SERVICE_CALL_REPLY",
+                                                   "id":  "631417",
+                                                   "timestamp":  1785831074349
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

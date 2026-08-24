@@ -1,0 +1,5 @@
+{
+    "at":  "2026-08-04T16:06:05.2685341+08:00",
+    "message":  "Refusing to run: configured vehicle name mismatch",
+    "stack":  "at \u003cScriptBlock\u003e, C:\\Users\\szy\\Desktop\\xinji\\8005多仓位AGV\\rcs\\riot-behavior-lab\\evidence\\rounds\\2026-08-04-round-40\\run-round40.ps1: line 233"
+}

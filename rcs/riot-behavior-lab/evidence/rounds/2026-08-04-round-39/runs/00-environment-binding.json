@@ -1,0 +1,30 @@
+{
+    "recordedAt":  "2026-08-04T15:53:25.3011372+08:00",
+    "environmentId":  "RIOT-CROSS-PROJECT-TEST",
+    "baseUrl":  "http://172.10.1.72:8888",
+    "riotBuild":  "2.2.0.30",
+    "buildEvidence":  ".scratch/current-requirements-baseline/evidence/riot-interface/riot-environment-and-snapshot-user-confirmation-2026-08-03.md",
+    "vehicleName":  "新基测试300c协作1",
+    "vehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "authentication":  "Authorization: Bearer \u003cCallApiKey redacted\u003e",
+    "schemaEvidence":  [
+                           {
+                               "path":  "rcs/riot_swagger/task.json",
+                               "sha256":  "050A612E21EBE01B95D6FA35CA54D592BD83E108B69F5EB0703D8B903274D6D1",
+                               "sourceBuild":  "v2.2.0.14"
+                           },
+                           {
+                               "path":  "rcs/riot-behavior-lab/evidence/rounds/2026-07-20-round-7/runs/swagger-task.json",
+                               "sha256":  "53CDA75CDEF0DF07C8FCBD476ACB540C90B2A2A02DF9839680CB49D9360F56BD",
+                               "observedEnvironmentBuild":  "2.2.0.30"
+                           }
+                       ],
+    "endpoint":  "GET /api/task/vehicles/queryVehicleNotAssignOrder/{deviceKey}/{orderKey}",
+    "declaredResult":  {
+                           "reason":  "string/free text",
+                           "suggestList":  "string[]/no enum"
+                       },
+    "writeOperationsAuthorized":  [
+
+                                  ]
+}

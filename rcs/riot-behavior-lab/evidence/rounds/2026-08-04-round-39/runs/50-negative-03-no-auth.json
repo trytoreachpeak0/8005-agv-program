@@ -1,0 +1,21 @@
+{
+    "at":  "2026-08-04T15:53:28.5213669+08:00",
+    "elapsedMs":  116,
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/task/vehicles/queryVehicleNotAssignOrder/BROKERX-aee2f93d717546cf9510c98c854fe83e/order-2079079643343880192",
+                    "headers":  {
+                                    "Authorization":  "\u003comitted\u003e"
+                                },
+                    "authCase":  "none"
+                },
+    "response":  {
+                     "httpStatus":  401,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"401\",\"message\":\"暂未登录或token已经过期\"}\r\n",
+                     "parsed":  {
+                                    "code":  "401",
+                                    "message":  "暂未登录或token已经过期"
+                                }
+                 }
+}

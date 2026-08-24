@@ -1,0 +1,62 @@
+{
+    "completedAt":  "2026-08-04T16:13:51.6198251+08:00",
+    "before":  {
+                   "name":  "新基测试300c协作1",
+                   "procState":  "IDLE",
+                   "integrationLevel":  "ON_LINE",
+                   "enable":  true,
+                   "emergencyState":  "OK"
+               },
+    "results":  [
+                    {
+                        "kind":  "orderId",
+                        "value":  "order-2084553426053758976",
+                        "httpStatus":  200,
+                        "code":  "0",
+                        "reason":  "订单是非可调度状态",
+                        "suggestList":  [
+                                            "1、因为分配的订单时没有进行检查和初始化，所以导致不可模拟分配；通过重启RIoT系统初始化即可"
+                                        ]
+                    },
+                    {
+                        "kind":  "numericId",
+                        "value":  "497182",
+                        "httpStatus":  200,
+                        "code":  "0",
+                        "reason":  "订单不存在",
+                        "suggestList":  [
+                                            "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                            "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                        ]
+                    },
+                    {
+                        "kind":  "upperId",
+                        "value":  "riot-behavior-lab-R40-S1-offline-20260804-161219",
+                        "httpStatus":  200,
+                        "code":  "0",
+                        "reason":  "订单不存在",
+                        "suggestList":  [
+                                            "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                            "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                        ]
+                    },
+                    {
+                        "kind":  "unknown",
+                        "value":  "riot-behavior-lab-R40-S1-offline-order-does-not-exist",
+                        "httpStatus":  200,
+                        "code":  "0",
+                        "reason":  "订单不存在",
+                        "suggestList":  [
+                                            "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                            "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                        ]
+                    }
+                ],
+    "after":  {
+                  "name":  "新基测试300c协作1",
+                  "procState":  "IDLE",
+                  "integrationLevel":  "ON_LINE",
+                  "enable":  true,
+                  "emergencyState":  "OK"
+              }
+}

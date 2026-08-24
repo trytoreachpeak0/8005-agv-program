@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "total": 12452,
+  "batches": {
+    "R01": 3091,
+    "R02": 1206,
+    "R03": 3095,
+    "R04": 1192,
+    "R05": 401,
+    "R06": 229,
+    "R07": 5,
+    "R08": 1217,
+    "R09": 166,
+    "R10": 728,
+    "R11": 150,
+    "R12": 300,
+    "R13": 672
+  },
+  "source_documents": 301,
+  "input_ledger_sha256": {
+    "R01-atomic-candidates.tsv": "f294f00cb02cc89c91f100b878a558eb15d796ee5ba427a5d7711d6070b2d4f8",
+    "R02-atomic-candidates.tsv": "37b34b370b5faeafe3ae25921a8b104b5c9ed66928253b39ecd8293cab21f757",
+    "R03-atomic-candidates.tsv": "4861bfb3682839303995e7ffaf3927b312de1089ac6fcb6d7aa9e1ef9115b139",
+    "R04-atomic-candidates.tsv": "c32d3b8098fa5130366ada4de4831ccbad7060bc892ff0e9974d6cc777c299bc",
+    "R05-atomic-candidates.tsv": "87c3156fca11ffe24320bd42113f8fdee57179e9ead96eb6aa693964959cebb5",
+    "R06-atomic-candidates.tsv": "404afb914bb48471ffec6327594ce8956a2db2963c8ef12ef5c750a53017f83b",
+    "R07-atomic-candidates.tsv": "c2522c5d2f77f0c7705f17817eb1687b3b37ff4147b45e7002aa2551082aebbf",
+    "R08-atomic-candidates.tsv": "96c9f799543f763c344017808b4366be507cfdbd7125dedde5f87ac91144bda4",
+    "R09-atomic-candidates.tsv": "6631cc610670d69cdc9ec8f5f57b30d72b77f7d319e40b0257f678d9d9392e31",
+    "R10-atomic-candidates.tsv": "6f30d5a761db54c8a2a1043ab5778989c789130a2d7f96a42723031b42dc2b40",
+    "R11-atomic-candidates.tsv": "631bd41625376d79dd4b69b8f4a4767334abe0f7d5e44fd1814d5e9be4da9751",
+    "R12-atomic-candidates.tsv": "75ea4764645e59558a37a6f1710834c36416618ff01b0603a12f52c32e7979ab",
+    "R13-atomic-candidates.tsv": "fa20f4a210d58895ce008a2a1968d46ccdb22187a09f2f008adacd445c1e4b6c"
+  },
+  "context_sha256_for_semantic_vocabulary": "52b76d35519ad903e49091d8e059f1ed9b303540f1bbc26e9ff447f8f44ad9ff",
+  "context_term_aliases": 371,
+  "approval_upgrades": 0,
+  "review_dispositions": {
+    "approval-candidate-not-approved": 6449,
+    "evidence-only": 3114,
+    "excluded-not-for-requirement-approval": 2451,
+    "hold-for-hitl-conflict-decision": 197,
+    "hold-for-question-or-reframing": 241
+  },
+  "relation_counts": {
+    "exact-text-duplicate": 1232,
+    "normalized-text-duplicate": 229,
+    "semantic-near-review": 372
+  },
+  "relation_total": 1833,
+  "semantic_review_clusters": 1065,
+  "clustered_candidate_rows": 2732,
+  "source_derivation_links": 41,
+  "conflict_classifications": {
+    "apparent-version-difference-converged": 1,
+    "graduate-hitl-real-conflict": 4,
+    "out-of-scope-technical-review": 1
+  },
+  "graduate_hitl_conflicts": [
+    "CF-R01-001",
+    "CF-R01-002",
+    "CF-R09-001",
+    "CF-R09-002"
+  ],
+  "approval_batch_suggestions": 102,
+  "approval_candidate_rows": 6449,
+  "approval_batch_candidate_rows": 6449,
+  "artifacts": {
+    "R01-R13-consolidated-atomic-candidates.tsv": 12452,
+    "R01-R13-semantic-relations.tsv": 1833,
+    "R01-R13-semantic-review-clusters.tsv": 1065,
+    "R01-R13-source-derivations.tsv": 41,
+    "R01-R13-conflict-review.tsv": 6,
+    "R01-R13-approval-batch-suggestions.tsv": 102
+  },
+  "semantic_method": {
+    "exact": "NFC-identical statement_text SHA-256",
+    "normalized": "NFKC/casefold/Markdown-whitespace normalization plus CONTEXT.md canonical-term aliases",
+    "near": "rare character-trigram candidate generation; weighted trigram/bigram/identifier similarity; same negation signature; compatible domain scope",
+    "guardrail": "relations are review links only; no source row is merged, deleted, approved, or assigned a permanent REQ ID"
+  }
+}

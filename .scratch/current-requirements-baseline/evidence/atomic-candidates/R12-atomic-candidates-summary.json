@@ -1,0 +1,70 @@
+{
+  "approval_upgrades": 0,
+  "by_class": {
+    "demand-behavior-relying-on-external-mes-contract-candidate": 9,
+    "embedded-local-technical-design-or-test-decision": 44,
+    "external-mes-data-contract-or-source-boundary-candidate": 4,
+    "factory-or-product-acceptance-condition-candidate": 1,
+    "historical-domain-semantic-candidate": 11,
+    "historical-product-capability-or-operational-behavior-candidate": 8,
+    "historical-product-scope-boundary-candidate": 19,
+    "incident-alert-and-operability-semantics-candidate": 40,
+    "mixed-historical-spec-claim-needing-owner-classification": 2,
+    "operator-watch-ux-and-operability-candidate": 40,
+    "read-api-or-downstream-sync-contract-candidate": 21,
+    "security-or-credential-boundary-candidate": 5,
+    "source-status-test-or-implementation-history-evidence": 30,
+    "transport-demand-lifecycle-business-rule-candidate": 26,
+    "tunable-operational-default-candidate": 40
+  },
+  "by_route": {
+    "evidence-only": 30,
+    "exclude-from-requirement-approval": 44,
+    "needs-acceptance-owner-and-explicit-approval": 1,
+    "needs-atomic-reframing-before-approval": 2,
+    "needs-bound-external-data-contract-and-explicit-approval": 4,
+    "needs-business-owner-and-explicit-approval": 26,
+    "needs-business-owner-bound-data-contract-and-explicit-approval": 9,
+    "needs-domain-owner-and-explicit-approval-before-context-update": 11,
+    "needs-interface-owner-and-explicit-approval": 21,
+    "needs-operations-owner-and-explicit-approval": 40,
+    "needs-operator-product-owner-and-explicit-approval": 40,
+    "needs-product-owner-and-explicit-approval": 27,
+    "needs-responsible-owner-and-explicit-approval": 40,
+    "needs-security-owner-and-explicit-approval": 5
+  },
+  "by_source": {
+    "R12-17": 130,
+    "R12-50": 170
+  },
+  "exact_duplicate_rows": 1,
+  "excluded_batch_documents_not_extracted": 48,
+  "excluded_implementation_or_deviation_tickets": 31,
+  "excluded_review_remediation_tickets": 17,
+  "permanent_requirement_ids": 0,
+  "phase1_user_story_source_items": 50,
+  "pointer_counts": {
+    "AD-R01-001": 1,
+    "BOUND-R11-001": 14,
+    "BOUND-R12-001": 300,
+    "CF-R01-001": 39,
+    "CF-R01-002": 21,
+    "EVID-R11-001": 2,
+    "RES-R08-003": 13,
+    "RES-R11-001": 14
+  },
+  "pointer_definitions": {
+    "AD-R01-001": "五类/六类运输任务的版本差异；第六类不能由历史 spec 自动获批。",
+    "BOUND-R11-001": "历史 spec 中“客户批准 SQL”的自述缺少具名批准人、日期、范围与版本/哈希绑定。",
+    "BOUND-R12-001": "R12 只从 2 份混合 spec 提取；31 张实施/修复任务和 17 张评审修复票只作历史证据。",
+    "CF-R01-001": "TransportDemandKey / DemandId / GONE 后同键再现的跨批次身份与取消边界线索。",
+    "CF-R01-002": "MES 当前阶段只读、回写与不得改写客户 SQL 的跨批次边界线索。",
+    "EVID-R11-001": "工厂 run 与耗时数据只是限定环境观察，不形成正式验收或长期性能保证。",
+    "RES-R08-003": "“确定领域词汇唯一入口与旧术语表关系”固定根 CONTEXT.md 的澄清—批准—即时写回闭环。",
+    "RES-R11-001": "“决定工厂 MES 验证的批准与完整性证据门槛”固定查询运行授权不等于需求批准。"
+  },
+  "source_documents": 2,
+  "total": 300,
+  "watch_confirmed_domain_semantic_source_items": 8,
+  "watch_functional_requirement_source_items": 65
+}

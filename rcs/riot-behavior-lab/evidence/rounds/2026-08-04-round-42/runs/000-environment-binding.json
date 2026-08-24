@@ -1,0 +1,16 @@
+{
+  "recordedAt": "2026-08-04T16:53:17.7307621+08:00",
+  "authorization": "User explicitly directed use of the test environment on 2026-08-04 because RIOT-8005-RUNTIME is unreachable.",
+  "environmentId": "RIOT-CROSS-PROJECT-TEST",
+  "expectedBaseUrl": "http://172.10.1.72:8888",
+  "expectedBuild": "2.2.0.30",
+  "sourceSchema": {
+    "environment": "RIOT-8005-RUNTIME",
+    "build": "v2.2.0.14",
+    "path": "rcs/riot_swagger/task.json"
+  },
+  "evidenceBoundary": "Proxy behavior evidence only; not a live observation of RIOT-8005-RUNTIME v2.2.0.14.",
+  "pollCount": 24,
+  "pollIntervalSeconds": 5,
+  "writeOperationsAuthorized": []
+}
