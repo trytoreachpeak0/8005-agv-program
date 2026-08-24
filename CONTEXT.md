@@ -590,6 +590,16 @@ _Avoid_: 整车任意开仓、跨停靠开仓、完工后继续使用普通操�
 车载上位机持久化的当前经服务端有效性校验的申报工号及校验引用；新装货 Sublot 默认沿用，用户只可在没有活动或待服务端确认的 Sublot 时主动更换且新工号必须重新经服务端校验。掉线、重启不清除；服务端提交 StopClosureCommit 后清除，不等待车辆实际开始移动。卸货身份核验策略关闭时不要求也不虚构操作员。
 _Avoid_: 每个仓位重新输入、掉线自动清除、同一 Sublot 中途换人
 
+### 需求基线治理
+
+**首版发布前补充证据快照（PreReleaseSupplementalEvidenceSnapshot）**:
+首个正式需求基线尚未发布时，对初始证据快照之后新增或变化的需求性材料建立的独立、不可变证据观察；它保留自己的截止时间、Git 与工作区身份、逐文件哈希和分类结果，不修改初始快照，也不自动批准其中内容进入基线。
+_Avoid_: 改写初始快照、只补一份已知规格、补拍即批准、用当前工作树覆盖历史观察
+
+**首版前来源替代（PreBaselineSourceSupersession）**:
+首个正式需求基线发布前，后续获批来源对较早来源中的同一义务作出的修改、废弃或本质替代关系；首版只收录最终有效规范义务，证据保留完整来源层叠与精确差异，但不为从未成为正式基线要求的旧语句虚构永久 REQ 身份。
+_Avoid_: 发布明知过时的历史首版、把较新时间自动当作替代证据、为未入基线旧语句伪造 deprecated REQ、丢失来源差异
+
 ### 可追溯性
 
 **OnboardTechnicalLog（车载技术日志）**:
@@ -734,6 +744,18 @@ _Avoid_: 图层、楼层图（除非特指 floor 字段）
 某张 Map 上的站点；必须与 `mapId` 成对使用，站点 `id` 跨图不保证唯一。
 _Avoid_: 点位（泛称）、目的地（业务语义更宽）
 
+**MapStationCatalogSnapshot（地图站点目录快照）**:
+8005 对 `RIOT-8005-RUNTIME` 当前全部有效 Map 及每张 Map 全部 Station 完整观测后原子发布的不可变目录修订，以来源环境/build、观测时段、数量、内容指纹和本地单调修订保持身份。它供 AREA 解析、FixedTaskStation 绑定与变化检测，不包含 Edge 或几何路网，也不取代实时 RouteCost。
+_Avoid_: 路网拓扑快照、Edge 快照、实时 RIoT 查询结果
+
+**MapStationCatalogFreshness（地图站点目录新鲜度）**:
+当前 MapStationCatalogSnapshot 距最近一次全量成功确认是否仍在投运前批准的最大未确认时长内；内容未变化的完整观测也会重新确认新鲜度。无快照或超过边界时禁止新的站点解析、相关配置激活和 RIoT move 建单，但不取消或改写已经存在的 RIoT 订单。
+_Avoid_: 只按内容修订创建时间判断、刷新失败即删除旧快照、超时仍按最新目录、超时自动取消在途订单
+
+**ResolvedTransportStation（已解析运输站点）**:
+TransportDemand 从当时新鲜的 MapStationCatalogSnapshot 取得并冻结的 `mapId + stationId` Station 身份，连同当时名称、目录修订及所依赖的 TaskTypePublicStationRuleVersion/PublicStationBindingSetVersion 用于历史解释；后续目录、规则或绑定变化不得自动重映射。创建每个新的 RIoT move 订单前，该身份仍须存在于当前新鲜目录、未被 PublicStationBindingHold 阻断并通过 RouteCost，已经存在的订单不因目录或配置变化被自动取消。
+_Avoid_: 动态 Station 引用、按新名称自动换站、目录或绑定变化重写既有任务、暂停中仍创建新 move、用历史快照直接建新单
+
 **AREA 命名机台站点（AreaNamedMachineStation）**:
 一张 Map 内以一个至三个合法 MES AREA 编码拼成 `stationName` 的机台侧 Station，系统只按该命名规则自动建立 AREA 解析关系且不提供显式覆盖；AREA 无唯一匹配时阻断相关新任务。
 _Avoid_: 人工 AREA 映射、StationAreaOverride、把公共业务点按 AREA 解析、无法唯一解析时自动择一
@@ -742,9 +764,25 @@ _Avoid_: 人工 AREA 映射、StationAreaOverride、把公共业务点按 AREA �
 8005 固定公共作业区域承担的业务功能，包括派工待送、烘箱、关卡、三光和氮气柜；任务类型决定该功能是运输起点还是终点，每张 Map 上的每种功能只显式绑定一个 FixedTaskStation，不从 AREA 或站点名称自动识别。
 _Avoid_: TASK_TYPE、MES AREA、AREA 命名机台站点、按站点名猜测功能、同图同功能多个站点、车辆当前位置
 
+**MapPublicStationRequirementSet（地图公共站点功能需求集）**:
+一张 Map 上当前获准启用的任务类型实际依赖的 PublicStationFunction 集合；全部需求功能都具有有效绑定后，相关任务类型才可在该 Map 投运，未启用的其余功能不强制配置。
+_Avoid_: 每张 Map 无条件配齐全部五种功能、目录已同步即业务就绪、缺失功能时默认站点
+
+**TaskTypePublicStationRuleVersion（任务类型公共站点规则版本）**:
+不可变地固定每个受支持 TASK_TYPE 所使用的 PublicStationFunction 及其起点/终点角色；新规则只在相关 Map 的绑定已满足新功能需求后才可激活，既有 TransportDemand 保留冻结版本。
+_Avoid_: 按 TASK_TYPE 重复保存站点、缺少公共站点时先启用任务类型、规则变更重写既有任务
+
 **FixedTaskStation（任务固定站点）**:
-8005 项目把已同步的具体 Station 按 `mapId + PublicStationFunction` 唯一显式绑定得到的公共业务点；TransportDemand 依任务类型使用同图对应功能的唯一绑定，禁止跨图运输。
-_Avoid_: 固定 AREA、从 MES 行读取的第二个端点、AREA 显式覆盖、按名称自动推断公共功能、同图同功能站点集合
+8005 项目把已同步的具体 Station 按 `mapId + PublicStationFunction` 唯一显式绑定得到的公共业务点；TransportDemand 依任务类型使用同图对应功能的唯一绑定，同一 Station 不得同时承担多个功能，并禁止跨图运输。
+_Avoid_: 固定 AREA、从 MES 行读取的第二个端点、AREA 显式覆盖、按名称自动推断公共功能、同图同功能站点集合、同一 Station 复用多个公共功能
+
+**PublicStationBindingSetVersion（公共站点绑定集版本）**:
+一张 Map 的完整不可变 PublicStationFunction—Station 绑定集，同时固定 MapPublicStationRequirementSet、TaskTypePublicStationRuleVersion 和校验所用的 MapStationCatalogSnapshot 修订；只能全图原子激活，回滚也是经当前事实重校验的新激活。
+_Avoid_: 逐功能即时覆盖、混用新旧绑定、旧版本直接翻回当前、回滚改写历史
+
+**PublicStationBindingHold（公共站点绑定暂停）**:
+维护管理员或系统管理员对明确 Map 与 PublicStationFunction 立即收紧的受审计门禁，它阻断对该功能发起新的站点使用，但不删除绑定或改写已有 RIoT 订单；恢复必须由系统管理员重新校验和激活。
+_Avoid_: 删除绑定、定时自动恢复、暂停后既有订单自动取消、普通操作员暂停
 
 **SingleBerthStationClaim（单车位站点占用权）**:
 一个 FixedTaskStation 在同一时刻只允许由一台已到达车辆占用，或由一台已承诺前往的车辆预占；任一状态成立时，其他车辆不得承接下一站为该站点的新任务。
@@ -1459,8 +1497,8 @@ _Avoid_: 空页即健康、失败即零、加载中空态
 _Avoid_: 把旧资格结论冒充 Series 当前状态、静默绕过 AREA、丢失 Demand 世代定位
 
 **AreaFilterProfile（AREA 筛选配置）**:
-当前 MesIngestWatch 实例用于缩小 DemandSeries 与资格审计页面显示范围的本地命名配置，内容是一组合法 MesArea；两页共享当前选择并按 MesArea 精确匹配，它不改变 WatchDemandProjection、外部可读资格、ExternallyReadableDemandCatalog 或 Dispatch 的 AREA 范围。
-_Avoid_: AREA 白名单、调度范围、外部可读规则、Area 文件
+当前 MesIngestWatch 实例用于缩小 DemandSeries 与资格审计页面显示范围的本地命名配置，内容是一组合法 MesArea；两页共享当前选择并按 MesArea 精确匹配。显示范围以用户显式应用时持久化的 AREA 序列快照为权威：文件编辑、非法、删除或进程重启均不自行改变范围，只有再次显式应用才替换快照，文件漂移按解析后的 AREA 序列而非注释、空行或其它原始文本差异判定。它不改变 WatchDemandProjection、外部可读资格、ExternallyReadableDemandCatalog 或 Dispatch 的 AREA 范围。
+_Avoid_: AREA 白名单、调度范围、外部可读规则、以 Area 文件当前内容作为生效范围、文件变化自动改范围、用 SQL Server 或 Oracle 结果代替本地活动快照证据
 
 **TransportDemandKey（运输需求业务键）**:
 由 SUBLOT 与 WorkType（MES `TASK_TYPE`）组成，标识该 SUBLOT 在当前工序类型中的同一搬运候选，也是调度侧本地取消的永久抑制边界；同一 SUBLOT 命中其它 WorkType 时属于不同业务键。
@@ -1503,8 +1541,8 @@ _Avoid_: 每车候选充电桩配置、RIoT 全部充电站点、无审计的人
 _Avoid_: 候选计算结果、可被低电量车辆抢占的排队位、已在桩上物理充电
 
 **地图等待点集合（MapWaitingPointPool）**:
-8005 从一张 RIoT 地图的普通站点中受控登记的车辆待命站点集合，供已经结束当前用途、没有下一业务目标且需要进入待命的车辆共用；充电失败清桩时，它是自动腾空原充电桩的优先去向，但经授权确认的其它安全位置也可完成清桩。集合内候选点必须位于当前地图、身份有效、路线可达且未被占用或预占；无合格点时原地排队并告警，不猜测其它站点。
-_Avoid_: 每次任务完成都返回、达到充电完成阈值即返回、清桩必须到等待点、每桩专属等待点、单点无竞争、按站点名猜测、临时最近站点
+8005 从一张 RIoT 地图的普通站点中受控登记的专用车辆待命站点集合，供已经结束当前用途、没有下一业务目标且需要进入待命的车辆共用；等待点不得同时承担业务或充电角色，也不得与这些角色站点共享物理坐标。充电失败清桩时它是自动腾空原桩的优先去向，但授权确认的其它安全位置仍可完成清桩；候选点必须位于当前地图、身份有效、路线可达且未被占用或预占，无合格点时原地排队并告警，不猜测其它站点。
+_Avoid_: 每次任务完成都返回、达到充电完成阈值即返回、清桩必须到等待点、复用业务站或充电站、不同角色站点坐标重合、每桩专属等待点、单点无竞争、按站点名猜测、临时最近站点
 
 **站点业务角色（StationOperationalRole）**:
 8005 赋予一个普通 RIoT 地图站点的受控用途分类，例如业务作业、车辆待命或充电；RIoT 站点身份只表示地图位置，不自动成为 8005 的任一业务角色。角色不能由站点名称、坐标或现场习惯猜测，必须绑定明确的 RIoT 地图与站点身份。
@@ -1513,6 +1551,26 @@ _Avoid_: RIoT 原生业务站点类型、按名称识别等待点或充电点、
 **等待点车辆适用范围（WaitingPointVehicleScope）**:
 MapWaitingPointPool 中每个等待点对同一 RIoT 地图内车辆的适用边界：默认允许该地图全部车辆参与选择，也可配置明确车辆白名单；一旦存在白名单，只有名单内车辆具备该点资格。适用范围只提供候选资格，不能绕过地图一致、路线可达、占用、预占和数据新鲜度等运行门禁。
 _Avoid_: 所有等待点强制逐车绑定、配置白名单后仍允许其它车辆、跨地图默认开放、把候选资格当作当前可用
+
+**车辆用途占有（VehiclePurposeClaim）**:
+服务端对一辆 AGV 当前由搬运、充电、清桩/维护或空闲返回中的哪一种用途独占使用的业务事实；既有用途或结果未知时持续占有，只有该用途按自己的收敛边界结束后才能释放给另一用途。强制充电高于普通搬运，普通搬运高于空闲返回，空闲返回只在没有其它合法用途时取得占有。
+_Avoid_: 各流程分别抢车、结果未知即释放、空闲返回预留车辆、用优先级抢占已开始用途
+
+**空闲返回资格（IdleReturnEligibility）**:
+车辆已经结束当前用途、没有下一业务目标或未结订单、没有充电/清桩/维护门禁，当前电量高于 MandatoryChargeEntryThreshold，且本轮 TaskFirstDispatchSelection 没有为其选定搬运用途时，才具备返回地图等待点的资格。
+_Avoid_: 完成一步即返回、强制充电车辆先去等待点、有未结订单仍返回、空闲返回压过搬运
+
+**空闲返回承诺（IdleReturnCommit）**:
+服务端基于同一份新鲜资格快照，原子取得车辆的 IDLE_RETURN VehiclePurposeClaim 与一个具体等待点的 WaitingPointExclusiveClaim 后形成的当前用途承诺；承诺形成后不因新到搬运任务或更低电量车辆而抢占，直至到点收敛或按已确认失败规则释放。
+_Avoid_: 只选点不占车、只占车不预占点、建单后改去新任务、结果未知时撤销承诺
+
+**等待点独占（WaitingPointExclusiveClaim）**:
+一辆车辆对具体地图等待点从已承诺前往到实际停留期间的单车独占关系；到点后由在途预占转为在点占用，只有确认该车已经离开才释放给下一辆车。
+_Avoid_: 候选即占有、到点即释放、下达离点订单即释放、同一点同时预占多车
+
+**空闲返回待定（IdleReturnPending）**:
+车辆具备 IdleReturnEligibility 但当前没有可原子取得的合格等待点时保持原位的可恢复状态；它不取得 VehiclePurposeClaim 或 WaitingPointExclusiveClaim，因此后续强制充电或合法搬运仍可先取得车辆，相关事实变化后再重新评估并对持续等待告警。
+_Avoid_: 无点仍建单、猜测临时站点、待定即预留车辆、定时盲目重复下单
 
 **充电桩健康不可观测（ChargingStationHealthUnobservable）**:
 8005 项目充电桩不联网且不对项目系统提供故障或健康状态；系统无法从一次充电失败直接确定充电桩是否故障，也无法自动证明它已恢复。
