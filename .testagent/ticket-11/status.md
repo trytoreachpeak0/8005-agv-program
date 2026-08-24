@@ -63,11 +63,27 @@ The optional `assertion-quality` skill is not installed in this session; the equ
 - Final Release real-SQL Tier 1: `Failed: 0, Passed: 782, Skipped: 0`, duration `9m48s`.
 - Tier 1 attestation: `mes/ingest/csharp/.artifacts/ticket11-tier1-final/run-20260824T001552Z/runtime-feedback-tier1-attestation.json`.
 
-The updated ticket's existing actual-plan entry was run with exactly two fixed samples:
+The first updated-ticket actual-plan pass exposed scan operators during code review. That evidence
+was retained as red evidence and was not treated as approval. The implementation now persists the
+shared `HistoryEpoch` + `EarliestAvailableHostUtc` boundary in `SchemaInfo`, and the plan gate fails
+closed unless PollTrace/raw evidence use their stable object-key seeks with zero related-table scans.
 
-| Sample | Raw observations | Response bytes | Logical reads | Raw-object logical reads | Max grant KB | Spills | Actual plans | Gate |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Baseline | 600 | 256,826 | 365 | 105 | 0 | 0 | 25 | passed |
-| Representative | 240,600 | 259,232 | 525 | 175 | 0 | 0 | 25 | passed |
+The corrected build passed a fresh real-SQL Tier 1: `Failed: 0, Passed: 784, Skipped: 0`, duration
+`10m16s`. Attestation:
+`mes/ingest/csharp/.artifacts/ticket11-tier1-review-fix/run-20260824T005432Z/runtime-feedback-tier1-attestation.json`.
 
-The representative per-surface logical-read bound was 565, so 525 passed; response size stayed below the explicit 2 MiB PollTrace limit. Evidence is under `mes/ingest/csharp/.artifacts/ticket11-polltrace-scale/scale-20260824T002932Z-66bed05a/` and `scale-20260824T003009Z-c9be0c83/`. Both fixed samples passed with no spill, grant, response-size, or identity risk signal, so no larger sample was run.
+The corrected build then ran the same two fixed samples for both historical object surfaces:
+
+| Surface/sample | Raw observations | Response bytes | Logical reads | Max grant KB | Spills | PollTrace PK seeks | Raw PK seeks | Related scans | Gate |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| PollTrace baseline | 600 | 256,826 | 10 | 0 | 0 | 5 | 5 | 0 | passed |
+| PollTrace representative | 240,600 | 259,232 | 10 | 0 | 0 | 5 | 5 | 0 | passed |
+| RawEvidence baseline | 600 | 1,749 | 20 | 1,616 | 0 | 5 | 10 | 0 | passed |
+| RawEvidence representative | 240,600 | 1,754 | 20 | 1,616 | 0 | 5 | 10 | 0 | passed |
+
+Evidence is under `mes/ingest/csharp/.artifacts/ticket11-object-key-scale/`, runs
+`scale-20260824T010521Z-b5ed330c`, `scale-20260824T010551Z-e88d8ca7`,
+`scale-20260824T010639Z-be4fcdb6`, and `scale-20260824T010723Z-ce85b0b8`.
+Every run recorded `objectKeySeekComplete=true`, `unrelatedHistoryScanCount=0`, and a passing
+gate; both PollTrace runs also recorded `earliestIdentityComplete=true`. Logical reads stayed
+exactly flat between the two samples. No escalation condition remained, so no larger sample ran.
