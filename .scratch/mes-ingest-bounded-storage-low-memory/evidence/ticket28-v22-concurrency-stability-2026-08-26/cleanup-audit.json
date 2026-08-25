@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-25T23:30:23.5401273+00:00",
+  "supersedingRunId": "scale-20260825T222954Z-361aa512",
+  "runStartedAt": "2026-08-25T22:29:54.9368456+00:00",
+  "closingTier1StartedAt": "2026-08-25T23:15:41.5122399+00:00",
+  "scope": {
+    "scaleDatabasePredicate": "sys.databases.name LIKE 'MesIngest_Scale_%'",
+    "ticket01DatabasePredicate": "sys.databases.name LIKE 'MesIngest_Ticket01_%'",
+    "xeventPredicate": "sys.server_event_sessions.name LIKE 'MesIngestScale_%' OR name LIKE 'MesIngestStability_%'",
+    "databaseFileRoot": "F:\\MesIngestTicket28",
+    "hostProcessPredicate": "Win32_Process.Name = 'MesIngest.Host.exe'; owned only when CreationDate is at or after runStartedAt"
+  },
+  "observed": {
+    "scaleDatabaseCount": 0,
+    "mesIngestScaleXeventSessionCount": 0,
+    "mesIngestStabilityXeventSessionCount": 0,
+    "databaseFileRootEntryCount": 0,
+    "hostProcessCountCreatedAtOrAfterRunStart": 0,
+    "ticket01DatabaseCountBeforeClosingTier1": 6,
+    "ticket01DatabaseCountAfterClosingTier1": 6,
+    "ticket01DatabaseCount": 6,
+    "predatingHostProcesses": [
+      {
+        "processId": 29420,
+        "creationDate": "2026-08-23T15:00:05.931157+08:00"
+      }
+    ]
+  },
+  "ownedResiduals": {
+    "databases": 0,
+    "xeventSessions": 0,
+    "databaseFiles": 0,
+    "hostProcesses": 0
+  },
+  "preservedUnrelatedState": {
+    "ticket01Databases": 6,
+    "predatingHostProcesses": 1
+  },
+  "cleanupAction": {
+    "removedStoppedOwnedXeventSession": "MesIngestScale_scale_20260825T103839Z_9d5cacbc",
+    "reason": "Exact stopped session definition from an earlier Ticket 28 attempt; no matching XEL file existed.",
+    "unrelatedStateModified": false
+  }
+}
