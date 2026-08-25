@@ -1,6 +1,6 @@
 # 27 — 通过快速容量预测门禁
 
-**What to build:** 在完整新包和压缩 schema 上用代表性生产分布样本快速测量空间增长，以 30% 安全余量外推当前 15 天统一历史保留窗口，并只在预测接近门槛或证据不确定时升级完整规模验证。
+**What to build:** 在完整新包和压缩 schema 上用代表性生产分布样本快速测量空间增长，以 30% 安全余量外推当前 15 天统一历史保留窗口；70% 与非线性作为 advisory warning，只有触及最终硬上限或关键证据不确定时 fail closed。
 
 **Blocked by:** 26 — 完成整包切换演练.
 
@@ -9,7 +9,7 @@
 - [x] 直接复用 Ticket 02 固定分布、证据入口和真实压缩 schema；只生成不超过 250,000 条 RawObservation 的固定样本，覆盖活跃/归档 Series、错误、墓碑与清理。
 - [x] 实测每轮、每行、表、聚集索引、非聚集索引、PAGE 压缩、墓碑、版本存储、tempdb 影响和 LDF 增量，并以 30% 安全余量外推 15 天。
 - [x] 外推结论证明逻辑已用空间不超过 12 GB、物理数据库文件不超过 16 GB、LDF 目标不超过 2 GB。
-- [x] 任一预测达到对应门槛的 70%、增长非线性、样本不足、压缩或清理证据不确定时，快速门禁必须失败并升级完整规模验证。
+- [x] 预测达到或超过逻辑 12,288 MB、物理 16,384 MB、LDF 2,048 MB 任一最终硬上限，或证据缺失、样本超限、PAGE 压缩/清理完整性不确定时 fail closed；70% 与增长非线性保留为 advisory warning。
 - [x] 验证 RawObservation 和 RetentionEligibleDemandSeries 清理已执行，活跃 Series 没有被按年龄拆散。
 - [x] 记录 SIMPLE 恢复、log reuse wait、自动增长、清理批次默认值、max server memory、模型输入、公式和误差余量，使结果可重放。
 - [x] 正常快速路径不物化约 5554 万条 15 天观测、不新建容量工具，目标在 45 分钟内完成；若门禁失败，阻断发布并形成重新评估内容寻址方案的证据。
@@ -67,3 +67,17 @@
   Standards `No findings` / Spec `No findings`；Ticket 28 diff 0，旧 30 天 tracked evidence diff 0。
   本轮 scale 库残留 0；五个零 session 的 Ticket01 库在本轮前已存在，未越权删除。Tier 3 未运行，
   因未提升候选/基线且人工预览批准仍待完成。
+- 2026-08-25：用户明确接受 15 天容量预测风险并要求放宽门禁、直接复用既有实测数据，不新增或
+  重跑容量证据。门禁现保留 30% safety margin 与最终硬上限 logical `12,288 MB` / physical
+  `16,384 MB` / LDF `2,048 MB`；只有预测达到或超过任一硬上限，或证据缺失、样本超过
+  `250,000`、PAGE 压缩不确定、清理完整性不确定时 fail closed。原 70% 阈值与增长非线性仍
+  如实输出 `CAPACITY_LOGICAL_70_PERCENT_ESCALATION`、`CAPACITY_GROWTH_NONLINEAR` advisory
+  warnings，但不再阻断发布或强制 full-scale。
+- 2026-08-25：直接按既有 15 天实测 `249,600` 行、415 历史轮、30% 余量重新判读：logical
+  `10,548.651 < 12,288 MB`、physical `10,568 < 16,384 MB`、LDF
+  `343.190 < 2,048 MB`，且三个 Raw 索引 PAGE、清理 `249,600/249,600` Raw 与 `25/25`
+  eligible Series、残留 `0/0`、活跃图 split `0`，因此新政策下 capacity gate 通过。旧 30 天与
+  旧 15 天 fail-closed 证据及其评论保持历史事实、未修改。本次范围
+  覆盖明确禁止新测试与证据运行；已启动的聚焦测试在执行阶段被中止，Tier 1/2/3/full-scale
+  均未运行，未创建数据库或新证据目录。Golden preview candidate 仍未提升为 baseline；依仓库
+  规则，整票在用户明确批准既有最终真实窗口预览前保持 `ready-for-human`，不冒充视觉验收。
