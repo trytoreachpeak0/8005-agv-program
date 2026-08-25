@@ -24,7 +24,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 15×24 小时。�
 
 新库使用 SIMPLE 恢复模式，不创建完整、差异或事务日志备份。DemandRawObservation 主要聚集和非聚集索引默认使用 PAGE 压缩；热字段、筛选列和临时结构采用基于真实数据门禁的有界类型，原始证据保持无损，超界值形成显式异常而不是截断。只有 15 天容量或热路径门禁仍失败时，才重新评估 ObservationPayload、ObservationSet 或 Span 内容寻址模型。
 
-切换时同时提升精确 contractVersion 与 schemaVersion，继续只发布唯一 /api/v2。先在独立空库和整包 Host、Watch、reference consumer 上完成新 schema、带安全余量的快速容量预测和加速并发稳定性门禁，再在一次停机窗口中停止旧 Host、建立新 HistoryEpoch、从旧库只播种 ArchivedDemandKeyTombstone、验证新库并运行连续三轮成功投影。完整 15 天物化或长时间 soak 只在快速门禁出现风险信号，或用户为正式现场切换明确要求时升级执行。唯一 CutoverRunId 标识的一次性 MesIngestCutoverRun 使用临时提升权限；只有墓碑、版本、投影、主要 Watch API、外部目录和精确旧库身份等同窗门禁全部通过，才自动删除显式旧库。失败必须禁止删除、退出且不后台重试，删除证据写到数据库外和 Windows 事件日志。
+切换时同时提升精确 contractVersion 与 schemaVersion，继续只发布唯一 /api/v2。先在独立空库和整包 Host、Watch、reference consumer 上完成新 schema、带安全余量的快速容量预测和加速并发稳定性门禁，再在一次停机窗口中停止旧 Host、建立新 HistoryEpoch、从旧库只播种 ArchivedDemandKeyTombstone、验证新库并运行连续三轮成功投影。完整 15 天物化或长时间 soak 只在快速门禁出现风险信号，或用户为正式现场切换明确要求时升级执行；长跑固定为 4 小时或 24 小时，并从原始分钟级资源时间线与逐 API 末段 phase 复算实际覆盖，不能信任单一汇总时长。唯一 CutoverRunId 标识的一次性 MesIngestCutoverRun 使用临时提升权限；只有墓碑、版本、投影、主要 Watch API、外部目录和精确旧库身份等同窗门禁全部通过，才自动删除显式旧库。失败必须禁止删除、退出且不后台重试，删除证据写到数据库外和 Windows 事件日志。
 
 ## User Stories
 
