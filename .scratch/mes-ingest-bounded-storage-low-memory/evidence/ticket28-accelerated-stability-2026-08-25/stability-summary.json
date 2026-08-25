@@ -122,5 +122,19 @@
     "deterministicTrxSha256": "95fa12c21b0e7ae7f0ccb08d442d2267678fc4b6888537984ae076a57ac1d22f",
     "deterministicAttestationSha256": "59d159bb66afd4a3fbaf07f47ac1d2e3ca94ed4fb9002c63a941323834feb617"
   },
-  "tier1": null
+  "tier1": {
+    "sourceCommit": "7e768cae5debb1e3ebfa1f94383a56673e11188e",
+    "expectedProductMajor": 16,
+    "actualProductMajor": 16,
+    "expectedCompatibilityLevel": 160,
+    "actualCompatibilityLevel": 160,
+    "passed": 890,
+    "failed": 0,
+    "skipped": 0,
+    "total": 890,
+    "exitCode": 0,
+    "durationSeconds": 856.6663293,
+    "trxSha256": "369d0d6d27fc9dc11b098aa72a41bedae0ac377a2b9beac3937333fe0df42578",
+    "attestationSha256": "7e228d91749598492830fffadb94de6782a0bfd2df806c2e7e9d69d2207e63e2"
+  }
 }

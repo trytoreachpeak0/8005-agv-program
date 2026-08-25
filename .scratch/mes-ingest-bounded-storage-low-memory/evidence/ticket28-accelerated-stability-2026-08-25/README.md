@@ -83,4 +83,23 @@ Gate failures: `STABILITY_CATCH_UP_BURST`, `STABILITY_HANDLE_TREND`, `STABILITY_
   F-volume directory were removed. No Tier 2/3 or visual baseline
   was run because there was no Watch UI/XAML change.
 - Human action: investigate the seven red signals and schedule the required 4h/24h real soak.
-  Tier 1 results will be appended only after post-stress review.
+
+## Tests and review
+
+- Final focused `ScaleAndQueryEvidenceGateTests`: `24 passed / 0 failed / 0 skipped`. Release
+  deterministic contract: `13 passed / 0 failed / 0 skipped`.
+- Post-stress dual-axis review occurred before Tier 1. Final Spec: P0/P1/P2 `0`; final Standards:
+  P0/P1 `0`. The cleanup fail-closed correction in `7e768cae` did not change the already captured
+  stress workload or its seven red conclusions.
+- The task's sole real-SQL Tier 1 ran from `mes/ingest/csharp` through
+  `Invoke-RuntimeFeedbackTier1.ps1`, explicitly expecting/observing SQL major `16` and
+  compatibility `160`: `890 passed / 0 failed / 0 skipped / total 890`, exit code `0`, duration
+  `13m37s`, VSTest/xUnit v2, SDK `8.0.424`.
+- Tier 1 source commit: `7e768cae5debb1e3ebfa1f94383a56673e11188e`; TRX SHA-256
+  `369d0d6d27fc9dc11b098aa72a41bedae0ac377a2b9beac3937333fe0df42578`; attestation SHA-256
+  `7e228d91749598492830fffadb94de6782a0bfd2df806c2e7e9d69d2207e63e2`.
+- The Tier 1 run created and removed its isolated databases. Five zero-session
+  `MesIngest_Ticket01_*` databases predated its `2026-08-25T08:19:08+08:00` start and were
+  preserved as unrelated state; no new residual Tier 1 database remained.
+- Tier 2/3 remained unrun and inapplicable. A green Tier 1 does not clear Ticket 28's soak
+  escalation or Ticket 27's capacity blocker.

@@ -46,5 +46,10 @@ Ticket 27 remains independently release-blocking: 30-day +30% logical `21094.459
 physical `21128 MB`, and nonlinearity `2.427779815`. Ticket 28 did not overwrite, weaken, or
 clear it. See `evidence/ticket28-accelerated-stability-2026-08-25/` for the compact record and
 `mes/ingest/csharp/.artifacts/ticket28-stability-f84fee2e/scale-20260824T233620Z-99e32a86/`
-for the local raw bundle. Final real-SQL Tier 1 is intentionally pending until the required
-post-stress dual-axis review completes.
+for the local raw bundle.
+
+Post-stress review completed before Tier 1: final Spec and Standards axes both reported P0/P1
+`0`; the standards review's cleanup finding was fixed in `7e768cae` without changing the captured
+stress result. The one and only real-SQL Tier 1 then passed `890/890`, failed `0`, skipped `0`,
+exit code `0`, in `13m37s` on the default SQL Server 16 instance at compatibility `160`. Tier 1
+does not clear the seven stability failures, the required soak escalation, or Ticket 27.
