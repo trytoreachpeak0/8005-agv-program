@@ -4,7 +4,7 @@
 
 **Blocked by:** 26 — 完成整包切换演练.
 
-**Status:** ready-for-human
+**Status:** done
 
 - [x] 直接复用 Ticket 02 固定分布、证据入口和真实压缩 schema；只生成不超过 250,000 条 RawObservation 的固定样本，覆盖活跃/归档 Series、错误、墓碑与清理。
 - [x] 实测每轮、每行、表、聚集索引、非聚集索引、PAGE 压缩、墓碑、版本存储、tempdb 影响和 LDF 增量，并以 30% 安全余量外推 15 天。
@@ -49,7 +49,7 @@
 
 - [x] Read `docs/agents/golden-renderer.md` and `docs/agents/fluent-ui.md`.
 - [x] Ran un-narrowed `watch-production-preview` through the interactive golden task.
-- [ ] User approved the final real-window ErrorSearch preview.
+- [x] User approved the final real-window ErrorSearch preview.
 - [x] Recorded the unique evidence directory and all named skips.
 - [x] Cleaned scheduled tasks/processes, rechecked 1920x1080 / 96 DPI, and restored the VM to Off.
 
@@ -81,3 +81,7 @@
   覆盖明确禁止新测试与证据运行；已启动的聚焦测试在执行阶段被中止，Tier 1/2/3/full-scale
   均未运行，未创建数据库或新证据目录。Golden preview candidate 仍未提升为 baseline；依仓库
   规则，整票在用户明确批准既有最终真实窗口预览前保持 `ready-for-human`，不冒充视觉验收。
+- 2026-08-25：用户明确回复“批准这个界面”，人工批准 Ticket 27 既有 Golden 真实窗口预览
+  `06a-error-search-15-day-window.png`。Human-approved preview checklist 已完成；本次批准不提升或
+  改写 visual baseline，不重新生成证据，也不触发 Tier 2/3 或 baseline validation。Ticket 27 的
+  人工作业至此完成，状态更新为 `done`，可放行。
