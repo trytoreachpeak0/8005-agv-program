@@ -661,11 +661,11 @@ _Avoid_: 当前投影拼接、翻页时混入新事件、列表与详情使用�
 _Avoid_: 双端包含、自动交换 from/to、把显式 to 静默截断到 asOf
 
 **ErrorSearchDefaultWindow（错误检索默认窗口）**:
-错误检索默认查看截至 ErrorSearchAsOf 的最近 7 天，并提供最近 24 小时、7 天、30 天和全部历史；全部历史仍由 Host 有界分页。
+错误检索默认查看截至 ErrorSearchAsOf 的最近 7 天，并提供最近 24 小时、7 天、15 天和全部历史；全部历史仍由 Host 有界分页。
 _Avoid_: 默认全部历史、Watch 下载后本地分页、沿用 IngestAlert LastSeenAt 窗口
 
 **ErrorSearchRollingWindow（错误检索滚动窗口）**:
-最近 24 小时、7 天和 30 天分别表示以 ErrorSearchAsOf 为终点的精确 `24`、`7×24`、`30×24` 小时；显示可转换为带时区标识的用户本地时间，但不按本地自然日或午夜取整。
+最近 24 小时、7 天和 15 天分别表示以 ErrorSearchAsOf 为终点的精确 `24`、`7×24`、`15×24` 小时；显示可转换为带时区标识的用户本地时间，但不按本地自然日或午夜取整。
 _Avoid_: 今天、本周、本月、无时区日期输入、本地零点边界
 
 **ErrorSearchDefaultState（错误检索默认状态）**:
@@ -809,7 +809,7 @@ _Avoid_: 字段为空就隐藏 Demand、外部程序补写的封装、首次值�
 _Avoid_: 只保留第一行、用历史值填充当前 NULL、只保存外部合格数据
 
 **RawObservationAvailabilityWindow（原始观测可用窗口）**:
-DemandRawObservation 自所属 PollTrace 完成起保证可按 PollTrace 与 ProjectionCommit 完整读取的 30×24 小时 Host UTC 窗口；窗口外清理表示历史已过期，不能解释为源轮次当时没有观测。
+DemandRawObservation 自所属 PollTrace 完成起保证可按 PollTrace 与 ProjectionCommit 完整读取的 15×24 小时 Host UTC 窗口；窗口外清理表示历史已过期，不能解释为源轮次当时没有观测。
 _Avoid_: 自然月、MES `DATES` 窗口、全部历史永久在线、Watch 缓存期限
 
 **StoragePressurePause（存储压力暂停）**:

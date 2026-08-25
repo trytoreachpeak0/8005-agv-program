@@ -2,7 +2,7 @@
 
 **What to build:** 让一个到期 RetentionEligibleDemandSeries 能够整体删除详细历史，同时永久保留最小 ArchivedDemandKeyTombstone，保证旧业务键永不重新外读。
 
-**Blocked by:** 13 — 实施 30 天历史保留计时.
+**Blocked by:** 13 — 实施 15 天历史保留计时.
 
 **Status:** ready-for-human
 

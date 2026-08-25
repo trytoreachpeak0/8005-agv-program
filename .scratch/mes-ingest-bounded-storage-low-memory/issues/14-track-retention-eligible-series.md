@@ -2,7 +2,7 @@
 
 **What to build:** 本票不再单独实现；RetentionEligibleDemandSeries 资格、EligibilityAt、取消与重新计时已经并入 Ticket 13 的统一历史保留状态模型。
 
-**Blocked by:** 13 — 实施 RawObservation 30 天过期契约.
+**Blocked by:** 13 — 实施 RawObservation 15 天过期契约.
 
 **Status:** wontfix
 
