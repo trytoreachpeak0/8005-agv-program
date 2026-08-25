@@ -18,13 +18,13 @@ MesIngest 当前把每轮完整 MES 快照的原始观测和结构化历史持�
 
 当前态与历史态使用分离的物理读取路径。常用当前读取只依赖当前物化投影、当前条件和维护好的计数，禁止扫描或排名 DemandRawObservation 历史；历史详情和冻结 snapshot 按对象或页有界读取。所有冻结响应绑定同一 HistoryEpoch 与 ProjectionCommit，并来自不阻塞投影写入的提交一致视图。
 
-DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。当前物化状态和活跃 DemandSeries 的结构化世代、事件、错误链不按年龄拆散；DemandSeries 首次满足 RetentionEligibleDemandSeries 后再保留 30×24 小时，并以完整历史图为单位清理。清理 Series 时，在同一事务内先幂等写入永久 ArchivedDemandKeyTombstone，再删除详细历史；归档键以后重现仍属于 LONG_GONE_BUT_VISIBLE，且永不进入 ExternallyReadableDemandCatalog。Host 每小时以有行数和时间预算的小事务推进幂等清理，失败可续且不得阻塞轮询。
+DemandRawObservation 自所属 PollTrace 完成起保留精确 15×24 小时。当前物化状态和活跃 DemandSeries 的结构化世代、事件、错误链不按年龄拆散；DemandSeries 首次满足 RetentionEligibleDemandSeries 后再保留 15×24 小时，并以完整历史图为单位清理。清理 Series 时，在同一事务内先幂等写入永久 ArchivedDemandKeyTombstone，再删除详细历史；归档键以后重现仍属于 LONG_GONE_BUT_VISIBLE，且永不进入 ExternallyReadableDemandCatalog。Host 每小时以有行数和时间预算的小事务推进幂等清理，失败可续且不得阻塞轮询。
 
 数据库存储剩余低于 15% 时产生严重告警；低于 10% 时，Host 必须在下一次 MES 查询之前进入 StoragePressurePause，保留最后成功投影但不取得新快照、不推进缺席判定。恢复只能由数据库主机上的授权运维人员通过 MesIngestLocalAdministration 明确提交。非计划丢库或不可恢复重建创建新的 HistoryEpoch，并使 ExternallyReadableDemandCatalog 与执行承诺读取返回 503 INGEST_NOT_CURRENT，直到提交 HistoryResetAcknowledgement。
 
-新库使用 SIMPLE 恢复模式，不创建完整、差异或事务日志备份。DemandRawObservation 主要聚集和非聚集索引默认使用 PAGE 压缩；热字段、筛选列和临时结构采用基于真实数据门禁的有界类型，原始证据保持无损，超界值形成显式异常而不是截断。只有 30 天容量或热路径门禁仍失败时，才重新评估 ObservationPayload、ObservationSet 或 Span 内容寻址模型。
+新库使用 SIMPLE 恢复模式，不创建完整、差异或事务日志备份。DemandRawObservation 主要聚集和非聚集索引默认使用 PAGE 压缩；热字段、筛选列和临时结构采用基于真实数据门禁的有界类型，原始证据保持无损，超界值形成显式异常而不是截断。只有 15 天容量或热路径门禁仍失败时，才重新评估 ObservationPayload、ObservationSet 或 Span 内容寻址模型。
 
-切换时同时提升精确 contractVersion 与 schemaVersion，继续只发布唯一 /api/v2。先在独立空库和整包 Host、Watch、reference consumer 上完成新 schema、带安全余量的快速容量预测和加速并发稳定性门禁，再在一次停机窗口中停止旧 Host、建立新 HistoryEpoch、从旧库只播种 ArchivedDemandKeyTombstone、验证新库并运行连续三轮成功投影。完整 30 天物化或长时间 soak 只在快速门禁出现风险信号，或用户为正式现场切换明确要求时升级执行。唯一 CutoverRunId 标识的一次性 MesIngestCutoverRun 使用临时提升权限；只有墓碑、版本、投影、主要 Watch API、外部目录和精确旧库身份等同窗门禁全部通过，才自动删除显式旧库。失败必须禁止删除、退出且不后台重试，删除证据写到数据库外和 Windows 事件日志。
+切换时同时提升精确 contractVersion 与 schemaVersion，继续只发布唯一 /api/v2。先在独立空库和整包 Host、Watch、reference consumer 上完成新 schema、带安全余量的快速容量预测和加速并发稳定性门禁，再在一次停机窗口中停止旧 Host、建立新 HistoryEpoch、从旧库只播种 ArchivedDemandKeyTombstone、验证新库并运行连续三轮成功投影。完整 15 天物化或长时间 soak 只在快速门禁出现风险信号，或用户为正式现场切换明确要求时升级执行。唯一 CutoverRunId 标识的一次性 MesIngestCutoverRun 使用临时提升权限；只有墓碑、版本、投影、主要 Watch API、外部目录和精确旧库身份等同窗门禁全部通过，才自动删除显式旧库。失败必须禁止删除、退出且不后台重试，删除证据写到数据库外和 Windows 事件日志。
 
 ## User Stories
 
@@ -51,7 +51,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 21. 作为 Watch 用户，我希望 Inspector 只消费主页面已经取得的冻结 presentation，不拥有独立 Timer、Host client、缓存或 snapshot，以便同一调查不会产生第二套读取节奏。
 22. 作为 Watch 用户，我希望刷新失败或取消继续保留最后成功窗口并明确显示其时间，以便空白界面不会伪装成没有数据。
 23. 作为运维工程师，我希望当前态读取只依赖当前物化投影、当前条件和维护好的计数，以便常用查询不扫描详细历史。
-24. 作为运维工程师，我希望任何当前态 SQL 都禁止对 DemandRawObservation 全历史执行排名、排序或无界扫描，以便逻辑读不随 30 天历史线性增长。
+24. 作为运维工程师，我希望任何当前态 SQL 都禁止对 DemandRawObservation 全历史执行排名、排序或无界扫描，以便逻辑读不随 15 天历史线性增长。
 25. 作为 Watch 用户，我希望概览从专用当前聚合或同一 ProjectionCommit 的缓存读取，以便概览不通过完整历史 Browse 间接计算。
 26. 作为 Watch 用户，我希望当前 DemandSeries、CurrentIngestAttention、ReadabilityAudit 和目录读取拥有稳定的服务端筛选与有界分页，以便客户端不下载全表。
 27. 作为审计人员，我希望历史详情按对象边界读取，以便查看一条 Series 或 PollTrace 不必扫描无关历史。
@@ -68,7 +68,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 38. 作为数据库维护人员，我希望若选择 Snapshot Isolation，就把 tempdb 版本存储纳入 2 GB 内存与数据库容量实测，以便一致性机制不会转移资源风险。
 39. 作为系统，我希望长 Serializable 事务不是默认实现，以便读取不会用阻塞换取一致性。
 40. 作为 API 消费者，我希望跨 HistoryEpoch、ProjectionCommit、筛选或契约复用的 snapshot/cursor 被明确拒绝，以便身份不能被静默重新解释。
-41. 作为审计人员，我希望 DemandRawObservation 自所属 PollTrace CompletedAt 起完整保留 30×24 小时，以便近期原始证据有精确 Host UTC 边界。
+41. 作为审计人员，我希望 DemandRawObservation 自所属 PollTrace CompletedAt 起完整保留 15×24 小时，以便近期原始证据有精确 Host UTC 边界。
 42. 作为审计人员，我希望 RawObservationAvailabilityWindow 不使用 MES DATES、自然月或本地午夜，以便保留判断不受源业务时间和时区影响。
 43. 作为审计人员，我希望保留窗口内的原始行按原样完整返回，以便重复、空值和非法值不会被任选、补值或截断。
 44. 作为 Watch 用户，我希望已过期的 PollTrace、冻结 snapshot 或历史对象返回 410 MES_INGEST_HISTORY_EXPIRED，以便过期不被误解为不存在或空集合。
@@ -76,7 +76,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 46. 作为系统，我希望当前物化状态不因年龄被清理，以便当前目录和运维视图始终可解释。
 47. 作为审计人员，我希望活跃 DemandSeries 的结构化世代、事件、错误链和当前条件不按年龄拆散，以便活跃生命周期保持完整。
 48. 作为系统，我希望只有已归档、当前 Demand 不为 VISIBLE 或 LONG_GONE_BUT_VISIBLE 且无活动条件或错误期间的 Series 才成为 RetentionEligibleDemandSeries，以便清理资格符合领域语义。
-49. 作为系统，我希望 RetentionEligibleDemandSeries 自首次满足资格的 Host UTC 时点再保留 30×24 小时，以便详细历史不会在归档瞬间消失。
+49. 作为系统，我希望 RetentionEligibleDemandSeries 自首次满足资格的 Host UTC 时点再保留 15×24 小时，以便详细历史不会在归档瞬间消失。
 50. 作为系统，我希望任何新观测、条件或事件都取消 Series 的清理倒计时，以便重新活跃的历史图不会被误删。
 51. 作为系统，我希望可清理 Series 以完整详细历史图为单位删除，以便不会留下残缺世代、事件或错误链。
 52. 作为系统，我希望清理 Series 时在同一事务中先幂等写入 ArchivedDemandKeyTombstone 再删除详细历史，以便任何失败都不会遗忘归档身份。
@@ -113,12 +113,12 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 83. 作为系统，我希望超出已验证字段边界的源值形成显式异常并停止不安全解释，以便有界类型不会静默损坏数据。
 84. 作为性能工程师，我希望热字段、筛选列、索引键和临时表宽度由真实数据分布与上限门禁决定，以便内存授予保持可控。
 85. 作为架构师，我希望 ObservationPayload、ObservationSet 和 Span 暂不成为首版依赖，以便先用读取分离、保留和压缩解决已知问题。
-86. 作为架构师，我希望只有 30 天容量或热查询门禁失败时才重新打开内容寻址方案，以便复杂度由证据驱动。
+86. 作为架构师，我希望只有 15 天容量或热查询门禁失败时才重新打开内容寻址方案，以便复杂度由证据驱动。
 87. 作为 API 消费者，我希望此次行为改变同时提升精确 contractVersion 与 schemaVersion，以便旧语义不能沿用相同身份。
 88. 作为 API 消费者，我希望系统继续只发布唯一 /api/v2 和 /openapi/v2.json，以便不长期维护 V2/V3 双路由。
 89. 作为部署工程师，我希望 Host、Watch 和 reference consumer 作为一个精确契约包共同切换，以便不出现混合版本业务解释。
 90. 作为部署工程师，我希望切换前在独立空库上完成新 schema、压缩、保留、查询和整包兼容验证，以便不在旧生产库原地试错。
-91. 作为部署工程师，我希望代表性样本以 30% 安全余量外推后满足 30 天容量门禁，并在预测接近阈值或增长非线性时自动升级完整规模验证，以便日常门禁快速而高风险结果仍有实证。
+91. 作为部署工程师，我希望代表性样本以 30% 安全余量外推后满足 15 天容量门禁，并在预测接近阈值或增长非线性时自动升级完整规模验证，以便日常门禁快速而高风险结果仍有实证。
 92. 作为部署工程师，我希望现场切换被限制在一次 30–60 分钟计划停机窗口，以便停止、验证和删除属于同一可审计运行。
 93. 作为系统，我希望新库除 ArchivedDemandKeyTombstone 外不迁移旧当前态或详细历史，以便不制造无法证明的新领域事实。
 94. 作为安全负责人，我希望墓碑播种以数量和稳定哈希证明旧库全部已归档键已进入新库，以便旧键安全结论不会遗漏。
@@ -135,8 +135,8 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 105. 作为运维工程师，我希望常用 Watch API 在代表性压缩负载下 P95 小于 2 秒、P99 小于 5 秒，以便现场调查保持可用。
 106. 作为运维工程师，我希望负载期间没有 Error 701、持续 RESOURCE_SEMAPHORE 或不可接受 spill，以便低内存目标不是以不稳定换来的。
 107. 作为运维工程师，我希望通过 30–45 分钟高强度并发压力和加速的 24 小时逻辑周期证明锁、版本存储、清理和调度能共同工作，并在资源趋势异常时升级长时间 soak。
-108. 作为容量负责人，我希望 30 天逻辑已用空间不超过 12 GB、物理数据库文件不超过 16 GB、LDF 目标不超过 2 GB，以便部署适配现场磁盘预算。
-109. 作为容量负责人，我希望代表性样本的增长以 30% 安全余量外推后不超过 30 天门槛，以便快速阻断明显失败。
+108. 作为容量负责人，我希望 15 天逻辑已用空间不超过 12 GB、物理数据库文件不超过 16 GB、LDF 目标不超过 2 GB，以便部署适配现场磁盘预算。
+109. 作为容量负责人，我希望代表性样本的增长以 30% 安全余量外推后不超过 15 天门槛，以便快速阻断明显失败。
 110. 作为运维工程师，我希望容量报告分别展示表、索引、PAGE 压缩、墓碑、版本存储和日志占用，以便总量变化可以定位。
 111. 作为开发者，我希望真实 SQL Server Tier 1 运行显示 Failed: 0、Skipped: 0，以便 SQL 行为没有被 82 个静默跳过的集成测试遗漏。
 112. 作为维护者，我希望所有验收证据记录配置、schema/contract、HistoryEpoch、数据规模、并发模型和 skip 数，以便结果可重复且不能脱离运行上下文。
@@ -152,12 +152,12 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 - 读取模块在物理上分成 Current Read Model 与 Historical/Frozen Read Model。当前路径只能访问当前物化投影、当前条件、维护计数和专用概览聚合；不得扫描或排名 DemandRawObservation 历史。
 - 历史路径必须按单对象或稳定页有界。服务端负责筛选、精确计数、稳定排序、keyset cursor 和历史边界；Watch 不下载全表或以当前页推导总数。
 - 冻结列表、分面、计数、详情和原始证据读取必须绑定同一 HistoryEpoch 与 ProjectionCommit。实现可以在短事务版本化读取与不可变快照读模型之间选择，但必须通过真实 tempdb、执行计划和并发门禁；长 Serializable 不是默认方案。
-- DemandRawObservation 的 RawObservationAvailabilityWindow 是从所属 PollTrace CompletedAt 起精确 30×24 小时。普通成功/失败 PollTrace 使用 Host CompletedAt；关闭错误使用 EndedAt；RetentionEligibleDemandSeries 使用首次满足资格的 Host UTC 时点。均不使用 MES DATES、自然月或本地午夜。
+- DemandRawObservation 的 RawObservationAvailabilityWindow 是从所属 PollTrace CompletedAt 起精确 15×24 小时。普通成功/失败 PollTrace 使用 Host CompletedAt；关闭错误使用 EndedAt；RetentionEligibleDemandSeriesWindow 同样从首次满足资格的 Host UTC 时点起精确 15×24 小时。均不使用 MES DATES、自然月或本地午夜。
 - 当前物化状态和活跃 DemandSeries 的结构化图不按年龄拆散。RetentionEligibleDemandSeries 的任何新观测、条件或事件都会取消清理计时；再次满足资格时重新建立资格时点。
 - 历史过期使用 410 MES_INGEST_HISTORY_EXPIRED，并返回最早可用 Host UTC 边界。只有从未存在的当前身份才使用既有未找到语义；不得用 404、200 空集合或残缺对象表示已知过期历史。
 - ArchivedDemandKeyTombstone 是唯一允许永久保留的已清理 MesIngest 业务记录，只保存 TransportDemandKey、原 Series 身份、归档结论和安全判断所需的最小版本化事实。
 - 清理单个 Series 的原子边界固定为：同一事务内幂等写墓碑，再删除该 Series 完整详细历史图，再提交。批次预算不得拆开这个边界。
-- Host 以单实例后台清理器每小时运行。批次行数、单次时间预算和检查间隔是运维配置，不改变 30 天领域语义；默认值由容量基线票据在真实 SQL Server 上选择并冻结。
+- Host 以单实例后台清理器每小时运行。批次行数、单次时间预算和检查间隔是运维配置，不改变 15 天领域语义；默认值由容量基线票据在真实 SQL Server 上选择并冻结。
 - 清理器必须幂等、可取消、失败可续且轮询优先。清理失败进入 Current Attention；只有卷空间达到阈值时才触发 StoragePressurePause。
 - 存储监控针对数据库实际数据卷。低于 15% 产生严重告警；低于 10% 在查询 MES 之前进入 StoragePressurePause。暂停不取得新快照、不推进缺席、GONE 或归档判断。
 - StoragePressurePause 期间 Watch 诊断与历史读取继续服务，ExternallyReadableDemandCatalog 与执行承诺读取返回 503 INGEST_NOT_CURRENT。空间回升不自动恢复，恢复只由 MesIngestLocalAdministration 提交。
@@ -167,7 +167,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 - 所有 snapshot、cursor、目录条件身份和 API 响应都携带或绑定 HistoryEpoch。旧纪元缓存、cursor 和 snapshot 不能跨纪元复用。
 - DemandRawObservation 主要聚集与非聚集索引在正式 schema 中默认 PAGE 压缩；空库 bootstrap、schema validation 和发布门禁都校验该属性。
 - 当前投影字段、筛选列、索引键和临时结构使用经真实数据验证的有界类型。DemandRawObservation 原始证据保持无损；超界输入形成可诊断异常，不截断、不回填、不任选。
-- 首版不建设 ObservationPayload、ObservationSet 或 Span 内容寻址层。只有 30 天容量或当前态逻辑读门禁失败，才以新的证据和 ADR 重新开启该设计。
+- 首版不建设 ObservationPayload、ObservationSet 或 Span 内容寻址层。只有 15 天容量或当前态逻辑读门禁失败，才以新的证据和 ADR 重新开启该设计。
 - 同时提升 NewMesIngestContract 的精确 contractVersion 与 schemaVersion，并更新完整 capability ID/version 集合与 OpenAPI。继续只发布唯一 /api/v2 和 /openapi/v2.json，不提供长期并行 V3。
 - Host、Watch 与 reference consumer 必须以精确版本整包切换。任何 contract、schema 或 capability 身份不一致都在业务读取前失败，不能做缺字段或旧 DTO 降级。
 - 新库不迁移旧当前投影、PollTrace、DemandRawObservation、DemandSeries、事件或错误历史；计划切换只从旧库播种已归档 TransportDemandKey 的 ArchivedDemandKeyTombstone。
@@ -178,7 +178,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 - 删除前在数据库外写不可覆盖的 JSON/Markdown 证据并写 Windows 事件日志，记录实例、旧/新库身份、HistoryEpoch、版本、墓碑证明、三轮投影、接口检查、执行账号和时间。证据不得包含业务原文，也不构成备份。
 - 旧库删除后没有历史或版本回滚路径，后续故障只在新库与新契约上向前修复。
 - 运行遥测至少覆盖：SQL Server 配置与进程内存、workspace/grant、Error 701、RESOURCE_SEMAPHORE、spill、当前态逻辑读、查询延迟、轮询节奏与退避、清理进度与失败、最早可用历史、HistoryEpoch、StoragePressurePause、数据库逻辑已用空间、MDF/NDF/LDF 物理大小、压缩状态与 log reuse wait。
-- 默认发布门禁固定为：代表性压缩负载下常用 Watch API P95 < 2 秒、P99 < 5 秒；没有 Error 701、持续 RESOURCE_SEMAPHORE 或不可接受 spill；当前态逻辑读不随代表性历史规模增长；30–45 分钟高强度并发压力和加速 24 小时逻辑周期稳定；带 30% 安全余量的 30 天预测满足逻辑已用空间 ≤ 12 GB、物理数据库文件 ≤ 16 GB、LDF 目标 ≤ 2 GB。任一预测达到对应门槛的 70%、增长呈非线性、证据不完整，或压力运行出现持续资源斜率、清理积压、延迟恶化时，必须升级完整规模或 4/24 小时 soak；用户也可在正式现场切换前明确要求升级。
+- 默认发布门禁固定为：代表性压缩负载下常用 Watch API P95 < 2 秒、P99 < 5 秒；没有 Error 701、持续 RESOURCE_SEMAPHORE 或不可接受 spill；当前态逻辑读不随代表性历史规模增长；30–45 分钟高强度并发压力和加速 24 小时逻辑周期稳定；带 30% 安全余量的 15 天预测满足逻辑已用空间 ≤ 12 GB、物理数据库文件 ≤ 16 GB、LDF 目标 ≤ 2 GB。任一预测达到对应门槛的 70%、增长呈非线性、证据不完整，或压力运行出现持续资源斜率、清理积压、延迟恶化时，必须升级完整规模或 4/24 小时 soak；用户也可在正式现场切换前明确要求升级。
 - 2026-08-22 的 Host、SQL Server 和已部署程序集状态只是旧诊断事实。实施第一张票必须先用只读检查重新确认当前服务、进程、版本、端点、数据库、配置和错误反馈环，不能把交接观察当作现状。
 
 ## Testing Decisions
@@ -198,7 +198,7 @@ DemandRawObservation 自所属 PollTrace 完成起保留精确 30×24 小时。�
 - HistoryEpoch 测试覆盖计划切换、非计划丢库、普通 Host 重启三类路径，证明只有前两者产生新纪元，只有非计划身份丢失要求 HistoryResetAcknowledgement，且旧 snapshot/cursor/cache 全部被拒绝。
 - 本地管理测试从授权/未授权身份运行，证明目标 HistoryEpoch、状态前置条件、审计内容与幂等行为正确，且 Watch/API/直接 SQL 修改不能冒充合法操作。
 - Schema 测试在空数据库 bootstrap 后验证 SIMPLE 恢复、精确 schemaVersion、有界字段、所有要求的 PAGE 压缩索引和墓碑结构；在已有错误 schema、错误压缩或超界数据时必须失败且不静默修补。
-- 压缩与容量默认测试使用生产分布的代表性样本，实测每轮、每行、表、聚集索引、非聚集索引、墓碑、版本存储和 LDF 增量，以 30% 安全余量外推 30 天。只有任一预测达到对应门槛的 70%、增长非线性、压缩或清理证据不确定时才物化完整规模；无论采用哪种路径，结论都必须证明逻辑已用空间 ≤ 12 GB、物理数据库文件 ≤ 16 GB、LDF 目标 ≤ 2 GB。
+- 压缩与容量默认测试使用生产分布的代表性样本，实测每轮、每行、表、聚集索引、非聚集索引、墓碑、版本存储和 LDF 增量，以 30% 安全余量外推 15 天。只有任一预测达到对应门槛的 70%、增长非线性、压缩或清理证据不确定时才物化完整规模；无论采用哪种路径，结论都必须证明逻辑已用空间 ≤ 12 GB、物理数据库文件 ≤ 16 GB、LDF 目标 ≤ 2 GB。
 - 性能负载默认测试在 SQL Server 常态 1536 MB 配置下运行 30–45 分钟高强度并发压力，以验证专用加速 profile 增加轮询、当前页 Watch 读取、冻结详情、每小时清理与 reference consumer 条件目录读取的操作次数，并用可控时间跨越 24 小时逻辑边界；验收 P95/P99、Error 701、RESOURCE_SEMAPHORE、spill、资源趋势、锁等待、tempdb、日志与轮询遗漏。出现风险信号时升级 4 小时或 24 小时真实 soak；长时间运行不再是日常实现关闭的默认前置条件。
 - 2048 MB 维护配置只在独立维护场景测试，并证明结束后恢复 1536 MB。800 MB 配置测试只验证配置拒绝或前置门禁，不重新把生产负载运行到已知故障状态。
 - Cutover seam 只使用隔离的临时旧库/新库和明确测试实例。分别让每一个门禁单独失败，证明精确旧库未删除、系统库/新库/错误目录/错误版本/活动连接目标均被拒绝、没有后台重试。

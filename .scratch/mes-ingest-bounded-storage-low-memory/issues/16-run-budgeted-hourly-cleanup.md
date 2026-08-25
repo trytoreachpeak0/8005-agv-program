@@ -7,7 +7,7 @@
 **Status:** ready-for-human
 
 - [x] 单实例 Host 后台流程默认每小时检查一次，不依赖 SQLSERVERAGENT 或外部 Windows 计划任务。
-- [x] 每批具有明确行数和时间预算；真实基线选择并冻结安全默认值，但不得改变 30 天领域保留语义。
+- [x] 每批具有明确行数和时间预算；真实基线选择并冻结安全默认值，但不得改变 15 天领域保留语义。
 - [x] RawObservation 和 Series 清理均幂等、可取消、失败可续，单个 Series 的墓碑事务不能被批次预算拆开。
 - [x] 轮询到期时清理让出资源，不与投影形成无界锁等待或并发清理实例。
 - [x] 清理进度、最后成功、删除计数、earliest available、失败原因和下一次检查时间可观测。
@@ -25,3 +25,5 @@
 - Current Attention/API 持久公开 last attempt/success、per-run/cumulative counts、earliest available、next check、脱敏 failure reason 以及稳定的 failure time/run identity；失败后的真实 SQL 投影仍成功提交，`INTERRUPTED` 重试不会漂移原告警，真正成功后才清除。
 - 聚焦真实 SQL/HostedService/Attention/schema/OpenAPI/contract 测试最终 31/31 通过，0 跳过；策略突变检查 3/3 被杀死。双轴复核最终均为 `No findings`。Ticket 20 仍按其既定边界负责最终 exact contractVersion/capability 整包切换；本票只把 exact schema identity/freeze 提升到 25。
 - 首次完整门禁暴露一个旧 Watch 测试仍冻结四类 Attention（818 通过、1 失败、0 跳过）；测试契约更新为五类后，正式关闭门禁 `dotnet test MesIngest.Tests` 在真实 SQL Server ProductMajor 16 / compatibility 160 上 819 通过、0 失败、0 跳过，10 分 53 秒。未运行 Tier 2/3：本票未修改 WPF/XAML/布局/基线，且未请求 Golden Renderer。
+- 2026-08-25：Ticket 27 后续将 Raw/Series 领域窗口统一为 15×24 小时，清理批次和时间预算不变；
+  上方 30 天文字保留 Ticket 16 当时冻结默认值时的历史事实。

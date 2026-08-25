@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "decision": "ALL_EXECUTABLE_HISTORY_RETENTION_15_DAYS",
+  "source": {
+    "commit": "87d401b3b39a8dea32bc330f9d0d38f5d0bd28d2",
+    "sourceDirty": false,
+    "hostSha256": "eb67d27e1b4b5abb0f29134aea1cacbf03f099acf3ab9256bcbfdf5c4f4f502d",
+    "contractVersion": "2026.08.new-mes-ingest.v2.2",
+    "schemaVersion": 29
+  },
+  "sqlServer": {
+    "service": "LAB-WIN-01/MSSQLSERVER",
+    "dataSource": "LAB-WIN-01",
+    "productVersion": "16.0.1190.2",
+    "productMajor": 16,
+    "compatibilityLevel": 160,
+    "engineEdition": 3,
+    "localDb": false,
+    "recoveryModel": "SIMPLE",
+    "maxServerMemoryMb": 1536,
+    "dataAutogrowthMb": 64,
+    "ldfAutogrowthMb": 64,
+    "percentGrowth": false
+  },
+  "sample": {
+    "seed": 8005,
+    "roundIntervalSeconds": 14,
+    "observationsPerRound": 600,
+    "series": 600,
+    "activeSeries": 420,
+    "archivedSeries": 180,
+    "activeErrorSeries": 60,
+    "historyRounds": 415,
+    "historyRows": 249000,
+    "currentRows": 600,
+    "totalRawObservationRows": 249600,
+    "maximumAllowedRows": 250000,
+    "baselineLogicalUsedMb": 1.960935,
+    "sampleLogicalUsedMb": 38.328120,
+    "observedLogicalGrowthMb": 36.367185,
+    "logicalMbPerRound": 0.08763177108433737,
+    "logicalMbPerRow": 0.00014605295180722893,
+    "linearityMaximumToMinimumSegmentRate": 2.4277798145420997
+  },
+  "model": {
+    "targetDays": 15,
+    "targetRounds": 92571,
+    "targetRawObservationRows": 55542600,
+    "safetyMarginFraction": 0.30,
+    "escalationFraction": 0.70,
+    "formula": "((baselineLogicalMb + logicalMbPerRound * targetRounds) * 1.30) + projectedTombstoneMb",
+    "physicalFormula": "72 + ceil((projectedLogicalUsedMb - 72) / 64) * 64",
+    "ldfFormula": "max(sampleLdfMb, peakPhysicalLogMb, peakLogUsedMb) * 1.30 under SIMPLE recovery",
+    "predictionMb": {
+      "logicalUsed": 10548.650600862653,
+      "physicalData": 10568.0,
+      "ldf": 343.18984375,
+      "tombstone": 0.2925,
+      "databaseVersionStorePeak": 177.85625,
+      "tempdbImpact": 182.325
+    },
+    "finalLimitsMb": { "logicalUsed": 12288.0, "physicalData": 16384.0, "ldf": 2048.0 },
+    "escalationThresholdsMb": { "logicalUsed": 8601.6, "physicalData": 11468.8, "ldf": 1433.6 }
+  },
+  "rawObservationAllocationsMb": [
+    { "index": "PK_MesIngest_DemandRawObservations", "kind": "CLUSTERED", "compression": "PAGE", "used": 11.898437 },
+    { "index": "IX_MesIngest_DemandRawObservations_Series", "kind": "NONCLUSTERED", "compression": "PAGE", "used": 10.03125 },
+    { "index": "IX_MesIngest_DemandRawObservations_Demand", "kind": "NONCLUSTERED", "compression": "PAGE", "used": 14.117187 }
+  ],
+  "cleanup": {
+    "publishedDefaults": { "checkIntervalSeconds": 3600, "rawRowsPerBatch": 210000, "wholeSeriesPerBatch": 25, "timeBudgetSeconds": 15 },
+    "deletedRawObservationRows": 249600,
+    "remainingRawObservationRows": 0,
+    "deletedEligibleSeries": 25,
+    "remainingEligibleSeries": 0,
+    "tombstonesWritten": 25,
+    "activeSeriesBefore": 420,
+    "activeSeriesAfter": 420,
+    "activeGraphUnchanged": true,
+    "activeGraphSplitCount": 0,
+    "activeGraphSha256": "661d764938228dba93fe2ef936fa873bfbc7200bf78a6a889915b6db8297f376"
+  },
+  "gate": {
+    "passed": false,
+    "releaseBlocked": true,
+    "failures": ["CAPACITY_GROWTH_NONLINEAR", "CAPACITY_LOGICAL_70_PERCENT_ESCALATION"],
+    "fullScaleEscalationRequired": true,
+    "nextValidationProfileDays": 15,
+    "fullScaleMaterialized": false
+  },
+  "rawEvidence": {
+    "baselineRun": "scale-20260825T071241Z-52633e35",
+    "baselineJsonSha256": "33ba83b4f2778005a732808e3682b6749d714b39728c1a24e40afb22891d0f8f",
+    "sampleRun": "scale-20260825T071312Z-9547f8cb",
+    "sampleJsonSha256": "6d391e93e5aaf7a295a08f1108fd14578c8469b2f5406de61b50c89535cd2def",
+    "residualScaleDatabases": 0
+  },
+  "watchPreview": {
+    "suite": "watch-production-preview",
+    "passed": true,
+    "vmTests": { "passed": 146, "failed": 0, "skipped": 5 },
+    "uiJourneys": { "passed": 1, "failed": 0, "skipped": 0 },
+    "environment": "GPT-WIN11 interactive Session 1; 1920x1080; 96 DPI; light; zh-CN; China Standard Time; SoftwareOnly",
+    "evidenceRun": "run-20260825-153220-watch-production-preview",
+    "preview": "watch-ui/20260825-153248-852/production-workspace-19-22/06a-error-search-15-day-window.png",
+    "previewSha256": "1c1182d2e780fc33406480b55aac858c5a1a513f499926399fcc31c1b349c7ad",
+    "humanApproved": false,
+    "baselinePromoted": false,
+    "residualProcesses": 0
+  },
+  "tests": {
+    "tier1Red": {
+      "passed": 879,
+      "failed": 3,
+      "skipped": 0,
+      "total": 882,
+      "trxSha256": "430a1f1d287ca643caeba92c46995e177ef4fef5d7841305be30540bfc0f3b10"
+    },
+    "tier1Closing": {
+      "passed": 882,
+      "failed": 0,
+      "skipped": 0,
+      "total": 882,
+      "duration": "00:12:35",
+      "trxSha256": "e5171b9f21e393e906acd03ebc2298429952fba78bc595f0d0dedf315c91610b",
+      "attestationSha256": "e762cf8294edcb855b711c9d1707ca6fd313ad5050a8f1da2d92fbcf7f3ae976"
+    },
+    "review": { "standardsFindings": 0, "specFindings": 0 }
+  }
+}

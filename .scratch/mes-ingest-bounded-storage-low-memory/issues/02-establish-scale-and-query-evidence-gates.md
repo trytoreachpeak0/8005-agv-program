@@ -1,12 +1,12 @@
 # 02 — 建立规模数据与查询证据门禁
 
-**What to build:** 提供可重复、安全且接近生产分布的 SQL Server 规模数据与证据工具，使每个后续查询和存储改变都能在 0、7、30 天历史规模下比较，而不是凭 SQL 文本或单次秒表判断。
+**What to build:** 提供可重复、安全且接近生产分布的 SQL Server 规模数据与证据工具，使每个后续查询和存储改变都能在 0、7、15 天历史规模下比较，而不是凭 SQL 文本或单次秒表判断。
 
 **Blocked by:** 01 — 重建真实运行反馈环.
 
 **Status:** done
 
-- [x] 在隔离测试数据库中生成保持真实键分布、重复观测、错误期间、活跃与归档 Series 比例的 0、7、30 天等效数据。
+- [x] 在隔离测试数据库中生成保持真实键分布、重复观测、错误期间、活跃与归档 Series 比例的 0、7、15 天等效数据。
 - [x] 数据生成入口必须显式指向隔离目标，拒绝系统库、生产库和无法证明身份的数据库，并能清理自己创建的测试数据库。
 - [x] 对 DemandSeries、ExternallyReadableDemandCatalog、CurrentIngestAttention、Overview、ReadabilityAudit、ErrorSearch 和原始证据读取采集实际执行计划、STATISTICS IO/TIME、内存授予、spill 与延迟。
 - [x] 报告分别记录逻辑已用空间、物理数据文件、LDF、表、聚集索引、非聚集索引和压缩状态。
@@ -33,3 +33,6 @@
 - 最终当前源码真实 SQL Tier 1 见
   `mes/ingest/csharp/.artifacts/ticket02-tier1/run-20260823T081251Z/`：
   Failed 0 / Passed 728 / Skipped 0 / Total 728，耗时 7 分 38 秒。
+- 2026-08-25：Ticket 27 后续把现行保留和容量目标统一为 15 天；证据工具的可执行 profile 现为
+  0/7/15，15 天固定目标为 92,571 历史轮、55,542,600 条历史原始观测。以上 2026-08-23
+  评论保留当时实际交付的 0/7/30 历史事实。
