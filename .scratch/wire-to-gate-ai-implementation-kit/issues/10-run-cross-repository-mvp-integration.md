@@ -36,3 +36,13 @@ Blocked by: 08, 09, 17
 用户进一步确认不保留 AI 产品候选作为当前实现。远程 `OnboardHmi_MVP@05bf9f4781828dcd4e63cbb7349e4cebd6a25a85` 已用可追溯 revert 恢复到王昆 `bc56fa9` 产品树，仅保留 README 与交接文档；基线 Release 构建 0 warning/0 error、48/48 单测 PASS。此前绑定 `398a957` 或 `c41160c` 的 Onboard G2/smoke 证据现在仅是历史红线资料，不得用于候选冻结或 G3。后续联合测试必须等待王昆的新实现 commit 和本人确认。
 
 王昆的两项下一步工作已只以文档形式推送：`8005-agv-onboard-hmi/OnboardHmi_MVP@a6f05fb` 新增 `docs/WANG_KUN_FIRST_INTEGRATION_WORK_PACKAGE.md`，定义 HMI 第一次联调范围、代码入口、正式消息面、联调顺序与验收；`slots-simulator/main@d5ab183` 新增 `docs/EXTERNAL_AUTOMATION_CONTROL_API.md`，定义 Modbus 数据面与 loopback HTTP 环境/故障控制面、revision 并发规则和黑盒测试。两次提交均未修改产品代码或构建输入，后续实现等待王昆本人提交。
+
+### 2026-08-26 — 王昆当前实现接入与恢复 smoke 收口
+
+远程已出现王昆本人实现 `OnboardHmi_MVP@045514770da9858a8a49196dede276192e4f2a1b` 和 simulator `main@fb5f7c593742bf98bc3957b8729a38aad5321f28`；两端当前共同绑定经两名负责人批准并发布的 `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279`、manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f`。外部批准证明重新下载哈希与 release 登记的 `89f67c…90cb` 一致。
+
+王昆提交在无 CRLF 转换的干净 clone 中通过协议 G1、Release build、format、Unit 62/62、W2G G2 13/13、边界/UI 静态审计；simulator 核心 18/18 与 HTTP/Modbus 14/14 通过。ControlServer 修复后完整 18/18 测试、format 和 W2G-IS-00～07 八份 G2 全部通过。
+
+真实 ControlServer + 真实 OnboardHmi + 独立 simulator 首次运行暴露确认哈希算法和 `SafetyStateSnapshot` ack kind 两项 ControlServer 偏差；已在远程 `ControlServer_MVP@3ceeee6dd243015b3f5fb94e9fea1d144dc4babf` 修复。修复后双方完成正式 release 会话、Capability、Safety 和 RecoveryStateReport，稳定得到 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，不再出现 `CONTENT_HASH_MISMATCH`；所有监听均回收。详细证据见 [`2026-08-26 当前双端提交联合审计`](../evidence/g3/20260826-current-peer-audit.md)。
+
+本票继续保持 `claimed`：OnboardHmi 尚未接入真实停稳/驻车 provider，ControlServer 尚无恢复/心跳以外的完整双向业务分发，且 MesIngest/RIoT 凭据及车辆、Map、站点身份仍缺失。W2G-IS-00～07 G3 继续为 `INCONCLUSIVE`，不得写 `## Answer` 或更新地图 Decisions so far。
