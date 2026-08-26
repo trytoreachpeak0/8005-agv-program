@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "environment": "LOCAL_CONTROL_SERVER_REAL_ONBOARD_REAL_HTTP_IO_SIMULATOR",
+  "controlServerCommit": "8fae66f65cde41d1b1c64a328661860ee16a481a",
+  "onboardHmiCommit": "398a957662cacb6c0f49ddd78da12d896a1469be",
+  "protocolCommit": "72ddde595165468520d9f3a46b25e4aa4eec0c3f",
+  "protocolManifestSha256": "e878d89e820535fe1eb64b85681b9c2994fb98646309e6ba768219c5c8735f2e",
+  "controlServerEndpoint": "127.0.0.1:58025",
+  "controlServerHealthEndpoint": "http://127.0.0.1:58017",
+  "slotIoEndpoint": "http://127.0.0.1:58006",
+  "controlServerDatabase": "fresh-temporary-sqlite-per-run",
+  "onboardJournal": "fresh-temporary-sqlite-per-run",
+  "credentialReference": "env:CONTROL_SERVER_ONBOARD_CREDENTIAL",
+  "credentialValueRecorded": false,
+  "realRiotAvailable": false,
+  "realVehicleAvailable": false,
+  "realIoAvailable": false
+}
