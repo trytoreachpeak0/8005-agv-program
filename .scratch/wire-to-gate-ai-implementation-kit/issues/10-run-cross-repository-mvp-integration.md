@@ -136,3 +136,9 @@ Release 全量测试 60/60、聚焦 Journey／准入／边界测试 32/32、form
 Release 完整测试 68/68 PASS（0 skipped），format、`git diff --check` 和全解决方案构建均通过，构建为 0 warning / 0 error。正式协议 `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279`、manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` 下 W2G-IS-00～07 八份本端 G2 全部绑定 `ea3050d` PASS，合计执行 95 个按切片筛选的测试；机器证据在 ControlServer 忽略目录 `artifacts/g2/issue10-recovery-g2-ea3050d/`，索引 SHA-256 为 `e20f83bf4e14646fab9a2217f050fe396eac96579377c9911020c15157d47d9d`。高置信 secret 扫描为 0，58004／58005／58007 无监听，相关 ControlServer／Onboard／simulator／G2 进程为 0；ControlServer、OnboardHmi、protocol、simulator 工作区均清洁，ControlServer 远端已回读到同一提交。本任务未使用任何外部凭据，未真实建单或动车，也未修改受保护的 OnboardHmi、simulator 或协议仓。
 
 第 2 项结论为完成，本票仍保持 `claimed`。剩余阻断仍包括真实 MesIngest／RIoT 凭据与具名车辆、Map、站点身份，王昆端真实停稳／驻车 provider 及其受保护仓库中的现有跨仓恢复重放阻断；本任务绝对未启动、设计实现或运行第 3 项阶段性 G3 runner，也不把本端 Fake／G2 证据表述为 G3 或 RC。第 3 项必须由主任务在本任务完整结束后另开新 chat；此处不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 第 3 项确定性阶段性 G3 runner 路由指针
+
+第 3 项的唯一 source of truth 已按用户指定落在 `8005-agv-control-server`：runner／产品修复提交 `ControlServer_MVP@b4afdb3ce3d6ee2b84b78b09101af689f1cbde92`，正式证据提交 `ControlServer_MVP@91b4bad0b76cdc5b28b9e939eaa26ccc607d8b67`，摘要为 [`Deterministic staged G3 split-transport result`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/91b4bad0b76cdc5b28b9e939eaa26ccc607d8b67/evidence/g3/20260826-staged-g3-b4afdb3/SUMMARY.md)。TLS `SslStream` 身份／重复／冲突探针及 plaintext loopback 的真实 Onboard `RecoveryStateReport` 首 Ack drop 重放均 PASS；真实 Onboard+TLS 组合因没有受支持的已信任 loopback 证书而保持 `INCONCLUSIVE`，正式切片、完整 G3 和 RC 均未宣称 PASS。
+
+本票继续保持 `claimed`；此处仅保留路由指针，不复制跨仓证据，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
