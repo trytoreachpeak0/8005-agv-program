@@ -30,7 +30,8 @@ create slash-separated bilingual headings.
 - Use Fluent System Icons through `SymbolIcon`; do not mix emoji, arbitrary
   Unicode glyphs, bitmap icons, and Fluent icons in the same command system.
 - One `FluentWindow` owns one WPF UI `TitleBar`. One WPF UI `NavigationView`
-  owns primary navigation. A page owns its commands and transient `InfoBar`.
+  owns primary navigation. A page owns its commands and stable scoped status;
+  the window owns one overlay toast host above page content.
 
 ## Tokens
 
@@ -57,8 +58,8 @@ semantic and reserved for meaning:
 - Informational: neutral progress, read-only explanation, recovery notice.
 
 Do not tint whole pages. A status color may appear in an icon, a narrow accent,
-an `InfoBar`, or a compact badge, and must always be paired with visible text
-and an accessible name.
+a stable in-page state, a toast, or a compact badge, and must always be paired
+with visible text and an accessible name.
 
 ## Shell and page anatomy
 
@@ -74,17 +75,19 @@ FluentWindow
 ├─ active page
 │  ├─ one page title + optional one-line purpose
 │  ├─ page context: Host, last success, automatic-refresh interval
+│  ├─ compact scoped fault status beside the page title
 │  ├─ page-scoped commands: query/filter actions and overflow
-│  ├─ optional inline InfoBar
 │  └─ page content
+└─ overlay toast host: top-right of the content region below the title bar
 ```
 
 - Never repeat application identity, endpoint, and connection state in a second
   full-width app banner below the title bar.
 - Keep connection status in the `NavigationView` pane footer as a compact,
   persistent Host entry. The expanded pane exposes endpoint and contract state;
-  compact mode retains a named icon and tooltip. Put actionable connection
-  failure in the affected page's `InfoBar` with a Settings action.
+  compact mode retains a named icon and tooltip. Announce a new actionable
+  connection failure once through the overlay toast host, then keep it available
+  in the affected page's compact fault status with a Settings/details action.
 - Put page freshness beside the page title as secondary context. Do not create
   a global bottom status strip for Host, freshness, read-only mode, or keyboard
   hints; those facts belong to the navigation footer, page context, settings,
@@ -96,6 +99,44 @@ FluentWindow
   effective interval as passive context (`自动刷新 · 10 秒`) and exposes no manual
   Refresh command. User actions such as query, sort, paging, or Host change may
   still start an immediate read for their own result.
+
+## Feedback contract
+
+- Normal initial load and automatic-refresh start/success do not create a toast
+  or insert/remove a message row. They update fixed progress/freshness context.
+- Toasts are reserved for user-initiated operation outcomes, a selection cleared
+  by a refresh, a new fault's first occurrence, and recovery. The same active
+  fault is coalesced and is neither re-shown nor re-announced on every refresh.
+- A continuing fault contracts after its first toast to the affected page title:
+  highest-severity icon, visible severity text, current count, and an accessible
+  details affordance. Closing a toast never clears that status. Global Host state
+  remains in the navigation footer and may survive page navigation.
+- Page-scoped toasts end when their page is left. Global fault toasts may remain.
+  Background/minimized operation does not use Windows system notifications and
+  does not replay stale success or recovery messages when the window returns; an
+  extant fault may be summarized once.
+- The host occupies the content region's top-right below the title bar, is about
+  380 epx wide, and shows at most three items with newest first. At narrow widths
+  it becomes one top-aligned column with safe side margins. It never changes page
+  measure or covers navigation/title-bar controls.
+- Coalesce same-source events and prioritize error, warning, then success/info.
+  Obsolete success/info items may be discarded instead of replayed from a queue;
+  warnings and errors remain represented by their stable fault status.
+- Success/info stays for 3 seconds, warning for 5 seconds, and operation failure
+  or a continuing fault's first notice for 8 seconds. Hover or keyboard focus
+  pauses dismissal. Every toast can be closed; long/sensitive exception text,
+  credentials, full URLs, and stacks stay in details rather than the toast.
+- Toast entry/exit uses roughly 180 ms opacity plus 8–12 epx vertical movement,
+  and stack changes move smoothly. Reduced-motion mode removes movement and may
+  switch directly or use opacity only.
+- Empty results, no selection, detail conclusions, and field validation replace
+  content in stable regions; they are not transient toasts. Scope confirmation
+  and AREA concurrent-write conflict use overlay `ContentDialog` choices and do
+  not move page content. Conflict dismissal leaves auto-save paused.
+- Toasts do not steal focus. They expose keyboard action/close affordances and a
+  non-color text/icon meaning. Screen readers announce a new notice once, not on
+  every render of the same fault; high contrast and Windows reduced-motion
+  settings remain authoritative.
 
 ## Page contracts
 
@@ -142,8 +183,9 @@ history as `已恢复`, never as an operator action.
 
 Use grouped WPF UI cards or card expanders for Host, timeout, per-view refresh,
 and local display/layout preferences. “应用” is scoped to connection settings;
-validation appears inline. No telemetry, diagnostics, or export settings enter
-the V2 surface.
+field validation remains in its stable field region, while a submitted operation
+may also raise one concise toast and return focus to the invalid field. No
+telemetry, diagnostics, or export settings enter the V2 surface.
 
 ## Density and responsive behavior
 
@@ -163,9 +205,9 @@ the V2 surface.
 - Minimum interactive target is 32×32 epx; primary commands default to 36 epx.
 - Status is never color-only. Text contrast is at least 4.5:1. High contrast may
   replace materials and custom colors without losing grouping or selection.
-- Loading preserves the last successful window and overlays non-blocking state.
-  Failure uses `InfoBar`; empty state is a deliberate page state, not a blank
-  `DataGrid`.
+- Loading preserves the last successful window and updates fixed non-blocking
+  state. Failure follows the feedback contract above; empty state is a deliberate
+  stable page state, not a blank `DataGrid` or a transient toast.
 - Use absolute local time as the primary value, with offset available for copy.
   Relative time is secondary only.
 
@@ -187,6 +229,8 @@ the V2 surface.
 - [ ] Exactly one app identity layer, one page title, and one primary navigation model exist.
 - [ ] Light, inactive, high-contrast, 1440×900, 2560×1440, 125%, and 150% behavior is reviewed.
 - [ ] Keyboard, focus, tooltip, UIA name, selection, empty, loading, stale, partial, and error states are reviewed.
+- [ ] Automatic refresh causes no page reflow or repeated toast/UIA announcement;
+      fault coalescing, dismissal, recovery, navigation, and overflow are reviewed.
 - [ ] Table headers align with cell values, and sortable headers expose direction and server-side behavior.
 - [ ] Clear-filter buttons are disabled at defaults; one-shot commands are neutral rather than selection blue.
 - [ ] Pagination exposes accurate totals and arbitrary numeric jump backed by stable Host page-index queries.
