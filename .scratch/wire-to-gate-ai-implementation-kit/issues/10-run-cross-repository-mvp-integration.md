@@ -62,3 +62,11 @@ Blocked by: 08, 09, 17
 车载返回的 `SnapshotAppliedAck` 现在按 correlation、snapshot kind、原 wire SHA-256 和 projection revision 四项核对后才设置 `AcknowledgedAt`；双向 `DurableAck` 也已接入同一出站确认路径。Release 非增量全解构建 0 warning / 0 error，完整测试 23/23 PASS，format PASS。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01` G2 5/5、`W2G-IS-06` G2 7/7 均绑定上述 commit PASS；本机忽略目录 `artifacts/g2/issue10-746b02e-is01/` 与 `issue10-746b02e-is06/` 两份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `d68a4d932e2b302b7eed6de61ed9eefbbf8e57911c3150d10a1780711526b632`。
 
 本票继续保持 `claimed`：本次建立了可被生产编排调用的旅程快照发送与确认基础，但尚未把 MesIngest Demand 接入自动受理、RIoT 到站事实和 worklist/plan revision 生成串成运行时编排，也未下发 `SublotEntryRequested`、`SlotOperationCommand`、`PreDepartureSafetyCheck` 或恢复命令。因此仍不能把此增量称为真实双端业务 G3；MesIngest/RIoT 凭据及车辆、Map、站点身份和王昆端真实停稳/驻车 provider 仍是后续门禁。
+
+### 2026-08-26 — ControlServer 核心旅程命令可靠下发
+
+远程 `ControlServer_MVP@cdaf34eb4763b6c30aa0369718bda880dce21d07` 已在既有活动会话/outbox 通道上补齐 `SublotEntryRequested`、`SlotOperationCommand` 与 `PreDepartureSafetyCheck` 三类核心旅程命令。服务端按正式 Schema 固定 Sublot 扫码/键盘录入方式与 revision 失效语义，强制 LOAD 使用关联 Sublot 消息且终态为 `OCCUPIED`、UNLOAD 不带 correlation 且终态为 `EMPTY`，校验 UUID、lowercase SHA-256、1～8 号仓位的有界唯一升序集合和安全版本。三类命令均在网络发送前写入 SQLite `ProtocolOutbox`，同一 `messageId` 同内容逐字节重放、异内容拒绝，并在精确 `DurableAck` 后停止发送。
+
+Release 非增量全解构建 0 warning / 0 error，完整测试 26/26 PASS，format PASS。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01`、`W2G-IS-02`、`W2G-IS-03`、`W2G-IS-04`、`W2G-IS-06` 五份 ControlServer G2 均绑定上述 commit 和 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` PASS；本机忽略目录 `artifacts/g2/issue10-cdaf34e-w2g-is-*/` 中五份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `7f866b31e092b82fdc421bd6b263597244cd126956ce1d9a92c1e98db6e7d0eb`。
+
+本票仍保持 `claimed`：新增的是可被生产编排调用的可靠命令发送面，尚未把 MesIngest Demand、RIoT 到站/移动事实和本地 journey 状态机串成自动业务编排，也未覆盖恢复命令族；真实 MesIngest/RIoT 凭据及车辆、Map、站点身份和王昆端真实停稳/驻车 provider 仍缺失。因此没有运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
