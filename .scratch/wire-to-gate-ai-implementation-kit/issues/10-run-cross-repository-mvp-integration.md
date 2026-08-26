@@ -116,3 +116,13 @@ Owner issue/artifact: [`RecoveryStateReport` 首 Ack 丢失红证据](https://gi
 Published branch/commit: `OnboardHmi_MVP@a1e32dd8960b11b2792f252837029d0a6f1dda90`
 
 Impact on this ticket: `FAIL_CROSS_REPOSITORY_RECOVERY_REPLAY` 继续阻断相关 G3 向量；本票保持 `claimed`，等待归属仓修复与新证据。
+
+### 2026-08-26 — ControlServer 生产 Journey Worker
+
+远程 `ControlServer_MVP@9c0d53091618d126a8c231004b4a7560d6e8daa0` 已交付默认禁用、完整配置才可启用的生产 Journey Worker。它用 .NET `BackgroundService`、Options 启动验证、scoped DI 和 EF SQLite 持久状态把 MesIngest polling、完整静态／动态硬准入、确定性 backlog、单车租约、`JourneyIntakeCoordinator`、RIoT 两段移动、可信到站、Onboard snapshot/worklist/Sublot、LOAD、发车安全、TO_GATE、UNLOAD 与四事实原子完成串成单一可重启旅程。跨进程继续复用原 Demand、车辆、两段 movement、操作和消息身份；缺失／陈旧／冲突证据以及旧库中没有 runtime 的未收敛 Demand 均 fail closed。
+
+按 accepted ADR 新增服务端持久 StationTaskTypeAdmission：具名部署以单调版本事务导入并审计，同版本异内容或倒退拒绝；Sublot 提交时预检，LOAD 操作、outbox 与允许决策快照在同一事务中复检并冻结策略版本。SUBLOT_BOX_COUNT 只允许同源相对路径和新鲜、精确绑定 Sublot 的正数结果；RIoT 到站同时核对 state 5、orderId、冻结车辆/Map/目的站、IDLE/停稳/无任务占用与 Onboard 安全事实。
+
+Release 全量测试 60/60、聚焦 Journey／准入／边界测试 32/32、format、全新 SQLite 七段迁移和全解决方案构建 0 warning / 0 error 均通过。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01`、`02`、`03`、`04`、`06` 五份 G2 全部绑定上述 commit 与 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` PASS；五份 `gate-result.json` 的排序路径／文件哈希集合 SHA-256 为 `10062cb6e5b279477c70565e1baae37e7086e09f85778dd354a68333ccc591bb`。命令、逐片哈希、迁移证据和资格边界见 [`2026-08-26 ControlServer 生产 Journey Worker`](../evidence/controlserver/20260826-production-journey-worker.md)。
+
+本票继续保持 `claimed`：本次只完成生产 Journey Worker；恢复／补偿命令、RIoT UNKNOWN 状态机 G2、ForcedRecoveryGeneration 与迟到结果策略仍留给下一项，阶段性 G3 runner 也未在本任务启动。真实 MesIngest/RIoT 凭据、具名生产身份、真实车辆动作和完整 G3/RC 均未获得资格，因此不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
