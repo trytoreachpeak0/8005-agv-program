@@ -54,3 +54,11 @@ Blocked by: 08, 09, 17
 新增 EF 迁移已在全新 SQLite 上依次通过初始迁移和 `DurableOnboardBusinessInbox`；Release 全解非增量构建 0 warning / 0 error、完整测试 20/20 PASS、format PASS。正式 `protocol-v0.1.1` 下 W2G-IS-00～07 八份 ControlServer G2 全部 PASS，均绑定上述 commit 和 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f`；本机忽略目录 `artifacts/g2/issue10-27d6dee-pwsh/` 中八份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `d5c2e7b4089a1cef6a4f49e5d644d10633abfb95f6b79a7a5bc908fc8a482f29`。首次误用 Windows PowerShell 5 时测试 3/3 已通过但 `utf8NoBOM` 证据写入失败，部分目录 `artifacts/g2/issue10-27d6dee/` 按红证据保留；正式八片证据使用 PowerShell 7 全新目录生成。
 
 本票仍保持 `claimed`：本次只收口车载到服务端的持久入站链路，尚未实现 ControlServer 主动下发 journey/worklist、Sublot、SlotOperation、PreDepartureSafetyCheck 与恢复命令的生产编排；王昆端真实停稳/驻车 provider、MesIngest/RIoT 凭据及车辆、Map、站点身份也仍缺失。因此尚不能运行或宣称八切片真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — ControlServer 主动旅程快照通道
+
+远程 `ControlServer_MVP@746b02e3cd320b5574b92d25e133edf11b4fe265` 已补上真实服务端到车载的活动会话写通道和三类旅程投影发布器：`VehicleBusinessStateSnapshot`、`CurrentStopWorklistSnapshot`、`UpcomingStopPlanSnapshot`。会话只有在五步恢复返回 `READY` 后才暴露给业务发送端，安全状态 fail-close 后立即摘除；握手响应与主动业务消息共用串行写门，避免 NDJSON 交织。每个快照在网络发送前先以完整 wire JSON 写入 SQLite `ProtocolOutbox`，同一 `messageId` 的跨时间重试复用首次 `sentAt` 并逐字节重放，异内容稳定拒绝，已确认消息不再发送。
+
+车载返回的 `SnapshotAppliedAck` 现在按 correlation、snapshot kind、原 wire SHA-256 和 projection revision 四项核对后才设置 `AcknowledgedAt`；双向 `DurableAck` 也已接入同一出站确认路径。Release 非增量全解构建 0 warning / 0 error，完整测试 23/23 PASS，format PASS。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01` G2 5/5、`W2G-IS-06` G2 7/7 均绑定上述 commit PASS；本机忽略目录 `artifacts/g2/issue10-746b02e-is01/` 与 `issue10-746b02e-is06/` 两份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `d68a4d932e2b302b7eed6de61ed9eefbbf8e57911c3150d10a1780711526b632`。
+
+本票继续保持 `claimed`：本次建立了可被生产编排调用的旅程快照发送与确认基础，但尚未把 MesIngest Demand 接入自动受理、RIoT 到站事实和 worklist/plan revision 生成串成运行时编排，也未下发 `SublotEntryRequested`、`SlotOperationCommand`、`PreDepartureSafetyCheck` 或恢复命令。因此仍不能把此增量称为真实双端业务 G3；MesIngest/RIoT 凭据及车辆、Map、站点身份和王昆端真实停稳/驻车 provider 仍是后续门禁。
