@@ -126,3 +126,13 @@ Impact on this ticket: `FAIL_CROSS_REPOSITORY_RECOVERY_REPLAY` 继续阻断相�
 Release 全量测试 60/60、聚焦 Journey／准入／边界测试 32/32、format、全新 SQLite 七段迁移和全解决方案构建 0 warning / 0 error 均通过。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01`、`02`、`03`、`04`、`06` 五份 G2 全部绑定上述 commit 与 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` PASS；五份 `gate-result.json` 的排序路径／文件哈希集合 SHA-256 为 `10062cb6e5b279477c70565e1baae37e7086e09f85778dd354a68333ccc591bb`。命令、逐片哈希、迁移证据和资格边界见 [`2026-08-26 ControlServer 生产 Journey Worker`](../evidence/controlserver/20260826-production-journey-worker.md)。
 
 本票继续保持 `claimed`：本次只完成生产 Journey Worker；恢复／补偿命令、RIoT UNKNOWN 状态机 G2、ForcedRecoveryGeneration 与迟到结果策略仍留给下一项，阶段性 G3 runner 也未在本任务启动。真实 MesIngest/RIoT 凭据、具名生产身份、真实车辆动作和完整 G3/RC 均未获得资格，因此不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — ControlServer 恢复命令与持久状态机 G2
+
+远程 `ControlServer_MVP@ea3050de8e813247706680517000000a5d387b50` 已完成本路线第 2 项。RIoT movement intent 现在在首次 create 前持久写入 `CREATE_ATTEMPTED`，重启后的 UNKNOWN／NotFound 只沿原 `upperId` 对账而不盲目重建；Active／Terminal 结果必须精确匹配冻结的 order、车辆、Map 和目的站身份，Terminal 也持久化。进程重启后从 SQLite 恢复同一 journey、Demand、车辆租约、两段 movement intent、slot operation 及 Onboard 消息身份；正式 `protocol-v0.1.1` 的恢复会话、恢复动作、resume、cancellation、compensation、correction、fault-cargo 和 forced-mechanical 命令均使用持久 inbox/outbox，未新增私有或占位协议。
+
+`ForcedRecoveryGeneration` 现在单调推进并栅栏旧 generation 的未确认 outbox；旧代迟到结果仅进入历史证据，不能覆盖当前恢复决定。失败、不安全、歧义和未收敛结果继续占用原 Demand 与车辆，不会重复 RIoT 建单、重复 Onboard 命令、重复仓门副作用、释放租约或重复完成。恢复凭据只由环境变量引用，持久 inbox 固定写 `[REDACTED]`。全新 SQLite 直达最新迁移以及从 `VersionedStationTaskAdmission` 升级均通过，数据库证据 SHA-256 分别为 `4e562d9a230a7db7d6fca2cbc9278acd7c399fe502053bac1137478b6d642d03`、`ebbb49cd99bf91ec32096beb4af3ebe3aeaa57b086122a6d751e4adf963baab6`。
+
+Release 完整测试 68/68 PASS（0 skipped），format、`git diff --check` 和全解决方案构建均通过，构建为 0 warning / 0 error。正式协议 `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279`、manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` 下 W2G-IS-00～07 八份本端 G2 全部绑定 `ea3050d` PASS，合计执行 95 个按切片筛选的测试；机器证据在 ControlServer 忽略目录 `artifacts/g2/issue10-recovery-g2-ea3050d/`，索引 SHA-256 为 `e20f83bf4e14646fab9a2217f050fe396eac96579377c9911020c15157d47d9d`。高置信 secret 扫描为 0，58004／58005／58007 无监听，相关 ControlServer／Onboard／simulator／G2 进程为 0；ControlServer、OnboardHmi、protocol、simulator 工作区均清洁，ControlServer 远端已回读到同一提交。本任务未使用任何外部凭据，未真实建单或动车，也未修改受保护的 OnboardHmi、simulator 或协议仓。
+
+第 2 项结论为完成，本票仍保持 `claimed`。剩余阻断仍包括真实 MesIngest／RIoT 凭据与具名车辆、Map、站点身份，王昆端真实停稳／驻车 provider 及其受保护仓库中的现有跨仓恢复重放阻断；本任务绝对未启动、设计实现或运行第 3 项阶段性 G3 runner，也不把本端 Fake／G2 证据表述为 G3 或 RC。第 3 项必须由主任务在本任务完整结束后另开新 chat；此处不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
