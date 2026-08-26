@@ -39,10 +39,11 @@ Used by `/wayfinder`. The **map** is a file with one **child** file per ticket.
 
 ### Cross-repository findings
 
-When a local Wayfinder map finds a problem owned by another project, create or
-update the full problem record and its primary evidence in that project's
-repository, then commit and push it there. The local `.scratch/` ticket may keep
-only the minimum coordination pointer:
+When a local Wayfinder map finds a problem owned by another project, first
+apply the protected-repository rules in `AGENTS.md`. If writes are authorized,
+create or update the full problem record and its primary evidence in that
+project's repository, then commit and push it there. The local `.scratch/`
+ticket may keep only the minimum coordination pointer:
 
 ```markdown
 Owning repository: <repository URL or verified path>
@@ -50,6 +51,20 @@ Owner issue/artifact: <link>
 Published branch/commit: <branch and pushed commit>
 Impact on this ticket: <one-line blocker or status>
 ```
+
+If the owner is read-only or approval-gated without all required approvals, do
+not create or update anything in that repository. Send the user an owner-ready
+notification and keep only this temporary routing status locally:
+
+```markdown
+Owning repository: <repository URL or verified path>
+Routing status: <read-only or approvals still required>
+Impact on this ticket: <one-line blocker or status>
+```
+
+Replace the routing status with the owner's durable external issue/artifact
+link after the user supplies it. Do not resolve the ticket from the notification
+alone.
 
 Do not copy the external defect report, fix instructions, project-specific
 evidence, implementation, or tests into this repository. If no owning or

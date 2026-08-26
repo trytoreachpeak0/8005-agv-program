@@ -34,23 +34,36 @@ owned by another project:
    map's Notes or the user's explicit direction, and verify the Git root and
    remote. If ownership is ambiguous, stop and ask; never default to the map
    repository.
-2. **Publish the full problem in the owning repository.** Its issue or defect
-   record, primary reproduction evidence, project-specific logs, fix, tests,
-   and handoff documentation belong there and follow that repository's rules.
-   Commit and push them to the designated repository and branch. A local-only
-   artifact is not a completed handoff.
-3. **Keep only a pointer in the map repository.** The current map or ticket may
+2. **Check write authority before routing.** Repository-level read-only and
+   approval-gated rules override this skill, map Notes, and ticket execution
+   authority. Routing a problem to its owner never authorizes a write.
+3. **Publish the full problem only when writes are authorized.** Its issue or
+   defect record, primary reproduction evidence, project-specific logs, fix,
+   tests, and handoff documentation belong in the explicitly writable owning
+   repository and follow that repository's rules. Commit and push them to the
+   designated repository and branch. A local-only artifact is not a completed
+   handoff.
+4. **Escalate protected owners without writing.** If the owning repository is
+   read-only, or an approval-gated repository lacks every required approval,
+   do not edit it, create tracker items, or fall back to storing the full
+   problem in the map repository. Give the user a concise notification naming
+   the owner, suspected files/symbols, observed impact, and required next step;
+   then ask for an explicitly writable tracking destination. The map may keep
+   only the minimum routing/blocker status.
+5. **Keep only a pointer in the map repository.** The current map or ticket may
    record a concise status or blocker containing the owning repository, the
    issue or artifact link, and the exact pushed branch/commit. It must not
    duplicate the external repository's report or become a second source of
    truth.
-4. **Split multi-owner findings.** Route each independently owned problem to its
+6. **Split multi-owner findings.** Route each independently owned problem to its
    repository. For an indivisible cross-project artifact, use the integration
    repository explicitly named in the map's Notes; if none is named, ask the
    user to designate one before writing.
-5. **Verify routing before resolution.** Confirm the destination push succeeded
-   and the map pointer identifies the pushed source of truth before resolving
-   the Wayfinder ticket.
+7. **Verify routing before resolution.** For an authorized write, confirm the
+   destination push succeeded and the map pointer identifies the pushed source
+   of truth. For a protected owner, keep the ticket blocked until the owner or
+   user supplies a durable external issue/artifact link; a chat notification
+   alone does not resolve the ticket.
 
 ### The map body
 
