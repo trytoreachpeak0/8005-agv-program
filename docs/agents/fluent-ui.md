@@ -15,16 +15,18 @@ Read this file together with `docs/agents/golden-renderer.md` before changing UI
   not insert an app-level banner between the title bar and the page/navigation
   layout.
 - Keep these layers visually distinct and in this order: integrated title bar,
-  primary navigation + page header, page content, optional transient feedback.
+  primary navigation + page header, page content, optional overlay feedback.
   This is the repo's prescribed interpretation of Microsoft's modern desktop
-  shell (integrated title bar, sidebar navigation, and inline status messaging)
+  shell (integrated title bar, sidebar navigation, and stable scoped status)
   and the separate `NavigationView.Header` page-title role.
 - For the current MesIngest shell, automatic refresh is always enabled and only
   its per-view interval is configured in Settings. Do not expose manual Refresh
   or auto-refresh enable/disable commands in page headers. Present global Host
   state compactly in the `NavigationView` footer and page freshness beneath the
-  page title. A connection failure that needs attention belongs in an inline
-  `InfoBar`-style message in the affected page.
+  page title. Normal automatic-refresh start/success is silent except for that
+  fixed freshness context. A new connection failure may raise one overlay toast,
+  then remains discoverable as stable scoped fault status without changing page
+  layout.
 
 Sources: [Microsoft: keep app identity in the title bar only](https://learn.microsoft.com/en-us/windows/apps/develop/ui/windows-app-sdk-app-structure#set-up-a-custom-title-bar),
 [Microsoft: NavigationView header and pane footer](https://learn.microsoft.com/en-us/windows/apps/develop/ui/controls/navigationview),
@@ -63,10 +65,15 @@ Sources: [Microsoft: title bar design](https://learn.microsoft.com/en-us/windows
   color may reinforce state, but visible text and an accessible name must carry
   the meaning (`已连接`, `正在连接`, `已断开`). Never communicate state by color
   alone.
-- Use an inline `InfoBar`-style surface for actionable informational, success,
-  warning, and error messages. Use progress controls only while work is actually
-  underway; a small background activity can use text rather than perpetual
-  animation.
+- Separate feedback by behavior rather than severity alone. Empty/unselected/
+  validation/detail states replace content in a stable region; blocking choices
+  use `ContentDialog`; transient user-operation outcomes and first-occurrence or
+  recovery notices use the window's overlay toast host; continuing faults use a
+  compact status beside the affected page title. None of these surfaces may
+  repeatedly insert/remove an `Auto` layout row during automatic refresh.
+- Use progress controls only while work is actually underway; a small background
+  activity can use fixed text or a compact indicator rather than perpetual
+  animation or a toast.
 
 Sources: [Microsoft: CommandBar](https://learn.microsoft.com/en-us/windows/apps/develop/ui/controls/command-bar),
 [Microsoft: status messaging with InfoBar](https://learn.microsoft.com/en-us/windows/apps/develop/ui/windows-app-sdk-app-structure#use-infobar-for-status-messages),
@@ -136,6 +143,8 @@ Sources: [Microsoft: materials](https://learn.microsoft.com/en-us/windows/apps/d
       inactive, and high-contrast states remain legible.
 - [ ] Status meaning is available as text/icon/UIA, not color alone; text contrast
       is at least 4.5:1.
+- [ ] Automatic refresh does not open/close a layout-participating message row;
+      transient feedback overlays content and continuing faults have stable status.
 - [ ] Corner radii and materials match the semantic layer; Acrylic is transient.
 - [ ] The golden-renderer suites and explicit user preview/approval steps in
       `docs/agents/golden-renderer.md` are complete before baseline promotion.
