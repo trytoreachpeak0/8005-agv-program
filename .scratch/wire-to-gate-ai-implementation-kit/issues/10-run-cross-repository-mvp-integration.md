@@ -162,3 +162,13 @@ Evidence artifact: [`Staged G3 real-Onboard TLS trust authorization boundary`](h
 Published branch/commit: `ControlServer_MVP@ca2c20d1530af27ead98fc1dcab2cf39226e886e`
 
 Impact on this ticket: runner 已实现真实 Onboard 经 TLS fault proxy 到 TLS ControlServer 的同一首 Ack 丢失重放向量，并改为只有显式 `-InstallTemporaryCurrentUserRoot` 才安装唯一测试根、记录指纹并在 `finally` 精确删除；Windows 在写入 `CurrentUser/Root` 前显示 Security Warning，本轮没有用户系统信任授权，故主动中止且核验根证书、端口和产品进程均未残留。不改 Root 的 `CurrentUser/TrustedPeople` 直接叶证书方案实测仍为 `UntrustedRoot`。同时当前终端三个所需凭据变量均未设置，MesIngest `127.0.0.1:58004` 与 RIoT `172.19.206.222:8888` 不可达，车辆／Map／取货站／关卡站配置仍为空占位。真实 Onboard+TLS、完整 W2G-IS-00～07 G3 与 RC 继续 `INCONCLUSIVE`；本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 真实 Onboard + TLS 恢复重放 PASS
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Deterministic real-Onboard TLS recovery replay result`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/264e98bbad7d39e0069710f6e2d7e8dc47d97a5d/evidence/g3/20260826-staged-g3-tls-final-696ee75-15c6387/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@264e98bbad7d39e0069710f6e2d7e8dc47d97a5d`
+
+Impact on this ticket: 用户明确授权的唯一临时测试根已用于真实 Onboard → TLS fault proxy → TLS ControlServer 联合运行。generation 1 的 `RecoveryStateReport` 首 `DurableAck` 被丢弃并断开 TLS，generation 2 在新 TLS 连接上以同一 message ID 和同一业务 payload SHA-256 重放并成功接收 Ack，最终稳定到 `RecoveryRequired / CAPABILITY_SNAPSHOT_REQUIRED`。协议 G1、release/manifest/credential 拒绝、同 ID 同内容字节级重放、异内容稳定冲突、无移动副作用和 secret scan 全部 PASS；结果为 `STAGED_G3_TLS_RECOVERY_REPLAY_PASS`，`run-result.json` SHA-256 为 `5647b661223c9ed11f6363c143567614942f52bef4e4e3a768fc28a433290068`。机器证据确认 `temporaryTrustCleanupVerified=true`，运行后根证书、PFX、端口和产品进程均未残留。该向量的不确定性已关闭，但 `formalSlicePass=false`；缺少现场凭据、服务连通性和具名车辆／Map／站点身份使正式 W2G-IS-00～07、完整 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
