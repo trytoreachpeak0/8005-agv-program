@@ -90,3 +90,11 @@ SQLite 三段迁移已在全新临时数据库依次应用成功；Release 全�
 Release 全解非增量构建 0 warning / 0 error，完整测试 30/30 PASS，聚焦编排与 MesIngest 契约测试 6/6 PASS；全新临时 SQLite 已依次应用初始迁移、`DurableOnboardBusinessInbox`、`DurableOperationBusinessOutcome` 与 `ExactAcceptedDemandSnapshot`。正式 `protocol-v0.1.1` 下 `W2G-IS-01` G2 8/8 PASS，证据位于产品仓库忽略目录 `artifacts/g2/issue10-dc8f915-w2g-is-01/`，`gate-result.json` SHA-256 为 `5796b723d1579e3536280c201c8b6a0bb1fb743dfd73efa77862e6f8f9eddf30`；远程分支已回读到同一 commit。
 
 本票继续保持 `claimed`：本次提供了可供运行时调用的精确受理与取货派发核心，但尚未实现目录 polling、完整硬准入/backlog/单车排他和配置映射，也未把取货到站、worklist/Sublot、装货、安全检查、TO_GATE 移动与卸货串成自动状态机。真实 MesIngest/RIoT 凭据、具名车辆/Map/站点身份及王昆端真实停稳/驻车 provider 仍未提供，因此没有运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 单车单 Demand 持久排他占用
+
+远程 `ControlServer_MVP@cc6e2b97e4308fa14b519edf9a0089d0da7d6d14` 已补上受理事务缺失的车辆排他事实。新的 `VehicleDispatchLease` 与完整 AcceptedDemandSnapshot、`TO_PICKUP` OrderIntent 在同一 SQLite 事务中提交；同一 `VehicleKey` 的未释放租约由数据库部分唯一索引硬性阻断第二个不同 Demand，即使不同 TransportDemandKey 也不能预绑忙车。只有完整安全卸货把 UnloadBatch、StopClosureCommit、Demand success 和 TransportDemandCompletion 原子提交时才释放租约；不安全结果、`RecoveryRequired`、RIoT UNKNOWN 和其它未收敛状态继续占住原 Demand 与车辆。
+
+新增迁移会从上一版数据库的 AcceptedDemand 与 `TO_PICKUP` 意图回填租约：既有成功任务使用完成时间标记已释放，未收敛任务保持活动；如果历史数据库已经存在同车多项未收敛任务，唯一索引会令升级安全失败而不是猜测保留哪一项。聚焦租约／迁移测试 3/3、完整 Release 测试 32/32、format、`git diff --check` 和全解决方案构建 0 warning / 0 error 均通过。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01` 10/10、`W2G-IS-04` 4/4、`W2G-IS-07` 3/3 G2 全部绑定上述 commit PASS；本机忽略目录 `artifacts/g2/issue10-cc6e2b9-w2g-is-*` 中三份 `gate-result.json` 的排序路径／文件哈希集合 SHA-256 为 `5e9955faea48bbcaaba6160d942d5ef249152ec05aa3fb9bcc47300c8bbaae60`。
+
+本票继续保持 `claimed`：本次关闭的是受理层的单车排他安全空洞，尚未实现目录 polling、完整静态／动态硬准入与 backlog 排序，也未把取货到站、worklist/Sublot、装货、安全检查、TO_GATE 移动和卸货串成单一运行时旅程状态机。真实 MesIngest/RIoT 凭据、具名车辆/Map/站点身份及王昆端真实停稳/驻车 provider 仍缺失，因此仍不能运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
