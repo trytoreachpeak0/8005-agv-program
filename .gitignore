@@ -8,3 +8,6 @@ node.*.log
 .artifacts/
 *.received.*
 mes/ingest/csharp/TestResults/
+
+# Local SDK/toolchain cache; restore it separately on each development machine.
+.scratch/toolchains/

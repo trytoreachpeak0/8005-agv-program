@@ -175,8 +175,12 @@ _Avoid_: OperationSession、TCP 连接本身、slotOperationAttemptId
 _Avoid_: 单次心跳丢失即断线、只依赖 TCP 状态、每车不同超时
 
 **VehicleBusinessReadiness（车辆业务就绪态）**:
-VehicleConnectionSession 完成认证后，由服务端在能力同步、未结操作及积压结果对账、物理与业务状态核对均通过时明确授予的业务状态；只有处于该状态才可开始扫码、接收新仓位操作或恢复移动。
-_Avoid_: TCP 已连接、TLS 已认证、心跳正常
+VehicleConnectionSession 完成认证后，由服务端在能力同步、未结操作及积压结果对账、物理与业务状态核对均通过且不存在 ManualChargingHold 等业务保持时明确授予的业务状态；只有处于该状态才可开始扫码、接收新仓位操作或恢复移动。
+_Avoid_: TCP 已连接、TLS 已认证、心跳正常、电量上升即自动重新投运
+
+**VehicleBusinessStateSnapshot（车辆业务状态快照）**:
+ControlServer 面向单台 AGV 发布的带版本完整业务投影，只表达 VehicleBusinessReadiness、ManualChargingHold、电量事实未知及结构性业务阻断；它不复制 Demand、停靠计划、车载物理安全或仓位执行状态。
+_Avoid_: 单体旅程状态机、CurrentStopWorklistSnapshot、SafetyStateSnapshot、车载端自行推导业务就绪
 
 **VehicleRecoveryRequired（车辆待恢复态）**:
 车辆连接在线，但恢复对账存在无法自动解释的差异，或者锁 DI 等关键硬件反馈失效、无法证明仓门安全状态时，服务端拒绝授予 VehicleBusinessReadiness 并等待人工处置的状态；该状态仍允许心跳、诊断和恢复协议通信。硬件反馈恢复有效本身不能解除该状态，须由具备 ExceptionRecoveryPermission 的人员在异常处置会话中记录处理结果，并由系统重新核验全部门禁。
@@ -189,6 +193,10 @@ _Avoid_: 审批人、双人复核、共享账号、岗位角色授权、逐人�
 **异常处置会话（ExceptionRecoverySession）**:
 具备 ExceptionRecoveryPermission 的人员验证一次个人身份后，为一个异常事件、一台车辆及该事件涉及的任务和目标仓位集合建立的短期操作上下文；会话内可连续选择修复续行、受控取货、强制机械取出、实物交接和恢复车辆，不逐动作审批或重复认证，系统自动记录全部选择、命令、结果和实物交接。人员交接、切换车辆、扩大目标仓位范围、主动退出、事件关闭、父登录会话结束或权限撤销时立即结束；当前不设空闲超时，短暂断线后只有同一人员、同一事件且会话仍有效时，完成最新状态对账即可继续，断线期间不得扩大范围。会话不能绕过停车、目标范围、可取得的仓位物理证据或恢复对账；状态未知时只能先完成断电、抱闸等物理隔离并执行必要救援，车辆继续保持隔离直至事实可验证。普通放错只在离站前由既有 LoadCorrection 处理，离站后不进入本会话纠正。
 _Avoid_: 审批工单、逐动作二次认证、跨人员复用、跨车辆通用会话、临时扩大仓位、永久登录权限、断线期间扩权、未知状态强制恢复
+
+**RecoveryActionId（恢复动作选择编号）**:
+ExceptionRecoverySession 中一次具名恢复路径选择的稳定身份；相同编号只允许完全相同的事件、人员、车辆、Demand、仓位范围和动作内容，传输重试沿用原编号，修改任何选择必须建立新编号。
+_Avoid_: MessageId、SlotOperationAttemptId、跨会话复用、修改原选择
 
 **HardwareRecoveryRecord（硬件恢复记录）**:
 异常处置人员在 ExceptionRecoverySession 中记录具体硬件的检查、处理和现场结果而自动形成的审计事实；它不是审批，也不能代替锁 DI、光幕、输出回读等实时物理证据，系统只有在相关物理与业务门禁同时通过后才恢复原操作或仓位资格。
@@ -210,6 +218,38 @@ _Avoid_: 每种消息自定义顶层元数据、裸 payload、用 slotOperationA
 ProtocolEnvelope 中标识完整通信契约的整数；第一版固定为 1。同版本只能增加接收方可忽略的可选字段，任何必填字段、字段语义或强制流程的破坏性变更都必须升级版本。
 _Avoid_: 软件版本号、按消息独立版本、运行时猜测兼容
 
+**ProtocolRelease（协议发布包）**:
+共享协议仓库中一次不可修改的完整契约发布，包含同一 WireToGateMvpProtocolProfile 的 Schema、manifest、错误码、合法／非法样例、一致性向量、兼容性说明和批准证据；它可以在 ProtocolVersion 不变时因兼容材料增加而产生新版本。
+_Avoid_: ProtocolVersion、实现软件版本、main 分支当前内容、可覆盖 tag、单个 Schema 文件
+
+**ProtocolReleaseIdentity（协议发布身份）**:
+两个实现仓库、模拟对端和验收证据共同锁定某个 ProtocolRelease 的复合身份，由仓库、release 版本、不可变 tag、完整 commit、ProtocolVersion、协议剖面及 manifest、Schema bundle 和向量哈希共同确定；任一分量不同都不是同一契约。
+_Avoid_: 只写 tag、只写 commit、跟踪 main、两端各自维护版本号
+
+**IntegrationSlice（跨端联调切片）**:
+以稳定 IntegrationSliceId 标识、能够由共享协议向量和确定性故障脚本独立复现的一段 WIRE_TO_GATE 跨端能力；它固定前置切片、输入、逐步输出、持久事实、禁止副作用和最终状态，并分别经过双模拟对端门禁及精确两端候选构建的真实联合运行。切片完成不是产品发布批准，也不能替代工厂试运行。
+_Avoid_: 团队任务编号、仓库开发阶段、一次“大联调”、只对 Fake 通过即完成、现场成功倒推通过
+
+**FakePeerIdentity（模拟对端身份）**:
+一次一致性运行所使用 Fake Onboard 或 Fake ControlServer 的可复现复合身份，由其所在实现仓库、完整 commit、构建产物哈希、ProtocolReleaseIdentity、测试 harness contract 版本及支持的 IntegrationSliceId 集合共同确定；Fake 只模拟协议可观察行为，不声称证明真实 IO、RIoT 或生产持久化能力。
+_Avoid_: 仅软件版本字符串、latest Fake、共享协议仓库中的第三套生产实现、用 Fake 结果代替真实对真实联调
+
+**ConformanceRunIdentity（一致性运行身份）**:
+一次不可改写的一致性或联调运行的完整证据身份，绑定 runId、IntegrationSliceId、两端完整 commit 与构建摘要、ProtocolReleaseIdentity、适用的 FakePeerIdentity、runner/harness 版本、向量集合哈希、环境配置摘要、时间和结果；任一绑定分量变化都必须建立新运行，不能沿用旧通过结论。
+_Avoid_: CI 最新结果、分支名、只记 protocol tag、重跑覆盖旧失败、跨构建复用通过证据
+
+**FactoryPilotConfigurationSnapshot（工厂试运行配置快照）**:
+一次受控工厂试运行候选的不可改写配置身份，绑定两端构建、ProtocolReleaseIdentity、适用一致性证据、MesIngest 只读契约、AGV 与连接凭证引用、RIoT 环境和车辆绑定、Map／Station、八仓配置、目标硬件、人员责任及物料资格；只保存秘密引用和核验结果，任一影响判定的字段变化都必须形成新快照并重过受影响门禁。
+_Avoid_: 现场口头清单、latest、只锁软件版本、保存真实密钥、在原快照手改字段
+
+**FactoryPilotRunIdentity（工厂试运行身份）**:
+一次空车彩排、目标硬件验收或真实物料旅程的不可改写证据身份，绑定 FactoryPilotConfigurationSnapshot、实际 Demand／Sublot／物料、车辆与地图站点、全部前置运行、参与人员证明、时间、结果和原始证据哈希；失败和重跑使用不同 runId，PASS 只适用于该精确身份且不等同于产品发布批准。
+_Avoid_: 最后一次绿灯、最佳录像、覆盖失败、跨配置复用、试运行通过即批准发布
+
+**WireToGateMvpProtocolProfile（WIRE_TO_GATE MVP 协议剖面）**:
+ProtocolVersion 1 中为 WIRE_TO_GATE 单 Demand、双移动段旅程明确列出的必需且允许消息集合；它复用同一协议外壳和既有语义，不是新的 ProtocolVersion，剖面外消息在该 release 中必须稳定拒绝。
+_Avoid_: 实现全部长期协议能力、另建专用协议版本、未声明消息也尽量接受
+
 **MessageId（消息编号）**:
 一条协议消息的稳定唯一编号，用于消息去重以及通过 correlationId 对应 ACK 或响应；同一消息的传输重试沿用原编号，新语义消息使用新编号。
 _Avoid_: 仓位操作尝试编号、运输任务 ID、每次重发的新编号
@@ -217,6 +257,18 @@ _Avoid_: 仓位操作尝试编号、运输任务 ID、每次重发的新编号
 **MessageDeliveryClass（消息交付类别）**:
 每种 messageType 固定声明的传递语义：可靠业务/安全消息使用持久化接受 ACK，请求消息使用关联响应，遥测消息允许丢失，心跳确认只用于连接存活判断。
 _Avoid_: 所有消息统一 ACK、由调用处临时决定是否重试、ACK 即执行完成
+
+**DurableAck（持久接受确认）**:
+接收方只在完成 DurableAcceptance 后对可靠业务或安全消息返回的通用确认；它通过 correlationId 指向原 MessageId，只证明接收责任已转移，不表达业务批准、物理执行或动作完成。
+_Avoid_: 类型化业务拒绝、OperationResult、发送成功、进入内存队列
+
+**SnapshotAppliedAck（快照采用确认）**:
+接收方原子采用某类完整快照及其 revision 后返回的通用确认；它不把旧 revision 重新变成当前状态，也不证明快照之外的业务或物理门禁成立。
+_Avoid_: DurableAck、逐条事件 ACK、快照内容即动作授权
+
+**ProtocolProblem（协议问题）**:
+在合法外壳仍可安全关联时返回的结构化协议诊断，表达 Schema、会话代次、未知或剖面外 messageType 等问题；稳定原因码可用于判断，显示文案只供人员阅读，不能承载业务拒绝。
+_Avoid_: 通用业务 Error、解析显示文案、用协议问题表示物理失败、无法解析外壳时强行回应
 
 **DurableAcceptance（持久化接受）**:
 接收方已将可靠消息及其去重依据写入可恢复存储后返回 ACK 的状态；它只证明接收责任已经转移，不证明消息要求的动作已经执行完成。
@@ -333,6 +385,10 @@ _Avoid_: LoadFinalConfirmation、逐仓业务提交、站点全部放货完成
 **LoadCorrection（装货纠错）**:
 StopClosureCommit 前，已核验操作员针对放错产品且已经锁闭的已装仓位发起、服务端在原仓位操作尝试编号下授权、车载端安全执行 `OCCUPIED→EMPTY→OCCUPIED` 原仓位更换并追加审计的恢复过程；它是普通存放错误唯一的系统纠正窗口，不撤销或改写已经形成的 LoadBatch 提交事实。纠错期间退出 StationDepartureWaiting 并停止离站倒计时，重新安全闭环后从完整时长开始；车辆离站后不再提供存放纠正。
 _Avoid_: OperationCancel、LoadCompensationRecovery、撤销 LoadBatch 提交、整批清空
+
+**CorrectionId（纠错编号）**:
+一次 LoadCorrection 请求、授权与结果的稳定业务身份；它绑定原 DemandId、SlotOperationAttemptId 和原仓位范围，相同编号内容不得变化，也不能创建新的装货尝试。
+_Avoid_: MessageId、替代 SlotOperationAttemptId、换仓、重放时换编号
 
 **LoadCorrectionPending（装货纠错待重放）**:
 错误花篮已经从原仓位取出、但正确花篮尚未重新放入时的可恢复等待态；原任务、SUBLOT、目标仓位、提交事实和 StationOperationGuard 均保持，后续装货暂停，只能继续在原仓位重放或转为清空并取消。
@@ -486,6 +542,14 @@ _Avoid_: 建议充电软阈值、达到阈值仍接普通任务、任务执行�
 车辆充电电量达到该阈值时开始正常结束本次充电；它必须严格高于 MandatoryChargeEntryThreshold，但达到阈值本身不证明订单已经收敛、车辆已经离桩或充电桩预占可以释放。
 _Avoid_: 与充电入口相等的完成阈值、达到电量即视为离桩、达到电量即释放充电桩、充电桩空闲证明
 
+**ManualChargingHold（人工充电保持）**:
+WIRE_TO_GATE MVP 在已知低电或预计任务后余量不足时为车辆建立的非业务状态；它阻断普通新任务与新的 8005 移动意图，但不表示系统已经选桩、建单、控制或确认充电。执行中的运输先安全完成，电量未知则保持独立的事实未知阻断而不冒充本状态。
+_Avoid_: 自动充电周期、电量未知、任务中途转去充电、选择充电桩、达到阈值即自动解除
+
+**ManualChargingReturnToService（人工充电重新投运）**:
+维护管理员或系统管理员以个人身份请求结束 ManualChargingHold 后，由服务端根据新鲜的完成阈值、非充电、停稳、订单收敛、位置、能力及安全事实重新授予 VehicleBusinessReadiness 的受控过程；请求或电量上升本身都不是重新投运结果。
+_Avoid_: 普通操作员放行、遥测自动放行、充电完成即接单、跳过恢复对账
+
 **ChargingPolicyVersion（充电策略版本）**:
 面向车辆或受控车辆分组激活的不可变策略，固定 DispatchBatteryEligibility 的最低任务后电量余量、MandatoryChargeEntryThreshold、ChargingCompletionThreshold、ChargingProgressObservationPolicy 和候选充电桩集合；具体参数是投运前必须以车辆电池规格、典型任务耗电、最远安全返回距离、遥测精度、正常充电曲线和现场测试证据批准的现场配置，需求基线不写死数值，也不允许开发默认值。编辑草稿与激活新版本均不要求先禁用车辆；新版本只用于激活后的新派车决定和新充电周期，既有搬运任务以及已经排队、预占、建单或充电的周期继续使用各自固定的原版本，空闲车辆在激活后立即按新版本重新判断，无已批准版本的车辆不得投运。
 _Avoid_: 基线虚构统一百分比、开发默认值、无批准版本投运、在线覆盖当前策略、修改即中断任务、修改即撤销预占、正在充电时切换完成阈值、保存草稿即生效、修改策略必须停用整车
@@ -525,6 +589,10 @@ _Avoid_: 车载配置文件、手工无审计改库、双端各存一份
 **LoadTaskCancellation（装货任务取消）**:
 车辆离站前由已核验操作员针对一个 DemandId 发起的任务终止流程；未产生物理装载时可直接终结，已经部分或全部装载时，对该任务实时确认为 OCCUPIED 的目标仓位执行批量开锁并全部清空，最终使该任务完整目标仓位范围均达到 EMPTY、由锁传感器确认锁闭且开锁输出回读确认为复位。其它 SUBLOT 的仓位、任务与确认记录不受影响；但同车另一 SUBLOT 尚处于物理装货或清空过程中时不得穿插本次取消，必须等待其完成或取消到稳定边界。服务端可靠接受 ALL_EMPTY 并发布新版作业清单后，释放仓位可以用于新的 SUBLOT。获得服务端取消授权时尚未锁闭的当前装货仓位可以直接取出并以 EMPTY 安全收尾；正式提交后发起取消属于保留原确认与提交事实的补偿，不是撤销或抹除历史。
 _Avoid_: 瞬间撤回 SlotOperationCommand、只清空所选任务的部分仓位、取消一个 SUBLOT 时整车清空、车辆离站后的普通取消
+
+**CancellationId（取消编号）**:
+一次 LoadTaskCancellation 请求、范围授权、物理清空和业务终结的稳定身份；它绑定一个 DemandId 与服务端冻结的完整目标仓位范围，重复传输不得扩大或改写范围。
+_Avoid_: MessageId、TransportDemandKey、跨 Demand 复用、取消中途换范围
 
 **整站结束取消（StopClosureCancellation）**:
 StationDepartureWaiting 中结束本站时，由服务端一次性终结全部尚未开始的待装 DemandId；等待到期记为 `CANCELLED_BY_STATION_TIMEOUT`，操作员确认本站装货完成记为 `CANCELLED_BY_STOP_COMPLETE`。两者均持久抑制对应 TransportDemandKey 再次接入且不影响已经提交的 LoadBatch；同一 SUBLOT 以后命中其它 WorkType 时属于不同业务键。
@@ -822,6 +890,10 @@ _Avoid_: 重试耗尽仍长期占车、自动换车冲击外部故障、换 uppe
 一个 TransportDemand 的一次完整 RIoT 订单创建意图，以唯一稳定 `upperId` 贯穿建单、结果未知、对账和同意图重试；匹配订单终态完成对账后该代次闭合，任何后续重新派发必须建立新代次和新 `upperId`。
 _Avoid_: 每次重试换 upperId、终态后复用旧 upperId、不可追溯的重新派发
 
+**WireToGateMovementLeg（关卡运输移动段）**:
+一个 WIRE_TO_GATE Demand 中严格串行的 `TO_PICKUP` 或 `TO_GATE` 单段移动；每段拥有独立的 MovementLegId、DispatchGeneration、OrderIntent、稳定 `upperId` 和冻结目标，同一时刻最多一段未收敛。
+_Avoid_: 多站 RIoT 订单、两段共用 upperId、同时建两段订单、MovementLegId 代替 DemandId
+
 **派发唯一性门禁（DispatchUniquenessGuard）**:
 每个 DemandId 同时只能有一个未闭合 DispatchGeneration，每辆 AGV 同时只能被一个未确认或未终结的本项目订单占用；并发竞争失败者不得覆盖已有绑定，只能重新读取当前事实。
 _Avoid_: 一个需求同时双派发、一车多个未结订单、后写覆盖先绑定、审计日志代替唯一性门禁
@@ -977,6 +1049,10 @@ _Avoid_: HTTP 错误（传输层）、不可达（RouteCost=-1，属领域结果
 **ArrivalAtStation**:
 车辆已到达目的 Station 的车侧可观测信号；在成功移动单上往往早于订单 SUCCESS。
 _Avoid_: 订单完成、可再派
+
+**StationOperationArrivalGate（站点作业到站门禁）**:
+对应订单已确认 SUCCESS、车辆 IDLE、没有未结或未知调用、订单及当前 Map/Station 与冻结目标一致，并有新鲜停稳与安全事实时形成的站点作业准入；ArrivalAtStation 只能提示进度，不能单独满足本门禁。
+_Avoid_: 到站信号即开仓、currentPosition 单字段证明角色、同坐标猜测站点、订单成功但位置矛盾仍作业
 
 **ReadyForNextOrder**:
 可以安全下发下一单的条件：订单已 SUCCESS、车辆已 IDLE，且没有未结调用、未知结果或失败订单派车阻断；不等于 ArrivalAtStation 或任意 RIoT 终态。
@@ -1425,8 +1501,12 @@ ExternallyReadableDemandCatalog 的单调版本；仅在集合成员或成员业
 _Avoid_: Feed Sequence、业务任务版本、每轮 Poll 都递增的计数
 
 **AcceptedDemandSnapshot（已接受 Demand 快照）**:
-外部程序在创建 OrderIntent 或开始调度的执行承诺点，经最终读取确认后连同 CatalogRevision 与接受时间保存的不可变合格 Demand 事实；后续实时变化或退出目录不得改写它。
+外部程序在创建 OrderIntent 或开始调度的执行承诺点，经最终读取确认后连同 HistoryEpoch、CatalogRevision 与接受时间保存的不可变合格 Demand 事实；后续实时变化或退出目录不得改写它，旧纪元快照不得跨纪元复用。
 _Avoid_: Ingest 冻结 TransportDemand、当前目录缓存、用最新 MES 数据改写历史决策证据
+
+**DemandRevision（需求修订号）**:
+MesIngest 对一个 Demand 世代当前决定事实的单调修订号；外部程序在执行承诺点必须最终重读并精确核对它，但它不是业务身份或远程调用幂等键。
+_Avoid_: CatalogRevision、DemandId、DispatchRevision
 
 **OrderIntent（建单意图）**:
 外部程序在执行承诺事务中与 AcceptedDemandSnapshot 一起保存的可靠 RIoT 建单意图；它以稳定幂等键承接事务外远程调用，并把超时视为结果未知而不是自动失败。
@@ -1508,6 +1588,10 @@ _Avoid_: DemandId、只用 SUBLOT、SUBLOT+STEP、MES 需求编号、取消后�
 调度以 TransportDemandKey 记录的永久禁止业务执行事实；`CANCELLED_BY_OPERATOR`、`CANCELLED_BY_LOAD_COMPENSATION`、`CANCELLED_BY_STOP_COMPLETE`、`CANCELLED_BY_STATION_TIMEOUT` 与 `TERMINATED_BY_FAULT_CARGO_HANDOFF` 均写入该事实，单纯 `MES_DISAPPEARED` 或 `GONE` 不写入。命中后不得创建、恢复或派发业务任务，但被取消或终止的具体实例仍以 DemandId 保留终态，MesIngest 的事实投影不受影响；它不因时间、轮询、`GONE`、重启或新 DemandId 自动解除，当前版本不提供解除入口。
 _Avoid_: DemandId 抑制、只按 SUBLOT 拉黑、从 MesIngest 隐藏候选、自动过期、`GONE` 后解除
 
+**TransportDemandCompletion（运输需求完成事实）**:
+在 WIRE_TO_GATE MVP 适用性剖面中，ControlServer 在本地运输成功与安全闭环后，与 DemandId 成功终态原子保存的永久事实；它以 TransportDemandKey 为键，引用完成 DemandId、AcceptedDemandSnapshot 中的 DemandRevision 审计副本、完成时刻与完成证据，阻止同键持续可见、GONE 后新 DemandId 或重启造成重复执行，但不同 WorkType 不受影响。
+_Avoid_: TransportDemandSuppression、MES 完工、按 DemandId 临时防重、GONE 后自动解除
+
 **DemandId**:
 TransportDemand 的本地稳定标识，也是车载 CurrentStopWorklist 精确选择当前任务实例的标识；调度等本地系统用它挂接状态，但它不是 MES 提供的需求编号，也不能代替 TransportDemandKey 的取消抑制。
 _Avoid_: SUBLOT、另造 stationTaskId、MOCK_TASK_ID
@@ -1523,6 +1607,10 @@ _Avoid_: 焊线1（当作 MES step 名去查库）、键合1
 **WireBond2**:
 第二次焊线；MES 的 step 名就是 `焊线2`。产品在 WireBond1 完工后、进入 `焊线2`+`入库` 等待时，触发送氮气柜。
 _Avoid_: 第二次焊线（口语替代正式 step 名）
+
+**WireToGate**:
+运输任务类型代码 `WIRE_TO_GATE`：焊线或键合完工机台 → 同图固定关卡站点。它以 MesIngest 发布的完整 WorkType 为业务边界，下游不再按 STEP、EQP 或文本将焊线与键合二次分类。
+_Avoid_: 只按口语“焊线完工”缩窄范围、下游自行重新判定 TASK_TYPE、焊线和键合分为两种本地任务
 
 **WireToNitrogen**:
 运输任务类型代码 `WIRE_TO_NITROGEN`：WireBond1 机台 → 固定氮气柜站点。起终点规则同 `WIRE_TO_GATE`（起点取查询 EQP/AREA，终点固定区域）。PDA 扫码入柜后该行从 MES 快照消失；之后再上 WireBond2 由既有 `STAGING_TO_WIRE` 覆盖，不另建任务类型。不含键合。

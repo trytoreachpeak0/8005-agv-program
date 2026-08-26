@@ -1,0 +1,10 @@
+IntegrationSliceId	Prerequisites	ControlServerMinimum	OnboardHmiMinimum	JointExit	MinimumEvidence
+W2G-IS-00	精确协议候选身份	TLS/VehicleCredential；session generation；能力/安全/恢复采用；inbox/outbox；五步握手；READY/RECOVERY_REQUIRED；Fake Onboard	TLS pin/每车密钥；session；能力/安全/journal 报告；积压结果重放；Fake ControlServer	首次连接、重连、恢复中断联、身份错配和快照冲突按规范收敛	G1；双方 G2；CV-SESSION-RECOVERY-HAPPY；CV-SESSION-RECONNECT-DURING-RECOVERY；绑定两端构建的 G3
+W2G-IS-01	W2G-IS-00；MesIngest V2；真实 RIoT 环境	最终重读；唯一 Demand 受理/防重；稳定 TO_PICKUP intent；RIoT 建单/UNKNOWN 对账；到站采用	显示已承诺旅程和当前停靠；不得本地选择或伪造 Demand	一个 AcceptedDemandSnapshot 和一次可信取货到站；无重复受理/建单	本端适配器测试；可靠重试/首结果重放；真实 RIoT 只读与获准移动证据；G3
+W2G-IS-02	W2G-IS-01；取货到站	Sublot/工号校验；冻结 ExpectedBasketCount/完整仓位集；Guard；SlotOperationCommand；LoadBatch 原子提交	单次输入；journal PREPARED；八仓模拟器顺序执行；逐仓 OCCUPIED/锁闭/输出复位；纠错/取消	一个完整多仓装货闭环；纠错/取消不产生额外成功	CV-PICKUP-SUBLOT-LOAD；CV-LOAD-CORRECTION；CV-LOAD-CANCELLATION-ALL-EMPTY；G3
+W2G-IS-03	W2G-IS-02；已提交装货	请求并验证新鲜 PreDepartureSafetyCheck；稳定 TO_GATE intent；RIoT 对账/到站	依据实时模拟 IO 返回安全结论和版本；变化时可靠撤销	只有 SAFE 且当前时建立一次 TO_GATE 并可信到达关卡	CV-PREDEPARTURE-SAFETY-EXPIRES；RIoT UNKNOWN 断言；G3
+W2G-IS-04	W2G-IS-03；关卡到站	自动下发完整卸货；采用逐仓结果；原子 StopClosureCommit/TransportDemandCompletion/防重	无需二次输入；批量卸货；逐仓 EMPTY/锁闭/输出复位；可靠结果	一次自动完整卸货和一次本地完成，不依赖 PDA/MES	CV-GATE-UNLOAD-ALL-EMPTY；原子提交/重复结果测试；G3
+W2G-IS-05	W2G-IS-02；活动开锁集合	断联后阻断移动/新动作；对账安全收尾；显式继续或 RECOVERY_REQUIRED	不扩张 ActiveUnlockSet；按 journal/模拟实时 IO 安全收尾；补报结果	PREPARED/部分动作/结果边界断联均唯一安全收敛	CV-CONNECTION-LOSS-SAFE-FINISH；CV-SESSION-RECONNECT-DURING-RECOVERY；G3
+W2G-IS-06	W2G-IS-00	持久 inbox/outbox；相同请求首响应重放；RIoT UNKNOWN 不猜测	journal；可靠结果重放；不得重复模拟 IO 副作用	drop/delay/duplicate/different-content 后恰好一个副作用或稳定冲突	CV-RELIABLE-RETRY-SAME-CONTENT；CV-RELIABLE-RETRY-DIFFERENT-CONTENT；CV-REQUEST-FIRST-RESULT-REPLAY；CV-OPERATION-RESULT-UNKNOWN-RECONCILE；G3
+W2G-IS-07	W2G-IS-00/05/06	每个持久化边界崩溃恢复；原 Demand/Message/RIoT intent 对账；恢复决策持久化	每个 journal/checkpoint 边界重启；实时模拟 IO 重读；唯一恢复或待恢复	不得重复订单、开锁或完成；歧义进入恢复	CV-EXCEPTION-RESUME；CV-EXCEPTION-COMPENSATE；CV-FAULT-CARGO-HANDOFF；CV-FORCED-MECHANICAL-RECOVERY；CV-MANUAL-CHARGING-RETURN；G3
+

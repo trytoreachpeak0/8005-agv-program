@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "wall-clock-bounded",
+  "steps": [
+    "start-fresh-controlserver-sqlite",
+    "start-eight-slot-http-io-simulator",
+    "connect-real-onboard-conformance",
+    "complete-five-step-recovery",
+    "exchange-heartbeat",
+    "query-controlserver-health-version-and-session",
+    "repeat-with-one-journaled-pending-operation-result"
+  ]
+}
