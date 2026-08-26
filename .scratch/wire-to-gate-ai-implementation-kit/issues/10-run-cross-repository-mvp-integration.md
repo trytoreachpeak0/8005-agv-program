@@ -70,3 +70,13 @@ Blocked by: 08, 09, 17
 Release 非增量全解构建 0 warning / 0 error，完整测试 26/26 PASS，format PASS。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01`、`W2G-IS-02`、`W2G-IS-03`、`W2G-IS-04`、`W2G-IS-06` 五份 ControlServer G2 均绑定上述 commit 和 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` PASS；本机忽略目录 `artifacts/g2/issue10-cdaf34e-w2g-is-*/` 中五份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `7f866b31e092b82fdc421bd6b263597244cd126956ce1d9a92c1e98db6e7d0eb`。
 
 本票仍保持 `claimed`：新增的是可被生产编排调用的可靠命令发送面，尚未把 MesIngest Demand、RIoT 到站/移动事实和本地 journey 状态机串成自动业务编排，也未覆盖恢复命令族；真实 MesIngest/RIoT 凭据及车辆、Map、站点身份和王昆端真实停稳/驻车 provider 仍缺失。因此没有运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 车载操作结果到服务端业务事实闭环
+
+远程 `ControlServer_MVP@4dcd7b64bb5103a59e4cd5c4d17e8e33937d129f` 已修复命令发送与结果处理之间的生产断点。`SlotOperationCommand` 现在把完整仓位操作身份、操作类型、目标仓位集、ForcedRecoveryGeneration 和精确 wire 命令与 `ProtocolOutbox` 在同一 SQLite 事务中建立，数据库提交成功前不会向车载发送；新增迁移 `DurableOperationBusinessOutcome` 保存该操作类型及车载结果的内容哈希、结局、物理证据和观察时间。
+
+ControlServer 收到 `OperationResult` 后会按王昆当前实现实际使用的业务内容序列重新计算并核验 `resultContentSha256`，再按 `slotOperationAttemptId + ForcedRecoveryGeneration` 持久去重。安全完整的 LOAD 结果提交整批 `OCCUPIED + LOCKED + RESET` 事实；安全完整的 UNLOAD 结果在返回 `DurableAck` 前原子提交 UnloadBatch、StopClosureCommit、Demand success 和 TransportDemandCompletion；不完整、失败或物理证据不安全的结果只持久化并把操作/Demand 转入 `RecoveryRequired`，不会误报完成；旧 ForcedRecoveryGeneration 的迟到结果继续只作历史证据。
+
+SQLite 三段迁移已在全新临时数据库依次应用成功；Release 全量测试 28/28 PASS，锁定还原后的全解构建 0 warning / 0 error，format 与 `git diff --check` 通过。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01`、`02`、`03`、`04`、`06`、`07` 六份 G2 均绑定上述 commit PASS；本机忽略目录 `artifacts/g2/issue10-4dcd7b6-w2g-is-*/` 中六份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `a1944c0c2ea73e44007ee2055b1df6ee59d22d5563f5760eb3351a6018be48e4`。
+
+本票继续保持 `claimed`：本次闭合了核心仓位命令到业务事实的可靠路径，但尚未把 MesIngest 自动受理、RIoT 两段移动/到站对账、worklist/plan revision、Sublot 输入和安全检查串成单一运行时旅程状态机，也未覆盖恢复命令族。真实 MesIngest/RIoT 凭据、具名车辆/Map/站点身份及王昆端真实停稳/驻车 provider 仍未提供，因此仍不能运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
