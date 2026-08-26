@@ -21,6 +21,17 @@ rules, or the test-tier and Golden WPF renderer constraints below.
 
 Issues and specs live as markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
 
+### Wayfinder cross-repository routing
+
+When Wayfinder discovers a defect or required change owned by another project,
+the owning project's repository is the source of truth. Put the issue, primary
+evidence, fix, tests, and project-specific handoff there, then commit and push
+them to that repository. Do not keep those artifacts in `8005---AGV` merely
+because its Wayfinder map exposed the problem. This repository may retain only
+a concise map/ticket pointer to the owning repository's issue and pushed
+branch/commit. If ownership is ambiguous, or an artifact genuinely spans
+projects, stop and get an explicit destination repository before writing it.
+
 ### Triage labels
 
 Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.

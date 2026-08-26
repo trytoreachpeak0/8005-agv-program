@@ -107,10 +107,12 @@ Release 全解非增量构建 0 warning / 0 error，完整测试 30/30 PASS，�
 
 前两次启动器运行因证据收尾缺陷作废：一次在进程退出前读取锁定日志，一次把稳定快照写成 `null`；两次均未被提升为 PASS，修复后才以全新数据库/journal 第三次重跑。当前只宣称 `STAGED_G3_REAL_PEERS_NO_MOVEMENT` 通过，完整 IS-00 与 IS-06 仍为 `INCONCLUSIVE`：正式 TLS/具名生产身份、全部拒绝/冲突/恢复向量和业务消息 drop/delay/duplicate/异内容/首结果重放尚未覆盖。完整旅程仍受 ControlServer 自动编排、外部凭据与身份、以及真实停稳/驻车 provider 阻断。本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
 
-### 2026-08-26 — 阶段性 G3 红结果：RecoveryStateReport 首 Ack 丢失
+### 2026-08-26 — 阶段性 G3 红结果已路由至 OnboardHmi
 
-继续使用相同正式身份和三个精确提交执行真实双端、不动车的 `W2G-IS-00`／`W2G-IS-06` 故障注入。loopback 代理只丢弃 generation `1` 的 `RecoveryStateReport` 第一条 `DurableAck`；真实 Onboard 随后在 generation `2`、`3`、`4` 的新连接上三次重放相同 messageId `1ff687b2-bbfc-4a6c-94c3-ca8b435586f5`，但 wire envelope 仍携带旧 generation `1`。ControlServer 每次按 session 围栏正确抛出 `StaleSessionGenerationException` 并关闭连接，最终 SQLite session 停在 generation `4`、`RECOVERY_REQUIRED / HANDSHAKE_INCOMPLETE`，Capability/Safety revision 为空；RecoveryStateReport inbox 仍只有一行，未发生重复接受或业务副作用。
+Owning repository: `https://github.com/trytoreachpeak0/8005-agv-onboard-hmi`
 
-归责由已接受决策明确：[`冻结 ControlServer/Onboard 职责与 MVP 消息面`](../../wire-to-gate-mvp/issues/07-decide-controlserver-onboard-responsibilities-and-mvp-message-surface.md) 要求新连接用当前 `sessionGeneration` 重新封装待补报消息、保留原 messageId/payload，并拒绝旧代次；[`冻结共享协议仓发布与变更治理`](../../wire-to-gate-mvp/issues/09-decide-shared-protocol-repository-release-and-change-governance.md) 要求新 generation 从头恢复且待补报 messageId 不变。因此 ControlServer 的拒绝符合权威，阻断位于 Onboard `WireToGateSessionClient.ReplayDurableOutgoingAsync` 的旧 wire 逐字重放及其现有 G2 断言。根据用户既定边界，本轮未修改王昆端产品代码或测试，只把精确修复与回归条件补入现有王昆交接文档并推送至 OnboardHmi `116a0b33c324159d466f5761dd28583d27c9b1c6`；该提交由既有 AI 文档身份记录，不归因为王昆本人。
+Owner issue/artifact: [`RecoveryStateReport` 首 Ack 丢失红证据](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/blob/a1e32dd8960b11b2792f252837029d0a6f1dda90/evidence/g3/20260826-recovery-ack-drop-cc6e2b9-0455147/SUMMARY.md)
 
-机器红结果 SHA-256 为 `319c6394b64c5852f01ed3e9dacbe6f2679b8b27b243b993a459889d93ecb80b`，完整证据见 [`2026-08-26 阶段性 G3：RecoveryStateReport 首 Ack 丢失`](../evidence/g3/20260826-recovery-ack-drop-cc6e2b9-0455147/SUMMARY.md)。当前结论为 `FAIL_CROSS_REPOSITORY_RECOVERY_REPLAY`，不是 `INCONCLUSIVE` 或局部 PASS；修复前不继续依赖恢复成功的业务 drop/delay/duplicate 向量。完整 W2G-IS-00～07 G3 继续阻断，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+Published branch/commit: `OnboardHmi_MVP@a1e32dd8960b11b2792f252837029d0a6f1dda90`
+
+Impact on this ticket: `FAIL_CROSS_REPOSITORY_RECOVERY_REPLAY` 继续阻断相关 G3 向量；本票保持 `claimed`，等待归属仓修复与新证据。
