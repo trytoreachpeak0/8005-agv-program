@@ -172,3 +172,9 @@ Evidence artifact: [`Deterministic real-Onboard TLS recovery replay result`](htt
 Published branch/commit: `ControlServer_MVP@264e98bbad7d39e0069710f6e2d7e8dc47d97a5d`
 
 Impact on this ticket: 用户明确授权的唯一临时测试根已用于真实 Onboard → TLS fault proxy → TLS ControlServer 联合运行。generation 1 的 `RecoveryStateReport` 首 `DurableAck` 被丢弃并断开 TLS，generation 2 在新 TLS 连接上以同一 message ID 和同一业务 payload SHA-256 重放并成功接收 Ack，最终稳定到 `RecoveryRequired / CAPABILITY_SNAPSHOT_REQUIRED`。协议 G1、release/manifest/credential 拒绝、同 ID 同内容字节级重放、异内容稳定冲突、无移动副作用和 secret scan 全部 PASS；结果为 `STAGED_G3_TLS_RECOVERY_REPLAY_PASS`，`run-result.json` SHA-256 为 `5647b661223c9ed11f6363c143567614942f52bef4e4e3a768fc28a433290068`。机器证据确认 `temporaryTrustCleanupVerified=true`，运行后根证书、PFX、端口和产品进程均未残留。该向量的不确定性已关闭，但 `formalSlicePass=false`；缺少现场凭据、服务连通性和具名车辆／Map／站点身份使正式 W2G-IS-00～07、完整 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 正式 G3 现场门禁复核
+
+当前终端重新核对了生产配置实际引用的秘密名称及 Process／User／Machine 三层环境：`CONTROL_SERVER_RIOT_CALL_API_KEY`、`CONTROL_SERVER_MES_INGEST_SHARED_SECRET`、`CONTROL_SERVER_ONBOARD_CREDENTIAL` 和 `CONTROL_SERVER_RECOVERY_AUTHENTICATION_PROOF` 均未配置；ControlServer 工作区内也没有可复用的本地安全引用文件。`172.19.206.222:8888` 的 RIoT TCP 已恢复可达，但 `127.0.0.1:58004` 的 MesIngest 仍未监听。具名 `agvId`／`vehicleKey`／生命周期 generation、`mapId`／map identity、取货站和关卡站双重身份及准入／路线配置仍未提供。
+
+因此当前可安全执行的无移动 TLS 恢复重放已经完成，下一步必须由现场负责人通过安全通道注入上述秘密并确认具名身份／站点映射，同时启动真实 MesIngest；仅有 RIoT 端口可达不授权 API 调用或车辆动作。不得生成猜测身份、把测试随机 secret 当作现场凭据，或用 RIoT Fake 替代正式 G3。本票继续保持 `claimed`，正式 W2G-IS-00～07、完整 G3 与 RC 仍为 `INCONCLUSIVE`；不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
