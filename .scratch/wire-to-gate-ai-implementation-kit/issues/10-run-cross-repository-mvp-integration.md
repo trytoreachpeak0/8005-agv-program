@@ -80,3 +80,13 @@ ControlServer 收到 `OperationResult` 后会按王昆当前实现实际使用�
 SQLite 三段迁移已在全新临时数据库依次应用成功；Release 全量测试 28/28 PASS，锁定还原后的全解构建 0 warning / 0 error，format 与 `git diff --check` 通过。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01`、`02`、`03`、`04`、`06`、`07` 六份 G2 均绑定上述 commit PASS；本机忽略目录 `artifacts/g2/issue10-4dcd7b6-w2g-is-*/` 中六份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `a1944c0c2ea73e44007ee2055b1df6ee59d22d5563f5760eb3351a6018be48e4`。
 
 本票继续保持 `claimed`：本次闭合了核心仓位命令到业务事实的可靠路径，但尚未把 MesIngest 自动受理、RIoT 两段移动/到站对账、worklist/plan revision、Sublot 输入和安全检查串成单一运行时旅程状态机，也未覆盖恢复命令族。真实 MesIngest/RIoT 凭据、具名车辆/Map/站点身份及王昆端真实停稳/驻车 provider 仍未提供，因此仍不能运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — MesIngest 精确受理提交点与取货派发编排
+
+远程 `ControlServer_MVP@dc8f915347253dc2b662c0394d4f8c437c7803da` 已把 MesIngest 完整目录事实接入受理提交点：HTTP 适配器现在读取并校验正式 V2 目录中的 `SeriesId`、TransportDemandKey、Generation、DemandRevision、CreatedAt、ValueObservedAt、PollTrace/ProjectionCommit 身份及全部 `LiveMesFields`，同时要求正文 HistoryEpoch/CatalogRevision 与 weak ETag 一致；新增 SQLite 迁移把这些不可变决定事实完整冻结在 `AcceptedDemands`，而不再只保存 DemandId、业务键和 revision。
+
+新增生产 `JourneyIntakeCoordinator` 只接收已经完成硬准入的候选。它在任何 RIoT 副作用前执行无条件最终完整目录读取：无关候选造成 CatalogRevision 前进但目标决定元组不变时，原子提交最终 revision 下的 AcceptedDemandSnapshot 与 TO_PICKUP intent；HistoryEpoch 或任一决定事实漂移、候选消失时，保持数据库和 RIoT 零副作用。只有提交成功后才进入既有稳定 upperId 的对账／建单链路，建单响应仍须由独立 upperId 读取确认。
+
+Release 全解非增量构建 0 warning / 0 error，完整测试 30/30 PASS，聚焦编排与 MesIngest 契约测试 6/6 PASS；全新临时 SQLite 已依次应用初始迁移、`DurableOnboardBusinessInbox`、`DurableOperationBusinessOutcome` 与 `ExactAcceptedDemandSnapshot`。正式 `protocol-v0.1.1` 下 `W2G-IS-01` G2 8/8 PASS，证据位于产品仓库忽略目录 `artifacts/g2/issue10-dc8f915-w2g-is-01/`，`gate-result.json` SHA-256 为 `5796b723d1579e3536280c201c8b6a0bb1fb743dfd73efa77862e6f8f9eddf30`；远程分支已回读到同一 commit。
+
+本票继续保持 `claimed`：本次提供了可供运行时调用的精确受理与取货派发核心，但尚未实现目录 polling、完整硬准入/backlog/单车排他和配置映射，也未把取货到站、worklist/Sublot、装货、安全检查、TO_GATE 移动与卸货串成自动状态机。真实 MesIngest/RIoT 凭据、具名车辆/Map/站点身份及王昆端真实停稳/驻车 provider 仍未提供，因此没有运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
