@@ -1,0 +1,5 @@
+2026-08-26T16:29:21.2792638+08:00	Information	App	车载端启动：agvId=AGV-8005-STAGED-G3-01，environment=Development，version=0.2.0-safety-mock-travel+045514770da9858a8a49196dede276192e4f2a1b。
+2026-08-26T16:29:21.9115947+08:00	Information	ModbusTcpIoModuleClient	已连接IO模块 127.0.0.1:1502，UnitId=255。
+2026-08-26T16:29:21.9468809+08:00	Information	OnboardController	IO模块在线。
+2026-08-26T16:29:21.9508963+08:00	Information	OnboardController	启动IO安全快照验证通过。
+2026-08-26T16:29:22.4200987+08:00	Information	WireToGateSessionService	上层会话已建立：generation=1，readiness=RecoveryRequired。

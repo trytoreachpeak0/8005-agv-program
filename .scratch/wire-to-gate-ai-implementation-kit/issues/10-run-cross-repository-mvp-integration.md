@@ -98,3 +98,11 @@ Release 全解非增量构建 0 warning / 0 error，完整测试 30/30 PASS，�
 新增迁移会从上一版数据库的 AcceptedDemand 与 `TO_PICKUP` 意图回填租约：既有成功任务使用完成时间标记已释放，未收敛任务保持活动；如果历史数据库已经存在同车多项未收敛任务，唯一索引会令升级安全失败而不是猜测保留哪一项。聚焦租约／迁移测试 3/3、完整 Release 测试 32/32、format、`git diff --check` 和全解决方案构建 0 warning / 0 error 均通过。正式 `protocol-v0.1.1` 下受影响的 `W2G-IS-01` 10/10、`W2G-IS-04` 4/4、`W2G-IS-07` 3/3 G2 全部绑定上述 commit PASS；本机忽略目录 `artifacts/g2/issue10-cc6e2b9-w2g-is-*` 中三份 `gate-result.json` 的排序路径／文件哈希集合 SHA-256 为 `5e9955faea48bbcaaba6160d942d5ef249152ec05aa3fb9bcc47300c8bbaae60`。
 
 本票继续保持 `claimed`：本次关闭的是受理层的单车排他安全空洞，尚未实现目录 polling、完整静态／动态硬准入与 backlog 排序，也未把取货到站、worklist/Sublot、装货、安全检查、TO_GATE 移动和卸货串成单一运行时旅程状态机。真实 MesIngest/RIoT 凭据、具名车辆/Map/站点身份及王昆端真实停稳/驻车 provider 仍缺失，因此仍不能运行或宣称 W2G-IS-00～07 真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 启动阶段性 G3：正式双端恢复与不动车重连
+
+已用真实 `ControlServer_MVP@cc6e2b97e4308fa14b519edf9a0089d0da7d6d14`、王昆当前 `OnboardHmi_MVP@045514770da9858a8a49196dede276192e4f2a1b`、`slots-simulator/main@fb5f7c593742bf98bc3957b8729a38aad5321f28` 和正式 `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279` 启动 `W2G-IS-00`／`W2G-IS-06` 的不动车阶段性 G3。隔离运行使用全新 ControlServer SQLite、全新 Onboard journal 和临时 loopback 端口；没有 RIoT 建单、移动命令或伪造车辆安全信号。
+
+最终有效运行依次完成全新首连、OnboardHmi 复用 journal 的进程重启、ControlServer 复用数据库的进程重启，session generation 稳定为 `1 → 2 → 3`；每阶段后续 12 秒未发生意外 generation 变化。三次均按真实缺失的停稳/驻车 provider 正确 fail-close 到 `RECOVERY_REQUIRED / DEPARTURE_SAFETY_NOT_READY`，`/health/ready` 为 HTTP 503，全部 stderr 为空。服务端重启期间 OnboardHmi 记录一次预期会话不可用并在 2 秒后自动重连；结束时的 transport warning 来自测试主动杀进程。机器结果 SHA-256 为 `fb0f708efb8cce42d1d64b728312f8a91775d6469918d28816057c08c3297304`，完整证据见 [`2026-08-26 阶段性 G3：真实双端、不动车`](../evidence/g3/20260826-staged-no-movement-cc6e2b9-0455147/SUMMARY.md)。
+
+前两次启动器运行因证据收尾缺陷作废：一次在进程退出前读取锁定日志，一次把稳定快照写成 `null`；两次均未被提升为 PASS，修复后才以全新数据库/journal 第三次重跑。当前只宣称 `STAGED_G3_REAL_PEERS_NO_MOVEMENT` 通过，完整 IS-00 与 IS-06 仍为 `INCONCLUSIVE`：正式 TLS/具名生产身份、全部拒绝/冲突/恢复向量和业务消息 drop/delay/duplicate/异内容/首结果重放尚未覆盖。完整旅程仍受 ControlServer 自动编排、外部凭据与身份、以及真实停稳/驻车 provider 阻断。本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
