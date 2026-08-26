@@ -152,3 +152,13 @@ Evidence artifact: [`Recovery replay fix staged G3 rerun`](https://github.com/tr
 Published branch/commit: `ControlServer_MVP@8f2d03752cdb592dcbd118523fbf82b49dd3c904`
 
 Impact on this ticket: 先前 `RecoveryStateReport` 首 Ack 丢失跨 generation 重放阻断已用真实双端重跑 PASS；真实 Onboard+TLS 组合、W2G-IS-00～07 完整 G3 与 RC 仍为 `INCONCLUSIVE`，本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 真实 Onboard + TLS 信任授权边界
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Staged G3 real-Onboard TLS trust authorization boundary`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/ca2c20d1530af27ead98fc1dcab2cf39226e886e/evidence/g3/20260826-staged-g3-tls-rerun-87d539b-15c6387/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@ca2c20d1530af27ead98fc1dcab2cf39226e886e`
+
+Impact on this ticket: runner 已实现真实 Onboard 经 TLS fault proxy 到 TLS ControlServer 的同一首 Ack 丢失重放向量，并改为只有显式 `-InstallTemporaryCurrentUserRoot` 才安装唯一测试根、记录指纹并在 `finally` 精确删除；Windows 在写入 `CurrentUser/Root` 前显示 Security Warning，本轮没有用户系统信任授权，故主动中止且核验根证书、端口和产品进程均未残留。不改 Root 的 `CurrentUser/TrustedPeople` 直接叶证书方案实测仍为 `UntrustedRoot`。同时当前终端三个所需凭据变量均未设置，MesIngest `127.0.0.1:58004` 与 RIoT `172.19.206.222:8888` 不可达，车辆／Map／取货站／关卡站配置仍为空占位。真实 Onboard+TLS、完整 W2G-IS-00～07 G3 与 RC 继续 `INCONCLUSIVE`；本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
