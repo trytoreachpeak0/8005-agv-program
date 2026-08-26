@@ -36,3 +36,22 @@ Used by `/wayfinder`. The **map** is a file with one **child** file per ticket.
 - **Frontier**: scan `.scratch/<effort>/issues/` for files that are open, unblocked, and unclaimed; first by number wins.
 - **Claim**: set `Status: claimed` and save before any work.
 - **Resolve**: append the answer under an `## Answer` heading, set `Status: resolved`, then append a context pointer (gist + link) to the map's Decisions-so-far in `map.md`.
+
+### Cross-repository findings
+
+When a local Wayfinder map finds a problem owned by another project, create or
+update the full problem record and its primary evidence in that project's
+repository, then commit and push it there. The local `.scratch/` ticket may keep
+only the minimum coordination pointer:
+
+```markdown
+Owning repository: <repository URL or verified path>
+Owner issue/artifact: <link>
+Published branch/commit: <branch and pushed commit>
+Impact on this ticket: <one-line blocker or status>
+```
+
+Do not copy the external defect report, fix instructions, project-specific
+evidence, implementation, or tests into this repository. If no owning or
+integration repository has been designated, do not write the artifact locally;
+ask the user to choose its destination.

@@ -24,6 +24,34 @@ The map is an **index**, not a store. It lists the decisions made and points at 
 
 **Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if not. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker.
 
+## Cross-repository problem routing
+
+A map may coordinate several repositories, but its repository is not a catch-all
+for problems found elsewhere. When Wayfinder exposes a defect or required change
+owned by another project:
+
+1. **Identify the owning repository first.** Use the repository mapping in the
+   map's Notes or the user's explicit direction, and verify the Git root and
+   remote. If ownership is ambiguous, stop and ask; never default to the map
+   repository.
+2. **Publish the full problem in the owning repository.** Its issue or defect
+   record, primary reproduction evidence, project-specific logs, fix, tests,
+   and handoff documentation belong there and follow that repository's rules.
+   Commit and push them to the designated repository and branch. A local-only
+   artifact is not a completed handoff.
+3. **Keep only a pointer in the map repository.** The current map or ticket may
+   record a concise status or blocker containing the owning repository, the
+   issue or artifact link, and the exact pushed branch/commit. It must not
+   duplicate the external repository's report or become a second source of
+   truth.
+4. **Split multi-owner findings.** Route each independently owned problem to its
+   repository. For an indivisible cross-project artifact, use the integration
+   repository explicitly named in the map's Notes; if none is named, ask the
+   user to designate one before writing.
+5. **Verify routing before resolution.** Confirm the destination push succeeded
+   and the map pointer identifies the pushed source of truth before resolving
+   the Wayfinder ticket.
+
 ### The map body
 
 The whole map at low resolution, loaded once per session. Open tickets are **not** listed — they are open child issues, found by query.
