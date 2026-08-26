@@ -46,3 +46,11 @@ Blocked by: 08, 09, 17
 真实 ControlServer + 真实 OnboardHmi + 独立 simulator 首次运行暴露确认哈希算法和 `SafetyStateSnapshot` ack kind 两项 ControlServer 偏差；已在远程 `ControlServer_MVP@3ceeee6dd243015b3f5fb94e9fea1d144dc4babf` 修复。修复后双方完成正式 release 会话、Capability、Safety 和 RecoveryStateReport，稳定得到 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，不再出现 `CONTENT_HASH_MISMATCH`；所有监听均回收。详细证据见 [`2026-08-26 当前双端提交联合审计`](../evidence/g3/20260826-current-peer-audit.md)。
 
 本票继续保持 `claimed`：OnboardHmi 尚未接入真实停稳/驻车 provider，ControlServer 尚无恢复/心跳以外的完整双向业务分发，且 MesIngest/RIoT 凭据及车辆、Map、站点身份仍缺失。W2G-IS-00～07 G3 继续为 `INCONCLUSIVE`，不得写 `## Answer` 或更新地图 Decisions so far。
+
+### 2026-08-26 — ControlServer 车载业务入站持久链路
+
+远程 `ControlServer_MVP@27d6dee858e6adac3bedd796ee9ba0789daefc1c` 已补齐王昆当前车载实现实际发送的 `SublotSubmitted`、`OperationProgress`、`OperationResult`、`PreDepartureSafetyCheckResult`、`SafetyStateChanged` 和 `SlotOperationCommandRejected` 入站路径：精确 wire SHA-256 的 `DurableAck` 与完整业务请求在同一 SQLite inbox 事务中提交；`OperationResult` 按 `slotOperationAttemptId + ForcedRecoveryGeneration` 防止同代换号/换内容，同时保留强制恢复后历史迟到结果与当前结果并存的既有语义；不安全 `SafetyStateChanged` 在确认后将会话 fail-close 到 `RECOVERY_REQUIRED / DEPARTURE_SAFETY_NOT_READY`。所有非握手消息现在也回读正式协议 envelope 身份。`SessionHello.credentialProof` 在 inbox 中固定写为 `[REDACTED]`，不把凭据明文落库。
+
+新增 EF 迁移已在全新 SQLite 上依次通过初始迁移和 `DurableOnboardBusinessInbox`；Release 全解非增量构建 0 warning / 0 error、完整测试 20/20 PASS、format PASS。正式 `protocol-v0.1.1` 下 W2G-IS-00～07 八份 ControlServer G2 全部 PASS，均绑定上述 commit 和 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f`；本机忽略目录 `artifacts/g2/issue10-27d6dee-pwsh/` 中八份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `d5c2e7b4089a1cef6a4f49e5d644d10633abfb95f6b79a7a5bc908fc8a482f29`。首次误用 Windows PowerShell 5 时测试 3/3 已通过但 `utf8NoBOM` 证据写入失败，部分目录 `artifacts/g2/issue10-27d6dee/` 按红证据保留；正式八片证据使用 PowerShell 7 全新目录生成。
+
+本票仍保持 `claimed`：本次只收口车载到服务端的持久入站链路，尚未实现 ControlServer 主动下发 journey/worklist、Sublot、SlotOperation、PreDepartureSafetyCheck 与恢复命令的生产编排；王昆端真实停稳/驻车 provider、MesIngest/RIoT 凭据及车辆、Map、站点身份也仍缺失。因此尚不能运行或宣称八切片真实 G3 PASS，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
