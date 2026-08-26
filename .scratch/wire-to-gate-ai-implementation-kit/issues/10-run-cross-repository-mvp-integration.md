@@ -142,3 +142,13 @@ Release 完整测试 68/68 PASS（0 skipped），format、`git diff --check` 和
 第 3 项的唯一 source of truth 已按用户指定落在 `8005-agv-control-server`：runner／产品修复提交 `ControlServer_MVP@b4afdb3ce3d6ee2b84b78b09101af689f1cbde92`，正式证据提交 `ControlServer_MVP@8952603bffd9ff63858881fc8d38f8acf2c75d8a`，摘要为 [`Deterministic staged G3 split-transport result`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/8952603bffd9ff63858881fc8d38f8acf2c75d8a/evidence/g3/20260826-staged-g3-b4afdb3/SUMMARY.md)。TLS `SslStream` 身份／重复／冲突探针及 plaintext loopback 的真实 Onboard `RecoveryStateReport` 首 Ack drop 重放均 PASS；真实 Onboard+TLS 组合因没有受支持的已信任 loopback 证书而保持 `INCONCLUSIVE`，正式切片、完整 G3 和 RC 均未宣称 PASS。
 
 本票继续保持 `claimed`；此处仅保留路由指针，不复制跨仓证据，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-26 — 阶段性 G3 恢复重放修复重跑指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Recovery replay fix staged G3 rerun`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/8f2d03752cdb592dcbd118523fbf82b49dd3c904/evidence/g3/20260826-staged-g3-rerun-8952603-15c6387/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@8f2d03752cdb592dcbd118523fbf82b49dd3c904`
+
+Impact on this ticket: 先前 `RecoveryStateReport` 首 Ack 丢失跨 generation 重放阻断已用真实双端重跑 PASS；真实 Onboard+TLS 组合、W2G-IS-00～07 完整 G3 与 RC 仍为 `INCONCLUSIVE`，本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
