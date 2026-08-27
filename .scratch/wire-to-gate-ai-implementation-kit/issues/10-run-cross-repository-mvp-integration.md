@@ -214,3 +214,15 @@ Owner evidence: `mes/ingest/evidence/g3/20260827-map25-sublot-box-count/SUMMARY.
 Published branch/commit: `codex/map25-sublot-box-count@1d95e36395b162da9f033e514e12c967493dd12d`
 
 Impact on this ticket: 首次 Host-only 部署暴露现场 SQL schema identity 仍为 v2.2，v2.3 按 51008 fail-closed 且未改库；归属仓已发布只允许完整结构匹配的 v2.2/schema 29 在 serializable 事务中单步更新 identity 的修复，真实 SQL schema 门禁 20/20、Release build 0 warning/0 error、Tier 1 808 passed/0 failed/136 external-SQL skips。后续 UAC 在管理员脚本执行前被取消，正式 Windows Service 当前停止，精确 `ea778a0` 重建的临时当前用户 v2.2 Host 正在 `127.0.0.1:5088` 提供只读服务；须以管理员身份重新进入 Codex 后部署已验证的 `1d95e363` Host-only 包。未调用 RIoT mutation、未动车；正式 W2G-IS-00～07 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — MesIngest v2.3 正式服务部署与 SUBLOT_BOX_COUNT 只读现场 PASS 指针
+
+Owning repository: `https://github.com/trytoreachpeak0/8005---AGV`
+
+Owner evidence: [`Map 25 SUBLOT_BOX_COUNT contract readiness`](https://github.com/trytoreachpeak0/8005---AGV/blob/abb84d2aef1fdba0da15392f58f75ea957e0584d/mes/ingest/evidence/g3/20260827-map25-sublot-box-count/SUMMARY.md)
+
+Published product/evidence: `codex/map25-sublot-box-count@c362b37950185fbff64a067b7a834521257a130d` / `abb84d2aef1fdba0da15392f58f75ea957e0584d`
+
+Impact on this ticket: 用户明确授权不备份 Host 和 SQL Server 的直接发布后，正式 `MesIngest` Windows Service 已用管理员权限部署到产品提交 `c362b379`，当前为 `Running`、`Auto`、`LocalSystem`；现场 SQL identity 为 v2.3/schema 29，历史 epoch、32-byte signing key 和 `NOT_REQUIRED` reset 状态保持有效。首次真实 Oracle 补充读取暴露并 fail-closed 为 ODP.NET `ORA-00911`，归属仓随后移除 canonical SQL 客户端语句终止符、把全部发布面锁定到 SHA-256 `9aaee872...a24`，新增 Thin／Thick 回归，并以最终 Tier 1 `808 passed / 0 failed / 136 external-SQL skips` 收口。现场从当前目录选取一个已脱敏 WIRE_TO_GATE Sublot 的只读调用已返回精确 `SUBLOT_BOX_COUNT` identity、正数 `maxBoxCount=4` 和 UTC 时间，空 Sublot 返回 HTTP 400；未调用 RIoT、未建单、未动车。
+
+该增量只关闭 MesIngest／SUBLOT_BOX_COUNT 可部署前置项。七个 AREA/EQP 站点映射、电量阈值、获批容量配置、Onboard 具名凭据与真实停稳／驻车 provider，以及任何车辆动作授权仍未闭合；正式 W2G-IS-00～07 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
