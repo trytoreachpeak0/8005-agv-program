@@ -193,8 +193,8 @@ Impact on this ticket: ControlServer 已按已批准 REQ-0298／0321／0322／03
 
 Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
 
-Evidence artifact: [`Map 25 read-only identity and station readiness`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/d49d9c926ecae629c5016ec108dc9bb3fd856b1a/evidence/g3/20260827-map25-readiness/SUMMARY.md)
+Evidence artifact: [`Map 25 read-only identity and station readiness`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/e4dd411387cb8f6198e6a36b45b4c7992fc8cf1d/evidence/g3/20260827-map25-readiness/SUMMARY.md)
 
-Published branch/commit: `ControlServer_MVP@d49d9c926ecae629c5016ec108dc9bb3fd856b1a`
+Published branch/commit: `ControlServer_MVP@e4dd411387cb8f6198e6a36b45b4c7992fc8cf1d`
 
 Impact on this ticket: 获准的只读 RIoT 调用已精确回验车辆 key、`mapIdentity=老厂前线new`、Map 25 共 206 个 Station 及唯一 `关卡/210`；当前 MesIngest 17 个 WIRE_TO_GATE AREA/EQP 中 10 个唯一匹配、7 个无匹配、0 个歧义，缺失项继续 fail-closed。CallApiKey 已按部署负责人明确要求持久化到 Windows User 范围的 `CONTROL_SERVER_RIOT_CALL_API_KEY`，正文未进入 Git；本次没有创建 RIoT 订单或移动车辆。该配置增量 Release build 0 warning/0 error、82/82 tests PASS（0 skipped）。七个缺失 AREA、Onboard 凭据／真实停稳驻车 provider、电量阈值、容量规则和 SUBLOT_BOX_COUNT 仍阻断完整现场 G3，故本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
