@@ -198,3 +198,9 @@ Evidence artifact: [`Map 25 read-only identity and station readiness`](https://g
 Published branch/commit: `ControlServer_MVP@e4dd411387cb8f6198e6a36b45b4c7992fc8cf1d`
 
 Impact on this ticket: 获准的只读 RIoT 调用已精确回验车辆 key、`mapIdentity=老厂前线new`、Map 25 共 206 个 Station 及唯一 `关卡/210`；当前 MesIngest 17 个 WIRE_TO_GATE AREA/EQP 中 10 个唯一匹配、7 个无匹配、0 个歧义，缺失项继续 fail-closed。CallApiKey 已按部署负责人明确要求持久化到 Windows User 范围的 `CONTROL_SERVER_RIOT_CALL_API_KEY`，正文未进入 Git；本次没有创建 RIoT 订单或移动车辆。该配置增量 Release build 0 warning/0 error、82/82 tests PASS（0 skipped）。七个缺失 AREA、Onboard 凭据／真实停稳驻车 provider、电量阈值、容量规则和 SUBLOT_BOX_COUNT 仍阻断完整现场 G3，故本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — SUBLOT_BOX_COUNT 本地实现与发布历史阻塞指针
+
+MesIngest owning worktree 已在本地 `codex/map25-sublot-box-count@cbf5717406db39b3182beac4233fa1fdb45b7406` 实现 v2.3/schema 29 的 hash-pinned、单绑定变量 `GET /api/v2/sublot-box-count`，并同步 OpenAPI、发布包／manifest／smoke／factory 验收和源仓证据。定向 Release 验证为 150 passed、0 failed、1 个外部 SQL 环境 skip；最终 Tier 1 为 806 passed、2 个未改动 WPF 视觉布局失败、133 个外部 SQL 环境 skip。ControlServer 消费端本地 `ControlServer_MVP@74b937c42dbe8b26c9d60d0332f5926622ba043e` 已固定精确 v2.3 capability id+version 集及路径，Release 完整测试 83/83 PASS。
+
+两项提交均未推送：MesIngest 基线本身比 `origin/codex/factory-validation` 多 60 个既有提交，推送当前实现会同时发布这些祖先；ControlServer 又依赖尚未发布／部署的 v2.3 生产者，故不单独制造跨仓中间态。完整证据保留在各 owning repository，本票只记录路由和阻塞。现场 MesIngest 仍为 v2.2；七个 AREA、阈值／容量、Onboard 凭据与真实停稳驻车 provider、以及移动授权仍未闭合，因此本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
