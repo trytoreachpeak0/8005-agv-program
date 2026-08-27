@@ -15,4 +15,4 @@ FROM   (
         FROM   fw_wip_box_his t
         WHERE  t.lot = :sublot
         GROUP  BY t.step
-       );
+       )
