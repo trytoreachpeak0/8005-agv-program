@@ -30,7 +30,7 @@ same deterministic page selections in 简体中文 and English, and keeps the In
 on the same generation while the shared language is committed. The evidence-only capture
 names include their language and viewport; none are registered with
 `WatchProductionBaselineMatrix`, so this change cannot overwrite or promote an approved
-baseline. The existing `MESINGEST_WATCH_JOURNEY_CLIENT_EPX=720x450` path reuses the same
+baseline. The existing `MESINGEST_WATCH_JOURNEY_CLIENT_EPX=720x600` path reuses the same
 matrix for the narrow-window evidence.
 
 No Tier 2, Tier 3, Golden, stability, candidate-baseline, or promotion command was run while
