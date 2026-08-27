@@ -151,3 +151,8 @@ scope.
   because cleanup failed.
 - Trigger cleanup from a Watch request, SQL Agent, external script or a generic
   scheduler instead of the one Host-owned lifecycle.
+## Ticket 02 addendum (toast Variant A)
+
+- The production seam is `WatchWorkspaceWindow` with the Ticket 01 notification coordinator, real V2 state, manual `TimeProvider`, and AREA directory events.
+- Ticket 02 pairs continuing-fault lifecycle code with production-window tests for page headers, selection loss, navigation scope, and both AREA `ContentDialog` paths.
+- Stable empty, validation, read-only, and directory-watch surfaces remain outside transient notifications.

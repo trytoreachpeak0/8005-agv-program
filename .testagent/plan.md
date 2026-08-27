@@ -161,3 +161,10 @@ transaction.
 - Update Ticket 16 status/comments with baseline defaults, focused and Tier 1
   evidence, two-axis review result and commit identity; then commit the complete
   implementation on the current branch.
+## Ticket 02 addendum (toast Variant A)
+
+1. Verify first/repeated/recovered/reoccurring continuing-fault cycles and background summaries.
+2. Verify refresh selection loss produces one 3-second notification and leaves detail unselected.
+3. Verify page notifications clear on navigation while global Host faults remain.
+4. Verify all-AREA confirm/cancel and AREA conflict overwrite/reload/later through real `ContentDialog` instances.
+5. Run only focused classes during development, then one repository tier 1 after production freeze.

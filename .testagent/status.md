@@ -50,3 +50,10 @@ in the worktree.
 compatibility level 160: 819 passed, 0 failed, 0 skipped in 10m 53s. The first
 attempt found one stale four-kind Watch presentation assertion; after updating
 that contract test to all five kinds, the closing run was green.
+## Ticket 02 addendum (toast Variant A)
+
+- Focused tests cover the Ticket 01 toast spine, continuing overview failure cycles, DemandSeries selection loss, navigation scope, all-AREA confirmation, and AREA write-conflict resolution/later behavior.
+- `First_fault_repeats_recovery_and_reoccurrence_form_distinct_notification_cycles` killed an injected mutation that removed same-cycle suppression; the mutation was reverted and the lifecycle class returned green (3/3).
+- A missing global-vs-page navigation assertion was added to `Overlay_preserves_page_measure_focus_scope_and_independent_dismissal`: leaving Settings clears its page toast while an active global Host fault remains without replay.
+- No Ticket 03 Golden, DPI, animation, baseline, or visual-approval work was run.
+- Final Ticket 02 tier 1 (`dotnet test MesIngest.Tests`) passed: failed 0, passed 800, skipped 133, total 933; all three Ticket01 SQL Server environment variables were unset, so the named SQL-dependent tests were skipped.
