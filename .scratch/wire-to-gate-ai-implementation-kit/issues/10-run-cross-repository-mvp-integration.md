@@ -246,3 +246,7 @@ Evidence artifact: [`Map 25 capacity and vehicle-safety field-gate implementatio
 Published branch/commit: `ControlServer_MVP@f9cad35551e7ccd44a489b7324fd3e53243d1f2d`
 
 Impact on this ticket: 用户逐项确认的 `N* + Map25` 双条件、30% 电量阈值、28 条初始 PACKAGE 容量规则、ControlServer 本地缺失 PACKAGE 去重／补数历史和 RIoT Round-41 fail-closed 停稳投影均已在归属仓实现并以 Release 101/101 tests PASS、九段 SQLite 迁移 PASS 收口；Machine-scope 具名凭据已验证存在但未披露值。受保护 Onboard 远端当前 HEAD 为王昆 `15c6387801fa2154fb69441eac460fea9d0999c5`，已包含恢复跨代次重放修复，但该精确 HEAD 的 `App.xaml.cs` 仍绑定 `UnavailableVehicleSafetySignalProvider`；须由王昆提交正式 HTTPS／证书信任客户端 provider 并确认新的精确 commit。当前 `MT_NA` 继续只能判 `UNKNOWN`，动态状态资格验证仍需单独动车授权。本票保持 `claimed`，正式 W2G-IS-00～07 G3 与 RC 仍为 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — ControlServer 分阶段部署与测试端点确认
+
+用户确认先在当前本机部署 ControlServer，稳定后再迁移到另一台目标机器；Onboard 测试阶段也运行在当前本机，后续迁移到车辆触控屏 `172.19.162.210`。测试阶段 Onboard-facing HTTPS 端点冻结为 `https://localhost:58007`，证书至少包含 `localhost` SAN；`172.19.162.210` 是后续 Onboard 客户端地址，不是当前 ControlServer 服务端地址。最终 ControlServer 迁移时必须重新确认其服务端 DNS／IP 并据此签发或更换证书，不能沿用仅覆盖 `localhost` 的测试证书。该确认不构成部署、证书安装、RIoT 调用、订单创建或车辆移动授权；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
