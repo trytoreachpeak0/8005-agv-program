@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 页面标题、刷新状态、AREA 范围、筛选、分面、列表、生命周期、详情、分页、空态、失败态和 Inspector 动作全部双语化。
 - [x] 生命周期、当前出现状态和 WorkType 等筛选显示本地化含义及规范代码；ViewState 与 Host 请求始终保存规范代码。
