@@ -1,6 +1,6 @@
 # Map 25 SUBLOT_BOX_COUNT contract readiness
 
-Result: `PUBLISHED_IMPLEMENTATION_READY_WITH_DEPLOYMENT_AND_FIELD_GATES_OPEN`
+Result: `PUBLISHED_MIGRATION_FIX_READY_WITH_ADMIN_DEPLOYMENT_AND_FIELD_GATES_OPEN`
 
 This evidence records a published, read-only MesIngest implementation prerequisite for
 Wayfinder Map 25. It is not a formal W2G-IS-00 through W2G-IS-07 G3 PASS, was not
@@ -51,3 +51,38 @@ The revision carrying this file is the implementation revision.
   approved runtime package-capacity configuration, Onboard credential, and a real
   stopped/parking signal provider remain open.
 - RIoT mutation and vehicle movement still require separate authorization.
+
+## 2026-08-27 v2.2 to v2.3 deployment finding and owner fix
+
+The deployment owner authorized a direct Host-only publish without a Host or SQL Server
+backup. The first v2.3 package replacement correctly refused to start against the live
+v2.2/schema 29 database with SQL error 51008 because the database contract identity was
+still v2.2. The failed start did not update the database. A temporary current-user Host
+rebuilt from the exact former source commit `ea778a05195f701095e5ae8492a4c4a7ad83be56`
+restored the v2.2 loopback API and successful Oracle polling while the Windows Service
+remained stopped.
+
+The owning branch now publishes the bounded migration fix as
+`codex/map25-sublot-box-count@1d95e36395b162da9f033e514e12c967493dd12d`.
+It advances only an otherwise fully validated v2.2/schema 29 database to v2.3 inside the
+existing schema application lock and serializable transaction. It changes exactly
+`mesingest.SchemaInfo.ContractVersion`; HistoryEpoch, snapshot signing key, tables, and
+history remain unchanged. Unknown contract versions and every structural drift still fail
+closed before the identity update.
+
+- Focused migration regression: `3 passed, 0 failed, 0 skipped` on the real SQL Server.
+- Complete empty-database/schema gate: `20 passed, 0 failed, 0 skipped` on the real SQL
+  Server, using owned temporary databases that were removed by the harness.
+- Release non-incremental solution build: `0 warnings, 0 errors`.
+- Final Tier 1 `dotnet test MesIngest.Tests`: `808 passed, 0 failed, 136 skipped`. The
+  skipped tests require the external SQL opt-in; the changed migration path is covered by
+  the separate real-SQL 20/20 run above.
+- The Host-only package generated from `1d95e363` passed its 866-file release-manifest
+  validation.
+
+Formal Windows Service deployment is not yet complete: subsequent UAC elevation requests
+were cancelled before the administrator script ran. The current availability is the
+temporary v2.2 current-user Host on `127.0.0.1:5088`, not the auto-start Windows Service.
+Resume from an administrator Codex process, stop that temporary Host, install the prepared
+v2.3 package, and verify the exact v2.3 capability plus a live read-only
+`SUBLOT_BOX_COUNT` result. No RIoT mutation or vehicle movement occurred.
