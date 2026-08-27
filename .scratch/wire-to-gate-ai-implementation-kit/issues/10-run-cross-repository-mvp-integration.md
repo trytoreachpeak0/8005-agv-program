@@ -298,3 +298,13 @@ Owner fix: [`fix: align ControlServer transport port`](https://github.com/trytor
 Routing status: 受保护 owner 由王昆本人推送修复；agent 仅在精确 commit 的一次性副本中只读验证，未修改 owner 工作树。
 
 Impact on this ticket: 两份配置和 `WireToGateSettings` 默认值已统一到权威端口 58005；端口配置与 ControlServer HTTPS provider 聚焦回归 18/18 PASS、0 skip，完整解决方案 Release build 为 0 warning／0 error。静态端口配置阻塞已关闭；尚未在 `594cd14` 上重跑会写入 ControlServer 会话恢复表、临时 journal 和模拟器状态的运行态会话，因此本票继续保持 `claimed`，正式 W2G-IS-00～07 G3／RC 仍为 `INCONCLUSIVE`。
+
+### 2026-08-27 — Onboard 594cd14 默认端口 loopback 运行指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Onboard 594cd14 default-port loopback preflight`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/0245a476654eabf8844bffe4c4d92f3a769c29ad/evidence/g3/20260827-onboard-594cd14-default-port-loopback/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@0245a476654eabf8844bffe4c4d92f3a769c29ad`
+
+Impact on this ticket: 用户明确授权的本机无移动运行在没有任何 `wireToGate.port` 临时覆盖时，直接使用 `594cd14` Release 输出中的默认端口 58005 建立 TLS／NDJSON 会话；simulator 为 `READY`，session generation 2，双端一致为 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，安全投影仍因 `RIOT_MOVEMENT_NOT_FINISHED` 为 `UNKNOWN`。Onboard／simulator 已停止且临时端口释放，JourneyRuntime 未启用，未调用 RIoT mutation、未建单、未动车、未访问车辆触控屏。该结果关闭 Onboard 端口修复的运行态不确定性，但正式 W2G-IS-00～07 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
