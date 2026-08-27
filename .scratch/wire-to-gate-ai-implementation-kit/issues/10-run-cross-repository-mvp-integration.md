@@ -318,3 +318,13 @@ Evidence artifact: [`Map 25 dynamic field-gate refresh`](https://github.com/tryt
 Published branch/commit: `ControlServer_MVP@233f7044607c2fc7e2cf1a2b6c24a4b690c66082`
 
 Impact on this ticket: 新的原子只读脱敏快照确认 MesIngest catalog revision 1469 下，Map 25 当前 11 个 N-scoped AREA 全部唯一解析，先前观察到的缺站已消失，再次证明正式运行前必须原子重读动态目录；11 种当前 PACKAGE 中 5 种被已批准规则覆盖、6 种仍需具名业务负责人提供或批准精确 boxes-per-basket。车辆其余静态门禁满足，但电量为 21%，低于已批准 30% 阈值；直接 RIoT 与 HTTPS 投影仍一致为 `UNKNOWN / RIOT_MOVEMENT_NOT_FINISHED`。完整证据只存在可写集成仓，原始 PACKAGE 身份未进入 Git。JourneyRuntime 保持关闭，未调用 RIoT mutation、未建单、未动车；正式 W2G-IS-00～07 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — 本机测试电量门槛 10% 与 RIoT 状态边界指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Test-only battery threshold 10% and RIoT motion blocker`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/048a1beb0b636077f8189653173d28864c4de23f/evidence/g3/20260827-test-battery-threshold-10/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@048a1beb0b636077f8189653173d28864c4de23f`
+
+Impact on this ticket: 用户明确要求当前本机测试实例把电量门槛由 30% 临时调整为 10%；UAC 执行保留了精确配置备份，重启后服务为 `Running`、HTTPS live 为 200，仓库默认值仍为 30%。只读复核时电量 19%，已通过 10% 门槛，并有 11 个当前 WIRE_TO_GATE 项通过静态 N/Map/获批容量筛选；动态目录同时再次出现一个缺站项，故正式运行前仍须原子重读并只选完整准入候选。直接 RIoT 与 HTTPS 投影继续一致为 `UNKNOWN / RIOT_MOVEMENT_NOT_FINISHED`；该原因要求 RIoT/车辆侧真实报告 `MT_FINISHED`，不得把 `MT_NA` 当作停止或放宽 fail-closed 判定。JourneyRuntime 保持关闭，未调用 RIoT mutation、未建单、未动车；正式 W2G-IS-00～07 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`。
