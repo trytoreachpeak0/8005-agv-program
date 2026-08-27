@@ -188,3 +188,13 @@ Owner implementation: [`Dynamic Map pickup station resolution`](https://github.c
 Published branch/commit: `ControlServer_MVP@69dede3b04472cfdb8de06b7d4f743e4677eeb6e`
 
 Impact on this ticket: ControlServer 已按已批准 REQ-0298／0321／0322／0324 使用获准的 Map Station 全量读取面，在 Map 25 按一至三个 AREA 编码命名规则解析机台站；每个 WIRE_TO_GATE Demand 以自身 AREA/EQP 唯一解析并冻结一个 pickup，零／多站或同 AREA 多 EQP 均 fail-closed，普通公共站点不误判，关卡精确绑定为 `关卡/210`。现场车辆冻结为 `老厂前线新多仓位1`、`BROKERX-0c20ff0600d644869a6a80c186065d85`、首次生命周期代次 `1`；MesIngest 更新到本机 `5088` 的 v2.2/schema 29 且 loopback 不强制 SharedSecret。完整 Release build 0 warning/0 error、82/82 tests PASS（0 skipped），四项高风险伪变异最终全部被测试捕获。真实 Map station 列表、RIoT 车辆/mapIdentity 回读仍需 CallApiKey；Onboard 具名凭据／真实 provider、完整现场配置和真实车辆动作授权仍未满足，故正式 W2G-IS-00～07、完整 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — Map 25 只读现场回验与 CallApiKey 持久化指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Map 25 read-only identity and station readiness`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/d49d9c926ecae629c5016ec108dc9bb3fd856b1a/evidence/g3/20260827-map25-readiness/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@d49d9c926ecae629c5016ec108dc9bb3fd856b1a`
+
+Impact on this ticket: 获准的只读 RIoT 调用已精确回验车辆 key、`mapIdentity=老厂前线new`、Map 25 共 206 个 Station 及唯一 `关卡/210`；当前 MesIngest 17 个 WIRE_TO_GATE AREA/EQP 中 10 个唯一匹配、7 个无匹配、0 个歧义，缺失项继续 fail-closed。CallApiKey 已按部署负责人明确要求持久化到 Windows User 范围的 `CONTROL_SERVER_RIOT_CALL_API_KEY`，正文未进入 Git；本次没有创建 RIoT 订单或移动车辆。该配置增量 Release build 0 warning/0 error、82/82 tests PASS（0 skipped）。七个缺失 AREA、Onboard 凭据／真实停稳驻车 provider、电量阈值、容量规则和 SUBLOT_BOX_COUNT 仍阻断完整现场 G3，故本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
