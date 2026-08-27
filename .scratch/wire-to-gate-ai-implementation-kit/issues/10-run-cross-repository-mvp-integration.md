@@ -178,3 +178,13 @@ Impact on this ticket: 用户明确授权的唯一临时测试根已用于真实
 当前终端重新核对了生产配置实际引用的秘密名称及 Process／User／Machine 三层环境：`CONTROL_SERVER_RIOT_CALL_API_KEY`、`CONTROL_SERVER_MES_INGEST_SHARED_SECRET`、`CONTROL_SERVER_ONBOARD_CREDENTIAL` 和 `CONTROL_SERVER_RECOVERY_AUTHENTICATION_PROOF` 均未配置；ControlServer 工作区内也没有可复用的本地安全引用文件。`172.19.206.222:8888` 的 RIoT TCP 已恢复可达，但 `127.0.0.1:58004` 的 MesIngest 仍未监听。具名 `agvId`／`vehicleKey`／生命周期 generation、`mapId`／map identity、取货站和关卡站双重身份及准入／路线配置仍未提供。
 
 因此当前可安全执行的无移动 TLS 恢复重放已经完成，下一步必须由现场负责人通过安全通道注入上述秘密并确认具名身份／站点映射，同时启动真实 MesIngest；仅有 RIoT 端口可达不授权 API 调用或车辆动作。不得生成猜测身份、把测试随机 secret 当作现场凭据，或用 RIoT Fake 替代正式 G3。本票继续保持 `claimed`，正式 W2G-IS-00～07、完整 G3 与 RC 仍为 `INCONCLUSIVE`；不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — Map 25 动态机台站解析与现场身份接入指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Owner implementation: [`Dynamic Map pickup station resolution`](https://github.com/trytoreachpeak0/8005-agv-control-server/commit/69dede3b04472cfdb8de06b7d4f743e4677eeb6e)
+
+Published branch/commit: `ControlServer_MVP@69dede3b04472cfdb8de06b7d4f743e4677eeb6e`
+
+Impact on this ticket: ControlServer 已按已批准 REQ-0298／0321／0322／0324 使用获准的 Map Station 全量读取面，在 Map 25 按一至三个 AREA 编码命名规则解析机台站；每个 WIRE_TO_GATE Demand 以自身 AREA/EQP 唯一解析并冻结一个 pickup，零／多站或同 AREA 多 EQP 均 fail-closed，普通公共站点不误判，关卡精确绑定为 `关卡/210`。现场车辆冻结为 `老厂前线新多仓位1`、`BROKERX-0c20ff0600d644869a6a80c186065d85`、首次生命周期代次 `1`；MesIngest 更新到本机 `5088` 的 v2.2/schema 29 且 loopback 不强制 SharedSecret。完整 Release build 0 warning/0 error、82/82 tests PASS（0 skipped），四项高风险伪变异最终全部被测试捕获。真实 Map station 列表、RIoT 车辆/mapIdentity 回读仍需 CallApiKey；Onboard 具名凭据／真实 provider、完整现场配置和真实车辆动作授权仍未满足，故正式 W2G-IS-00～07、完整 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
