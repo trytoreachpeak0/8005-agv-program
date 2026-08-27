@@ -1,8 +1,8 @@
 # Map 25 SUBLOT_BOX_COUNT contract readiness
 
-Result: `LOCAL_IMPLEMENTATION_READY_WITH_PUBLICATION_AND_FIELD_GATES_OPEN`
+Result: `PUBLISHED_IMPLEMENTATION_READY_WITH_DEPLOYMENT_AND_FIELD_GATES_OPEN`
 
-This evidence records a local, read-only MesIngest implementation prerequisite for
+This evidence records a published, read-only MesIngest implementation prerequisite for
 Wayfinder Map 25. It is not a formal W2G-IS-00 through W2G-IS-07 G3 PASS, was not
 deployed to the live Host, did not call a RIoT mutation, and did not move a vehicle.
 The revision carrying this file is the implementation revision.
@@ -41,10 +41,11 @@ The revision carrying this file is the implementation revision.
 
 ## Open gates
 
-- The implementation branch starts from a local factory-validation history that is
-  60 commits ahead of `origin/codex/factory-validation`. Publishing it would also
-  publish those existing ancestors, so no push or deployment occurs without an
-  explicit publication decision.
+- The user explicitly authorized publishing the implementation branch together with
+  its 60 existing unpublished factory-validation ancestors. The implementation is
+  published as
+  `codex/map25-sublot-box-count@cbf5717406db39b3182beac4233fa1fdb45b7406`
+  and was fetched back from the remote at the same commit. It has not been deployed.
 - The live Host remains v2.2 and has not been restarted or replaced.
 - Map 25 still has seven unresolved AREA/EQP assignments. Battery threshold,
   approved runtime package-capacity configuration, Onboard credential, and a real
