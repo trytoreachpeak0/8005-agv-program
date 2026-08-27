@@ -1,59 +1,75 @@
-# Ticket 16 test completion status
+# Ticket 01 test-generator status
 
-## Pseudo-mutation verification
+## Implementation green update
 
-Targeted xUnit/VSTest mutation checks were applied one at a time to
-`HistoryCleanupBatchRunner`, run with the narrowest covering test, and reverted
-immediately.
+- The parent implementation completed the production language foundation and
+  corrected two test-fixture setup defects exposed by the first green run.
+- Focused Ticket 01 plus existing preferences/shell regression run:
+  `48 passed / 0 failed / 0 skipped`.
+- Tier 1 handoff gate:
+  `852 passed / 0 failed / 136 skipped` in 8 minutes 16 seconds. The runner
+  named every skip; the skipped integration groups require the real SQL Server
+  environment that is not configured for this run.
+- `MesIngest.Watch.UiTests` restored and compiled successfully with
+  `0 warnings / 0 errors`; no Golden/tier 2 suite was executed.
 
-| Mutation | Initial result | Final result |
-| --- | --- | --- |
-| Series time boundary `< deadline` → `<= deadline` | Survived the original `+16s` fixture | Closed by moving the fixture to the exact `+15s` deadline; the mutation then failed because `series-2` started in the first batch. |
-| Raw row loop `< configured limit` → `<= configured limit` | Killed | `Cleanup_batch_stops_at_the_configured_raw_row_budget` observed an illegal third transaction with a zero remaining limit. |
-| Sanitized `exception.GetType().Name` → `exception.Message` | Killed | Real-SQL failure/Attention test rejected the secret-bearing message and the wrong persisted failure reason. |
+## Initial RED result
 
-Observed injected mutations: 3; killed by the final tests: 3; surviving gaps: 0.
-The substantive static candidates for fixed hourly boundaries, single-flight,
-poll priority, failure clearing, cumulative counts, and exact next-check time
-also have direct assertions in the focused suite. No production mutation remains
-in the worktree.
+- Research and plan are recorded in `.testagent/research.md` and `.testagent/plan.md`.
+- Added 15 focused Ticket 01 tests across three new xUnit classes.
+- No production code, prototype source, baseline, or unrelated dirty file was edited.
+- SDK/platform detection: .NET SDK `8.0.424` selected by root `global.json` (`8.0.423`, latest patch); xUnit 2.4.2 on VSTest via `Microsoft.NET.Test.Sdk` 17.6.0.
+- Narrow command:
+  `dotnet test MesIngest.Tests --filter "FullyQualifiedName~WatchBilingualPreferencesTests|FullyQualifiedName~WatchBilingualFoundationProductionTests|FullyQualifiedName~WatchTextCatalogContractTests" -v minimal`
+- Expected RED result: exit code 1 at compile time. First missing production contract is `CS0246: WatchDisplayLanguage could not be found` in `WatchBilingualFoundationProductionTests.cs:236`.
 
-## Assertion review
+## Generated test inventory
 
-- Defaults use independent literals and also compare the published JSON values.
-- Budget tests assert transaction inputs, committed counts, status and natural
-  continuation, rather than private loop calls.
-- SQL tests assert the public status/HTTP contracts and use direct SQL only for
-  tombstone/raw-row commit evidence.
-- Failure evidence asserts both the stable sanitized reason and absence of the
-  injected secret.
-- Cancellation evidence asserts the active operation receives cancellation,
-  no failure is recorded, and the polling gate is immediately reacquirable.
-- No test was skipped or weakened to obtain a green run.
+### `WatchBilingualPreferencesTests`
 
-## Review closure
+1. `Missing_preferences_default_to_simplified_chinese_without_consulting_process_culture`
+2. `English_round_trips_with_refresh_main_and_inspector_layout_preferences`
+3. `Version_2_without_language_migrates_to_chinese_and_preserves_refresh_main_and_inspector_layout`
+4. `Unknown_or_malformed_language_falls_back_to_chinese_without_discarding_other_valid_preferences`
 
-- The post-review focused suite passed 31/31 with SQL Server 16 and database
-  compatibility level 160; failed 0, skipped 0.
-- Added direct evidence for the hard 25,000-row PollTrace ceiling, exact
-  overrun scheduling, safe scheduler logging, poll-held yielding, graceful
-  interruption, and post-failure polling continuation.
-- The real-SQL default probe committed 25 whole-Series cleanup transactions
-  inside the frozen 15-second elapsed budget.
-- Final standards/code-quality and Ticket 16 specification reviews both
-  reported no findings after the retry failure identity and restart-schema
-  validation fixes.
+### `WatchBilingualFoundationProductionTests`
 
-## Final gate
+1. `Fresh_production_window_starts_in_chinese_and_language_choices_are_self_named`
+2. `Saving_english_reprojects_the_open_window_and_a_restarted_composition_restores_english`
+3. `Failed_language_save_keeps_the_committed_runtime_language_and_visible_projection`
+4. `Unknown_saved_language_starts_the_real_window_without_losing_other_preferences`
+5. `Composition_and_window_share_one_observable_language_state`
+6. `Switching_language_preserves_active_page_canonical_filter_selection_focus_and_host_requests`
 
-`dotnet test MesIngest.Tests` passed against SQL Server ProductMajor 16 at
-compatibility level 160: 819 passed, 0 failed, 0 skipped in 10m 53s. The first
-attempt found one stale four-kind Watch presentation assertion; after updating
-that contract test to all five kinds, the closing run was green.
-## Ticket 02 addendum (toast Variant A)
+### `WatchTextCatalogContractTests`
 
-- Focused tests cover the Ticket 01 toast spine, continuing overview failure cycles, DemandSeries selection loss, navigation scope, all-AREA confirmation, and AREA write-conflict resolution/later behavior.
-- `First_fault_repeats_recovery_and_reoccurrence_form_distinct_notification_cycles` killed an injected mutation that removed same-cycle suppression; the mutation was reverted and the lifecycle class returned green (3/3).
-- A missing global-vs-page navigation assertion was added to `Overlay_preserves_page_measure_focus_scope_and_independent_dismissal`: leaving Settings clears its page toast while an active global Host fault remains without replay.
-- No Ticket 03 Golden, DPI, animation, baseline, or visual-approval work was run.
-- Final Ticket 02 tier 1 (`dotnet test MesIngest.Tests`) passed: failed 0, passed 800, skipped 133, total 933; all three Ticket01 SQL Server environment variables were unset, so the named SQL-dependent tests were skipped.
+1. `Common_shell_and_settings_sections_expose_typed_bilingual_text_without_arbitrary_string_lookup`
+2. `All_catalog_entries_are_nonempty_bilingual_and_have_matching_format_parameters`
+3. `Unknown_code_description_is_localized_and_preserves_the_raw_code`
+4. `Structured_value_semantics_keep_all_six_missing_query_states_distinct_in_both_languages`
+5. `Absolute_time_keeps_offset_while_relative_time_and_count_follow_display_language`
+
+## Static pseudo-mutation review
+
+The production language feature does not yet compile, so empirical mutation injection and a green baseline are impossible at this RED handoff. Findings below are static/unverified and were used only to strengthen the tests, not reported as proven production gaps.
+
+| Hypothetical defect | Test sensitivity |
+| --- | --- |
+| Default from `CurrentUICulture` instead of fixed Chinese | Killed by the two non-Chinese culture rows in the missing-preferences theory. |
+| Persist language outside local `display` or omit it | Killed by the exact `display.language = en-US` JSON assertion and Host/credential exclusions. |
+| Migrate v2 by falling back the whole document | Killed by exact non-default refresh, navigation, main-window, and Inspector layout assertions. |
+| Treat an invalid v3 language as whole-document corruption | Killed by three malformed-language rows retaining every other valid preference. |
+| Commit runtime English before persistence succeeds | Killed by the directory-target save-failure test observing state and visible shell text. |
+| Recreate independent language state for the window | Killed by reference identity plus one-change notification assertions. |
+| Translate by refreshing/rebuilding session state | Killed by fake request count, workspace-state reference identity, canonical filter, selected identity, focus, and active-page assertions. |
+| Return Chinese Shell/Settings text for English | Killed by typed section literals and real-window UIA/content assertions. |
+| Omit a section from `AllEntries` while its own entries exist | Originally survived the initial plan; fixed by asserting all 11 section boundaries implement `IWatchTextCatalogSection` and `AllEntries` equals the union of their inventories. |
+| Collapse multiple missing/query semantics to one dash | Killed by six distinct/nonempty/no-dash assertions in both languages. |
+| Localize or strip absolute offset, or leave relative/count units fixed | Killed by exact absolute output plus language-different relative and count assertions. |
+
+## Remaining boundaries owned by later tickets
+
+- Page-specific catalog entry completeness and visible migration beyond Common/Shell/Settings.
+- Existing Inspector synchronization (Ticket 05), feedback lifecycle (Ticket 09), and copy/UIA closeout (Ticket 10).
+- Golden desktop preview and DPI validation are not authorized in this test-generator pass.
+- A source audit for copied prototype-only patterns remains a review/build gate; the runtime assembly-reference assertion only prevents a direct FluentPrototype dependency.
