@@ -204,3 +204,13 @@ Impact on this ticket: 获准的只读 RIoT 调用已精确回验车辆 key、`m
 MesIngest owning worktree 已在本地 `codex/map25-sublot-box-count@cbf5717406db39b3182beac4233fa1fdb45b7406` 实现 v2.3/schema 29 的 hash-pinned、单绑定变量 `GET /api/v2/sublot-box-count`，并同步 OpenAPI、发布包／manifest／smoke／factory 验收和源仓证据。定向 Release 验证为 150 passed、0 failed、1 个外部 SQL 环境 skip；最终 Tier 1 为 806 passed、2 个未改动 WPF 视觉布局失败、133 个外部 SQL 环境 skip。ControlServer 消费端本地 `ControlServer_MVP@74b937c42dbe8b26c9d60d0332f5926622ba043e` 已固定精确 v2.3 capability id+version 集及路径，Release 完整测试 83/83 PASS。
 
 用户已明确允许发布 MesIngest 分支及其 60 个既有未发布祖先。生产者已推送并远端回读为 `codex/map25-sublot-box-count@cbf5717406db39b3182beac4233fa1fdb45b7406`，随后消费者已推送并远端回读为 `ControlServer_MVP@74b937c42dbe8b26c9d60d0332f5926622ba043e`。完整证据保留在各 owning repository，本票只记录路由和阻塞。现场 MesIngest 仍为 v2.2，尚未部署 v2.3；七个 AREA、阈值／容量、Onboard 凭据与真实停稳驻车 provider、以及移动授权仍未闭合，因此本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — MesIngest v2.2→v2.3 身份迁移修复与管理员部署阻塞指针
+
+Owning repository: `https://github.com/trytoreachpeak0/8005---AGV`
+
+Owner evidence: `mes/ingest/evidence/g3/20260827-map25-sublot-box-count/SUMMARY.md`
+
+Published branch/commit: `codex/map25-sublot-box-count@1d95e36395b162da9f033e514e12c967493dd12d`
+
+Impact on this ticket: 首次 Host-only 部署暴露现场 SQL schema identity 仍为 v2.2，v2.3 按 51008 fail-closed 且未改库；归属仓已发布只允许完整结构匹配的 v2.2/schema 29 在 serializable 事务中单步更新 identity 的修复，真实 SQL schema 门禁 20/20、Release build 0 warning/0 error、Tier 1 808 passed/0 failed/136 external-SQL skips。后续 UAC 在管理员脚本执行前被取消，正式 Windows Service 当前停止，精确 `ea778a0` 重建的临时当前用户 v2.2 Host 正在 `127.0.0.1:5088` 提供只读服务；须以管理员身份重新进入 Codex 后部署已验证的 `1d95e363` Host-only 包。未调用 RIoT mutation、未动车；正式 W2G-IS-00～07 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
