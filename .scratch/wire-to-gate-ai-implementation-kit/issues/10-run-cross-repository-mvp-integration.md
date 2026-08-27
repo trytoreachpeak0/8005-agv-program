@@ -254,3 +254,5 @@ Impact on this ticket: 用户逐项确认的 `N* + Map25` 双条件、30% 电量
 用户进一步确认没有企业／内部 CA，并明确授权采用专用开发证书方案：创建仅用于本机测试的私有测试根和带 `localhost` SAN 的服务端叶证书，将测试根安装到当前 Windows 用户的受信任根存储，保持正常 TLS 验证，不使用证书绕过；ControlServer 迁移到最终机器时移除或替换该测试信任。证书生成和安装须在服务身份确认后执行，以便先冻结私钥位置、ACL 和读取主体；不得把私钥、PFX 密码或其他秘密写入 Git、日志或证据。
 
 用户确认当前本机测试部署的 ControlServer Windows Service 使用 `LocalSystem`。该选择只冻结服务身份，不授权读取、复制或迁移当前 User-scope 的 `CONTROL_SERVER_RIOT_CALL_API_KEY`；LocalSystem 所需的 RIoT 秘密注入仍须单独明确授权。证书私钥与配置文件 ACL 应只授予 `SYSTEM`、Administrators 和部署所需主体，最终换机时重新评估服务身份。
+
+用户随后明确授权：仅在获批的 ControlServer 部署期间，将现有 User-scope `CONTROL_SERVER_RIOT_CALL_API_KEY` 的原值复制到 Windows Machine scope，保留原 User-scope 值不变，使 `LocalSystem` 可读取。执行期间不得打印、哈希、记录、复制到 Git／发布物／日志／证据或通过聊天披露密钥正文；该授权不包含任何 RIoT API mutation、建单或车辆移动。
