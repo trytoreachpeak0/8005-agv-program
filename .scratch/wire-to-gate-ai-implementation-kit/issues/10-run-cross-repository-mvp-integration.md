@@ -288,3 +288,13 @@ Evidence artifact: [`Onboard 6005c7a loopback session and vehicle-safety provide
 Published branch/commit: `ControlServer_MVP@f89ec2d48de29351c00f929e1fdb3e2f7751a173`
 
 Impact on this ticket: 受保护 Onboard 远端已由王昆推进到 `OnboardHmi_MVP@6005c7a89558593f199b04b1810426bc2f4072ae`，正式 HTTPS／Windows 信任／Bearer／车辆身份及时效 fail-closed provider 已接入；一次性副本中的相关聚焦测试 25/25 PASS，Onboard 与 slots-simulator Release build 均为零 warning／error。用户授权的本机 loopback 运行确认 IO 模拟器 `READY`、Onboard 到已部署 ControlServer 58005 的 TLS/NDJSON 会话建立成功，双端一致收敛为 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，HTTPS 安全投影继续为 `UNKNOWN / RIOT_MOVEMENT_NOT_FINISHED`；测试进程与端口已清理，未启用 JourneyRuntime、未调用 RIoT mutation、未建单、未动车。Onboard 两份配置仍误写会话端口 58015 而非权威 58005，该受保护 owner 缺陷已路由到上述可写集成证据，须由王昆在 Onboard 仓发布修复提交。当前 RIoT 外部状态、动态 Map／PACKAGE 业务缺口及移动授权继续阻断匹配 `READY` 和正式 W2G-IS-00～07 G3／RC；本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — Onboard 594cd14 会话端口修复只读验证
+
+Owning repository: `https://github.com/trytoreachpeak0/8005-agv-onboard-hmi`
+
+Owner fix: [`fix: align ControlServer transport port`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/commit/594cd14e2dec17285dc1352134515e3cab4abfd2)
+
+Routing status: 受保护 owner 由王昆本人推送修复；agent 仅在精确 commit 的一次性副本中只读验证，未修改 owner 工作树。
+
+Impact on this ticket: 两份配置和 `WireToGateSettings` 默认值已统一到权威端口 58005；端口配置与 ControlServer HTTPS provider 聚焦回归 18/18 PASS、0 skip，完整解决方案 Release build 为 0 warning／0 error。静态端口配置阻塞已关闭；尚未在 `594cd14` 上重跑会写入 ControlServer 会话恢复表、临时 journal 和模拟器状态的运行态会话，因此本票继续保持 `claimed`，正式 W2G-IS-00～07 G3／RC 仍为 `INCONCLUSIVE`。
