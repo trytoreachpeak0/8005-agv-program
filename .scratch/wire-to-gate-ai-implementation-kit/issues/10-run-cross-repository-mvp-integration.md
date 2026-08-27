@@ -268,3 +268,13 @@ Published product/installer/evidence: `ControlServer_MVP@1f14e7436423c6dae5c0dc1
 Impact on this ticket: 用户明确授权的 `localhost:58007`／专用开发根／`LocalSystem`／User→Machine RIoT 秘密复制本机部署已通过一次性最高权限任务完成，任务结束后已删除。真实 Kestrel 握手暴露并修复 Windows Schannel 不支持 ephemeral server key 的产品缺陷；聚焦握手测试 1/1、Release build 0 warning/0 error、完整 101/101 tests PASS。自包含包 manifest SHA-256 为 `0895f279e9a6a17e81725ed26f1037eb4b20f79a7706a03a3e874ec88a851cb0`，部署结果 SHA-256 为 `c321f7324727edb01ef7abd84b125daca02a86fe195fafa5ca763c0c9d7cc6c8`。独立回读确认服务 `Running`／`Auto`／`LocalSystem`、58005 TLS 与 58007 HTTPS 由同一服务监听、live/version 通过正式信任链、精确开发根与三项外部秘密引用存在、SQLite 受 ACL 保护；`JourneyRuntime` 保持关闭，未调用 RIoT mutation、未建单、未动车。该结果只关闭本机安装／启动／停止／重启／HTTPS 信任前置项；王昆 Onboard provider、凭据安全交付、无移动现场 preflight、正式 G3 与 RC 仍为 `INCONCLUSIVE`，本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
 
 用户确认 Onboard credential 采用本机直接注入方案：测试阶段沿用当前机器既有的 Machine-scope `CONTROL_SERVER_ONBOARD_CREDENTIAL`；Onboard 迁移到车辆触控屏 `172.19.162.210` 时，只由用户或现场管理员在触控屏本机直接写入同名 Machine-scope 环境变量，不通过聊天、Git、日志、证据或向王昆传递明文。该确认不授权当前会话连接／修改车载触控屏，也不授权 RIoT mutation、建单或动车。
+
+### 2026-08-27 — 本机可回滚升级与 Map 25 无移动预检指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Local ControlServer upgrade and Map 25 read-only preflight`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/ab8aab684ae9319cb29af60af3d4afa223f11b64/evidence/g3/20260827-local-upgrade-readonly-preflight/SUMMARY.md)
+
+Published product／upgrade tooling／evidence: `ControlServer_MVP@5c726218f59d10d5929e7f5c0a39c1ebd4df52f1` / `c354ff8a85c5e5e389a9c926e24f68e5f60caa7d` / `ab8aab684ae9319cb29af60af3d4afa223f11b64`
+
+Impact on this ticket: 本机 LocalSystem 服务已用可回滚升级器替换到修复 RIoT typed-client DI 歧义的产品提交；聚焦回归 1/1、Release 102/102 tests、format 和 build 均 PASS，升级后 stop/start/restart、TLS live/version 和认证安全投影通过。只读同一快照确认 MesIngest v2.3/schema 29、Map 25 共 206 站、精确 `关卡/210`、车辆在线/启用/IDLE/Map 匹配、34% 电量满足 30% 门槛且无活动订单；当前九个 N* AREA 中八个唯一解析、一个缺站，15 种 PACKAGE 中四种被 28 条规则覆盖、十一种未覆盖，安全投影因 `RIOT_MOVEMENT_NOT_FINISHED` 正确 fail-closed 为 `UNKNOWN`。一次诊断输出意外带出旧 Onboard Authorization header 后，该凭据已立即旋转为未输出的新 Machine／服务专属值，服务重启后认证 HTTP 200；完整安全事件和轮换证据只存在归属仓。JourneyRuntime 全程关闭，未调用 RIoT mutation、未建单、未动车。当前 Onboard 远端仍为受保护的 `15c6387`，上述业务缺口及未授权移动继续阻断正式 W2G-IS-00～07 G3／RC，因此本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
