@@ -1,59 +1,44 @@
-# Ticket 16 test completion status
+# Ticket 4 test completion status
 
 ## Pseudo-mutation verification
 
-Targeted xUnit/VSTest mutation checks were applied one at a time to
-`HistoryCleanupBatchRunner`, run with the narrowest covering test, and reverted
-immediately.
+The Ticket 4 production changes were mutated one at a time, exercised with the
+narrowest xUnit/VSTest filter, and restored immediately.
 
-| Mutation | Initial result | Final result |
-| --- | --- | --- |
-| Series time boundary `< deadline` → `<= deadline` | Survived the original `+16s` fixture | Closed by moving the fixture to the exact `+15s` deadline; the mutation then failed because `series-2` started in the first batch. |
-| Raw row loop `< configured limit` → `<= configured limit` | Killed | `Cleanup_batch_stops_at_the_configured_raw_row_budget` observed an illegal third transaction with a zero remaining limit. |
-| Sanitized `exception.GetType().Name` → `exception.Message` | Killed | Real-SQL failure/Attention test rejected the secret-bearing message and the wrong persisted failure reason. |
+| Injected mutation | Killing evidence |
+| --- | --- |
+| Do not clear the rejected conditional cache | `Second_old_epoch_signal_is_not_retried_and_the_next_refresh_stays_unconditional` observed the stale identity on the next refresh. |
+| Parse only the first raw-evidence `fields` query value | `Raw_evidence_fields_parse_comma_repeated_and_mixed_query_forms_identically` lost `package`. |
+| Map `HistoryEpochMismatchException` to 400 instead of 409 | `Catalog_old_epoch_exception_is_a_typed_http_409_response` observed BadRequest. |
+| Accept repeated by-key values instead of rejecting them | `Demand_series_by_key_missing_empty_and_repeated_keys_use_the_stable_typed_error` escaped into SQL rather than returning the typed 400. |
+| Let Watch synthesize a missing scheduler DTO | `Current_attention_rejects_the_pre_v2_4_shape_without_poll_scheduler` stopped throwing the required decode failure. |
+| Recompute/corrupt scheduler `backoffLevel` in Host | `Host_singleton_snapshot_is_exposed_as_a_minimal_serializable_attention_field` observed 0 instead of the coordinator's 2. |
 
-Observed injected mutations: 3; killed by the final tests: 3; surviving gaps: 0.
-The substantive static candidates for fixed hourly boundaries, single-flight,
-poll priority, failure clearing, cumulative counts, and exact next-check time
-also have direct assertions in the focused suite. No production mutation remains
-in the worktree.
+Observed injected mutations: 6; killed: 6; surviving verified gaps: 0.
+No mutation remains in the worktree.
 
 ## Assertion review
 
-- Defaults use independent literals and also compare the published JSON values.
-- Budget tests assert transaction inputs, committed counts, status and natural
-  continuation, rather than private loop calls.
-- SQL tests assert the public status/HTTP contracts and use direct SQL only for
-  tombstone/raw-row commit evidence.
-- Failure evidence asserts both the stable sanitized reason and absence of the
-  injected secret.
-- Cancellation evidence asserts the active operation receives cancellation,
-  no failure is recorded, and the polling gate is immediately reacquirable.
-- No test was skipped or weakened to obtain a green run.
+- Host HTTP tests assert status, stable code, and both current/supplied epoch UUIDs.
+- Consumer tests assert the exact conditional identity sequence, single
+  unconditional retry, cache clearing after retry failure, and replacement by
+  the new complete epoch.
+- Query tests cover missing, empty, repeated, comma, repeated-key, and mixed
+  forms with exact typed error or normalized field assertions.
+- OpenAPI tests assert 503 reasons, enum values, scheduler required/nullability
+  and bounds, typed 409 schema, parameter serialization, and canonical/live
+  equality.
+- Watch tests require the v2.4 scheduler field and preserve its five values in
+  non-UI consumption logic.
 
-## Review closure
+The three real-SQL focused scenarios are correctly skipped when the documented
+Ticket01 SQL Server environment variables are absent; Tier 1 must report that
+skip count explicitly.
 
-- The post-review focused suite passed 31/31 with SQL Server 16 and database
-  compatibility level 160; failed 0, skipped 0.
-- Added direct evidence for the hard 25,000-row PollTrace ceiling, exact
-  overrun scheduling, safe scheduler logging, poll-held yielding, graceful
-  interruption, and post-failure polling continuation.
-- The real-SQL default probe committed 25 whole-Series cleanup transactions
-  inside the frozen 15-second elapsed budget.
-- Final standards/code-quality and Ticket 16 specification reviews both
-  reported no findings after the retry failure identity and restart-schema
-  validation fixes.
+## Final validation
 
-## Final gate
-
-`dotnet test MesIngest.Tests` passed against SQL Server ProductMajor 16 at
-compatibility level 160: 819 passed, 0 failed, 0 skipped in 10m 53s. The first
-attempt found one stale four-kind Watch presentation assertion; after updating
-that contract test to all five kinds, the closing run was green.
-## Ticket 02 addendum (toast Variant A)
-
-- Focused tests cover the Ticket 01 toast spine, continuing overview failure cycles, DemandSeries selection loss, navigation scope, all-AREA confirmation, and AREA write-conflict resolution/later behavior.
-- `First_fault_repeats_recovery_and_reoccurrence_form_distinct_notification_cycles` killed an injected mutation that removed same-cycle suppression; the mutation was reverted and the lifecycle class returned green (3/3).
-- A missing global-vs-page navigation assertion was added to `Overlay_preserves_page_measure_focus_scope_and_independent_dismissal`: leaving Settings clears its page toast while an active global Host fault remains without replay.
-- No Ticket 03 Golden, DPI, animation, baseline, or visual-approval work was run.
-- Final Ticket 02 tier 1 (`dotnet test MesIngest.Tests`) passed: failed 0, passed 800, skipped 133, total 933; all three Ticket01 SQL Server environment variables were unset, so the named SQL-dependent tests were skipped.
+- Focused affected classes: 109 passed, 0 failed, 36 skipped (SQL-gated).
+- Tier 1 `dotnet test MesIngest.Tests`: 872 passed, 0 failed, 137 skipped,
+  1009 total in 9m 59s.
+- All three `MES_INGEST_TICKET01_*` variables were absent. No Tier 2 or Tier 3
+  command was run.
