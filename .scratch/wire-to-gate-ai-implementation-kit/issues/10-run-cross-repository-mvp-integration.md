@@ -328,3 +328,13 @@ Evidence artifact: [`Test-only battery threshold 10% and RIoT motion blocker`](h
 Published branch/commit: `ControlServer_MVP@048a1beb0b636077f8189653173d28864c4de23f`
 
 Impact on this ticket: 用户明确要求当前本机测试实例把电量门槛由 30% 临时调整为 10%；UAC 执行保留了精确配置备份，重启后服务为 `Running`、HTTPS live 为 200，仓库默认值仍为 30%。只读复核时电量 19%，已通过 10% 门槛，并有 11 个当前 WIRE_TO_GATE 项通过静态 N/Map/获批容量筛选；动态目录同时再次出现一个缺站项，故正式运行前仍须原子重读并只选完整准入候选。直接 RIoT 与 HTTPS 投影继续一致为 `UNKNOWN / RIOT_MOVEMENT_NOT_FINISHED`；该原因要求 RIoT/车辆侧真实报告 `MT_FINISHED`，不得把 `MT_NA` 当作停止或放宽 fail-closed 判定。JourneyRuntime 保持关闭，未调用 RIoT mutation、未建单、未动车；正式 W2G-IS-00～07 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`。
+
+### 2026-08-27 — Onboard fresh-journal SafetyStateChanged 身份碰撞指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Onboard fresh-journal SafetyStateChanged message identity collision`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/51466ccf861d574cff3c1947fa676d8b0c822328/evidence/g3/20260827-onboard-safety-message-id-collision/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@51466ccf861d574cff3c1947fa676d8b0c822328`
+
+Impact on this ticket: 用户已明确授权一轮空载真实移动测试，但两种受控启动顺序都在建单前复现核心会话失败：`OnboardHmi_MVP@594cd14` 短暂到 `Ready` 后，首个 `SafetyStateChanged` 在收到 `DurableAck` 前被服务端断开，后续 generation 持续增长并停在 `RecoveryRequired / HANDSHAKE_INCOMPLETE`。只读代码与运行证据一致指向受保护 Onboard owner 的 fresh-journal messageId 碰撞：`WireToGateSessionClient.SendSafetyStateChangedAsync` 只用从 1 重置的 `safetyStateVersion` 生成稳定 UUID，不同 fresh journal 会以同一 messageId 发送不同 `observedAt`／payload。需由王昆在 Onboard owner 仓修复 durable identity 并覆盖“双 fresh journal 不同身份、同 journal 丢 Ack 原身份重放”回归；agent 未修改该仓。清理后 JourneyRuntime 已关闭、peers/临时端口已释放，车辆保持 IDLE／速度 0／无订单／`STOPPED`，未调用 RIoT mutation、未建单、未动车。正式 G3／RC 继续 `INCONCLUSIVE` 且至少存在核心会话 FAIL，本票保持 `claimed`。
