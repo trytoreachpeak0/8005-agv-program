@@ -226,3 +226,13 @@ Published product/evidence: `codex/map25-sublot-box-count@c362b37950185fbff64a06
 Impact on this ticket: 用户明确授权不备份 Host 和 SQL Server 的直接发布后，正式 `MesIngest` Windows Service 已用管理员权限部署到产品提交 `c362b379`，当前为 `Running`、`Auto`、`LocalSystem`；现场 SQL identity 为 v2.3/schema 29，历史 epoch、32-byte signing key 和 `NOT_REQUIRED` reset 状态保持有效。首次真实 Oracle 补充读取暴露并 fail-closed 为 ODP.NET `ORA-00911`，归属仓随后移除 canonical SQL 客户端语句终止符、把全部发布面锁定到 SHA-256 `9aaee872...a24`，新增 Thin／Thick 回归，并以最终 Tier 1 `808 passed / 0 failed / 136 external-SQL skips` 收口。现场从当前目录选取一个已脱敏 WIRE_TO_GATE Sublot 的只读调用已返回精确 `SUBLOT_BOX_COUNT` identity、正数 `maxBoxCount=4` 和 UTC 时间，空 Sublot 返回 HTTP 400；未调用 RIoT、未建单、未动车。
 
 该增量只关闭 MesIngest／SUBLOT_BOX_COUNT 可部署前置项。七个 AREA/EQP 站点映射、电量阈值、获批容量配置、Onboard 具名凭据与真实停稳／驻车 provider，以及任何车辆动作授权仍未闭合；正式 W2G-IS-00～07 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — MesIngest v2.3 部署后现场门禁动态复核指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Map 25 field-gate snapshot after MesIngest v2.3 deployment`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/8dfd94eb6a60353ff21c003ebbe0b6e393fb1139/evidence/g3/20260827-map25-field-gates-post-v23/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@8dfd94eb6a60353ff21c003ebbe0b6e393fb1139`
+
+Impact on this ticket: 只读复核确认 MesIngest v2.3／schema 29 与 `SUBLOT_BOX_COUNT` 保持在线，Map 25 仍为 206 个 Station、唯一 `关卡/210` 且无 AREA 歧义；但 MesIngest 当前目录在观察期间由 revision 1260 的 25 个 WIRE_TO_GATE AREA/EQP 变为 revision 1262 的 15 个，稳定短采样下有 8 个无匹配项，证明旧“七个缺失项”不是可冻结的静态清单，正式运行前必须原子重读并冻结 Map 与 MES 目录。权威需求没有给出可推断的电量数值或 PACKAGE 容量值，当前 11 种 PACKAGE 仍需具名负责人批准；受保护 Onboard 远端 `15c6387` 仍使用 fail-closed 的不可用车辆安全 provider，具名凭据也未配置。本次未调用 RIoT mutation、未建单、未动车；本票继续 `claimed`，正式 W2G-IS-00～07 G3 与 RC 仍为 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
