@@ -257,12 +257,12 @@ Impact on this ticket: 用户逐项确认的 `N* + Map25` 双条件、30% 电量
 
 用户随后明确授权：仅在获批的 ControlServer 部署期间，将现有 User-scope `CONTROL_SERVER_RIOT_CALL_API_KEY` 的原值复制到 Windows Machine scope，保留原 User-scope 值不变，使 `LocalSystem` 可读取。执行期间不得打印、哈希、记录、复制到 Git／发布物／日志／证据或通过聊天披露密钥正文；该授权不包含任何 RIoT API mutation、建单或车辆移动。
 
-### 2026-08-27 — 本机 ControlServer 部署准备与 Schannel 修复指针
+### 2026-08-27 — 本机 ControlServer 部署与 Schannel 修复指针
 
 Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
 
-Evidence artifact: [`Local ControlServer deployment preparation and Schannel blocker`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/047735744a06964d1851f547ba1abf4c87d37416/evidence/g3/20260827-local-controlserver-deployment/SUMMARY.md)
+Evidence artifact: [`Local ControlServer Windows Service deployment`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/4b136c1ea44f4fa4077db3080c3a0df2112dc0e4/evidence/g3/20260827-local-controlserver-deployment/SUMMARY.md)
 
-Published product/evidence: `ControlServer_MVP@1f14e7436423c6dae5c0dc1fdfabc0cfbb7c3799` / `047735744a06964d1851f547ba1abf4c87d37416`
+Published product/installer/evidence: `ControlServer_MVP@1f14e7436423c6dae5c0dc1fdfabc0cfbb7c3799` / `160a6c86ef1098927926a86ee05cf7e595eb447e` / `4b136c1ea44f4fa4077db3080c3a0df2112dc0e4`
 
-Impact on this ticket: 用户明确授权按已确认的 `localhost:58007`／专用开发根／`LocalSystem`／User→Machine RIoT 秘密复制边界立即部署。owner 仓已发布可回滚打包／安装资产；真实 Kestrel 握手暴露并修复 Windows Schannel 不支持 ephemeral server key 的产品缺陷，聚焦握手测试 1/1、Release build 0 warning/0 error、完整 101/101 tests PASS。修复包 manifest SHA-256 为 `0895f279e9a6a17e81725ed26f1037eb4b20f79a7706a03a3e874ec88a851cb0`。最终提升安装连续两次在 Windows UAC 提示处由用户取消，安装器未启动；复核无服务、无 58005／58007 监听、无安装目录、无开发根、无新增 Machine RIoT／证书密码。须从管理员上下文重新运行已准备安装器；在结果 JSON PASS 前本机部署、正式 G3 与 RC 均保持 `INCONCLUSIVE`，本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+Impact on this ticket: 用户明确授权的 `localhost:58007`／专用开发根／`LocalSystem`／User→Machine RIoT 秘密复制本机部署已通过一次性最高权限任务完成，任务结束后已删除。真实 Kestrel 握手暴露并修复 Windows Schannel 不支持 ephemeral server key 的产品缺陷；聚焦握手测试 1/1、Release build 0 warning/0 error、完整 101/101 tests PASS。自包含包 manifest SHA-256 为 `0895f279e9a6a17e81725ed26f1037eb4b20f79a7706a03a3e874ec88a851cb0`，部署结果 SHA-256 为 `c321f7324727edb01ef7abd84b125daca02a86fe195fafa5ca763c0c9d7cc6c8`。独立回读确认服务 `Running`／`Auto`／`LocalSystem`、58005 TLS 与 58007 HTTPS 由同一服务监听、live/version 通过正式信任链、精确开发根与三项外部秘密引用存在、SQLite 受 ACL 保护；`JourneyRuntime` 保持关闭，未调用 RIoT mutation、未建单、未动车。该结果只关闭本机安装／启动／停止／重启／HTTPS 信任前置项；王昆 Onboard provider、凭据安全交付、无移动现场 preflight、正式 G3 与 RC 仍为 `INCONCLUSIVE`，本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
