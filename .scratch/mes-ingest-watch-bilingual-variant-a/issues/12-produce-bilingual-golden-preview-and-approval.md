@@ -4,7 +4,7 @@
 
 **Blocked by:** 11 — 组装完整双语版本并执行发布契约.
 
-**Status:** ready-for-agent
+**Status:** needs-info
 
 - [ ] 在运行任何 tier 2 前向用户说明分钟级成本并取得明确授权；不默认使用全量 suite。
 - [ ] 通过交互式 Golden 桌面运行覆盖双语主窗口和 Inspector 的最窄完整 suite，不使用 RDP、Enhanced Session 或 PowerShell Direct 截图。
@@ -14,9 +14,25 @@
 - [ ] 向用户展示最终真实窗口预览并取得明确批准；任何后续 UI 变化都会使该批准失效。
 - [ ] 记录源提交、dirty-diff identity、环境、任务结果、全部截图/UIA/日志、通过/失败/跳过和每个跳过的发布归属。
 - [ ] 不执行 tier 3、稳定性三跑、候选基线生成、基线提升或历史候选批量批准，除非用户另行授权。
-- [ ] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
+- [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
 - [ ] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
 - [ ] Recorded the unique evidence directory and all named skips.
 - [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
+## Implementation note
+
+`WatchWorkspaceProductionJourneyTests.Operator_reviews_the_complete_production_workspace_and_records_the_shared_preview`
+now owns the Ticket 12 evidence matrix inside the existing production journey. It uses one
+loopback Host and one production process, pins the Variant A review identity to
+`D-001846 · DIE_TO_OVEN · B240811-19` with AREA not provided by the source, captures the
+same deterministic page selections in 简体中文 and English, and keeps the Inspector open
+on the same generation while the shared language is committed. The evidence-only capture
+names include their language and viewport; none are registered with
+`WatchProductionBaselineMatrix`, so this change cannot overwrite or promote an approved
+baseline. The existing `MESINGEST_WATCH_JOURNEY_CLIENT_EPX=720x450` path reuses the same
+matrix for the narrow-window evidence.
+
+No Tier 2, Tier 3, Golden, stability, candidate-baseline, or promotion command was run while
+adding this harness. The execution and approval checklist above intentionally remains open
+until the user authorizes the interactive Golden run and reviews its retrieved evidence.
