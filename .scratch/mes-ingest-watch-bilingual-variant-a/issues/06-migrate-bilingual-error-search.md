@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 分类导航、分面、筛选、结果、分页、期间、证据、失败状态、帮助和下钻动作全部使用共享双语目录。
 - [x] 已知错误码同时显示当前语言含义和规范原码；未知码显示中性“未知代码”说明并保留原值。
@@ -14,7 +14,7 @@
 - [x] 语言切换保留分类、错误码、活动状态、时间窗口、SeriesId、DemandId、页码、选择、滚动和冻结查询上下文。
 - [x] 切换不增加 Host 请求、不重新解释筛选、不改变游标绑定或原始证据。
 - [ ] 中文、英文、720 epx、主题和高对比状态下三列工作区保持统一上下边缘、可用高度和可达动作。
-- [ ] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
+- [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
 - [ ] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
 - [ ] Recorded the unique evidence directory and all named skips.

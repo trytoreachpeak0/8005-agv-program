@@ -4,17 +4,17 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 未保存语言偏好时以简体中文启动，语言选项始终以 `简体中文` 和 `English` 自称显示。
 - [x] 保存 English 后当前生产窗口立即更新，重启后仍恢复 English；保存失败时运行时语言不产生模糊的半提交状态。
 - [x] 旧偏好缺少语言字段时迁移为简体中文并保留刷新、窗口和 Inspector 布局；未知或损坏语言安全回退且应用仍可启动。
-- [ ] 应用组合根拥有唯一共享语言状态，新窗口继承当前值，现有窗口可观察同一状态；切换不读取 Windows 显示语言，也不修改 Host 或业务配置。
+- [x] 应用组合根拥有唯一共享语言状态，新窗口继承当前值，现有窗口可观察同一状态；切换不读取 Windows 显示语言，也不修改 Host 或业务配置。
 - [x] 集中、强类型目录同时覆盖固定文本、参数化文本、已知码、未知码回退、六种值/查询语义、绝对/相对时间及语言相关数量格式，调用方不能用任意字符串键或页面私有字典取文案。
 - [x] 切换语言不增加 Host 请求，不改变当前页面、规范筛选代码、选择或焦点，也不通过重建业务 ViewState 完成翻译。
 - [x] 建立清晰的页面实现所有权边界，使 Error Search 与接入告警等后续并行迁移不需要同时编辑同一页面专属实现单元。
 - [x] 生产实现不引用 FluentPrototype，不携带 Tag 字典、视觉树遍历、假数据、评审条或原型语言按钮。
-- [ ] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
+- [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
 - [ ] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
 - [ ] Recorded the unique evidence directory and all named skips.

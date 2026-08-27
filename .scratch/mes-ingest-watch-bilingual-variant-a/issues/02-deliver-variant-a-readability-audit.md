@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 桌面态保留约 330 epx 主列表、12 epx 间距和弹性详情；1440×900 下结构与已选 Variant A 信息层级一致且不包含评审 chrome。
 - [x] 无表头列表逐行显示 DemandId、WorkType、SUBLOT、本地化资格结论及规范主要阻断码，选择状态不只依赖颜色。
@@ -15,7 +15,7 @@
 - [x] 资格、WorkType、原因和标识筛选显示本地化含义与规范代码，但提交和保存的始终是规范代码。
 - [x] 语言切换保留已提交筛选、页码、选中 Demand、主/详情滚动位置和跳转需求系列所需的审计上下文，且不触发读取。
 - [ ] 720 epx、英文长文案及高 DPI 下采用生产响应式重排，不出现水平裁剪、覆盖或不可达操作。
-- [ ] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
+- [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
 - [ ] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
 - [ ] Recorded the unique evidence directory and all named skips.

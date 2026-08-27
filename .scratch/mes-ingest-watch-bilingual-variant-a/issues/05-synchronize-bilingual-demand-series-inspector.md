@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 标题栏、上下文、标签页、形成原因、证据标签、MES 差异、事件、空态、帮助和 UIA 全部使用共享双语目录。
 - [x] `FIRST_OBSERVED`、`PREARCHIVE_REAPPEARANCE`、`POSTARCHIVE_REAPPEARANCE` 等已知原因分别显示原因特定事实和不变的原始码。

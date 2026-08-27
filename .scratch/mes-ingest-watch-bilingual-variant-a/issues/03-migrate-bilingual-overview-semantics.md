@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 页面标题、摘要卡、统计单位、范围说明、更新时间、近期重点动态和下钻动作全部来自共享双语目录。
 - [x] 大号数量由卡片标题和当前语言单位解释，次要说明明确 AREA 范围、投影提交、CatalogRevision 或其它真实统计时点。
@@ -13,7 +13,7 @@
 - [x] 刷新失败时保留上一份完整成功概览并明确显示其时点和当前失败，不能把新旧卡片拼成当前快照。
 - [x] 语言切换保留当前概览状态、滚动和焦点，不触发 Host 刷新；下钻仍携带相同规范条件并从第一页开始。
 - [ ] 中文、英文、720 epx、浅色、深色、非活动和高对比状态下均无孤立值、遮挡或仅依赖颜色的含义。
-- [ ] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
+- [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
 - [ ] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
 - [ ] Recorded the unique evidence directory and all named skips.
