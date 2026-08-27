@@ -4,21 +4,38 @@
 
 **Blocked by:** 11 — 组装完整双语版本并执行发布契约.
 
-**Status:** needs-info
+**Status:** implemented-awaiting-user-visual-approval
 
-- [ ] 在运行任何 tier 2 前向用户说明分钟级成本并取得明确授权；不默认使用全量 suite。
-- [ ] 通过交互式 Golden 桌面运行覆盖双语主窗口和 Inspector 的最窄完整 suite，不使用 RDP、Enhanced Session 或 PowerShell Direct 截图。
-- [ ] 中文和英文使用相同 Host 数据、1440×900 窗口、D-001846/AREA 来源未提供选择、筛选及可比滚动位置。
-- [ ] 预览覆盖概览、Variant A 资格审计、需求系列与 Inspector、错误检索、AREA 编辑/冲突、接入告警、设置、通知和 720 epx 窄窗状态。
-- [ ] 125%/150% DPI 只在 disposable offline clone 验证，证据证明实际 DPI，完成后删除克隆并复核原 VM 仍为 1920×1080、96 DPI。
+- [x] 在运行任何 tier 2 前向用户说明分钟级成本并取得明确授权；不默认使用全量 suite。
+- [x] 通过交互式 Golden 桌面运行覆盖双语主窗口和 Inspector 的最窄完整 suite，不使用 RDP、Enhanced Session 或 PowerShell Direct 截图。
+- [x] 中文和英文使用相同 Host 数据、1440×900 窗口、D-001846/AREA 来源未提供选择、筛选及可比滚动位置。
+- [x] 预览覆盖概览、Variant A 资格审计、需求系列与 Inspector、错误检索、AREA 编辑/冲突、接入告警、设置、通知和 720 epx 窄窗状态。
+- [x] 125%/150% DPI 只在 disposable offline clone 验证，证据证明实际 DPI，完成后删除克隆并复核原 VM 仍为 1920×1080、96 DPI。
 - [ ] 向用户展示最终真实窗口预览并取得明确批准；任何后续 UI 变化都会使该批准失效。
-- [ ] 记录源提交、dirty-diff identity、环境、任务结果、全部截图/UIA/日志、通过/失败/跳过和每个跳过的发布归属。
-- [ ] 不执行 tier 3、稳定性三跑、候选基线生成、基线提升或历史候选批量批准，除非用户另行授权。
+- [x] 记录源提交、dirty-diff identity、环境、任务结果、全部截图/UIA/日志、通过/失败/跳过和每个跳过的发布归属。
+- [x] 不执行 tier 3、稳定性三跑、候选基线生成、基线提升或历史候选批量批准，除非用户另行授权。
 - [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
+- [x] Ran the required golden-machine suites through an interactive task.
 - [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+
+## Final validation evidence
+
+Final post-fix `watch-ui-journeys` matrix, each with `Total: 1, Failed: 0, Skipped: 0` and 18 bilingual production screenshots:
+
+- 96 DPI, 1440×900: `run-20260828-023605-watch-ui-journeys`
+- 96 DPI, 720×600 epx: `run-20260828-024129-watch-ui-journeys`
+- 120 DPI, 1440×900: `run-20260828-025328-watch-ui-journeys`
+- 120 DPI, 720×600 epx: `run-20260828-025857-watch-ui-journeys`
+- 144 DPI, 1440×900: `run-20260828-030432-watch-ui-journeys`
+- 144 DPI, 720×600 epx: `run-20260828-030931-watch-ui-journeys`
+
+Each run records source commit `f594d3902bc8b6d86d6e7e3ee5ce421c99774886`, the exact six-file dirty-diff identity carried into the payload, environment JSON, scheduled-task result, build/test logs, screenshots, UIA trees, fake-Host timeline and zero Golden skips. Earlier failed attempts remain preserved as red evidence and were not reused as passing evidence.
+
+The disposable DPI clone and exact export/import workspace were deleted after the 120/144 DPI runs. `final-original-recheck-20260828-031518/environment.json` records the original `gpt_win11` at 1920×1080, 96 DPI, interactive Session 1 with Explorer present; cleanup reported zero Ticket 12 tasks and zero residual Host/Watch/test processes.
+
+Final tier 1 on the post-fix production/test inputs: `Failed: 0, Passed: 894, Skipped: 136, Total: 1030`. The three real SQL Server environment variables were not configured, so their related tests skipped under the repository rule.
 
 ## Implementation note
 
@@ -34,5 +51,6 @@ baseline. The existing `MESINGEST_WATCH_JOURNEY_CLIENT_EPX=720x600` path reuses 
 matrix for the narrow-window evidence.
 
 No Tier 2, Tier 3, Golden, stability, candidate-baseline, or promotion command was run while
-adding this harness. The execution and approval checklist above intentionally remains open
-until the user authorizes the interactive Golden run and reviews its retrieved evidence.
+adding this harness. After explicit user authorization, only the final Tier 2 matrix named
+above was run. Tier 3, stability, candidate-baseline and promotion commands remain unrun;
+the user-approval checkbox remains open until the retrieved final previews are reviewed.
