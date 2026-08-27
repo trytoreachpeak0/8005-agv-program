@@ -236,3 +236,13 @@ Evidence artifact: [`Map 25 field-gate snapshot after MesIngest v2.3 deployment`
 Published branch/commit: `ControlServer_MVP@8dfd94eb6a60353ff21c003ebbe0b6e393fb1139`
 
 Impact on this ticket: 只读复核确认 MesIngest v2.3／schema 29 与 `SUBLOT_BOX_COUNT` 保持在线，Map 25 仍为 206 个 Station、唯一 `关卡/210` 且无 AREA 歧义；但 MesIngest 当前目录在观察期间由 revision 1260 的 25 个 WIRE_TO_GATE AREA/EQP 变为 revision 1262 的 15 个，稳定短采样下有 8 个无匹配项，证明旧“七个缺失项”不是可冻结的静态清单，正式运行前必须原子重读并冻结 Map 与 MES 目录。权威需求没有给出可推断的电量数值或 PACKAGE 容量值，当前 11 种 PACKAGE 仍需具名负责人批准；受保护 Onboard 远端 `15c6387` 仍使用 fail-closed 的不可用车辆安全 provider，具名凭据也未配置。本次未调用 RIoT mutation、未建单、未动车；本票继续 `claimed`，正式 W2G-IS-00～07 G3 与 RC 仍为 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — AREA／电量／PACKAGE 与停稳投影门禁实现指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Map 25 capacity and vehicle-safety field-gate implementation`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/f9cad35551e7ccd44a489b7324fd3e53243d1f2d/evidence/g3/20260827-map25-capacity-safety-gates/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@f9cad35551e7ccd44a489b7324fd3e53243d1f2d`
+
+Impact on this ticket: 用户逐项确认的 `N* + Map25` 双条件、30% 电量阈值、28 条初始 PACKAGE 容量规则、ControlServer 本地缺失 PACKAGE 去重／补数历史和 RIoT Round-41 fail-closed 停稳投影均已在归属仓实现并以 Release 101/101 tests PASS、九段 SQLite 迁移 PASS 收口；Machine-scope 具名凭据已验证存在但未披露值。受保护 Onboard 当前 HEAD 为 `a1e32dd`，王昆产品提交 `0455147` 的 `App.xaml.cs` 仍绑定 `UnavailableVehicleSafetySignalProvider`，须由王昆提交正式 HTTPS／证书信任客户端 provider 并确认其精确 commit；当前 `MT_NA` 继续只能判 `UNKNOWN`，动态状态资格验证仍需单独动车授权。本票保持 `claimed`，正式 W2G-IS-00～07 G3 与 RC 仍为 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
