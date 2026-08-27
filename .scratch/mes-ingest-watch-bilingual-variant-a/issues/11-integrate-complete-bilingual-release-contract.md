@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — 按 Variant A 交付完整资格审计工作台; 03 — 迁移双语概览与统计语义; 04 — 迁移双语需求系列调查页; 05 — 同步双语 DemandSeries Inspector; 06 — 迁移双语错误检索; 07 — 迁移双语 AREA 筛选工作区; 08 — 迁移双语接入告警; 09 — 统一通知、对话框与运行反馈; 10 — 收口复制、Tooltip、上下文菜单与 UIA.
 
-**Status:** implemented-awaiting-tier1-and-visual-validation
+**Status:** implemented-awaiting-visual-validation
 
 - [x] 按页面所有权和视觉树顺序合并各实现分支，解决冲突时保留已批准 Variant A、领域术语和每票行为契约。
 - [x] 公开强类型键清单证明每个键都有非空中文和英文，格式参数一致，无重复语义键或键名回退。
@@ -13,5 +13,5 @@
 - [x] 真实生产窗口 seam 覆盖中文默认、English 持久化、六个页面、设置、Inspector、通知、对话框、复制和 UIA 的一致切换。
 - [x] 切换前后页面、所有规范筛选、页码、选择、滚动、焦点、AREA 草稿、Inspector 上下文、通知周期和 Host 请求次数保持契约。
 - [x] 来源未提供、系统未知、不适用、尚未加载、成功零结果和读取失败可观察地区分；绝对时间保留偏移，代码、标识和原始证据不变。
-- [ ] 仅在合并后的最终生产输入上运行一次 tier 1，报告通过、失败和跳过数量，并明确 SQL Server 环境未配置时的相关跳过。
+- [x] 仅在合并后的最终生产输入上运行一次 tier 1：`Failed: 0, Passed: 894, Skipped: 136, Total: 1030`；`MES_INGEST_TICKET01_SQLSERVER`、`MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR` 和 `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL` 均未配置，相关 SQL Server 测试按仓库规则跳过。
 - [x] 不把任何单页完成状态、未批准截图或未完成资源目录声明为可发布版本。
