@@ -278,3 +278,13 @@ Evidence artifact: [`Local ControlServer upgrade and Map 25 read-only preflight`
 Published product／upgrade tooling／evidence: `ControlServer_MVP@5c726218f59d10d5929e7f5c0a39c1ebd4df52f1` / `c354ff8a85c5e5e389a9c926e24f68e5f60caa7d` / `ab8aab684ae9319cb29af60af3d4afa223f11b64`
 
 Impact on this ticket: 本机 LocalSystem 服务已用可回滚升级器替换到修复 RIoT typed-client DI 歧义的产品提交；聚焦回归 1/1、Release 102/102 tests、format 和 build 均 PASS，升级后 stop/start/restart、TLS live/version 和认证安全投影通过。只读同一快照确认 MesIngest v2.3/schema 29、Map 25 共 206 站、精确 `关卡/210`、车辆在线/启用/IDLE/Map 匹配、34% 电量满足 30% 门槛且无活动订单；当前九个 N* AREA 中八个唯一解析、一个缺站，15 种 PACKAGE 中四种被 28 条规则覆盖、十一种未覆盖，安全投影因 `RIOT_MOVEMENT_NOT_FINISHED` 正确 fail-closed 为 `UNKNOWN`。一次诊断输出意外带出旧 Onboard Authorization header 后，该凭据已立即旋转为未输出的新 Machine／服务专属值，服务重启后认证 HTTP 200；完整安全事件和轮换证据只存在归属仓。JourneyRuntime 全程关闭，未调用 RIoT mutation、未建单、未动车。当前 Onboard 远端仍为受保护的 `15c6387`，上述业务缺口及未授权移动继续阻断正式 W2G-IS-00～07 G3／RC，因此本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — Onboard 6005c7a 本机 HTTPS provider／会话预检指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Onboard 6005c7a loopback session and vehicle-safety provider preflight`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/f89ec2d48de29351c00f929e1fdb3e2f7751a173/evidence/g3/20260827-onboard-6005c7a-loopback-session/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@f89ec2d48de29351c00f929e1fdb3e2f7751a173`
+
+Impact on this ticket: 受保护 Onboard 远端已由王昆推进到 `OnboardHmi_MVP@6005c7a89558593f199b04b1810426bc2f4072ae`，正式 HTTPS／Windows 信任／Bearer／车辆身份及时效 fail-closed provider 已接入；一次性副本中的相关聚焦测试 25/25 PASS，Onboard 与 slots-simulator Release build 均为零 warning／error。用户授权的本机 loopback 运行确认 IO 模拟器 `READY`、Onboard 到已部署 ControlServer 58005 的 TLS/NDJSON 会话建立成功，双端一致收敛为 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，HTTPS 安全投影继续为 `UNKNOWN / RIOT_MOVEMENT_NOT_FINISHED`；测试进程与端口已清理，未启用 JourneyRuntime、未调用 RIoT mutation、未建单、未动车。Onboard 两份配置仍误写会话端口 58015 而非权威 58005，该受保护 owner 缺陷已路由到上述可写集成证据，须由王昆在 Onboard 仓发布修复提交。当前 RIoT 外部状态、动态 Map／PACKAGE 业务缺口及移动授权继续阻断匹配 `READY` 和正式 W2G-IS-00～07 G3／RC；本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
