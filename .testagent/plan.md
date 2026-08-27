@@ -1,170 +1,251 @@
-# Ticket 16 vertical TDD test plan
+# Ticket 4 exact API cutover vertical test plan
 
-Work one tracer bullet at a time: add one failing public-seam test, run only
-that test, make the smallest production change, and repeat. Do not batch-write
-all tests before implementation and do not refactor during red/green. Ticket 15
-remains the authority for the atomic contents of one Series cleanup
-transaction.
+Add one failing public-seam test, run only that method/class, make the minimum
+production change, and continue. Do not run Tier 1 until product, tests,
+canonical OpenAPI, and package inputs are final.
 
-## Exact candidate test files and names
+## 1. Old-epoch Host contract and client signal
 
-### `MesIngest.Tests/HistoryCleanupPolicyTests.cs`
+### `ExternallyReadableDemandCatalogTests.cs`
 
-1. `Cleanup_defaults_freeze_hourly_row_and_time_budgets_without_changing_thirty_day_retention`
-   - Assert production defaults selected by the real SQL baseline: one-hour
-     interval, positive bounded raw-row/Series limits and positive bounded time
-     budget.
-   - Assert both existing retention windows remain exactly 30 days.
-   - Assert published `appsettings.json` matches the option defaults.
-2. `Cleanup_options_reject_non_positive_or_unbounded_operational_budgets`
-   - A compact theory over interval/row/Series/time invalid values; assert
-     startup validation rejects the configuration before a loop starts.
-3. `Cleanup_batch_stops_at_each_configured_budget_boundary`
-   - A deterministic theory over raw-row limit, Series limit and elapsed-time
-     limit using a recording `IMesIngestProjection` and controllable
-     `TimeProvider`.
-   - Assert exact calls/committed receipt counts and that empty/no-op results do
-     not invent deletion progress.
-4. `Pending_poll_prevents_another_cleanup_transaction_and_cleanup_never_overlaps_itself`
-   - Gate a running cleanup call, mark poll due through the production
-     coordination seam and concurrently request another cleanup run.
-   - Assert max cleanup concurrency is one, no next cleanup transaction starts,
-     poll gets the next acquisition, and the cleanup attempt returns/cancels
-     within its configured bound.
+Convert the existing old-epoch test to
+`Conditional_catalog_identity_from_an_old_history_epoch_returns_typed_409_mismatch`:
 
-### `MesIngest.Tests/HistoryCleanupHostedServiceTests.cs`
+- Reuse its minimum old/new databases and old weak ETag.
+- Assert 409, `application/json`, exact `code`/`error` plus the non-null
+  `currentHistoryEpoch`/`suppliedHistoryEpoch` UUIDs, and exact
+  `HISTORY_EPOCH_MISMATCH`.
+- Assert no misleading 304/body/ETag and no database identity mutation.
 
-5. `History_cleanup_host_checks_once_per_hour_and_stops_with_the_Host`
-   - Start the production cleanup `IHostedService` with
-     `ManualTimerTimeProvider`; assert no call one tick before the first hour,
-     one call at the boundary, no duplicate call before the next boundary and
-     one second call at hour two.
-   - Stop the Host and advance another hour; assert no further call.
-   - Resolve hosted services from production DI and assert exactly one cleanup
-     service is registered whenever projection is enabled, even with Oracle
-     polling disabled.
-6. `Budget_interruption_finishes_the_started_series_then_the_next_batch_resumes_at_the_next_series`
-   - Configure the smallest two-Series sequence. Advance controlled time so the
-     time budget expires while the first public one-Series transaction is in
-     flight.
-   - Assert its committed receipt is counted, the second Series is not started
-     in that batch, cancellation is observed at the projection boundary, next
-     run starts at the second Series, and no Series transaction overlaps.
-   - This is the ticket's single budget-interruption/resume scenario; row-limit
-     variants remain in the policy theory rather than another integration path.
+### `NewMesIngestOpenApiContractTests.cs`
 
-### `MesIngest.Tests/HistoryCleanupSqlServerTests.cs`
+Extend the frozen semantics test: catalog has 409, description includes the
+stable code, and JSON content uses the typed error schema.
 
-7. `Normal_hourly_batch_deletes_only_the_budgeted_due_history_and_publishes_complete_progress`
-   - `[Ticket01SqlServerFact]`, minimum fixture: only enough PollTraces/Series to
-     put one item inside and one just outside the configured batch limit.
-   - Drive the production Host cleanup service across one hour with
-     `ManualTimerTimeProvider`; do not invoke direct deletion SQL.
-   - Assert exact raw and Series committed counts, remaining continuation,
-     tombstone/whole-graph result, non-regressing earliest available boundary,
-     last-success UTC, progress/phase and exact next-check UTC through the
-     production status seam. Assert a repeated no-op check is idempotent.
-   - This is the ticket's single normal-batch integration scenario.
-8. `Cleanup_failure_is_current_attention_then_recovery_clears_it_without_stopping_polls`
-   - `[Ticket01SqlServerFact]`; inject one sanitized cleanup failure at an
-     existing production checkpoint/public operation boundary, not inside a
-     private helper.
-   - Run the production cleanup and poll services together with deterministic
-     gates. Through `/api/v2/current-ingest-attention`, assert the cleanup kind,
-     ERROR severity, stable identity, occurred time and sanitized failure
-     evidence; exact kind facets/order must include the new fifth source.
-   - Assert another MES round begins/commits after the cleanup failure and no
-     storage-pressure pause/automatic polling cancellation is observed.
-   - Disarm the failure, advance to the next check and assert cleanup resumes,
-     status records success/counts/next check, cleanup attention clears and
-     polling continues. This is the ticket's single failure/recovery scenario.
+### `HttpExternallyReadableDemandCatalogClientTests.cs`
 
-### Neighbouring tests to update, not duplicate
+Add
+`Conditional_old_epoch_409_maps_the_typed_history_epoch_mismatch_signal`:
 
-- `CurrentIngestAttentionTests.Four_sources_are_stable_and_only_complete_success_clears_current_items_while_history_remains`
-  should be renamed/generalized only as needed so exact all-kind/facet
-  assertions include the cleanup kind at zero when healthy. Keep its existing
-  four-source behavioral matrix intact.
-- `MesTaskUnionPollRunnerTests.RecordingProjection` must implement any evolved
-  public cleanup/status members without adding behavior unrelated to its poll
-  tests.
-- `EmptyDatabaseBootstrapTests` should add schema-contract assertions for the
-  single durable cleanup-status row/table if that is the chosen observable
-  persistence contract; do not inspect SQL command strings.
-- Contract/OpenAPI freeze tests change only if cleanup observability adds fields
-  to the public V2 DTO. A cleanup-attention item that reuses the existing DTO
-  still requires the exact kind catalog/version updates demanded by the
-  contract tests.
+- Exact contract discovery then the four-field catalog 409 typed body.
+- Assert the dedicated stable signal preserves status/code/detail.
+- A 409 with another code and other statuses retain generic error behavior.
 
-## Red-green tracer order
+## 2. ReferenceConsumer single retry
 
-1. **Defaults and validation**: add test 1 (red), introduce only the cleanup
-   options/defaults and retain 30-day constants (green); add test 2 and minimal
-   startup validation.
-2. **One deterministic batch**: add the relevant case of test 3 (red), add the
-   public purpose-built cleanup batch coordinator and bounded raw projection
-   request/result (green). Add remaining theory rows one by one.
-3. **Hourly Host ownership**: add test 5 (red), register one production
-   `HistoryCleanupHostedService` using `TimeProvider` (green). No generic job
-   scheduler and no external trigger.
-4. **Resume without split**: add test 6 (red), make the coordinator re-check
-   time/cancellation only between projection transactions and preserve the
-   continuation naturally in durable SQL state (green).
-5. **Poll priority/single flight**: add test 4 (red), add the smallest shared
-   production coordination boundary needed for pending-poll priority and one
-   cleanup owner; bound SQL lock acquisition/cancellation rather than waiting
-   indefinitely (green).
-6. **Normal real-SQL batch**: add test 7 (red), persist/update cleanup run state
-   atomically around committed receipts and expose the public status read
-   (green). Reuse Ticket 13/15 seed helpers or extract only neutral fixture
-   helpers; do not copy their complete matrices.
-7. **Failure attention/recovery**: add test 8 (red), persist sanitized current
-   cleanup failure, include it in Current Attention, clear it only after a
-   successful retry and leave polling enabled (green).
-8. **Contract/schema fallout**: update only affected exact schema, attention
-   catalogs, DTO/OpenAPI and fake projection compile surfaces, each led by the
-   narrow failing existing test.
+### `DemandCatalogReferenceConsumerTests.cs`
 
-## Requirement-to-test audit
+Add
+`Refresh_old_epoch_conflict_discards_the_stale_cache_and_retries_once_unconditionally`:
 
-| Verbatim requirement | Concrete test or non-test evidence |
+- First refresh installs old snapshot.
+- Next refresh call identities are exactly `[old identity, null]`.
+- Unconditional read returns new epoch; returned/cache identity is wholly new.
+- A later refresh conditions on the new identity.
+
+Add
+`Refresh_old_epoch_conflict_does_not_loop_when_the_unconditional_retry_fails`:
+
+- Seed old cache; mismatch conditional read; fail unconditional retry.
+- Assert exactly two reads, terminal error escapes, and next refresh begins
+  with `knownIdentity: null`, proving stale cache clear.
+- Do not add retry to already-unconditional `AcceptAsync`.
+
+## 3. Explicit by-key query contract
+
+### `NewMesIngestOpenApiContractTests.cs`
+
+Add theory
+`Demand_series_by_key_missing_empty_or_repeated_identity_is_typed_invalid_query`
+with these rows:
+
+1. no query;
+2. only `workType`;
+3. only `sublot`;
+4. empty `workType`;
+5. empty `sublot`;
+6. whitespace-only `workType`;
+7. whitespace-only `sublot`;
+8. repeated equal `workType`;
+9. repeated different `workType`;
+10. repeated equal `sublot`;
+11. repeated different `sublot`.
+
+Every row asserts 400, JSON content type, exactly `code`/`error`, exact
+`INVALID_DEMAND_SERIES_QUERY`, and nonblank error. Use the isolated fixture;
+invalid input must not reach SQL. Retain existing evidence that a nonblank
+whitespace-preserving key is not trimmed.
+
+## 4. Raw `fields` compatibility
+
+### `ErrorSearchDetailTests.cs`
+
+Extend/rename the existing minimum authorized test to
+`Raw_evidence_accepts_comma_repeated_and_mixed_fields_with_the_same_bounded_projection`.
+
+On one snapshot/evidence fixture compare:
+
+- `fields=workType,package`;
+- `fields=workType&fields=package`;
+- `fields=workType,package&fields=package`.
+
+Assert all succeed with identical `includedFields`, item field names/order,
+redaction, item count, and bounded payload. Preserve authorization-first and
+disallowed-field coverage.
+
+### `NewMesIngestOpenApiContractTests.cs`
+
+Freeze `fields` as the exact seven-value string array, `style=form`, effective
+explode true (explicit or OpenAPI default), and text stating repeated keys are
+canonical while comma segments remain compatible. Keep the Watch comma URI
+test as a compatibility canary; no UI change.
+
+## 5. 503, storage enum, scheduler DTO
+
+### `NewMesIngestOpenApiContractTests.cs`
+
+Add/extend
+`Openapi_publishes_both_not_current_causes_storage_status_and_exact_scheduler_shape`:
+
+- Catalog 503 includes `INGEST_NOT_CURRENT`, `StoragePressurePause`, and pending
+  HistoryReset acknowledgement.
+- `StoragePressureStateDto.status` enum is exactly `HEALTHY`,
+  `CRITICAL_WARNING`, `STORAGE_PRESSURE_PAUSE`.
+- Current Attention 200 references the actual operational DTO and contains
+  `pollScheduler`.
+- `PollSchedulerStateDto` contains exactly five Ticket 3 fields.
+- Integers are non-nullable; `nextAllowedStart`, `lastSuccessAt`, and
+  `pollTraceId` are explicitly nullable; timestamps are `date-time`. Keep the
+  existing repository required-vs-nullable convention without globally
+  changing unrelated DTOs.
+
+### `SingleFlightPollLoopTests.cs`
+
+Retain existing 60/120/300/reset tests as the only scheduling-math authority.
+Refocus the current serialization evidence into:
+
+- `Not_started_scheduler_state_serializes_the_exact_five_field_nullable_contract`
+  asserting exact `0,0,null,null,null`.
+- `Current_attention_copies_the_coordinator_observer_snapshot_without_recomputing_backoff`
+  seeding deliberately non-derived values (e.g. failure count 7/backoff level
+  2) and asserting exact copy. This kills Host recalculation.
+
+### `WatchV2ApiClientTests.cs`
+
+Add
+`Current_attention_consumes_the_exact_scheduler_wire_without_a_UI_fallback`:
+
+- Script exact v2.4 contract and all five scheduler fields.
+- Assert the non-UI returned model carries the values.
+- Missing/malformed scheduler fails as a contract violation, not defaults or
+  ignored data.
+- Touch no presentation/view/window/XAML/layout/visual code.
+
+## 6. Exact v2.4/schema 29 identity
+
+### `NewMesIngestContractFreezeTests.cs`
+
+Freeze:
+
+- `2026.08.new-mes-ingest.v2.4`, schema `29`;
+- recommended changed capabilities
+  `CURRENT_INGEST_ATTENTION/2.1`, `DEMAND_SERIES/2.1`, `ERROR_SEARCH/2.2`,
+  `EXTERNALLY_READABLE_DEMAND_CATALOG/2.1`;
+- all other IDs/versions/GET paths unchanged; no V3/old surface.
+
+Compatibility cases must reject v2.3, schema drift, each old changed capability
+version, missing/extra/duplicate/null capability, and missing fields before
+business interpretation.
+
+### `EmptyDatabaseBootstrapTests.cs`
+
+Replace the old migration evidence with:
+
+- `Exact_v2_3_schema_29_identity_migrates_to_v2_4_without_replacing_history`:
+  capture HistoryEpoch, signing-key hash, table/PollTrace evidence; assert only
+  ContractVersion advances and schema remains 29.
+- `Structurally_drifted_v2_3_schema_29_is_rejected_before_identity_migration`:
+  preserve existing column-drift mutation and assert identity/history unchanged.
+- Update unapproved identity rows so v2.2/arbitrary versions cannot skip the
+  sole v2.3 -> v2.4 transition.
+
+### Consumer identities
+
+- Extend
+  `WatchV2ApiClientTests.Contract_discovery_rejects_an_old_capability_version_before_business_reads`
+  for v2.3 and all changed old capability versions, asserting zero business
+  requests.
+- Extend
+  `HttpExternallyReadableDemandCatalogClientTests.Contract_discovery_mismatch_refuses_business_interpretation_before_catalog_read`
+  identically.
+- Continue using centralized `RequireExactCompatibility`; no fallback tables.
+
+## 7. Canonical and package/release gates
+
+1. After runtime schema is final, use the existing one-shot exporter with
+   `MES_INGEST_EXPORT_V2_OPENAPI=1` to update only
+   `pack/openapi/v2.json` (indented LF plus final newline).
+2. Run
+   `NewMesIngestOpenApiContractTests.Live_v2_openapi_matches_the_canonical_pack_snapshot`
+   for semantic exactness.
+3. Retain
+   `ReleasePackageValidationTests.Release_smoke_rejects_semantically_equal_openapi_byte_drift_before_database_access`
+   for byte exactness.
+4. Extend OpenAPI classifier coverage so scheduler fields/nullability, 409,
+   storage enum, and query serialization drift remain observable.
+5. Update existing package assertions, not a second flow:
+   - `Complete_read_only_package_is_accepted_and_gets_a_hashed_manifest`;
+   - `Missing_or_noncanonical_v2_openapi_is_rejected`;
+   - `Watch_built_against_a_different_contract_assembly_is_rejected`;
+   - install/upgrade text tests;
+   - affected cutover/release/factory/scale identity fixtures.
+6. Keep `Package_with_test_fake_or_visual_candidate_is_rejected` green.
+
+## Suggested narrow feedback order
+
+Use the `run-tests` skill for exact xUnit/VSTest filter syntax before execution:
+
+1. `HttpExternallyReadableDemandCatalogClientTests`
+2. `DemandCatalogReferenceConsumerTests`
+3. converted old-epoch catalog method
+4. by-key/OpenAPI methods
+5. raw-evidence method
+6. scheduler/Watch client methods
+7. `NewMesIngestContractFreezeTests`
+8. exact `EmptyDatabaseBootstrapTests` migration methods
+9. canonical semantic test
+10. affected release/install/cutover/scale identity methods
+
+No Tier 2/3. No Tier 1 during slices.
+
+## Final audit and one Tier 1 run
+
+- Verify exact 409 runtime/OpenAPI agreement.
+- Verify consumer requests `[old,null]`, no third call, cache clear on failure.
+- Verify every missing/empty/repeated by-key row and both raw serialization forms.
+- Verify scheduler exact fields/nulls come from observer and Watch consumes them.
+- Verify v2.4/schema 29/capabilities across Host, SQL, clients, canonical, package,
+  release/factory/cutover/scale inputs.
+- Verify live/canonical semantic equality and package byte/hash equality.
+- Verify diff has no Ticket 5, `*.xaml`, UI/layout/visual baseline, prototype,
+  fake data, or unrelated ADR.
+- Then run exactly once from `mes/ingest/csharp`:
+  `dotnet test MesIngest.Tests`.
+- Report Passed/Failed/Skipped. If SQL environment variables are absent, report
+  skips explicitly. Rerun only if production/test/contract inputs change after
+  that run, per root `AGENTS.md`.
+
+## Requirement | planned evidence
+
+| User requirement (verbatim) | Planned concrete evidence |
 | --- | --- |
-| 单实例 Host 后台流程默认每小时检查一次，不依赖 SQLSERVERAGENT 或外部 Windows 计划任务。 | `History_cleanup_host_checks_once_per_hour_and_stops_with_the_Host`; production DI/appsettings plus repository inspection for absence of external deletion ownership. |
-| 每批具有明确行数和时间预算；真实基线选择并冻结安全默认值，但不得改变 30 天领域保留语义。 | `Cleanup_defaults_freeze_hourly_row_and_time_budgets_without_changing_thirty_day_retention`, `Cleanup_batch_stops_at_each_configured_budget_boundary`, and ticket comment citing the real-SQL baseline measurements/default selection. |
-| RawObservation 和 Series 清理均幂等、可取消、失败可续，单个 Series 的墓碑事务不能被批次预算拆开。 | `Normal_hourly_batch_deletes_only_the_budgeted_due_history_and_publishes_complete_progress`, `Budget_interruption_finishes_the_started_series_then_the_next_batch_resumes_at_the_next_series`, and existing Ticket 15 failpoint test. |
-| 轮询到期时清理让出资源，不与投影形成无界锁等待或并发清理实例。 | `Pending_poll_prevents_another_cleanup_transaction_and_cleanup_never_overlaps_itself`; normal SQL scenario supplies bounded real lock/elapsed evidence. |
-| 清理进度、最后成功、删除计数、earliest available、失败原因和下一次检查时间可观测。 | Normal SQL test asserts success/progress/count/boundary/next check; failure/recovery test asserts failure reason then cleared recovery state. |
-| 清理失败形成 Current Attention，但在未达到存储阈值时不自动暂停 MES 轮询。 | `Cleanup_failure_is_current_attention_then_recovery_clears_it_without_stopping_polls`. |
-| 使用现有 TimeProvider 和最小到期批次加速跨越每小时间隔，不真实等待一小时、不生成规模历史，也不建立通用作业调度平台。 | Hosted-service tests use `ManualTimerTimeProvider`; both SQL tests document their minimal fixture sizes; standards review confirms purpose-built service only. |
-| 只验证一个正常批次、一个预算中断续跑和一个失败恢复路径；其它边界由策略级确定性测试覆盖。 | Exactly tests 7, 6 and 8 are the three scenario tests; tests 1-5 are deterministic policy/lifecycle tests. |
-| 开发期运行聚焦 cleanup/HostedService/Attention 测试，关闭时运行一次真实 SQL Server Tier 1；验证部分目标在 45 分钟内完成并保持 Failed: 0、Skipped: 0。 | Focused filters below during red/green; final real-SQL Tier 1 transcript/report with elapsed `< 45m`, `Failed: 0`, `Skipped: 0`. |
-
-## Narrow validation progression
-
-- During each loop, run one exact test with VSTest
-  `--filter "FullyQualifiedName=MesIngest.Tests.<Class>.<Method>"` after obtaining
-  the precise command/argument ordering from the `run-tests` skill.
-- After each file is green, run only:
-  `FullyQualifiedName~HistoryCleanupPolicyTests`, then
-  `FullyQualifiedName~HistoryCleanupHostedServiceTests`, then
-  `FullyQualifiedName~HistoryCleanupSqlServerTests|FullyQualifiedName~CurrentIngestAttentionTests`.
-- After implementation, re-open every test and audit each assertion against the
-  mapping above. Run `test-gap-analysis` and assertion-quality review if
-  available, recording findings/fixes in `.testagent/status.md` as required by
-  `code-testing-agent`.
-- Run the required Spec and Standards code-review axes to a fixed point, then
-  repeat only affected focused tests.
-- At close, run Tier 1 exactly once from `mes/ingest/csharp` against the approved
-  real SQL Server with all three `MES_INGEST_TICKET01_*` variables. Require exit
-  0, elapsed under 45 minutes, `Failed: 0`, `Skipped: 0`. Do not enter Tier 2 or
-  Tier 3 because no Watch UI is in scope.
-- Update Ticket 16 status/comments with baseline defaults, focused and Tier 1
-  evidence, two-axis review result and commit identity; then commit the complete
-  implementation on the current branch.
-## Ticket 02 addendum (toast Variant A)
-
-1. Verify first/repeated/recovered/reoccurring continuing-fault cycles and background summaries.
-2. Verify refresh selection loss produces one 3-second notification and leaves detail unselected.
-3. Verify page notifications clear on navigation while global Host faults remain.
-4. Verify all-AREA confirm/cancel and AREA conflict overwrite/reload/later through real `ContentDialog` instances.
-5. Run only focused classes during development, then one repository tier 1 after production freeze.
+| `旧 HistoryEpoch ETag 返回 HTTP 409，稳定 code=HISTORY_EPOCH_MISMATCH 与明确 typed body` | `Conditional_catalog_identity_from_an_old_history_epoch_returns_typed_409_mismatch` plus OpenAPI 409 assertions. |
+| `ReferenceConsumer 识别该响应，丢弃 stale conditional cache，并且只重试一次无条件请求，防止循环` | Client mapping plus both `Refresh_old_epoch_conflict_*` sequence tests. |
+| `缺失、空值和重复 workType/sublot 都返回稳定 INVALID_DEMAND_SERIES_QUERY typed JSON` | `Demand_series_by_key_missing_empty_or_repeated_identity_is_typed_invalid_query` rows 1-11. |
+| `raw-evidence fields 同时接受重复 query key 和逗号分隔形式，保持兼容；修正 OpenAPI serialization/documentation` | Raw equivalence test plus style/explode/docs freeze. |
+| `INGEST_NOT_CURRENT 的 503 文档同时覆盖 StoragePressurePause 与未确认 HistoryReset` | Combined OpenAPI exact test. |
+| `StoragePressureStateDto.status 发布准确 enum：HEALTHY、CRITICAL_WARNING、STORAGE_PRESSURE_PAUSE` | Exact three-value assertion in combined OpenAPI test. |
+| `正式发布 Ticket 3 的 scheduler state DTO/字段到 exact contract，字段来源必须是 coordinator observer，不在 Host 重算退避` | Not-started/exact-copy tests, OpenAPI schema, Watch non-UI wire test. |
+| `一次性升级到 v2.4/schema 29` | Contract freeze, exact v2.3->v2.4 SQL transition, clients, canonical, package/release tests. |
+| `不得把 prototype vocabulary 或 fake data 带入生产` | Existing package rejection test plus diff audit. |
+| `不得运行 Tier 2/3，因为不改 UI/XAML` | Validation log shows narrow tests and one final Tier 1 only; diff audit shows no UI/XAML. |
