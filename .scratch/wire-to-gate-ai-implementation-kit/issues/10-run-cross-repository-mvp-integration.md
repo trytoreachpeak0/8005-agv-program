@@ -308,3 +308,13 @@ Evidence artifact: [`Onboard 594cd14 default-port loopback preflight`](https://g
 Published branch/commit: `ControlServer_MVP@0245a476654eabf8844bffe4c4d92f3a769c29ad`
 
 Impact on this ticket: 用户明确授权的本机无移动运行在没有任何 `wireToGate.port` 临时覆盖时，直接使用 `594cd14` Release 输出中的默认端口 58005 建立 TLS／NDJSON 会话；simulator 为 `READY`，session generation 2，双端一致为 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，安全投影仍因 `RIOT_MOVEMENT_NOT_FINISHED` 为 `UNKNOWN`。Onboard／simulator 已停止且临时端口释放，JourneyRuntime 未启用，未调用 RIoT mutation、未建单、未动车、未访问车辆触控屏。该结果关闭 Onboard 端口修复的运行态不确定性，但正式 W2G-IS-00～07 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-27 — Map 25 动态现场门禁刷新指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Map 25 dynamic field-gate refresh`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/233f7044607c2fc7e2cf1a2b6c24a4b690c66082/evidence/g3/20260827-map25-dynamic-gates-refresh/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@233f7044607c2fc7e2cf1a2b6c24a4b690c66082`
+
+Impact on this ticket: 新的原子只读脱敏快照确认 MesIngest catalog revision 1469 下，Map 25 当前 11 个 N-scoped AREA 全部唯一解析，先前观察到的缺站已消失，再次证明正式运行前必须原子重读动态目录；11 种当前 PACKAGE 中 5 种被已批准规则覆盖、6 种仍需具名业务负责人提供或批准精确 boxes-per-basket。车辆其余静态门禁满足，但电量为 21%，低于已批准 30% 阈值；直接 RIoT 与 HTTPS 投影仍一致为 `UNKNOWN / RIOT_MOVEMENT_NOT_FINISHED`。完整证据只存在可写集成仓，原始 PACKAGE 身份未进入 Git。JourneyRuntime 保持关闭，未调用 RIoT mutation、未建单、未动车；正式 W2G-IS-00～07 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
