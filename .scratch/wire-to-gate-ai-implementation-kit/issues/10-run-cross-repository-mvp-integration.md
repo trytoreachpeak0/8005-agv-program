@@ -256,3 +256,13 @@ Impact on this ticket: 用户逐项确认的 `N* + Map25` 双条件、30% 电量
 用户确认当前本机测试部署的 ControlServer Windows Service 使用 `LocalSystem`。该选择只冻结服务身份，不授权读取、复制或迁移当前 User-scope 的 `CONTROL_SERVER_RIOT_CALL_API_KEY`；LocalSystem 所需的 RIoT 秘密注入仍须单独明确授权。证书私钥与配置文件 ACL 应只授予 `SYSTEM`、Administrators 和部署所需主体，最终换机时重新评估服务身份。
 
 用户随后明确授权：仅在获批的 ControlServer 部署期间，将现有 User-scope `CONTROL_SERVER_RIOT_CALL_API_KEY` 的原值复制到 Windows Machine scope，保留原 User-scope 值不变，使 `LocalSystem` 可读取。执行期间不得打印、哈希、记录、复制到 Git／发布物／日志／证据或通过聊天披露密钥正文；该授权不包含任何 RIoT API mutation、建单或车辆移动。
+
+### 2026-08-27 — 本机 ControlServer 部署准备与 Schannel 修复指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Local ControlServer deployment preparation and Schannel blocker`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/047735744a06964d1851f547ba1abf4c87d37416/evidence/g3/20260827-local-controlserver-deployment/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@1f14e7436423c6dae5c0dc1fdfabc0cfbb7c3799` / `047735744a06964d1851f547ba1abf4c87d37416`
+
+Impact on this ticket: 用户明确授权按已确认的 `localhost:58007`／专用开发根／`LocalSystem`／User→Machine RIoT 秘密复制边界立即部署。owner 仓已发布可回滚打包／安装资产；真实 Kestrel 握手暴露并修复 Windows Schannel 不支持 ephemeral server key 的产品缺陷，聚焦握手测试 1/1、Release build 0 warning/0 error、完整 101/101 tests PASS。修复包 manifest SHA-256 为 `0895f279e9a6a17e81725ed26f1037eb4b20f79a7706a03a3e874ec88a851cb0`。最终提升安装连续两次在 Windows UAC 提示处由用户取消，安装器未启动；复核无服务、无 58005／58007 监听、无安装目录、无开发根、无新增 Machine RIoT／证书密码。须从管理员上下文重新运行已准备安装器；在结果 JSON PASS 前本机部署、正式 G3 与 RC 均保持 `INCONCLUSIVE`，本票继续 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
