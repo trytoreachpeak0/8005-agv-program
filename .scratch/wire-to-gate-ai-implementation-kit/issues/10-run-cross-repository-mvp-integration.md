@@ -250,3 +250,5 @@ Impact on this ticket: 用户逐项确认的 `N* + Map25` 双条件、30% 电量
 ### 2026-08-27 — ControlServer 分阶段部署与测试端点确认
 
 用户确认先在当前本机部署 ControlServer，稳定后再迁移到另一台目标机器；Onboard 测试阶段也运行在当前本机，后续迁移到车辆触控屏 `172.19.162.210`。测试阶段 Onboard-facing HTTPS 端点冻结为 `https://localhost:58007`，证书至少包含 `localhost` SAN；`172.19.162.210` 是后续 Onboard 客户端地址，不是当前 ControlServer 服务端地址。最终 ControlServer 迁移时必须重新确认其服务端 DNS／IP 并据此签发或更换证书，不能沿用仅覆盖 `localhost` 的测试证书。该确认不构成部署、证书安装、RIoT 调用、订单创建或车辆移动授权；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+用户进一步确认没有企业／内部 CA，并明确授权采用专用开发证书方案：创建仅用于本机测试的私有测试根和带 `localhost` SAN 的服务端叶证书，将测试根安装到当前 Windows 用户的受信任根存储，保持正常 TLS 验证，不使用证书绕过；ControlServer 迁移到最终机器时移除或替换该测试信任。证书生成和安装须在服务身份确认后执行，以便先冻结私钥位置、ACL 和读取主体；不得把私钥、PFX 密码或其他秘密写入 Git、日志或证据。
