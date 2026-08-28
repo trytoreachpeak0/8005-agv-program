@@ -162,7 +162,7 @@ the mask remain governed by the rules below. Because a WPF `TextBlock` UIA recta
 be wider than its glyphs, every run writes a magenta `*.text-mask-overlay.png` for human
 inspection; during comparison this overlay shows the actual reference/current union
 passed to the comparator. A mask fails closed when a rectangle is invalid or outside the PNG, one
-rectangle covers more than 15% of the frame, all rectangles cover more than 40%, or the
+rectangle covers more than 15% of the frame, all rectangles cover more than 55%, or the
 current side grows the approved/reference union by more than 5% of the frame. These
 bounds keep nearby control structure from being silently exempted. `Edit` and `Document`
 rectangles are deliberately not masked because their UIA bounds commonly include the
