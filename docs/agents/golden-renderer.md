@@ -150,15 +150,23 @@ journey walks the live UI Automation control view, collects every `Text` element
 physical client-area rectangle, expands it by 2 pixels for glyph antialiasing, clips it
 to the frame, and writes `<step>.text-mask.json`. Candidate captures also write the
 mask beside the PNG as `*.candidate.text-mask.json`; a missing candidate mask is a hard
-failure. Candidate comparison uses the union of both capture masks. Promoted comparison
-uses the mask captured from the current production window.
+failure. Baseline promotion copies the approved mask beside the PNG as
+`*.verified.text-mask.json`. Candidate and promoted comparison both use the union of the
+approved/reference mask and current mask, so text growing and shrinking are treated
+symmetrically.
 
 Every PNG difference inside those rectangles is excluded from visual comparison,
 including wording and glyph rasterization. Text correctness remains covered by UIA
 names/values, localization tests, API contracts and journey assertions. Pixels outside
-the mask—including control borders, fills, spacing and layout—remain governed by the
-rules below. `Edit` and `Document` rectangles are deliberately not masked because their
-UIA bounds commonly include the whole input surface rather than only its glyphs.
+the mask remain governed by the rules below. Because a WPF `TextBlock` UIA rectangle can
+be wider than its glyphs, every run writes a magenta `*.text-mask-overlay.png` for human
+inspection; during comparison this overlay shows the actual reference/current union
+passed to the comparator. A mask fails closed when a rectangle is invalid or outside the PNG, one
+rectangle covers more than 15% of the frame, all rectangles cover more than 40%, or the
+current side grows the approved/reference union by more than 5% of the frame. These
+bounds keep nearby control structure from being silently exempted. `Edit` and `Document`
+rectangles are deliberately not masked because their UIA bounds commonly include the
+whole input surface rather than only its glyphs.
 
 When two captures are not byte-identical, both the candidate stability gate and the
 promoted-baseline gate apply the same bounded predicate
@@ -189,8 +197,10 @@ survives someone raising the magnitude bound: whoever does that must confront th
 rule rather than silently losing the guarantee. `Moved_ink_is_rejected` records which
 rule fires today.
 
-Per run, at most 4 steps may be accepted by `bounded-neutral` and at most 1536 of its
-differing pixels may be accepted in total. Exceeding either budget fails the run.
+Per run, at most 4 steps may contain unmasked differences accepted by
+`bounded-neutral`, and at most 1536 unmasked differing pixels may be accepted in total.
+A capture classified `text-masked+bounded-neutral` consumes that ordinary budget for
+its unmasked pixels. Exceeding either budget fails the run.
 
 ### Edge-raster-only path
 
