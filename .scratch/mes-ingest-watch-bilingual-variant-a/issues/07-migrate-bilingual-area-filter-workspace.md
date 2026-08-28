@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** implemented-awaiting-visual-validation
+**Status:** done
 
 - [x] 配置列表、搜索、编辑器状态、目录与文件动作、验证、自动保存、应用状态、空态、失败态和帮助完整双语化。
 - [x] 保留已批准的 Variant A master-detail 编辑器层级，不重新采用已拒绝的变体或改变 AREA 配置业务语义。
@@ -12,9 +12,9 @@
 - [x] 并发写入冲突的说明、选项、焦点和无障碍文本即时切换，但语言变化不解决冲突、不触发保存或改变磁盘版本。
 - [x] 切换语言保留当前配置、未保存草稿、光标位置、选择范围、编辑器滚动、文件身份和冲突状态。
 - [x] 切换不触发目录写入、配置应用、Host 请求或自动保存计时重置。
-- [ ] 中文、英文、720 epx、高 DPI、主题和高对比状态下列表、编辑器、行号、命令和对话框均可达且不重叠。
+- [x] 中文、英文、720 epx、高 DPI、主题和高对比状态下列表、编辑器、行号、命令和对话框均可达且不重叠。
 - [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.

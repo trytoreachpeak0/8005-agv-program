@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — 按 Variant A 交付完整资格审计工作台; 03 — 迁移双语概览与统计语义; 04 — 迁移双语需求系列调查页; 05 — 同步双语 DemandSeries Inspector; 06 — 迁移双语错误检索; 07 — 迁移双语 AREA 筛选工作区; 08 — 迁移双语接入告警; 09 — 统一通知、对话框与运行反馈; 10 — 收口复制、Tooltip、上下文菜单与 UIA.
 
-**Status:** implemented-awaiting-visual-validation
+**Status:** done
 
 - [x] 按页面所有权和视觉树顺序合并各实现分支，解决冲突时保留已批准 Variant A、领域术语和每票行为契约。
 - [x] 公开强类型键清单证明每个键都有非空中文和英文，格式参数一致，无重复语义键或键名回退。

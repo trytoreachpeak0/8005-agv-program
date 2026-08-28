@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** implemented-awaiting-visual-validation
+**Status:** done
 
 - [x] 未保存语言偏好时以简体中文启动，语言选项始终以 `简体中文` 和 `English` 自称显示。
 - [x] 保存 English 后当前生产窗口立即更新，重启后仍恢复 English；保存失败时运行时语言不产生模糊的半提交状态。
@@ -15,7 +15,7 @@
 - [x] 建立清晰的页面实现所有权边界，使 Error Search 与接入告警等后续并行迁移不需要同时编辑同一页面专属实现单元。
 - [x] 生产实现不引用 FluentPrototype，不携带 Tag 字典、视觉树遍历、假数据、评审条或原型语言按钮。
 - [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
