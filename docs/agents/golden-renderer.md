@@ -143,6 +143,23 @@ untouched and shifting individual grey levels by one or two. That difference car
 no visual information, and failing on it makes the gate reject its own renderer
 rather than a regression.
 
+### Text pixels
+
+Text content is not a pixel-baseline concern. At each production baseline capture the
+journey walks the live UI Automation control view, collects every `Text` element's
+physical client-area rectangle, expands it by 2 pixels for glyph antialiasing, clips it
+to the frame, and writes `<step>.text-mask.json`. Candidate captures also write the
+mask beside the PNG as `*.candidate.text-mask.json`; a missing candidate mask is a hard
+failure. Candidate comparison uses the union of both capture masks. Promoted comparison
+uses the mask captured from the current production window.
+
+Every PNG difference inside those rectangles is excluded from visual comparison,
+including wording and glyph rasterization. Text correctness remains covered by UIA
+names/values, localization tests, API contracts and journey assertions. Pixels outside
+the mask—including control borders, fills, spacing and layout—remain governed by the
+rules below. `Edit` and `Document` rectangles are deliberately not masked because their
+UIA bounds commonly include the whole input surface rather than only its glyphs.
+
 When two captures are not byte-identical, both the candidate stability gate and the
 promoted-baseline gate apply the same bounded predicate
 (`MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs`). The ordinary
@@ -177,7 +194,7 @@ differing pixels may be accepted in total. Exceeding either budget fails the run
 
 ### Edge-raster-only path
 
-Long text runs can contain hundreds of independent glyph-edge components and exceed
+Unmasked rasterized edges can contain hundreds of independent small components and exceed
 the ordinary pixel/component budgets even though every changed sample moved by only
 one or two levels. The `edge-raster-only` path accepts that cross-process rasterization
 class only when all of these rules hold:
@@ -204,8 +221,8 @@ Acceptance is never silent. Every accepted capture writes
 `visual-equivalence-accepted.json` plus `<step>.equivalent-{expected,actual,diff}.png`
 into the evidence directory, and the run logs
 `WATCH_WINDOW_VISUAL_EQUIVALENCE_ACCEPTED: step=… pixels=… maxDelta=… classification=…`.
-Any step that used either tolerance path must be listed in the ticket evidence and
-reviewed by a human at approval time, exactly like a `received` file.
+Any step that used text masking or either tolerance path must be listed in the ticket
+evidence and reviewed by a human at approval time, exactly like a `received` file.
 
 The predicate is covered by `WatchWindowVisualEquivalenceTests` and, against real
 golden-machine captures, by `WatchWindowVisualEquivalenceGoldenFixtureTests`
