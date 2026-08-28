@@ -418,3 +418,13 @@ Evidence artifact: [`Zero-motion peer readiness drill for Onboard 84b7f3f`](http
 Published branch/commit: `ControlServer_MVP@275fa5b37231e02cd1920cc933cbe25e8e6155e7`
 
 Impact on this ticket: 在双层 JourneyRuntime=false 且 stop marker 持续存在的零动作演练中，修正后的 peer 助手已返回完整非 null 结果并要求 `Ready / READY`；`84b7f3f` 新 generation 56、simulator Ready、HTTPS `STOPPED`／0 reason code，Onboard journal 的已确认安全变化为 departureSafe=true、vehicleStopped=true、unknownPresent=false。演练同时确认公共 sessions API 不提供 departureSafe，且 session `updatedAt` 不是 runtime 使用的 payload evidence 时间；真正的 Capability/Safety `observedAt` 只有 30 秒窗口且不因未变化状态自动刷新，故实车流程不能在 Ready 后额外等待 15～30 秒，必须保持 runtime 先启用、peers 后启动并立即 intake，同时由受保护 probe 每秒监控。最终 peers／端口清零、车辆安全、无 mutation／订单／移动；正式 G3／RC 仍为 `INCONCLUSIVE`，下一次实车仍需新的精确授权。
+
+### 2026-08-28 — 84b7f3f 授权旅程因 batch-unlock 本地配置安全中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: batch-unlock capability config safe abort`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/0ae4448fc0724cce98a93f36e3b42bea62f2b00f/evidence/g3/20260828-authorized-journey-84b7f3f-batch-unlock-config-safe-abort/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@0ae4448fc0724cce98a93f36e3b42bea62f2b00f`
+
+Impact on this ticket: 新授权下原子预检有 6 个完整静态候选；双层 runtime 有效启用，`84b7f3f` generation 57 达到 `Ready / READY`，受保护 probe 确认 departureSafe=true，但 20 秒内始终 0 runtime／0 order／0 operation，故自动 stop。最后快照中恰有 6 项 `ONBOARD_FACTS_NOT_READY`；只读源代码定位为本地 peer 助手沿用 Onboard 安全默认 `supportsBatchUnlock=false`，而 ControlServer 对八仓批量解锁能力按设计 fail-closed。无需修改受保护 Onboard 或 ControlServer 产品代码；停用后助手已显式设为 true，语法与离线配置验证通过但未运行时重试。本次无 RIoT mutation、未建单、未动车，最终双层 runtime=false、peers/端口清零、车辆 `STOPPED`；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，下一次尝试仍须新的精确授权。
