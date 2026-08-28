@@ -448,3 +448,13 @@ Evidence artifact: [`ControlServer final dynamic-facts gate and local deployment
 Published product/evidence: `ControlServer_MVP@4153d8369262a5a574589258b6c32651bc043c79` / `135095ddf8ac087a8f1ca722d34aa1ad539f105a`
 
 Impact on this ticket: 用户授权修改、测试和本机部署 ControlServer。产品现在在长候选处理后重读同 generation 的 Onboard/RIoT facts，并在最终 catalog refresh 后、持久化 AcceptedDemand/JourneyRuntime/OrderIntent 前再次执行同一门禁；任一失败写 `FINAL_DYNAMIC_FACTS_NOT_READY` 且不触发 RIoT。修复前时间推进回归观察到错误 AcceptedDemand，修复后聚焦 2/2、JourneyRuntime 32/32、全套 107/107、0 skip，format 与 Release 非增量构建均 PASS。精确 clean commit `4153d83` 的 self-contained 包含 371 文件、manifest `7b966c86...1dcc0`、0 mismatch；可回滚升级 PASS，随后固定任务恢复测试阈值 10%。最终原子预检为车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason、runtime=false、stop marker 存在，无 RIoT mutation／订单／移动。正式 G3／RC 仍为 `INCONCLUSIVE`；下一次实车须绑定已部署 `4153d83` 与选定 Onboard commit 并取得新授权。
+
+### 2026-08-28 — 4153d83 授权旅程因独立安全监控凭据歧义中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: independent safety monitor authentication safe abort`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/6bb7cae63b0ef81292a0b6f9174a6a20edb620cf/evidence/g3/20260828-authorized-journey-4153d83-monitor-auth-safe-abort/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@6bb7cae63b0ef81292a0b6f9174a6a20edb620cf`
+
+Impact on this ticket: 用户明确授权 `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5`、已部署 ControlServer `4153d8369262a5a574589258b6c32651bc043c79`、`supportsBatchUnlock=true`、JourneyRuntime、一个 RIoT 订单及一次空载真实旅程。固定检查和原子预检 PASS 后，双层 runtime 有效启用，generation 61 达到 `Ready / READY` 且受保护 probe 为 fresh、`departureSafe=true`、0 runtime／0 order／0 operation；但额外 HTTPS 安全监控误把 `CONTROL_SERVER_RIOT_CALL_API_KEY` 用于要求 `CONTROL_SERVER_ONBOARD_CREDENTIAL` 的端点并得到 401，无法满足双通道确认，故按“任何安全歧义立即停止”立刻中止且未重试。离线只读诊断确认凭据选择错误；停用后用正确命名凭据返回 HTTP 200／`STOPPED`／0 reason。最终双层 runtime=false、stop marker 存在、peers／临时端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason，无 RIoT mutation／订单／移动。本次授权已因有效 runtime 启用而消耗；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，下一次尝试仍须新的精确授权。
