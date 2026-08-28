@@ -550,3 +550,9 @@ Impact on this ticket: 最终授权影子已启动隔离 Host／Onboard／simula
 Owner repository/evidence: [`8005-agv-control-server@41de6a9`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/41de6a94d641d630268aecdd7ccd4212c17878d8/evidence/g3/20260828-authorized-offline-permit-extraction/SUMMARY.md)
 
 Impact on this ticket: 用户单独授权只读静止 shadow／production overlap 并只写受限 private permit 与 sanitized result。提取前后严格回读 tool/Python/original result/shadow DB bundle/production DB bundle/ACL/端口/进程均一致；唯一候选的 1 PRE + 75 POST 全部为同 identity、连续、零 create 痕迹的 `AbsentAtObservation`，production overlap=false。private 与 sanitized selection hash 一致，输出 SHA-256 已在责任仓脱敏证据登记；执行未启动 Host／proxy／peer、未访问 RIoT。permit 本身不授权 mutation、订单或车辆动作，下一步仍须实现并审查精确 one-shot real egress，再取得独立实车授权；本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — 改走人工单次建单 runbook
+
+Owner repository/runbook: [`ControlServer_MVP@44c119e` 人工 runbook](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/44c119e115423959008cfd012ed9c236f76edf10/docs/authorized-absent-observation-manual-runbook.md)
+
+Impact on this ticket: 用户选择不再建设一次性真实实验工具；未提交的 runner/proxy/state 扩展已全部撤销，责任仓仅保留一页人工执行清单。该清单复用已部署的产品内置一次性 permit 门、现有 private permit、停止态 shadow DB 和只读 same-upper-id 对账，明确请求不确定时不得再次 POST，并要求 finally 停止本次子进程和释放端口。此次只提交并推送文档，未启动 Host／proxy／peer，未连接 RIoT，未创建订单或触动车辆。下一步转交现场人员：先确认物理安全，再由用户对清单列出的明文 HTTP、无独立 egress interlock 等剩余风险给出新的逐次授权；在此之前本票保持 `claimed`，正式 G3／RC 仍为 `INCONCLUSIVE`。
