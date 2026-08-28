@@ -358,3 +358,13 @@ Evidence artifact: [`ControlServer safety readiness transition blocker and fix`]
 Published product/evidence: `ControlServer_MVP@4347a8fb9fcb80cb9f95680a6fd8b1a0b970358b` / `5ebd4a01d21624a92d0bc58fb5828a2ee2f4ba3e`
 
 Impact on this ticket: 王昆的受保护 owner 提交 `OnboardHmi_MVP@777eff8bdc955e6bb6fdab74ec222e0bb6748def` 已通过 provider 首次刷新、RecoveryRequired 下更高 safety revision 和原 durable identity 回归；但新的授权运行仍在建单前停于 generation 47 的 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`。脱敏 simulator 复核确认 8/8 门关闭、锁反馈有效、解锁输出复位且无 fault；最终定位为可写 ControlServer 真实处理器与 owner Fake 行为不一致：safe `SafetyStateChanged` 落库并把服务端状态改为 Ready 后，生产端只返回 DurableAck，未把 `SessionReadiness / READY` 发布给 Onboard。归属仓 `4347a8f` 已改为始终返回 Ack + 最新 readiness，精确回归覆盖 Ready→RecoveryRequired→Ready、revision 3、空 reason codes 和持久化状态；聚焦 1/1、邻近 2/2、完整 103/103 tests、format 与 Release build 均 PASS，证据已推送 `5ebd4a0`。当前安装服务尚未升级到该产品提交；编排器已关闭 JourneyRuntime，peers／临时端口已清理，车辆 IDLE、速度 0、无订单、`STOPPED`、0 reason code，未调用 RIoT mutation、未建单、未动车。本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`，须先部署 `4347a8f` 再取得新的空载旅程授权。
+
+### 2026-08-28 — 本机 ControlServer 4347a8f 可回滚升级指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Local ControlServer 4347a8f upgrade`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/1086e4eeb51d56f325075d707573841cd93fc83a/evidence/g3/20260828-local-controlserver-4347a8f-upgrade/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@4347a8fb9fcb80cb9f95680a6fd8b1a0b970358b` / `1086e4eeb51d56f325075d707573841cd93fc83a`
+
+Impact on this ticket: 用户同意仅升级本机 ControlServer 后，精确产品提交 `4347a8f` 已从干净 disposable clone 生成 self-contained `win-x64` 包；371 个 manifest payload 逐文件 SHA-256 校验 0 mismatch，manifest SHA-256 为 `29abd09e...ca24`。既有可回滚升级器在 JourneyRuntime=false 前置下完成 ACL 受限备份、原子替换、服务／live／version／restart 和认证只读 safety 检查，结果 PASS；独立复核为服务 Running／Automatic／LocalSystem、58005/58007 正常监听、协议 `protocol-v0.1.1`，车辆 IDLE、速度 0、无订单、battery 30%、直接与 HTTPS 均 `STOPPED` 且 0 reason code。JourneyRuntime 全程关闭，未启动 Onboard／simulator，未调用 RIoT mutation、未建单、未动车。ControlServer safe-revision Ready 转换修复已部署；正式 G3／RC 仍保持 `INCONCLUSIVE`，下一步必须对 `OnboardHmi_MVP@777eff8bdc955e6bb6fdab74ec222e0bb6748def` 取得新的空载真实旅程授权，本票继续 `claimed`。
