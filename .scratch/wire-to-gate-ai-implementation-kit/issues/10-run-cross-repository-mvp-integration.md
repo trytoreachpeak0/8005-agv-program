@@ -526,3 +526,9 @@ Impact on this ticket: 用户仅授权在 ControlServer 实施、测试、推送
 Owner repository/evidence: [`8005-agv-control-server@931052d`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/931052df53472f317a82bf4b4cb26d79138bcb67/evidence/g3/20260828-authorized-absent-shadow-contract-drift-safe-abort/SUMMARY.md)
 
 Impact on this ticket: 首次 mutation-blocked 影子已消耗逐次授权，并在任何业务受理或外部 mutation 前因 ControlServer 固定 v2.3、现场 MesIngest 已为 v2.4 而 fail-close；无 demand／runtime／intent／order／operation 或车辆移动。责任仓已精确升级到 v2.4、加固只读影子门并以 218/218 测试通过后推送 `ControlServer_MVP@931052d`，但新包未部署、第二次影子未运行。下一次只读许可影子必须绑定最终 package/tool/Python/peer 哈希并取得新的明确授权；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — 许可影子前置权限假设安全中止与工具修复
+
+Owner repository/evidence: [`8005-agv-control-server@04b1b7e`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/04b1b7e47de682b0e6000c97ac9981b62e5dd577/evidence/g3/20260828-authorized-shadow-preflight-permission-safe-abort/SUMMARY.md)
+
+Impact on this ticket: 哈希绑定运行在 Host 启动前因非提升进程无权读取安装配置、失败路径重复写 ACL 而安全中止；未创建 Host／proxy／peer／shadow DB／permit，也无 RIoT 请求，故按“Host 启动即消耗”条款未消耗操作授权。责任仓改为对固定提升只读任务的完整安全有效态做严格类型化前后哈希，并在最终证据前只验证既有 ACL；独立复核为 mutation-blocked GO，错误身份负测已确认能写出 fail-close 结果。runner 与 package 身份已变化，仍须重新绑定授权后才可运行；本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
