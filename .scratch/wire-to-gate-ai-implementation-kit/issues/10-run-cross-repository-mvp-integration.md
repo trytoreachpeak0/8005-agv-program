@@ -378,3 +378,13 @@ Evidence artifact: [`Authorized journey attempt: Onboard safety identity field m
 Published branch/commit: `ControlServer_MVP@e42be20ca08792ace88b206ab0ccaad6b5abd0a7`
 
 Impact on this ticket: 用户明确授权 `OnboardHmi_MVP@777eff8bdc955e6bb6fdab74ec222e0bb6748def`、已部署 ControlServer `4347a8f`、JourneyRuntime、RIoT 建单及一次空载真实旅程。11:03 原子预检在四个完整候选、车辆 IDLE／速度 0／无订单、29% 电量通过已批准 10% 测试门槛、双源 `STOPPED`／0 reason code 下 PASS；JourneyRuntime 随后实际启用，但新 generation 48 会话保持 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，故在建单前安全中止。Onboard journal 证明 `SafetyStateChanged` 已获 DurableAck，但本地启动助手错误写入未使用的 `vehicleSafety.vehicleKey`，而 `777eff8` 实际读取 `expectedVehicleKey`，导致 Onboard provider 正确 fail-closed 为 `VEHICLE_STATE_UNKNOWN`。一次性助手已改为写入正确字段并通过语法／精确 commit 绑定静态校验，但未在运行时启用状态下重试。最终 JourneyRuntime=false、服务 Running/live 200、peers 与临时端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason code；无 RIoT mutation、未建单、未动车。由于本次授权已经实际启用 JourneyRuntime，下一次尝试须重新取得明确授权；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-28 — PowerShell 7 有效运行时无 intake 安全中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`PowerShell 7 effective runtime attempt: no journey intake`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/e964a15d69643650e75abe79e79b180be8897978/evidence/g3/20260828-pwsh7-effective-runtime-no-intake/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@e964a15d69643650e75abe79e79b180be8897978`
+
+Impact on this ticket: 新的单次授权先暴露本地编排只改基础 `appsettings.json`、未改 `appsettings.Production.json` 的伪启用问题；当时有效 runtime 未启动且数据库为 0 runtime／0 backlog／0 accepted，故修正外部 enable/disable 助手为双层备份、写入、验证、回滚和停用后继续本次授权。PowerShell 7.6.5 提权编排随后确认基础与 Production 均 enabled=true、门槛 10%，worker 产生 267+ backlog，受保护 `777eff8` generation 51 达到 `Ready` 且 departureSafe=true；但全程仍为 0 runtime／0 order／0 operation／0 unresolved accepted／0 orphan／0 active lease。确认 ControlServer `JourneyRuntimeEngine.UpsertBacklogAsync` 的 backlog 指纹包含易变 `CatalogRevision/AcceptedAt`，后续轮询会把真实当前原因覆盖为 `DEMAND_DECISION_FACT_CHANGED`，因此本次无 intake 的精确业务原因不可从持久化 reason code 判定；25 秒只读目录对照跨 revision 1815→1816、数量 272→270，公共 270 项决策字段不变。Onboard 握手事实超过 30 秒证据时效后继续等待已无安全进展，禁止通过未授权重连增加 generation，故在建单前中止。最终双层 JourneyRuntime=false、服务 Running/live 200、peers／端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason code；无 RIoT mutation、未建单、未动车。当前授权已因有效 Production runtime 启用而消耗；须先修复归属仓可观测性／intake 阻塞并取得新授权，本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
