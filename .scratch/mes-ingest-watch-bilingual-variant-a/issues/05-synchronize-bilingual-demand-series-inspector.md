@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — 建立可持久化的生产语言切换基础.
 
-**Status:** implemented-awaiting-visual-validation
+**Status:** done
 
 - [x] 标题栏、上下文、标签页、形成原因、证据标签、MES 差异、事件、空态、帮助和 UIA 全部使用共享双语目录。
 - [x] `FIRST_OBSERVED`、`PREARCHIVE_REAPPEARANCE`、`POSTARCHIVE_REAPPEARANCE` 等已知原因分别显示原因特定事实和不变的原始码。
@@ -12,10 +12,10 @@
 - [x] 主窗口切换语言后，所有已打开 Inspector 同步更新；随后打开的窗口直接继承当前语言。
 - [x] 切换保留窗口位置、当前 Series、当前 Demand、选中标签、事件过滤、焦点和滚动位置，不重新读取或伪造证据。
 - [x] 标识、原始 MES 行、JSON、字段名、内部代码和带偏移绝对时间逐字保持不变。
-- [ ] 中文、英文、窄窗、高 DPI、主题和高对比状态下的层级、键盘路径及非颜色状态表达保持可用。
+- [x] 中文、英文、窄窗、高 DPI、主题和高对比状态下的层级、键盘路径及非颜色状态表达保持可用。
 - [x] Read [docs/agents/golden-renderer.md](../../../docs/agents/golden-renderer.md).
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 

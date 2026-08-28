@@ -1,6 +1,6 @@
 # MesIngest Watch Variant A 完整双语与值语义
 
-Status: ready-for-agent
+Status: done
 
 ## Problem Statement
 
@@ -314,11 +314,11 @@ Status: ready-for-agent
 
 每个涉及 `MesIngest.Watch` UI、XAML、WPF UI 控件、布局、UIA、DPI 或视觉证据的 ticket 都必须链接 `docs/agents/golden-renderer.md`，并逐项包含：
 
-- [ ] Read `docs/agents/golden-renderer.md`.
-- [ ] Ran the required golden-machine suites through an interactive task.
-- [ ] User approved the final real-window preview (visual changes only).
-- [ ] Recorded the unique evidence directory and all named skips.
-- [ ] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
+- [x] Read `docs/agents/golden-renderer.md`.
+- [x] Ran the required golden-machine suites through an interactive task.
+- [x] User approved the final real-window preview (visual changes only).
+- [x] Recorded the unique evidence directory and all named skips.
+- [x] Cleaned scheduled tasks/processes and rechecked the original VM at 96 DPI.
 
 ### 当前工作树安全
 
