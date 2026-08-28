@@ -194,9 +194,11 @@ small components. Its pixels and steps are reported but do not consume the ordin
 4-step/1536-pixel run budget. This is an edge-raster classification, not semantic OCR:
 PNG comparison cannot distinguish renderer-produced `#707070 -> #717171` from an
 intentional one-level foreground-brush edit. That visually indistinguishable case is
-therefore accepted when every rule above holds. Flat-fill gamma shifts, wide control
-edges, moved or different glyphs, alpha changes, and any per-channel delta above 3
-still fail.
+therefore accepted when every rule above holds. Global or large flat-fill gamma shifts,
+connected edges wider/taller than the component bounds, ordinary-contrast moved or
+different glyphs that create a delta above 3, alpha changes, and any per-channel delta
+above 3 still fail. Very low-contrast edge changes that remain within every bound are
+intentionally treated as visually indistinguishable raster variance.
 
 Acceptance is never silent. Every accepted capture writes
 `visual-equivalence-accepted.json` plus `<step>.equivalent-{expected,actual,diff}.png`
