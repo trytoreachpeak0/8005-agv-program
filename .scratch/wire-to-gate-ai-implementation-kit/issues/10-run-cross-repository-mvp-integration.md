@@ -556,3 +556,13 @@ Impact on this ticket: 用户单独授权只读静止 shadow／production overla
 Owner repository/runbook: [`ControlServer_MVP@44c119e` 人工 runbook](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/44c119e115423959008cfd012ed9c236f76edf10/docs/authorized-absent-observation-manual-runbook.md)
 
 Impact on this ticket: 用户选择不再建设一次性真实实验工具；未提交的 runner/proxy/state 扩展已全部撤销，责任仓仅保留一页人工执行清单。该清单复用已部署的产品内置一次性 permit 门、现有 private permit、停止态 shadow DB 和只读 same-upper-id 对账，明确请求不确定时不得再次 POST，并要求 finally 停止本次子进程和释放端口。此次只提交并推送文档，未启动 Host／proxy／peer，未连接 RIoT，未创建订单或触动车辆。下一步转交现场人员：先确认物理安全，再由用户对清单列出的明文 HTTP、无独立 egress interlock 等剩余风险给出新的逐次授权；在此之前本票保持 `claimed`，正式 G3／RC 仍为 `INCONCLUSIVE`。
+
+### 2026-08-28 — 依据 upperId 幂等契约打通建单链路
+
+Owner repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Published product: `ControlServer_MVP@21f1dd65ed6177f21de0e83479950c5c4a5ff13c`
+
+Contract source: [`BC-ORDER-004`](https://github.com/trytoreachpeak0/8005---AGV/blob/codex/watch-bilingual-integration/rcs/riot-behavior-lab/knowledge/behavioral-contracts.md#bc-order-004-相同-upperid-重复提交被拒绝订单已存在)
+
+Impact on this ticket: 用户明确 RIoT owner 不提供技术支持或程序修改，并将「HTTP 200 但实际未建单」定性为 RIoT 自身缺陷，只要求实现正确的建单链路。据此撤销原「等 RIoT owner 确认空结果合同语义」这一永远无法满足的阻断。依据 RIoT Behavior Lab 的 `OBSERVED` 级 BC-ORDER-004——`byDefaultMissions` 对已持有的同一 `upperId` 返回业务 `code=0610008 订单已存在`，不创建第二单也不回传原订单——服务端已强制 upperId 幂等，因此「建单前必须先证明订单不存在」不是安全必需，最坏情况只是拿到确定性的 0610008。ControlServer 新增 `RiotOrderObservationKind.AlreadyExists` 并将 `0610008` 映射为确定性已存在后转同 upperId 对账；精确 absent-at-observation 读取（HTTP 200／业务 code 0／无 result／无 failureCategory）现可直接建单，不再需要一次性 permit。`DispatchAuditVersion==1` 与 `CreateAttemptCount==0` 守卫保留，单个 intent 至多一次建单；非精确 Unknown（超时、传输失败、带 HTTP 码或业务码、result 存在）仍全部 fail-closed。已废除的「无 permit 即不得建单」测试整体移除，保留 fail-closed receipt 边界与 permit 持久化不变量，并新增覆盖新链路的三条测试（无 permit 精确 absent 建单一次并确认、0610008 对账到持有该 upperId 的订单、已有 attempt 后不再二次建单）。Release 构建 0 warning／0 error，`dotnet format` 通过，199/199 测试、0 skip，净变更 143 增／802 删。本次未打包、未部署、未访问真实 RIoT、未建单、未移动车辆。安全论证的依据由「前置查询证明不存在」换为「服务端 upperId 幂等」，若该契约在 Map 25 现场不成立则可能重复建单，用户已将此类偏差定性为 RIoT 缺陷。剩余阻断收敛为单一项：现场物理安全确认与真实建单的逐次授权。本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。

@@ -32,7 +32,8 @@ Label: wayfinder:map
 - 凭据、证书和密钥只登记安全引用，不进入 Git、发布包、日志或测试证据。
 - 本路线授权开发三个仓库中的 MVP 产品代码、测试、构建输入和发布资产；执行时各仓库仍须遵守自身 AGENTS/CONTEXT 与测试门禁。Golden WPF tier 2/3、真实车辆动作和工厂试运行仍需届时单独授权并满足安全条件。
 - 2026-08-25 用户重新划定 OnboardHmi 分工：车载端产品代码由王昆从本人 `bc56fa9` 基线开发；后续 AI 只为车载端保留开发交接文档，不再自行修改 OnboardHmi 产品代码，除非用户日后再次明确授权。远程 `OnboardHmi_MVP@05bf9f4` 已用可追溯 revert 把当前产品树恢复到 `bc56fa9`，仅保留 README 和交接文档；历史中的 AI 候选提交不能表述为王昆已开发或批准。
-- 2026-08-28 22:45 原截止逾期：正式 G3／RC 仍为 `INCONCLUSIVE`，用户决定只把截止顺延到 2026-08-29 17:00，范围与完成定义不变。票 10 之后的整条路线仍被两个 AI 不得代办的外部条件锁死——RIoT owner 尚未确认 `detailByUpperId` 返回 HTTP 200／业务 code 0／无 `result` 的正式合同语义与异步落单最大上界；`ControlServer_MVP@44c119e` 的人工单次建单 runbook 需要现场物理安全确认，以及针对明文 HTTP、无独立 egress interlock 等残余风险的新逐次授权。在两者到位前不得接触真实 RIoT mutation、订单或车辆动作。
+- 2026-08-28 22:45 原截止逾期：正式 G3／RC 仍为 `INCONCLUSIVE`，用户决定只把截止顺延到 2026-08-29 17:00，范围与完成定义不变。
+- 2026-08-28 用户划定 RIoT 责任边界：RIoT owner 不提供技术支持，也不会修改 RIoT 程序，因此不得再把「等 owner 确认合同语义」当作路线阻断；「HTTP 200 但实际未建单」由用户定性为 RIoT 自身缺陷，本项目只负责实现正确的建单链路。建单安全性据 `OBSERVED` 级 BC-ORDER-004 改由服务端 upperId 幂等保证（重复提交返回 `0610008 订单已存在`，不建第二单），已在 `ControlServer_MVP@21f1dd6` 落地，不再需要一次性 permit。RIoT Behavior Lab 与 SDK（`8005---AGV` 仓）是 RIoT 行为的权威依据。
 
 ## Decisions so far
 
