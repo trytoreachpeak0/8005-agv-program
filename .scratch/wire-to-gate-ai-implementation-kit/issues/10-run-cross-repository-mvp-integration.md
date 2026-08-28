@@ -488,3 +488,15 @@ Evidence artifact: [`Authorized journey attempt: RIoT empty reconciliation resul
 Published branch/commit: `ControlServer_MVP@840105116fe955be4c98757e70cbd5c7b7b16a60`
 
 Impact on this ticket: 新授权绑定 Onboard `84b7f3f66ff2f867b18121760f38e26e0bbd6fa5` 与已部署 ControlServer `193d6bbb1430b807b4db471975707cb6ce8c36fd`。时钟修复实际打通 intake：generation 65 稳定 `Ready / READY`，AcceptedDemand 与 JourneyRuntime 已持久化，唯一 TO_PICKUP OrderIntent 进入 `AwaitingPickupArrival`；但 intent 持续 `RESULT_UNKNOWN`／`orderConfirmed=false`，runtime 为 `PICKUP_ResultUnknown`，故按歧义门禁停止。脱敏只读 `detailByUpperId` 返回 HTTP 200、业务 code 0、无 `result`；产品只将 HTTP 404 视为确认不存在，因此 fail-close 为 Unknown，无法进入安全的 create 门。现有持久化／事件不能取证级证明 POST 是否发出，故不得宣称建单或零 mutation。停用后至约 8 分 38 秒车辆持续 IDLE／速度 0／无 order/task、双源 `STOPPED`／0 reason、未移动，双层 runtime=false、peers／端口清零、stop marker 存在；但有限观察不能永久排除远端 orphan，分类为 `SAFE_NOW / ORPHAN_NOT_YET_EXCLUDED`。须由 RIoT owner 确认 200/code0/no-result 的合同语义并提供该冻结 upper-id 的服务端审计或官方最大落单上界；确认后才可在 ControlServer 区分 Reconcile 空 result→NotFound 与 Create 空 result→Unknown，并对现有 `RESULT_UNKNOWN` 做显式受控恢复。普通新旅程授权不足以继续，本票保持 `claimed`，正式 G3／RC 继续 `INCONCLUSIVE`。
+
+### 2026-08-28 — ControlServer 接入不可变 RIoT SDK
+
+SDK repository: `https://github.com/trytoreachpeak0/8005---AGV`
+
+SDK source: `codex/riot-sdk-controlserver-integration@e708f874fa3b76f9ed1cf39c2f97e4a026c13c10`
+
+ControlServer product: `ControlServer_MVP@beb696587b58c37b962b50e002fa0651cbfe04d5`
+
+Evidence pointers: [`BC-ORDER-019`](https://github.com/trytoreachpeak0/8005---AGV/blob/e708f874fa3b76f9ed1cf39c2f97e4a026c13c10/rcs/riot-behavior-lab/knowledge/behavioral-contracts.md#bc-order-019-detailbyupperid-%E7%9A%84%E7%A9%BA%E7%BB%93%E6%9E%9C%E5%8F%AA%E8%AF%81%E6%98%8E%E6%9C%AC%E6%AC%A1%E8%A7%82%E6%B5%8B%E6%9C%AA%E8%A7%81%E8%AE%A2%E5%8D%95)、[`ADR-sdk-0009`](https://github.com/trytoreachpeak0/8005---AGV/blob/e708f874fa3b76f9ed1cf39c2f97e4a026c13c10/docs/adr/sdk/0009-order-observation-four-state-result.md)、[`vendored package provenance`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/beb696587b58c37b962b50e002fa0651cbfe04d5/vendor/nuget/riot-sdk/0.1.0-controlserver.2/README.md)
+
+Impact on this ticket: ControlServer 已移除 RIoT 手写 URL／DTO 解析，改为锁定 `RIoT.Sdk.Facade 0.1.0-controlserver.2`，三个运行包与符号包均从 SDK 精确干净 commit 打包并保存 SHA-256、nuspec repository commit 和 lock-file content hash。SDK 用四态区分 `Found`、仅 HTTP 404 的 `NotFound`、HTTP 200／code 0／无 result 的 `AbsentAtObservation` 与非完整／错 upper-id 的 `Indeterminate`；后两者在 ControlServer 仍 fail-closed 为 Unknown，mutation 不自动重试。接入测试发现 SDK C# 对 JSON null 可选数值的解析缺陷，已回写 SDK、增加 C#/Python 成对回归并以不可变 `.2` 取代未进入最终锁文件的 `.1`。SDK 最终 C# 76/76、Python 73 passed／1 环境 smoke skipped，ControlServer 聚焦 44/44、完整 139/139、0 skip，locked restore、format、Release build 0 warning／0 error，双方各 11/11 高风险伪变异被杀。此次未部署本机服务、未启用 JourneyRuntime、未访问真实 RIoT、未建单或移动车辆；冻结 POST 服务端接收事实、空结果正式合同与异步落单最大上限仍待 RIoT owner，故本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
