@@ -478,3 +478,13 @@ Evidence artifact: [`ControlServer RIoT observation clock-order fix and deployme
 Published product/evidence: `ControlServer_MVP@193d6bbb1430b807b4db471975707cb6ce8c36fd` / `3e290412735a0288014db4edaa4afdf61ff28955`
 
 Impact on this ticket: 用户授权修改、测试、推送并本机部署 ControlServer，明确排除受保护仓和实车动作。推进时钟回归 `VehicleReadsThatAdvanceClockUsePostReadTimeForAdmission` 在旧实现上 0/1 FAIL（AcceptedDemand 为空）；产品改为在 RIoT 车辆读取完成后捕获 `dynamicFactsNow` 并用于初始动态门禁，最终聚焦 1/1、JourneyRuntime 33/33、全套 108/108、0 skip，format PASS，Release 非增量构建 0 warning/0 error。精确干净产品提交 `193d6bb` 生成 self-contained win-x64 包：371 个 payload、manifest `2a10eddd...8c16b`、0 路径／长度／哈希／集合差；可回滚升级严格回读 source commit／manifest 匹配并 PASS。固定任务随后恢复 10% 阈值；最终固定检查和原子预检为双层 runtime=false、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason、peers／端口清零、stop marker 存在，无 RIoT mutation／订单／移动。修复已部署，但本次授权不含实车；正式 G3／RC 继续 `INCONCLUSIVE`，下一次旅程须绑定已部署 `193d6bb` 与选定 Onboard commit 并取得新的逐次授权，本票保持 `claimed`。
+
+### 2026-08-28 — 193d6bb 授权旅程因 RIoT 空 result 对账合同歧义中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: RIoT empty reconciliation result safe abort`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/840105116fe955be4c98757e70cbd5c7b7b16a60/evidence/g3/20260828-authorized-journey-193d6bb-riot-empty-result-safe-abort/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@840105116fe955be4c98757e70cbd5c7b7b16a60`
+
+Impact on this ticket: 新授权绑定 Onboard `84b7f3f66ff2f867b18121760f38e26e0bbd6fa5` 与已部署 ControlServer `193d6bbb1430b807b4db471975707cb6ce8c36fd`。时钟修复实际打通 intake：generation 65 稳定 `Ready / READY`，AcceptedDemand 与 JourneyRuntime 已持久化，唯一 TO_PICKUP OrderIntent 进入 `AwaitingPickupArrival`；但 intent 持续 `RESULT_UNKNOWN`／`orderConfirmed=false`，runtime 为 `PICKUP_ResultUnknown`，故按歧义门禁停止。脱敏只读 `detailByUpperId` 返回 HTTP 200、业务 code 0、无 `result`；产品只将 HTTP 404 视为确认不存在，因此 fail-close 为 Unknown，无法进入安全的 create 门。现有持久化／事件不能取证级证明 POST 是否发出，故不得宣称建单或零 mutation。停用后至约 8 分 38 秒车辆持续 IDLE／速度 0／无 order/task、双源 `STOPPED`／0 reason、未移动，双层 runtime=false、peers／端口清零、stop marker 存在；但有限观察不能永久排除远端 orphan，分类为 `SAFE_NOW / ORPHAN_NOT_YET_EXCLUDED`。须由 RIoT owner 确认 200/code0/no-result 的合同语义并提供该冻结 upper-id 的服务端审计或官方最大落单上界；确认后才可在 ControlServer 区分 Reconcile 空 result→NotFound 与 Create 空 result→Unknown，并对现有 `RESULT_UNKNOWN` 做显式受控恢复。普通新旅程授权不足以继续，本票保持 `claimed`，正式 G3／RC 继续 `INCONCLUSIVE`。
