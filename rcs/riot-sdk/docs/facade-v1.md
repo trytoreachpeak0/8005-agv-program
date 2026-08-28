@@ -41,14 +41,18 @@
 | `HangContinueAsync` | `hang_continue` | BC-ORDER-015；成功码 ≠ 已离开 HANG |
 | `DispatchEnableAsync` | `dispatch_enable` | BC-VEH-003 |
 | `DispatchDisableAsync` | `dispatch_disable` | BC-VEH-003 |
+| `GetVehicleCardAsync` | `get_vehicle_card` | 身份校验后的车辆卡片事实 |
+| `GetVehicleExecutionFactsAsync` | `get_vehicle_execution_facts` | 车辆/任务双半事实；缺失或 key 不匹配即失败 |
 
 ## Order
 
 | C# | Python | 契约 |
 |---|---|---|
-| `CreateMoveOrderAsync` | `create_move_order` | BC-ORDER-001 / BC-ORDER-005 |
+| `CreateMoveOrderAsync` | `create_move_order` | BC-ORDER-001 / BC-ORDER-005；map/station 必须为正数，返回 upperId 必须与请求一致 |
 | `GetOrderByUpperIdAsync` | `get_order_by_upper_id` | BC-ORDER-005 |
+| `FindOrderByUpperIdAsync` | `find_order_by_upper_id` | BC-ORDER-019 / ADR-sdk-0009；四态查找，只有 HTTP 404 为 NotFound |
 | `GetOrderByOrderIdAsync` | `get_order_by_order_id` | BC-ORDER-005 |
+| `ListOrdersByStatesAsync` | `list_orders_by_states` | 带完整分页覆盖元数据的订单状态页；状态过滤器逐项发送 |
 | `PriorityExecAsync` | `priority_exec` | BC-ORDER-014；参数为字符串 `orderId` |
 
 ## Maps
@@ -57,6 +61,7 @@
 |---|---|---|
 | `ListMapsAsync` | `list_maps` | BC-MAP-001 |
 | `ListStationsAsync` | `list_stations` | BC-MAP-002 |
+| `ListStationsStrictAsync` | `list_stations_strict` | 严格目录读取；坏行、空结果和重复 stationId 均失败 |
 
 ## 领域类型（Core）
 
@@ -66,6 +71,9 @@
 | `Map` / `Station` | `Map` / `Station` |
 | `RouteCost` | `RouteCost` |
 | `OrderRef` | `OrderRef` |
+| `OrderLookupResult` / `OrderSnapshot` | `OrderLookupResult` / `OrderSnapshot` |
+| `VehicleCard` / `VehicleExecutionFacts` | `VehicleCard` / `VehicleExecutionFacts` |
+| `OrderStatePage` / `OrderStateRecord` | `OrderStatePage` / `OrderStateRecord` |
 | `DispatchableVehicleLookup.ResolveDeviceKey` | `resolve_device_key` |
 | `ReadyForNextOrder.IsReady` | `is_ready_for_next_order` |
 | `RiotApiException` | `RiotApiException` |

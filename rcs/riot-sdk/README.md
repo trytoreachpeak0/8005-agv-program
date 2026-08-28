@@ -14,6 +14,8 @@
 ## 文档
 
 - [Facade V1 方法清单](docs/facade-v1.md)（C# ↔ Python 对照）
+- [订单观测四态 ADR](../../docs/adr/sdk/0009-order-observation-four-state-result.md)
+- [RIoT 行为契约 BC-ORDER-019](../riot-behavior-lab/knowledge/behavioral-contracts.md#bc-order-019-detailbyupperid-的空结果只证明本次观测未见订单)
 - [冒烟测试](docs/smoke-test.md)
 - [领域用语 CONTEXT](../../CONTEXT.md)
 - [ADR 决策记录](../../docs/adr/)
@@ -72,6 +74,19 @@ var order = await session.Order.CreateMoveOrderAsync(
 ```powershell
 dotnet test ./csharp/RIoT.Sdk.sln
 ```
+
+### ControlServer 离线包
+
+`RIoT.Sdk.Core`、`RIoT.Sdk.Generated`、`RIoT.Sdk.Facade` 统一使用版本
+`0.1.0-controlserver.1`。从精确干净 commit 打包时必须传入该 commit，确保
+NuGet 的 `repository` 元数据可追溯：
+
+```powershell
+dotnet pack ./csharp/RIoT.Sdk.sln -c Release -p:RepositoryCommit=<exact-clean-commit> -o <immutable-feed>
+```
+
+交付证据应记录三个 `.nupkg`（及符号包）的 SHA-256。消费方只固定版本化包，
+不得用 sibling `ProjectReference` 指向另一个工作树。
 
 端到端冒烟见 **[docs/smoke-test.md](docs/smoke-test.md)**。
 

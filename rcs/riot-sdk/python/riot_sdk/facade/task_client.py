@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
+from kiota_abstractions.base_request_configuration import RequestConfiguration
 
 from riot_sdk.core.business_response import (
     ensure_success,
@@ -10,6 +12,7 @@ from riot_sdk.core.business_response import (
 from riot_sdk.core.dispatchable_vehicles import DispatchableVehicle, resolve_device_key
 from riot_sdk.core.exceptions import RiotApiException
 from riot_sdk.core.route_cost import RouteCost
+from riot_sdk.core.vehicle_facts import VehicleCard, VehicleExecutionFacts
 from riot_sdk.generated.task.models.batch_vehicle_operation import BatchVehicleOperation
 from riot_sdk.generated.task.models.order_command_d_t_o_object import OrderCommandDTOObject
 from riot_sdk.generated.task.models.order_command_d_t_o_object_command_type import (
@@ -27,6 +30,12 @@ from riot_sdk.generated.task.models.u7533u8bf7u8f66u8f86u5217u8868u5230u8fbeu7ad
 
 if TYPE_CHECKING:
     from riot_sdk.facade.session import RiotSession
+
+
+def _enum_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    return str(getattr(value, "value", value))
 
 
 class TaskClient:
@@ -54,6 +63,84 @@ class TaskClient:
         """Exact deviceName → deviceKey via getAllVehicleSimpleInfo (BC-VEH-002)."""
         vehicles = await self.get_dispatchable_vehicles()
         return resolve_device_key(vehicles, device_name)
+
+    async def get_vehicle_card(self, device_key: str) -> VehicleCard:
+        """GET getVehicleInfoByDeviceKey and reject a mismatched response identity."""
+        if not device_key or not device_key.strip():
+            raise ValueError("device_key is required")
+
+        client = self._session.create_generated_task_client()
+        request = client.api.task.vehicles.get_vehicle_info_by_device_key
+        query = request.GetVehicleInfoByDeviceKeyRequestBuilderGetQueryParameters()
+        query.key = device_key
+        response = require_response(
+            await request.get(
+                request_configuration=RequestConfiguration(query_parameters=query)
+            ),
+            "getVehicleInfoByDeviceKey",
+        )
+        ensure_success(response.code, response.message)
+        result = response.result
+        if result is None:
+            raise RiotApiException(
+                "getVehicleInfoByDeviceKey returned null result.",
+                business_code="vehicle-card-missing",
+            )
+        if result.device_key != device_key:
+            raise RiotApiException(
+                "getVehicleInfoByDeviceKey returned a mismatched deviceKey.",
+                business_code="vehicle-key-mismatch",
+            )
+        return VehicleCard(
+            device_key=device_key,
+            enable=result.enable,
+            status=result.status,
+            proc_state=result.proc_state,
+            current_map=result.current_map,
+            current_position=result.current_position,
+            battery_percent=result.battery,
+            battery_state=result.battery_state,
+            speed=result.speed,
+            lock_status=result.lock_status,
+            order_task_id=result.order_task_id,
+        )
+
+    async def get_vehicle_execution_facts(
+        self, device_key: str
+    ) -> VehicleExecutionFacts:
+        """GET diagnostic VehicleAllInfo and require both identity-linked halves."""
+        if not device_key or not device_key.strip():
+            raise ValueError("device_key is required")
+
+        client = self._session.create_generated_task_client()
+        response = await client.api.task.v1.task.get_vehicle_info.by_device_key(
+            device_key
+        ).get()
+        if response is None or response.vehicle is None or response.vehicle_task_info is None:
+            raise RiotApiException(
+                "getVehicleInfo returned a missing vehicle or vehicleTaskInfo.",
+                business_code="vehicle-execution-facts-missing",
+            )
+        if response.vehicle_task_info.key != device_key:
+            raise RiotApiException(
+                "getVehicleInfo returned a mismatched vehicleTaskInfo key.",
+                business_code="vehicle-key-mismatch",
+            )
+        vehicle = response.vehicle
+        task = response.vehicle_task_info
+        return VehicleExecutionFacts(
+            device_key=device_key,
+            movement_state=_enum_text(vehicle.movement_state),
+            control_state=_enum_text(vehicle.control_state),
+            emergency_state=_enum_text(vehicle.emergency_state),
+            break_switch_state=_enum_text(vehicle.break_switch_state),
+            location_state=_enum_text(vehicle.location_state),
+            speed=vehicle.speed,
+            proc_state=_enum_text(task.proc_state),
+            processing_order=task.processing_order,
+            enable=task.enable,
+            integration_level=_enum_text(task.integration_level),
+        )
 
     async def get_route_cost(
         self,

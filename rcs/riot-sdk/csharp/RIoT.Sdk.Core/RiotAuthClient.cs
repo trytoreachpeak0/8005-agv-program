@@ -13,26 +13,51 @@ public sealed class RiotAuthClient : IDisposable
     private readonly bool _ownsHttp;
 
     public RiotAuthClient(RiotOptions options, HttpClient? httpClient = null)
+        : this(
+            options,
+            httpClient ?? CreateNoRedirectHttpClient(options),
+            ownsHttp: httpClient is null)
+    {
+    }
+
+    /// <summary>
+    /// Creates an auth client that owns the supplied primary handler without adding
+    /// retry or redirect middleware. Primarily used for deterministic transport tests.
+    /// </summary>
+    public RiotAuthClient(RiotOptions options, HttpMessageHandler primaryHandler)
+        : this(options, CreateNoRedirectHttpClient(options, primaryHandler), ownsHttp: true)
+    {
+    }
+
+    private RiotAuthClient(RiotOptions options, HttpClient httpClient, bool ownsHttp)
     {
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(httpClient);
         if (string.IsNullOrWhiteSpace(options.BaseUrl))
         {
             throw new ArgumentException("BaseUrl is required.", nameof(options));
         }
 
-        if (httpClient is null)
-        {
-            _http = new HttpClient { Timeout = options.Timeout };
-            _ownsHttp = true;
-        }
-        else
-        {
-            _http = httpClient;
-            _ownsHttp = false;
-        }
+        _http = httpClient;
+        _ownsHttp = ownsHttp;
 
         _http.BaseAddress ??= new Uri(EnsureTrailingSlash(options.BaseUrl));
         Options = options;
+    }
+
+    private static HttpClient CreateNoRedirectHttpClient(
+        RiotOptions options,
+        HttpMessageHandler? primaryHandler = null)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        HttpMessageHandler handler = primaryHandler ?? new HttpClientHandler
+        {
+            AllowAutoRedirect = false,
+        };
+        return new HttpClient(handler, disposeHandler: true)
+        {
+            Timeout = options.Timeout,
+        };
     }
 
     public RiotOptions Options { get; }
@@ -71,7 +96,15 @@ public sealed class RiotAuthClient : IDisposable
         {
             response = await _http.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (OperationCanceledException ex)
+        {
+            throw new RiotApiException("RIoT auth request timed out.", innerException: ex);
+        }
+        catch (HttpRequestException ex)
         {
             throw new RiotApiException($"RIoT auth request failed: {ex.Message}", innerException: ex);
         }

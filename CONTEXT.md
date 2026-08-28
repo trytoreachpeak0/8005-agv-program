@@ -444,6 +444,14 @@ _Avoid_: 距离（易被理解成直线距离）、最短路径几何
 `byDefaultMissions` 建单成功后返回的订单标识：数值 `id`、字符串 `orderId`、调用方 `upperId`，以及当时的 `orderState`。后续查单/取消/命令按对应标识选用。
 _Avoid_: Order（泛称）、任务号（口语）
 
+**OrderLookupStatus（订单查找状态）**:
+按调用方 `upperId` 读取 RIoT 时的四态结果：标识完整且一致为 Found；只有 HTTP 404 为 NotFound；HTTP 200 + 成功码但无/null result 为 AbsentAtObservation；非空但标识不完整或 `upperId` 不一致为 Indeterminate。
+_Avoid_: 用空 result 表示 NotFound、把 HTTP 成功等同于已找到、二态 exists/not-exists
+
+**AbsentAtObservation（本次观测未见）**:
+一次成功读取没有取得订单对象的事实；它不证明此前 POST 未被接受、不证明订单不会异步出现，也不授权再次建单。
+_Avoid_: NotFound、订单不存在、可安全重试
+
 **DispatchEnable**:
 把车纳入调度可接单（对应现场 enable / 上线路径）；与设备通电不是同一概念。
 _Avoid_: 开机、上线（易与网络在线混淆）、enable（裸字段名）

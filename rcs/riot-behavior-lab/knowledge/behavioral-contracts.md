@@ -353,6 +353,15 @@
 - 证据：[`../evidence/rounds/2026-07-22-round-38/`](../evidence/rounds/2026-07-22-round-38/)
 - 消费影响：单机导航占用时勿期望新单立刻执行或 HANG 立刻恢复；以 `movementState`/`procState` 空闲后再下发或重试 CONTINUE。
 
+## BC-ORDER-019 detailByUpperId 的空结果只证明本次观测未见订单
+
+- 结论：2026-08-28 ControlServer 联调中，`GET /api/order/v1/orderRecord/detailByUpperId/{upperId}` 对冻结 `upperId` 返回 HTTP 200、业务 `code=0`，但响应没有 `result`。该响应只证明本次读取没有取得订单对象，**不能**等同于权威 `NotFound`。
+- 证据等级：`OBSERVED`；关于 POST 是否已接受、异步落单上限及空结果的正式含义仍为 `UNCONFIRMED`。
+- 历史证据：Round 7 的 [`E1-detailByUpperId.json`](../evidence/rounds/2026-07-20-round-7/runs/E1-detailByUpperId.json)、[`E1-detailByUpperId-after-create.json`](../evidence/rounds/2026-07-20-round-7/runs/E1-detailByUpperId-after-create.json) 与 [`E1-bdm-proper-detail.json`](../evidence/rounds/2026-07-20-round-7/runs/E1-bdm-proper-detail.json) 均记录 HTTP 200、`code=0`、无 `result`；这些文件只证明各自读取时点的 observation，不证明相邻 POST 的接收事实或异步落单上限。
+- SDK 语义：完整且 `upperId` 一致为 `Found`；只有 HTTP 404 为 `NotFound`；HTTP 200 + 成功码 + 无/null `result` 为 `AbsentAtObservation`；非空但标识不完整或 `upperId` 不一致为 `Indeterminate`。
+- 消费影响：`AbsentAtObservation` 与 `Indeterminate` 都必须 fail-closed；不得据此以相同或新 `upperId` 自动再次建单。建单 HTTP 200 + 成功码但空结果仍按 `order-ref-missing` 失败处理，SDK 不自动重试 mutation。
+- 待负责人确认：不存在订单是否正式定义为该空结果；本次冻结 `upperId` 的 POST 是否被收到或接受；请求处理及异步落单的最大时间上限。
+
 ## 待晋升条件
 
 以下内容目前不能写成已验证契约：
@@ -367,5 +376,6 @@
 - `procState=IDLE` 必然表示车辆任务队列为空（Round14：清完本车非终态后观测到 IDLE，但未证明全局恒等）。
 - `orderState=4 FAILED` 的完整触发集合（现场经验：系统/地图异常、极少见；见 Q-024，不阻塞对接）。
 - 非等待类 act（顶升/同步旋转等）的 interrupt 行为。
+- `detailByUpperId` 的 HTTP 200 + `code=0` + 无 `result` 是否可晋升为权威 `NotFound`，以及异步落单的最大时间上限。
 
 它们必须先在 [`../hypotheses/open-questions.md`](../hypotheses/open-questions.md) 中获得相应现场证据。

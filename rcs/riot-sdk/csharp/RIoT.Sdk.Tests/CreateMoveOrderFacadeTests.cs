@@ -48,6 +48,140 @@ public class CreateMoveOrderFacadeTests
         Assert.Equal(1, order.OrderState);
     }
 
+    [Fact]
+    public async Task CreateMoveOrder_success_without_result_throws_and_does_not_retry()
+    {
+        using var handler = new FixedJsonHandler(
+            HttpStatusCode.OK,
+            """{"code":"0","message":"成功","msgDetail":"","tid":""}""");
+        using var http = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("http://riot.test/"),
+        };
+        await using var session = new RiotSession(
+            new RiotOptions
+            {
+                BaseUrl = "http://riot.test",
+                CallApiKey = "test-call-api-key",
+            },
+            http);
+
+        RiotApiException error = await Assert.ThrowsAsync<RiotApiException>(() =>
+            session.Order.CreateMoveOrderAsync(
+                upperId: "UPPER-EMPTY",
+                appointVehicleKey: DeviceKey,
+                mapId: 29,
+                destinationStationId: 1));
+
+        Assert.Equal("order-ref-missing", error.BusinessCode);
+        Assert.Equal(1, handler.CallCount);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    [InlineData(HttpStatusCode.TooManyRequests)]
+    [InlineData(HttpStatusCode.TemporaryRedirect)]
+    public async Task CreateMoveOrder_owned_transport_does_not_retry_or_follow_redirect(
+        HttpStatusCode statusCode)
+    {
+        using var handler = new FirstFailureThenSuccessHandler(statusCode, CreateSuccessBody);
+        await using var session = new RiotSession(
+            new RiotOptions
+            {
+                BaseUrl = "http://riot.test",
+                CallApiKey = "test-call-api-key",
+            },
+            (HttpMessageHandler)handler);
+
+        await Assert.ThrowsAnyAsync<Exception>(() =>
+            session.Order.CreateMoveOrderAsync(
+                upperId: "UPPER-TRANSPORT",
+                appointVehicleKey: DeviceKey,
+                mapId: 29,
+                destinationStationId: 1));
+
+        Assert.Equal(1, handler.CallCount);
+    }
+
+    [Theory]
+    [InlineData(0, 1)]
+    [InlineData(29, 0)]
+    [InlineData(-1, 1)]
+    [InlineData(29, -1)]
+    public async Task CreateMoveOrder_rejects_non_positive_map_or_destination_without_http(
+        int mapId,
+        int destinationStationId)
+    {
+        using var handler = new FixedJsonHandler(HttpStatusCode.OK, CreateSuccessBody);
+        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://riot.test/") };
+        await using var session = new RiotSession(
+            new RiotOptions { BaseUrl = "http://riot.test", CallApiKey = "test-key" },
+            http);
+
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+            session.Order.CreateMoveOrderAsync(
+                upperId: "UPPER-INVALID",
+                appointVehicleKey: DeviceKey,
+                mapId: mapId,
+                destinationStationId: destinationStationId));
+
+        Assert.Equal(0, handler.CallCount);
+    }
+
+    [Fact]
+    public async Task CreateMoveOrder_rejects_mismatched_response_upper_id_without_retry()
+    {
+        const string body =
+            """{"code":"0","result":{"id":9,"orderId":"ORDER-9","upperId":"OTHER-UPPER","orderState":1}}""";
+        using var handler = new FixedJsonHandler(HttpStatusCode.OK, body);
+        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://riot.test/") };
+        await using var session = new RiotSession(
+            new RiotOptions { BaseUrl = "http://riot.test", CallApiKey = "test-key" },
+            http);
+
+        RiotApiException error = await Assert.ThrowsAsync<RiotApiException>(() =>
+            session.Order.CreateMoveOrderAsync(
+                upperId: "EXPECTED-UPPER",
+                appointVehicleKey: DeviceKey,
+                mapId: 29,
+                destinationStationId: 1));
+
+        Assert.Equal("order-upper-id-mismatch", error.BusinessCode);
+        Assert.Equal(1, handler.CallCount);
+    }
+
+    private sealed class FirstFailureThenSuccessHandler(
+        HttpStatusCode firstStatus,
+        string successBody) : HttpMessageHandler
+    {
+        public int CallCount { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            CallCount++;
+            if (CallCount > 1)
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(successBody, Encoding.UTF8, "application/json"),
+                });
+            }
+
+            var response = new HttpResponseMessage(firstStatus)
+            {
+                Content = new StringContent("{}", Encoding.UTF8, "application/json"),
+            };
+            if (firstStatus is HttpStatusCode.MovedPermanently or HttpStatusCode.Redirect or
+                HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect)
+            {
+                response.Headers.Location = new Uri("/must-not-follow", UriKind.Relative);
+            }
+            return Task.FromResult(response);
+        }
+    }
+
     private sealed class FixedJsonHandler : HttpMessageHandler
     {
         private readonly HttpStatusCode _status;
@@ -59,10 +193,13 @@ public class CreateMoveOrderFacadeTests
             _body = body;
         }
 
+        public int CallCount { get; private set; }
+
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            CallCount++;
             var response = new HttpResponseMessage(_status)
             {
                 Content = new StringContent(_body, Encoding.UTF8, "application/json"),

@@ -24,4 +24,23 @@ public class CallApiKeyAuthTests
 
         Assert.Equal("test-call-api-key", bearer);
     }
+
+    [Fact]
+    public void Session_rejects_injected_HttpClient_with_different_origin()
+    {
+        using var http = new HttpClient
+        {
+            BaseAddress = new Uri("https://attacker.test/"),
+        };
+        var options = new RiotOptions
+        {
+            BaseUrl = "https://riot.test",
+            CallApiKey = "test-call-api-key",
+        };
+
+        ArgumentException error = Assert.Throws<ArgumentException>(
+            () => new RiotSession(options, http));
+
+        Assert.Contains("origin", error.Message.ToLowerInvariant());
+    }
 }

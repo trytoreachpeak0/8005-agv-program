@@ -46,6 +46,92 @@ public sealed class TaskClient
     }
 
     /// <summary>
+    /// GET /api/task/vehicles/getVehicleInfoByDeviceKey?key={deviceKey}.
+    /// Returns stable vehicle-card facts and rejects a mismatched response identity.
+    /// </summary>
+    public async Task<VehicleCard> GetVehicleCardAsync(
+        string deviceKey,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
+
+        var client = _session.CreateGeneratedTaskClient();
+        var response = RiotBusinessResponse.RequireResponse(
+            await client.Api.Task.Vehicles.GetVehicleInfoByDeviceKey.GetAsync(config =>
+            {
+                config.QueryParameters.Key = deviceKey;
+            }, cancellationToken).ConfigureAwait(false),
+            "getVehicleInfoByDeviceKey");
+
+        RiotBusinessResponse.EnsureSuccess(response.Code, response.Message);
+        var result = response.Result ?? throw new RiotApiException(
+            "getVehicleInfoByDeviceKey returned null result.",
+            businessCode: "vehicle-card-missing");
+
+        if (!string.Equals(result.DeviceKey, deviceKey, StringComparison.Ordinal))
+        {
+            throw new RiotApiException(
+                "getVehicleInfoByDeviceKey returned a mismatched deviceKey.",
+                businessCode: "vehicle-key-mismatch");
+        }
+
+        return new VehicleCard(
+            deviceKey,
+            result.Enable,
+            result.Status,
+            result.ProcState,
+            result.CurrentMap,
+            result.CurrentPosition,
+            result.Battery,
+            result.BatteryState,
+            result.Speed,
+            result.LockStatus,
+            result.OrderTaskId);
+    }
+
+    /// <summary>
+    /// GET /api/task/v1/task/getVehicleInfo/{deviceKey}.
+    /// Returns the diagnostic vehicle and task halves as one identity-checked snapshot.
+    /// </summary>
+    public async Task<VehicleExecutionFacts> GetVehicleExecutionFactsAsync(
+        string deviceKey,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceKey);
+
+        var client = _session.CreateGeneratedTaskClient();
+        var response = await client.Api.Task.V1.Task.GetVehicleInfo[deviceKey]
+            .GetAsync(cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+        if (response?.Vehicle is null || response.VehicleTaskInfo is null)
+        {
+            throw new RiotApiException(
+                "getVehicleInfo returned a missing vehicle or vehicleTaskInfo.",
+                businessCode: "vehicle-execution-facts-missing");
+        }
+
+        if (!string.Equals(response.VehicleTaskInfo.Key, deviceKey, StringComparison.Ordinal))
+        {
+            throw new RiotApiException(
+                "getVehicleInfo returned a mismatched vehicleTaskInfo key.",
+                businessCode: "vehicle-key-mismatch");
+        }
+
+        return new VehicleExecutionFacts(
+            deviceKey,
+            response.Vehicle.MovementState?.ToString(),
+            response.Vehicle.ControlState?.ToString(),
+            response.Vehicle.EmergencyState?.ToString(),
+            response.Vehicle.BreakSwitchState?.ToString(),
+            response.Vehicle.LocationState?.ToString(),
+            response.Vehicle.Speed,
+            response.VehicleTaskInfo.ProcState?.ToString(),
+            response.VehicleTaskInfo.ProcessingOrder,
+            response.VehicleTaskInfo.Enable,
+            response.VehicleTaskInfo.IntegrationLevel?.ToString());
+    }
+
+    /// <summary>
     /// POST /api/task/v1/route/getRouteCostsBy — RouteCost for one vehicle to a station (BC-ROUTE-001).
     /// <c>CostsMm = -1</c> means unreachable and is returned, not thrown (ADR-sdk-0005).
     /// </summary>

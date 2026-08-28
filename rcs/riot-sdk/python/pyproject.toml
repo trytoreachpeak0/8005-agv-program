@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "riot-sdk"
-version = "0.1.0"
+version = "0.1.0+controlserver.1"
 description = "RIoT SDK (Core auth + Kiota-generated device/task/order clients + Facade)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -17,6 +17,9 @@ dependencies = [
   "microsoft-kiota-serialization-form>=1.9.0",
   "microsoft-kiota-serialization-multipart>=1.9.0",
 ]
+
+[project.urls]
+Source = "https://github.com/trytoreachpeak0/8005---AGV"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-asyncio>=0.23"]

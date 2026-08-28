@@ -43,6 +43,73 @@ public class StationFacadeTests
         Assert.Contains(stations, s => s.MapId == 29 && s.StationId == 2 && s.Name == "站点2");
     }
 
+    [Fact]
+    public async Task ListStationsStrict_returns_all_valid_rows()
+    {
+        using var http = CreateHttp(StationsMap29Body);
+        await using var session = CreateSession(http);
+
+        IReadOnlyList<Station> stations = await session.Maps.ListStationsStrictAsync(29);
+
+        Assert.Equal([1, 2], stations.Select(station => station.StationId));
+    }
+
+    [Fact]
+    public async Task ListStationsStrict_rejects_malformed_row_instead_of_filtering()
+    {
+        using var http = CreateHttp(
+            """{"code":"0","result":[{"id":1,"name":"站点1"},{"id":0,"name":""}]}""");
+        await using var session = CreateSession(http);
+
+        RiotApiException error = await Assert.ThrowsAsync<RiotApiException>(
+            () => session.Maps.ListStationsStrictAsync(29));
+
+        Assert.Equal("station-catalog-entry-invalid", error.BusinessCode);
+    }
+
+    [Fact]
+    public async Task ListStationsStrict_rejects_duplicate_station_id()
+    {
+        using var http = CreateHttp(
+            """{"code":"0","result":[{"id":1,"name":"站点1"},{"id":1,"name":"重复站点"}]}""");
+        await using var session = CreateSession(http);
+
+        RiotApiException error = await Assert.ThrowsAsync<RiotApiException>(
+            () => session.Maps.ListStationsStrictAsync(29));
+
+        Assert.Equal("station-catalog-duplicate", error.BusinessCode);
+    }
+
+    [Theory]
+    [InlineData("{\"code\":\"0\",\"result\":null}", "station-catalog-missing")]
+    [InlineData("{\"code\":\"0\",\"result\":[]}", "station-catalog-empty")]
+    public async Task ListStationsStrict_rejects_null_or_empty_catalog(
+        string body,
+        string expectedBusinessCode)
+    {
+        using var http = CreateHttp(body);
+        await using var session = CreateSession(http);
+
+        RiotApiException error = await Assert.ThrowsAsync<RiotApiException>(
+            () => session.Maps.ListStationsStrictAsync(29));
+
+        Assert.Equal(expectedBusinessCode, error.BusinessCode);
+    }
+
+    private static HttpClient CreateHttp(string body) => new(
+        new FixedJsonHandler(HttpStatusCode.OK, body))
+    {
+        BaseAddress = new Uri("http://riot.test/"),
+    };
+
+    private static RiotSession CreateSession(HttpClient http) => new(
+        new RiotOptions
+        {
+            BaseUrl = "http://riot.test",
+            CallApiKey = "test-call-api-key",
+        },
+        http);
+
     private sealed class FixedJsonHandler : HttpMessageHandler
     {
         private readonly HttpStatusCode _status;

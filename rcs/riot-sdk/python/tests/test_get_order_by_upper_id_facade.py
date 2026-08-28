@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import httpx
 import pytest
 
-from riot_sdk import RiotOptions, RiotSession
+from riot_sdk import OrderLookupStatus, RiotApiException, RiotOptions, RiotSession
 
 _UPPER_ID = "riot-lab-I-20260720-120949"
 
@@ -59,3 +60,180 @@ async def test_get_order_by_upper_id_returns_order_identifiers() -> None:
     assert order.order_id == "order-2079056586101358592"
     assert order.upper_id == _UPPER_ID
     assert order.order_state == 5
+
+
+async def _find(
+    upper_id: str,
+    body: str,
+    *,
+    status_code: int = 200,
+):
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(
+            status_code,
+            text=body,
+            headers={"Content-Type": "application/json"},
+        )
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler),
+        base_url="http://riot.test/",
+    ) as client:
+        options = RiotOptions(
+            base_url="http://riot.test",
+            call_api_key="test-call-api-key",
+        )
+        async with RiotSession(options, client=client) as session:
+            result = await session.order.find_order_by_upper_id(upper_id)
+    return result, requests
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_returns_found_for_matching_complete_result() -> None:
+    result, requests = await _find(
+        "UPPER-7",
+        '{"code":"0","result":{"id":7,"orderId":"ORDER-7","upperId":"UPPER-7",'
+        '"orderState":3,"appointVehicleKey":"VEHICLE-1","executeVehicleKey":"VEHICLE-1",'
+        '"endStationNo":12,"missions":[{"type":"move","mapId":25,"destination":12}]}}',
+    )
+
+    assert result.status is OrderLookupStatus.Found
+    assert result.requested_upper_id == "UPPER-7"
+    assert result.order is not None
+    assert result.order.order_id == "ORDER-7"
+    assert result.order.execute_vehicle_key == "VEHICLE-1"
+    assert result.order.missions[0].map_id == 25
+    assert requests[0].url.path == "/api/order/v1/orderRecord/detailByUpperId/UPPER-7"
+    assert len(requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_returns_not_found_only_for_http_404() -> None:
+    result, requests = await _find("UPPER-404", "{}", status_code=404)
+
+    assert result.status is OrderLookupStatus.NotFound
+    assert result.order is None
+    assert len(requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_returns_absent_at_observation_for_success_without_result() -> None:
+    result, requests = await _find(
+        "UPPER-ABSENT",
+        '{"code":"0","message":"成功","msgDetail":"","tid":""}',
+    )
+
+    assert result.status is OrderLookupStatus.AbsentAtObservation
+    assert result.status is not OrderLookupStatus.NotFound
+    assert result.order is None
+    assert len(requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_returns_indeterminate_for_incomplete_result() -> None:
+    result, requests = await _find(
+        "UPPER-INCOMPLETE",
+        '{"code":"0","result":{"upperId":"UPPER-INCOMPLETE","orderState":1}}',
+    )
+
+    assert result.status is OrderLookupStatus.Indeterminate
+    assert result.order is None
+    assert len(requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_returns_indeterminate_for_mismatched_upper_id() -> None:
+    result, requests = await _find(
+        "EXPECTED-UPPER",
+        '{"code":"0","result":{"id":8,"orderId":"ORDER-8",'
+        '"upperId":"OTHER-UPPER","orderState":1}}',
+    )
+
+    assert result.status is OrderLookupStatus.Indeterminate
+    assert result.order is None
+    assert len(requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_propagates_task_cancellation() -> None:
+    class CancellationTransport(httpx.AsyncBaseTransport):
+        async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+            raise asyncio.CancelledError
+
+    async with httpx.AsyncClient(
+        transport=CancellationTransport(),
+        base_url="http://riot.test/",
+    ) as client:
+        options = RiotOptions(
+            base_url="http://riot.test",
+            call_api_key="test-call-api-key",
+        )
+        async with RiotSession(options, client=client) as session:
+            with pytest.raises(asyncio.CancelledError):
+                await session.order.find_order_by_upper_id("UPPER-CANCEL")
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_wraps_http_500_as_riot_api_exception() -> None:
+    body = '{"error":"upstream unavailable"}'
+    with pytest.raises(RiotApiException) as caught:
+        await _find("UPPER-500", body, status_code=500)
+
+    assert caught.value.status_code == 500
+    assert caught.value.response_body == body
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_wraps_invalid_json_as_riot_api_exception() -> None:
+    body = "not-json"
+    with pytest.raises(RiotApiException) as caught:
+        await _find("UPPER-JSON", body)
+
+    assert caught.value.status_code == 200
+    assert caught.value.business_code == "riot-response-invalid"
+    assert caught.value.response_body == body
+
+
+@pytest.mark.asyncio
+async def test_find_order_by_upper_id_preserves_business_failure_evidence() -> None:
+    body = '{"code":"500","message":"业务失败","result":null}'
+    with pytest.raises(RiotApiException) as caught:
+        await _find("UPPER-BUSINESS", body)
+
+    assert caught.value.status_code == 200
+    assert caught.value.business_code == "500"
+    assert caught.value.response_body == body
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("error_type", "expected_business_code"),
+    [
+        (httpx.ConnectError, "riot-read-failed"),
+        (httpx.ReadTimeout, "riot-read-timeout"),
+    ],
+)
+async def test_find_order_by_upper_id_wraps_transport_and_read_failures(
+    error_type: type[httpx.TransportError],
+    expected_business_code: str,
+) -> None:
+    class FailureTransport(httpx.AsyncBaseTransport):
+        async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+            raise error_type("simulated failure", request=request)
+
+    async with httpx.AsyncClient(
+        transport=FailureTransport(),
+        base_url="http://riot.test/",
+    ) as client:
+        options = RiotOptions(
+            base_url="http://riot.test",
+            call_api_key="test-call-api-key",
+        )
+        async with RiotSession(options, client=client) as session:
+            with pytest.raises(RiotApiException) as caught:
+                await session.order.find_order_by_upper_id("UPPER-FAIL")
+
+    assert caught.value.business_code == expected_business_code

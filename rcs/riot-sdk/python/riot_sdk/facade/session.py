@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 from kiota_abstractions.authentication import BaseBearerTokenAuthenticationProvider
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 import httpx
 
 from riot_sdk.core.auth import AuthTokens, RiotAuthClient
+from riot_sdk.core.exceptions import RiotApiException
 from riot_sdk.core.options import RiotOptions
 from riot_sdk.core.token_provider import RiotTokenProvider
 from riot_sdk.facade.auth_provider import KiotaAccessTokenProvider
@@ -24,20 +26,33 @@ class RiotSession:
         client: httpx.AsyncClient | None = None,
     ) -> None:
         self.options = options
+        self._owns_client = client is None
+        base_url = options.base_url.rstrip("/") + "/"
+        self._http_client = client or httpx.AsyncClient(
+            base_url=base_url,
+            timeout=options.timeout,
+            follow_redirects=False,
+            transport=httpx.AsyncHTTPTransport(retries=0),
+        )
         self.token_provider = RiotTokenProvider()
         # ADR-sdk-0001: CallApiKey is the default Bearer credential; AdminLogin is optional.
         if options.call_api_key and options.call_api_key.strip():
             self.token_provider.set_access_token(options.call_api_key)
-        self._auth = RiotAuthClient(options, client)
+        self._auth = RiotAuthClient(options, self._http_client)
         auth_provider = BaseBearerTokenAuthenticationProvider(
             KiotaAccessTokenProvider(self.token_provider)
         )
         # Inject httpx client when provided so Facade unit tests can mock at the HTTP boundary.
         self._adapter = HttpxRequestAdapter(
             auth_provider,
-            http_client=client,
+            http_client=self._http_client,
             base_url=options.base_url.rstrip("/"),
         )
+        # Kiota Python 1.12 initializes base_url from httpx.AsyncClient, whose
+        # string form always has a trailing slash. Generated templates already
+        # start with "/api", so pin the adapter value explicitly to avoid
+        # emitting a double-slash request path.
+        self._adapter.base_url = options.base_url.rstrip("/")
         self.device = DeviceClient(self)
         self.tasks = TaskClient(self)
         self.order = OrderClient(self)
@@ -74,8 +89,30 @@ class RiotSession:
 
         return GenImapClient(self._adapter)
 
+    async def _request_raw(self, method: str, path: str) -> httpx.Response:
+        """One no-retry request used when the facade needs structured HTTP status."""
+        token = await self.token_provider.get_access_token()
+        headers = {"Authorization": f"Bearer {token}"} if token else None
+        url = f"{self.options.base_url.rstrip('/')}/{path.lstrip('/')}"
+        try:
+            return await self._http_client.request(method, url, headers=headers)
+        except asyncio.CancelledError:
+            raise
+        except httpx.TimeoutException as error:
+            raise RiotApiException(
+                "RIoT read timed out.",
+                business_code="riot-read-timeout",
+            ) from error
+        except httpx.TransportError as error:
+            raise RiotApiException(
+                f"RIoT transport failure: {error}",
+                business_code="riot-read-failed",
+            ) from error
+
     async def aclose(self) -> None:
         await self._auth.aclose()
+        if self._owns_client:
+            await self._http_client.aclose()
 
     async def __aenter__(self) -> RiotSession:
         return self

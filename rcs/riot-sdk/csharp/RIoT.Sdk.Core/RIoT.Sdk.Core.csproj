@@ -7,6 +7,22 @@
     <Nullable>enable</Nullable>
     <RootNamespace>RIoT.Sdk.Core</RootNamespace>
     <Description>Hand-written RIoT auth and shared HTTP helpers.</Description>
+    <PackageId>RIoT.Sdk.Core</PackageId>
+    <Version>0.1.0-controlserver.1</Version>
+    <Authors>8005 AGV</Authors>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/trytoreachpeak0/8005---AGV</RepositoryUrl>
+    <RepositoryCommit Condition="'$(RepositoryCommit)' == ''">$(SourceRevisionId)</RepositoryCommit>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <Target Name="ValidateRepositoryCommitForPack" BeforeTargets="GenerateNuspec">
+    <Error Condition="'$(RepositoryCommit)' == ''"
+           Text="RepositoryCommit is required. Pack from an exact clean commit and pass -p:RepositoryCommit=&lt;sha&gt;." />
+  </Target>
 
 </Project>
