@@ -368,3 +368,13 @@ Evidence artifact: [`Local ControlServer 4347a8f upgrade`](https://github.com/tr
 Published product/evidence: `ControlServer_MVP@4347a8fb9fcb80cb9f95680a6fd8b1a0b970358b` / `1086e4eeb51d56f325075d707573841cd93fc83a`
 
 Impact on this ticket: 用户同意仅升级本机 ControlServer 后，精确产品提交 `4347a8f` 已从干净 disposable clone 生成 self-contained `win-x64` 包；371 个 manifest payload 逐文件 SHA-256 校验 0 mismatch，manifest SHA-256 为 `29abd09e...ca24`。既有可回滚升级器在 JourneyRuntime=false 前置下完成 ACL 受限备份、原子替换、服务／live／version／restart 和认证只读 safety 检查，结果 PASS；独立复核为服务 Running／Automatic／LocalSystem、58005/58007 正常监听、协议 `protocol-v0.1.1`，车辆 IDLE、速度 0、无订单、battery 30%、直接与 HTTPS 均 `STOPPED` 且 0 reason code。JourneyRuntime 全程关闭，未启动 Onboard／simulator，未调用 RIoT mutation、未建单、未动车。ControlServer safe-revision Ready 转换修复已部署；正式 G3／RC 仍保持 `INCONCLUSIVE`，下一步必须对 `OnboardHmi_MVP@777eff8bdc955e6bb6fdab74ec222e0bb6748def` 取得新的空载真实旅程授权，本票继续 `claimed`。
+
+### 2026-08-28 — 777eff8 已授权旅程因本地配置字段错误安全中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: Onboard safety identity field mismatch`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/e42be20ca08792ace88b206ab0ccaad6b5abd0a7/evidence/g3/20260828-authorized-journey-attempt-777eff8-config-field-mismatch/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@e42be20ca08792ace88b206ab0ccaad6b5abd0a7`
+
+Impact on this ticket: 用户明确授权 `OnboardHmi_MVP@777eff8bdc955e6bb6fdab74ec222e0bb6748def`、已部署 ControlServer `4347a8f`、JourneyRuntime、RIoT 建单及一次空载真实旅程。11:03 原子预检在四个完整候选、车辆 IDLE／速度 0／无订单、29% 电量通过已批准 10% 测试门槛、双源 `STOPPED`／0 reason code 下 PASS；JourneyRuntime 随后实际启用，但新 generation 48 会话保持 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，故在建单前安全中止。Onboard journal 证明 `SafetyStateChanged` 已获 DurableAck，但本地启动助手错误写入未使用的 `vehicleSafety.vehicleKey`，而 `777eff8` 实际读取 `expectedVehicleKey`，导致 Onboard provider 正确 fail-closed 为 `VEHICLE_STATE_UNKNOWN`。一次性助手已改为写入正确字段并通过语法／精确 commit 绑定静态校验，但未在运行时启用状态下重试。最终 JourneyRuntime=false、服务 Running/live 200、peers 与临时端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason code；无 RIoT mutation、未建单、未动车。由于本次授权已经实际启用 JourneyRuntime，下一次尝试须重新取得明确授权；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
