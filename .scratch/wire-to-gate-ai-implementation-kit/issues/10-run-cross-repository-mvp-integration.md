@@ -338,3 +338,13 @@ Evidence artifact: [`Onboard fresh-journal SafetyStateChanged message identity c
 Published branch/commit: `ControlServer_MVP@51466ccf861d574cff3c1947fa676d8b0c822328`
 
 Impact on this ticket: 用户已明确授权一轮空载真实移动测试，但两种受控启动顺序都在建单前复现核心会话失败：`OnboardHmi_MVP@594cd14` 短暂到 `Ready` 后，首个 `SafetyStateChanged` 在收到 `DurableAck` 前被服务端断开，后续 generation 持续增长并停在 `RecoveryRequired / HANDSHAKE_INCOMPLETE`。只读代码与运行证据一致指向受保护 Onboard owner 的 fresh-journal messageId 碰撞：`WireToGateSessionClient.SendSafetyStateChangedAsync` 只用从 1 重置的 `safetyStateVersion` 生成稳定 UUID，不同 fresh journal 会以同一 messageId 发送不同 `observedAt`／payload。需由王昆在 Onboard owner 仓修复 durable identity 并覆盖“双 fresh journal 不同身份、同 journal 丢 Ack 原身份重放”回归；agent 未修改该仓。清理后 JourneyRuntime 已关闭、peers/临时端口已释放，车辆保持 IDLE／速度 0／无订单／`STOPPED`，未调用 RIoT mutation、未建单、未动车。正式 G3／RC 继续 `INCONCLUSIVE` 且至少存在核心会话 FAIL，本票保持 `claimed`。
+
+### 2026-08-28 — Onboard f16425c 启动安全恢复竞态指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Onboard f16425c startup safety recovery blocker`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/755067c22d146473fa8d07293a9f81f442624efe/evidence/g3/20260828-onboard-safety-provider-startup-race/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@755067c22d146473fa8d07293a9f81f442624efe`
+
+Impact on this ticket: 王昆的受保护 owner 提交 `OnboardHmi_MVP@f16425cf0848fe9dd810dec241fd0d92639fc11d` 已通过“双 fresh journal 同时间不同身份、同 journal 丢 Ack 原身份／内容重放”聚焦回归，并在本次真实 TLS 会话中不再出现原 `HANDSHAKE_INCOMPLETE`／message identity collision；但新的受控空载尝试在建单前持续停在 generation 46 的 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`。只读代码与运行证据强烈指向 Onboard 冷启动安全 provider 竞态：会话在首个新鲜 HTTPS `STOPPED` 样本到达前即提交 revision 1 的 fail-closed 安全快照，而后续 `SafetyStateChanged` 又被 `Ready` 门禁阻止，缺少从初始 unknown／unsafe 恢复到新鲜 safe 的确定路径。需由王昆在 owner 仓确认 revision 交互并修复，且不得把 unknown 当作 stopped。编排器已自动关闭 JourneyRuntime，Onboard／模拟器和临时端口已清理；最终只读复核为车辆 IDLE、速度 0、无订单、`STOPPED`、0 reason code，未调用 RIoT mutation、未建单、未动车。本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
