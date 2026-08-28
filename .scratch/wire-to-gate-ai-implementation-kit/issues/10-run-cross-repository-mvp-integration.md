@@ -398,3 +398,13 @@ Evidence artifact: [`ControlServer backlog admission fix and local deployment`](
 Published product/evidence: `ControlServer_MVP@6a5de0149288e3fdcedb6f9ea694259f71f9bee2` / `4b2f0582248e95cbb85dd3af12d0e002156078e8`
 
 Impact on this ticket: 用户明确授权修改、测试并部署 ControlServer。测试优先复现确认易变 `CatalogRevision/AcceptedAt` 会覆盖真实 backlog 原因，且 251 个候选触发 256 次 `SaveChanges`，消耗 Onboard 30 秒握手事实窗口；产品提交 `6a5de01` 改为只对稳定 intake 决策事实做 fingerprint、真实变化时更新基线，并预载 backlog 字典后批量保存。两个新回归先 0/2 FAIL、修复后 2/2 PASS；完整 JourneyRuntime 类 30/30、完整 ControlServer 105/105、0 skip，format PASS，Release build 0 warning/0 error。精确干净提交生成 self-contained win-x64 包，371 文件、manifest `d61cb025...b7d942`、0 hash mismatch；PowerShell 7 可回滚升级 PASS，独立复核服务 Running／Auto／LocalSystem、58005/58007 仅由服务监听、live/version 和认证 safety 通过。最终原子预检为车辆 IDLE、速度 0、无订单、双源 `STOPPED`／0 reason code；JourneyRuntime=false，未启动 peers、无 RIoT mutation、未建单、未动车。受保护 Onboard `84b7f3f` 只增加端到端 Ready 测试且一次性副本 1/1 PASS，不改变生产二进制。正式 G3／RC 仍为 `INCONCLUSIVE`；新的实车组合必须绑定已部署 `6a5de01` 与选定 Onboard commit 并重新取得明确授权，本票继续 `claimed`。
+
+### 2026-08-28 — 84b7f3f 授权旅程因 peer 结果投影歧义安全中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: peer monitor ambiguity safe abort`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/7b5ef75783a3b245dccec95b32f2ce58daadab45/evidence/g3/20260828-authorized-journey-84b7f3f-monitor-ambiguity-safe-abort/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@7b5ef75783a3b245dccec95b32f2ce58daadab45`
+
+Impact on this ticket: 用户明确授权 `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5`、已部署 ControlServer `6a5de01`、JourneyRuntime、RIoT 建单及一次空载真实旅程。固定权限任务恢复并确认 10% 门槛，原子预检 PASS；有效双层 runtime 启用后，新 generation 53 达到 `Ready`，但 peer 启动助手的直接结果因 ordered dictionary 投影错误全部为 null，无法作为可信监控回执，故按“任何歧义立即停止”在建单前重建 stop marker 并停用。最终双层 runtime=false、peers/临时端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason code，无 RIoT mutation、未建单、未动车。投影已在停用后离线修正并验证，但本次授权已经消耗；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，下一次尝试仍须新的精确授权。
