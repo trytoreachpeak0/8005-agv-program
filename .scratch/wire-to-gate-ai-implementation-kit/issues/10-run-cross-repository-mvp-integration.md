@@ -544,3 +544,9 @@ Impact on this ticket: 第二次绑定运行仍在 Host 启动前安全中止；
 Owner repository/evidence: [`8005-agv-control-server@b194977`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/b194977a4fd8b60f0702dae2243b919793d6ed42/evidence/g3/20260828-authorized-mutation-blocked-shadow-extractor-window-safe-abort/SUMMARY.md)
 
 Impact on this ticket: 最终授权影子已启动隔离 Host／Onboard／simulator，故授权已消耗；generation 1 达到 `Ready / READY` 并产生唯一 AcceptedDemand／runtime／TO_PICKUP intent／active lease。代理最终 169 GET、0 blocked/forwarded mutation，0 order/create attempt/auth/station operation；38 个安全样本未观察到移动，生产 DB 与安装有效态前后不变，端口均回收。许可未签发，因为旧 extractor 要求 audit 全表恰一条，约 1.02 秒后状态机自然追加只读 POST reconciliation 即永久错过窗口。责任仓已改为停止后严格接受“1 个 exact PRE + 0..N 个同 identity、连续、无 create 痕迹的 exact POST”，并拒绝 NULL attempt count／任何 CREATE／order／arm／auth／receipt 偏差；独立安全复核选择离线静止 DB 提取而非 watcher。离线提取尚未授权或执行，本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — 停止态离线 permit 精确提取 PASS
+
+Owner repository/evidence: [`8005-agv-control-server@41de6a9`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/41de6a94d641d630268aecdd7ccd4212c17878d8/evidence/g3/20260828-authorized-offline-permit-extraction/SUMMARY.md)
+
+Impact on this ticket: 用户单独授权只读静止 shadow／production overlap 并只写受限 private permit 与 sanitized result。提取前后严格回读 tool/Python/original result/shadow DB bundle/production DB bundle/ACL/端口/进程均一致；唯一候选的 1 PRE + 75 POST 全部为同 identity、连续、零 create 痕迹的 `AbsentAtObservation`，production overlap=false。private 与 sanitized selection hash 一致，输出 SHA-256 已在责任仓脱敏证据登记；执行未启动 Host／proxy／peer、未访问 RIoT。permit 本身不授权 mutation、订单或车辆动作，下一步仍须实现并审查精确 one-shot real egress，再取得独立实车授权；本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
