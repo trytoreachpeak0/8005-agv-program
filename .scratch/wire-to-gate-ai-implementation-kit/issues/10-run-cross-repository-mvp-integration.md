@@ -348,3 +348,13 @@ Evidence artifact: [`Onboard f16425c startup safety recovery blocker`](https://g
 Published branch/commit: `ControlServer_MVP@755067c22d146473fa8d07293a9f81f442624efe`
 
 Impact on this ticket: 王昆的受保护 owner 提交 `OnboardHmi_MVP@f16425cf0848fe9dd810dec241fd0d92639fc11d` 已通过“双 fresh journal 同时间不同身份、同 journal 丢 Ack 原身份／内容重放”聚焦回归，并在本次真实 TLS 会话中不再出现原 `HANDSHAKE_INCOMPLETE`／message identity collision；但新的受控空载尝试在建单前持续停在 generation 46 的 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`。只读代码与运行证据强烈指向 Onboard 冷启动安全 provider 竞态：会话在首个新鲜 HTTPS `STOPPED` 样本到达前即提交 revision 1 的 fail-closed 安全快照，而后续 `SafetyStateChanged` 又被 `Ready` 门禁阻止，缺少从初始 unknown／unsafe 恢复到新鲜 safe 的确定路径。需由王昆在 owner 仓确认 revision 交互并修复，且不得把 unknown 当作 stopped。编排器已自动关闭 JourneyRuntime，Onboard／模拟器和临时端口已清理；最终只读复核为车辆 IDLE、速度 0、无订单、`STOPPED`、0 reason code，未调用 RIoT mutation、未建单、未动车。本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-28 — ControlServer safe revision 未发布 Ready 转换修复指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`ControlServer safety readiness transition blocker and fix`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/5ebd4a01d21624a92d0bc58fb5828a2ee2f4ba3e/evidence/g3/20260828-controlserver-safety-ready-transition/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@4347a8fb9fcb80cb9f95680a6fd8b1a0b970358b` / `5ebd4a01d21624a92d0bc58fb5828a2ee2f4ba3e`
+
+Impact on this ticket: 王昆的受保护 owner 提交 `OnboardHmi_MVP@777eff8bdc955e6bb6fdab74ec222e0bb6748def` 已通过 provider 首次刷新、RecoveryRequired 下更高 safety revision 和原 durable identity 回归；但新的授权运行仍在建单前停于 generation 47 的 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`。脱敏 simulator 复核确认 8/8 门关闭、锁反馈有效、解锁输出复位且无 fault；最终定位为可写 ControlServer 真实处理器与 owner Fake 行为不一致：safe `SafetyStateChanged` 落库并把服务端状态改为 Ready 后，生产端只返回 DurableAck，未把 `SessionReadiness / READY` 发布给 Onboard。归属仓 `4347a8f` 已改为始终返回 Ack + 最新 readiness，精确回归覆盖 Ready→RecoveryRequired→Ready、revision 3、空 reason codes 和持久化状态；聚焦 1/1、邻近 2/2、完整 103/103 tests、format 与 Release build 均 PASS，证据已推送 `5ebd4a0`。当前安装服务尚未升级到该产品提交；编排器已关闭 JourneyRuntime，peers／临时端口已清理，车辆 IDLE、速度 0、无订单、`STOPPED`、0 reason code，未调用 RIoT mutation、未建单、未动车。本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`，须先部署 `4347a8f` 再取得新的空载旅程授权。
