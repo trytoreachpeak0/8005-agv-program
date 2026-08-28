@@ -510,3 +510,13 @@ Evidence artifact: [`ControlServer durable RIoT create-attempt audit and local d
 Published product/evidence: `ControlServer_MVP@f07fe36ee9e8ba953a0e289d5641bf91caf513a3` / `ff41f7729c223065c7e3419f0b9aacad56a9c7ca`
 
 Impact on this ticket: 用户授权在当前 SDK 接入上修改、测试并部署建单审计，同时明确要求 runtime 关闭、不启动 Onboard、不调用真实 mutation、不建单、不动车。产品新增 append-only phase ledger、nullable legacy-safe summary、ARM／START 同请求摘要、mutation 后独立查询证据、取消／异常 UNKNOWN 落盘、双层 receipt 去敏，并以 EF concurrency token 阻断旧快照覆盖已提交 attempt；旧记录保持 NULL 且不能获得建单资格。完整 Release 测试 156/156、0 skip，18/18 可观察高风险 mutation 被杀，Release build 0 warning／0 error，全新 SQLite 10 段迁移与唯一序列约束 PASS。精确产品 commit 的 self-contained win-x64 包含 382 个 payload、manifest `18f366b...b31b0ff0`；可回滚升级、全版本字段、已安装 payload 和固定检查均 PASS，最终双层 runtime=false、阈值 10%、服务 Running／Auto／LocalSystem、停止标记存在、peers／临时端口为 0、只读 safety 为 `STOPPED`／0 reason，明确无 RIoT mutation／订单／移动。该增量关闭的是 ControlServer 本地“是否已 arm、是否已 START、SDK 返回与后续查询结果”的取证空洞，不伪造 RIoT 服务端接收事实；下一次黑盒实验仍须新的逐次授权并绑定已部署 `f07fe36` 与选定 Onboard commit。本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — ControlServer AbsentAtObservation 实验门与本机部署指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`ControlServer absent-at-observation experimental create gate`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/dd141fd05cd894ed1ba0c0e81303e08bbe38a418/evidence/g3/20260828-controlserver-absent-observation-experiment-deployment/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@9056d3d4c5b96281069023fefb531aae13f5e7a9` / `dd141fd05cd894ed1ba0c0e81303e08bbe38a418`
+
+Impact on this ticket: 用户仅授权在 ControlServer 实施、测试、推送、打包并本机部署默认关闭的实验门，全程保持 JourneyRuntime 禁用并排除真实 RIoT mutation、订单和车辆移动。产品以精确、未过期的一次性持久 permit 绑定完整身份，仅允许 SDK `Unknown + RECONCILE/AbsentAtObservation + null HTTP/business/result/failure` 证据进入；PRE 先落为 `RESULT_UNKNOWN`，permit 消费／ARM 原子落盘，START 在 Create 前落盘，并以审计序列及状态／attempt／authorization 并发令牌阻断迟到 PRE 和重复调用。最终 Release 218/218、G2 8/8、全新 SQLite 11 段迁移、包与安装校验、可回滚部署及固定禁用态检查均 PASS；已安装实验门=false、双层 runtime=false、阈值 10%、peers／临时端口为 0，明确无 mutation／订单／移动。该交付只建立下一次黑盒实验所需的 fail-closed 控制与取证基础，不授权真实旅程；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
