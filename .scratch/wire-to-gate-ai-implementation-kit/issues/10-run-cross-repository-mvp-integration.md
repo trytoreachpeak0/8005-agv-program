@@ -428,3 +428,13 @@ Evidence artifact: [`Authorized journey attempt: batch-unlock capability config 
 Published branch/commit: `ControlServer_MVP@0ae4448fc0724cce98a93f36e3b42bea62f2b00f`
 
 Impact on this ticket: 新授权下原子预检有 6 个完整静态候选；双层 runtime 有效启用，`84b7f3f` generation 57 达到 `Ready / READY`，受保护 probe 确认 departureSafe=true，但 20 秒内始终 0 runtime／0 order／0 operation，故自动 stop。最后快照中恰有 6 项 `ONBOARD_FACTS_NOT_READY`；只读源代码定位为本地 peer 助手沿用 Onboard 安全默认 `supportsBatchUnlock=false`，而 ControlServer 对八仓批量解锁能力按设计 fail-closed。无需修改受保护 Onboard 或 ControlServer 产品代码；停用后助手已显式设为 true，语法与离线配置验证通过但未运行时重试。本次无 RIoT mutation、未建单、未动车，最终双层 runtime=false、peers/端口清零、车辆 `STOPPED`；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，下一次尝试仍须新的精确授权。
+
+### 2026-08-28 — 84b7f3f 授权旅程因 catalog-loop 动态事实过期安全中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: catalog-loop freshness safe abort`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/f564cfa15cfac89c240d61d57bb9bf2f34a5c68a/evidence/g3/20260828-authorized-journey-84b7f3f-catalog-loop-freshness-safe-abort/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@f564cfa15cfac89c240d61d57bb9bf2f34a5c68a`
+
+Impact on this ticket: 新授权显式使用 `supportsBatchUnlock=true`，运行配置与哈希均匹配；原子预检有 8 个完整静态候选，generation 59 达到 `Ready / READY`、departureSafe=true，但仍在 20 秒门禁内保持 0 runtime／0 order／0 operation。时间证据显示 Ready 为 13:23:06，而 9 项 `ONBOARD_FACTS_NOT_READY` 到 13:23:51 才更新，晚约 45 秒且超过 30 秒证据窗口。只读 ControlServer 代码确认 discovery 在长 catalog 循环前只读取一次 Onboard/RIoT 动态事实与 `now`，最终外部 mutation 前没有重读；因此简单改成 peers 先启动可能反而在长循环结束后使用过期事实建单，不能作为绕过方案。须先在 ControlServer 增加 just-before-intake 的同 generation 动态事实重读／时效门禁和时间推进回归，再测试部署。本次最终 runtime=false、peers/端口清零、车辆 `STOPPED`，无 RIoT mutation／订单／移动；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`。
