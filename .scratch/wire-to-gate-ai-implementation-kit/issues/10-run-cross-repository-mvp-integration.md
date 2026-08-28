@@ -388,3 +388,13 @@ Evidence artifact: [`PowerShell 7 effective runtime attempt: no journey intake`]
 Published branch/commit: `ControlServer_MVP@e964a15d69643650e75abe79e79b180be8897978`
 
 Impact on this ticket: 新的单次授权先暴露本地编排只改基础 `appsettings.json`、未改 `appsettings.Production.json` 的伪启用问题；当时有效 runtime 未启动且数据库为 0 runtime／0 backlog／0 accepted，故修正外部 enable/disable 助手为双层备份、写入、验证、回滚和停用后继续本次授权。PowerShell 7.6.5 提权编排随后确认基础与 Production 均 enabled=true、门槛 10%，worker 产生 267+ backlog，受保护 `777eff8` generation 51 达到 `Ready` 且 departureSafe=true；但全程仍为 0 runtime／0 order／0 operation／0 unresolved accepted／0 orphan／0 active lease。确认 ControlServer `JourneyRuntimeEngine.UpsertBacklogAsync` 的 backlog 指纹包含易变 `CatalogRevision/AcceptedAt`，后续轮询会把真实当前原因覆盖为 `DEMAND_DECISION_FACT_CHANGED`，因此本次无 intake 的精确业务原因不可从持久化 reason code 判定；25 秒只读目录对照跨 revision 1815→1816、数量 272→270，公共 270 项决策字段不变。Onboard 握手事实超过 30 秒证据时效后继续等待已无安全进展，禁止通过未授权重连增加 generation，故在建单前中止。最终双层 JourneyRuntime=false、服务 Running/live 200、peers／端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason code；无 RIoT mutation、未建单、未动车。当前授权已因有效 Production runtime 启用而消耗；须先修复归属仓可观测性／intake 阻塞并取得新授权，本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — ControlServer backlog 批量 intake 修复与部署指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`ControlServer backlog admission fix and local deployment`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/4b2f0582248e95cbb85dd3af12d0e002156078e8/evidence/g3/20260828-controlserver-backlog-batch-deployment/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@6a5de0149288e3fdcedb6f9ea694259f71f9bee2` / `4b2f0582248e95cbb85dd3af12d0e002156078e8`
+
+Impact on this ticket: 用户明确授权修改、测试并部署 ControlServer。测试优先复现确认易变 `CatalogRevision/AcceptedAt` 会覆盖真实 backlog 原因，且 251 个候选触发 256 次 `SaveChanges`，消耗 Onboard 30 秒握手事实窗口；产品提交 `6a5de01` 改为只对稳定 intake 决策事实做 fingerprint、真实变化时更新基线，并预载 backlog 字典后批量保存。两个新回归先 0/2 FAIL、修复后 2/2 PASS；完整 JourneyRuntime 类 30/30、完整 ControlServer 105/105、0 skip，format PASS，Release build 0 warning/0 error。精确干净提交生成 self-contained win-x64 包，371 文件、manifest `d61cb025...b7d942`、0 hash mismatch；PowerShell 7 可回滚升级 PASS，独立复核服务 Running／Auto／LocalSystem、58005/58007 仅由服务监听、live/version 和认证 safety 通过。最终原子预检为车辆 IDLE、速度 0、无订单、双源 `STOPPED`／0 reason code；JourneyRuntime=false，未启动 peers、无 RIoT mutation、未建单、未动车。受保护 Onboard `84b7f3f` 只增加端到端 Ready 测试且一次性副本 1/1 PASS，不改变生产二进制。正式 G3／RC 仍为 `INCONCLUSIVE`；新的实车组合必须绑定已部署 `6a5de01` 与选定 Onboard commit 并重新取得明确授权，本票继续 `claimed`。
