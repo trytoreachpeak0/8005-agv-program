@@ -145,8 +145,9 @@ rather than a regression.
 
 When two captures are not byte-identical, both the candidate stability gate and the
 promoted-baseline gate apply the same bounded predicate
-(`MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs`). Two captures count as
-visually equivalent only when **every** rule holds:
+(`MesIngest.Watch.UiTests/WatchWindowVisualEquivalence.cs`). The ordinary
+`bounded-neutral` path counts two captures as visually equivalent only when **every**
+rule holds:
 
 | # | Rule | Rejects |
 | --- | --- | --- |
@@ -171,15 +172,38 @@ survives someone raising the magnitude bound: whoever does that must confront th
 rule rather than silently losing the guarantee. `Moved_ink_is_rejected` records which
 rule fires today.
 
-Per run, at most 4 steps may be accepted this way and at most 1536 differing pixels
-in total. Exceeding either budget fails the run.
+Per run, at most 4 steps may be accepted by `bounded-neutral` and at most 1536 of its
+differing pixels may be accepted in total. Exceeding either budget fails the run.
+
+### Edge-raster-only path
+
+Long text runs can contain hundreds of independent glyph-edge components and exceed
+the ordinary pixel/component budgets even though every changed sample moved by only
+one or two levels. The `edge-raster-only` path accepts that cross-process rasterization
+class only when all of these rules hold:
+
+1. frame dimensions and alpha are unchanged;
+2. every RGB channel changes by at most 3;
+3. the ink-threshold band is not crossed;
+4. every changed pixel lies within 4 pixels of a contrast of at least 12 in both frames;
+5. no connected component exceeds 128x48 pixels; and
+6. changed pixels do not exceed max(2048, 1% of the frame).
+
+There is no component-count limit for this path because glyphs naturally form many
+small components. Its pixels and steps are reported but do not consume the ordinary
+4-step/1536-pixel run budget. This is an edge-raster classification, not semantic OCR:
+PNG comparison cannot distinguish renderer-produced `#707070 -> #717171` from an
+intentional one-level foreground-brush edit. That visually indistinguishable case is
+therefore accepted when every rule above holds. Flat-fill gamma shifts, wide control
+edges, moved or different glyphs, alpha changes, and any per-channel delta above 3
+still fail.
 
 Acceptance is never silent. Every accepted capture writes
 `visual-equivalence-accepted.json` plus `<step>.equivalent-{expected,actual,diff}.png`
 into the evidence directory, and the run logs
-`WATCH_WINDOW_VISUAL_EQUIVALENCE_ACCEPTED: step=… pixels=… maxDelta=…`. Any step that
-used tolerance must be listed in the ticket evidence and reviewed by a human at
-approval time, exactly like a `received` file.
+`WATCH_WINDOW_VISUAL_EQUIVALENCE_ACCEPTED: step=… pixels=… maxDelta=… classification=…`.
+Any step that used either tolerance path must be listed in the ticket evidence and
+reviewed by a human at approval time, exactly like a `received` file.
 
 The predicate is covered by `WatchWindowVisualEquivalenceTests` and, against real
 golden-machine captures, by `WatchWindowVisualEquivalenceGoldenFixtureTests`
@@ -191,9 +215,9 @@ Keep the real-capture tests: an early revision of the predicate silently reporte
 destination resolutions — the captures carry 95.99 DPI while a new `Bitmap` defaults
 to 96. Synthetic fixtures alone did not catch it.
 
-Do not widen these bounds to make a failing run pass. If a real change is visually
-equivalent but exceeds them, that is a baseline update with the usual approval, not
-a tolerance change.
+Do not tune either path's bounds to make a failing run pass. If a real change is
+visually equivalent but exceeds them, that is a baseline update with the usual
+approval, not a tolerance change.
 
 ## Repetition count
 
