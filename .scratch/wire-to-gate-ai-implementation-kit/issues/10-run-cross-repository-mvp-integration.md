@@ -438,3 +438,13 @@ Evidence artifact: [`Authorized journey attempt: catalog-loop freshness safe abo
 Published branch/commit: `ControlServer_MVP@f564cfa15cfac89c240d61d57bb9bf2f34a5c68a`
 
 Impact on this ticket: 新授权显式使用 `supportsBatchUnlock=true`，运行配置与哈希均匹配；原子预检有 8 个完整静态候选，generation 59 达到 `Ready / READY`、departureSafe=true，但仍在 20 秒门禁内保持 0 runtime／0 order／0 operation。时间证据显示 Ready 为 13:23:06，而 9 项 `ONBOARD_FACTS_NOT_READY` 到 13:23:51 才更新，晚约 45 秒且超过 30 秒证据窗口。只读 ControlServer 代码确认 discovery 在长 catalog 循环前只读取一次 Onboard/RIoT 动态事实与 `now`，最终外部 mutation 前没有重读；因此简单改成 peers 先启动可能反而在长循环结束后使用过期事实建单，不能作为绕过方案。须先在 ControlServer 增加 just-before-intake 的同 generation 动态事实重读／时效门禁和时间推进回归，再测试部署。本次最终 runtime=false、peers/端口清零、车辆 `STOPPED`，无 RIoT mutation／订单／移动；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`。
+
+### 2026-08-28 — ControlServer 最终动态事实门禁修复与部署指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`ControlServer final dynamic-facts gate and local deployment`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/135095ddf8ac087a8f1ca722d34aa1ad539f105a/evidence/g3/20260828-controlserver-final-dynamic-facts-gate-deployment/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@4153d8369262a5a574589258b6c32651bc043c79` / `135095ddf8ac087a8f1ca722d34aa1ad539f105a`
+
+Impact on this ticket: 用户授权修改、测试和本机部署 ControlServer。产品现在在长候选处理后重读同 generation 的 Onboard/RIoT facts，并在最终 catalog refresh 后、持久化 AcceptedDemand/JourneyRuntime/OrderIntent 前再次执行同一门禁；任一失败写 `FINAL_DYNAMIC_FACTS_NOT_READY` 且不触发 RIoT。修复前时间推进回归观察到错误 AcceptedDemand，修复后聚焦 2/2、JourneyRuntime 32/32、全套 107/107、0 skip，format 与 Release 非增量构建均 PASS。精确 clean commit `4153d83` 的 self-contained 包含 371 文件、manifest `7b966c86...1dcc0`、0 mismatch；可回滚升级 PASS，随后固定任务恢复测试阈值 10%。最终原子预检为车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason、runtime=false、stop marker 存在，无 RIoT mutation／订单／移动。正式 G3／RC 仍为 `INCONCLUSIVE`；下一次实车须绑定已部署 `4153d83` 与选定 Onboard commit 并取得新授权。
