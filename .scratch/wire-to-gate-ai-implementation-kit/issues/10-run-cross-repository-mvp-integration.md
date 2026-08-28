@@ -458,3 +458,13 @@ Evidence artifact: [`Authorized journey attempt: independent safety monitor auth
 Published branch/commit: `ControlServer_MVP@6bb7cae63b0ef81292a0b6f9174a6a20edb620cf`
 
 Impact on this ticket: 用户明确授权 `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5`、已部署 ControlServer `4153d8369262a5a574589258b6c32651bc043c79`、`supportsBatchUnlock=true`、JourneyRuntime、一个 RIoT 订单及一次空载真实旅程。固定检查和原子预检 PASS 后，双层 runtime 有效启用，generation 61 达到 `Ready / READY` 且受保护 probe 为 fresh、`departureSafe=true`、0 runtime／0 order／0 operation；但额外 HTTPS 安全监控误把 `CONTROL_SERVER_RIOT_CALL_API_KEY` 用于要求 `CONTROL_SERVER_ONBOARD_CREDENTIAL` 的端点并得到 401，无法满足双通道确认，故按“任何安全歧义立即停止”立刻中止且未重试。离线只读诊断确认凭据选择错误；停用后用正确命名凭据返回 HTTP 200／`STOPPED`／0 reason。最终双层 runtime=false、stop marker 存在、peers／临时端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason，无 RIoT mutation／订单／移动。本次授权已因有效 runtime 启用而消耗；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，下一次尝试仍须新的精确授权。
+
+### 2026-08-28 — 4153d83 授权旅程因 RIoT observation 时钟顺序缺陷中止
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Authorized journey attempt: RIoT observation clock-order safe abort`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/d03f0e7d0cb29b8b009ef006ef283a6957c7677e/evidence/g3/20260828-authorized-journey-4153d83-riot-observation-clock-safe-abort/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@d03f0e7d0cb29b8b009ef006ef283a6957c7677e`
+
+Impact on this ticket: 新授权精确绑定 `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5` 与已部署 ControlServer `4153d8369262a5a574589258b6c32651bc043c79`，并明确允许正确的 `CONTROL_SERVER_ONBOARD_CREDENTIAL` 只读监控。固定检查、原子预检和修正后 HTTPS 监控均 PASS；双层 runtime 有效启用后 generation 63 稳定在 `Ready / READY`、`departureSafe=true`，23 个监控样本均为 HTTPS `STOPPED`，但始终 0 runtime／0 order／0 operation，故在 Onboard 证据上限前主动中止。最后 probe 显示 16 个静态完整候选均为 `RIOT_VEHICLE_FACT_STALE`。只读源码定位为生产时钟顺序缺陷：发现循环在异步目录／车辆读取前捕获 `now=t0`，成功的 RIoT HTTP 读取在返回后才以本机时间写 `ObservedAt=t1`，候选门禁却把正常的 `t1>t0` 判为 future/stale，导致 eligible=0、永远到不了 intake；固定时钟测试掩盖了该路径。最终双层 runtime=false、stop marker 存在、peers／端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason，无 RIoT mutation／订单／移动。须在 ControlServer 以读取完成后的时钟验证事实并增加推进时钟回归，再测试部署；本次旅程授权已消耗，正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`。
