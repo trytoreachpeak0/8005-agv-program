@@ -468,3 +468,13 @@ Evidence artifact: [`Authorized journey attempt: RIoT observation clock-order sa
 Published branch/commit: `ControlServer_MVP@d03f0e7d0cb29b8b009ef006ef283a6957c7677e`
 
 Impact on this ticket: 新授权精确绑定 `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5` 与已部署 ControlServer `4153d8369262a5a574589258b6c32651bc043c79`，并明确允许正确的 `CONTROL_SERVER_ONBOARD_CREDENTIAL` 只读监控。固定检查、原子预检和修正后 HTTPS 监控均 PASS；双层 runtime 有效启用后 generation 63 稳定在 `Ready / READY`、`departureSafe=true`，23 个监控样本均为 HTTPS `STOPPED`，但始终 0 runtime／0 order／0 operation，故在 Onboard 证据上限前主动中止。最后 probe 显示 16 个静态完整候选均为 `RIOT_VEHICLE_FACT_STALE`。只读源码定位为生产时钟顺序缺陷：发现循环在异步目录／车辆读取前捕获 `now=t0`，成功的 RIoT HTTP 读取在返回后才以本机时间写 `ObservedAt=t1`，候选门禁却把正常的 `t1>t0` 判为 future/stale，导致 eligible=0、永远到不了 intake；固定时钟测试掩盖了该路径。最终双层 runtime=false、stop marker 存在、peers／端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason，无 RIoT mutation／订单／移动。须在 ControlServer 以读取完成后的时钟验证事实并增加推进时钟回归，再测试部署；本次旅程授权已消耗，正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`。
+
+### 2026-08-28 — ControlServer RIoT observation 时钟顺序修复与部署指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`ControlServer RIoT observation clock-order fix and deployment`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/3e290412735a0288014db4edaa4afdf61ff28955/evidence/g3/20260828-controlserver-riot-observation-clock-fix-deployment/SUMMARY.md)
+
+Published product/evidence: `ControlServer_MVP@193d6bbb1430b807b4db471975707cb6ce8c36fd` / `3e290412735a0288014db4edaa4afdf61ff28955`
+
+Impact on this ticket: 用户授权修改、测试、推送并本机部署 ControlServer，明确排除受保护仓和实车动作。推进时钟回归 `VehicleReadsThatAdvanceClockUsePostReadTimeForAdmission` 在旧实现上 0/1 FAIL（AcceptedDemand 为空）；产品改为在 RIoT 车辆读取完成后捕获 `dynamicFactsNow` 并用于初始动态门禁，最终聚焦 1/1、JourneyRuntime 33/33、全套 108/108、0 skip，format PASS，Release 非增量构建 0 warning/0 error。精确干净产品提交 `193d6bb` 生成 self-contained win-x64 包：371 个 payload、manifest `2a10eddd...8c16b`、0 路径／长度／哈希／集合差；可回滚升级严格回读 source commit／manifest 匹配并 PASS。固定任务随后恢复 10% 阈值；最终固定检查和原子预检为双层 runtime=false、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason、peers／端口清零、stop marker 存在，无 RIoT mutation／订单／移动。修复已部署，但本次授权不含实车；正式 G3／RC 继续 `INCONCLUSIVE`，下一次旅程须绑定已部署 `193d6bb` 与选定 Onboard commit 并取得新的逐次授权，本票保持 `claimed`。
