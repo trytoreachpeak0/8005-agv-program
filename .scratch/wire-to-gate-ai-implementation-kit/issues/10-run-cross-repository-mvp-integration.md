@@ -520,3 +520,9 @@ Evidence artifact: [`ControlServer absent-at-observation experimental create gat
 Published product/evidence: `ControlServer_MVP@9056d3d4c5b96281069023fefb531aae13f5e7a9` / `dd141fd05cd894ed1ba0c0e81303e08bbe38a418`
 
 Impact on this ticket: 用户仅授权在 ControlServer 实施、测试、推送、打包并本机部署默认关闭的实验门，全程保持 JourneyRuntime 禁用并排除真实 RIoT mutation、订单和车辆移动。产品以精确、未过期的一次性持久 permit 绑定完整身份，仅允许 SDK `Unknown + RECONCILE/AbsentAtObservation + null HTTP/business/result/failure` 证据进入；PRE 先落为 `RESULT_UNKNOWN`，permit 消费／ARM 原子落盘，START 在 Create 前落盘，并以审计序列及状态／attempt／authorization 并发令牌阻断迟到 PRE 和重复调用。最终 Release 218/218、G2 8/8、全新 SQLite 11 段迁移、包与安装校验、可回滚部署及固定禁用态检查均 PASS；已安装实验门=false、双层 runtime=false、阈值 10%、peers／临时端口为 0，明确无 mutation／订单／移动。该交付只建立下一次黑盒实验所需的 fail-closed 控制与取证基础，不授权真实旅程；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — 首次许可影子因 MesIngest v2.4 契约漂移安全中止
+
+Owner repository/evidence: [`8005-agv-control-server@931052d`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/931052df53472f317a82bf4b4cb26d79138bcb67/evidence/g3/20260828-authorized-absent-shadow-contract-drift-safe-abort/SUMMARY.md)
+
+Impact on this ticket: 首次 mutation-blocked 影子已消耗逐次授权，并在任何业务受理或外部 mutation 前因 ControlServer 固定 v2.3、现场 MesIngest 已为 v2.4 而 fail-close；无 demand／runtime／intent／order／operation 或车辆移动。责任仓已精确升级到 v2.4、加固只读影子门并以 218/218 测试通过后推送 `ControlServer_MVP@931052d`，但新包未部署、第二次影子未运行。下一次只读许可影子必须绑定最终 package/tool/Python/peer 哈希并取得新的明确授权；本票继续 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
