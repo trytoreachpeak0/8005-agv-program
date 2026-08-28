@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "drill": "TICKET25_CUTOVER_AND_ROLLBACK",
+  "status": "PASSED",
+  "startedAtUtc": "2026-08-19T15:57:51.1988456+00:00",
+  "completedAtUtc": "2026-08-19T16:01:05.2128504+00:00",
+  "operator": "LAB-WIN-01\\szy",
+  "target": {
+    "dataSource": "192.168.200.1",
+    "database": "MesIngest_Ticket25_Cutover"
+  },
+  "oldDeployment": {
+    "packageRoot": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket13-release\\clean-install\\MesIngest",
+    "retiredTables": 5,
+    "transportDemandRows": 2
+  },
+  "newRejectsRetiredDatabase": {
+    "exitCode": -532462766,
+    "reasonIsSchemaContract": true
+  },
+  "afterCutover": {
+    "projectionCommits": 2,
+    "schemaVersion": 17,
+    "errorPeriods": 1,
+    "bootstrappedConditions": 1,
+    "backdatedConditions": 0,
+    "retiredTables": 0,
+    "dboUserTables": 0
+  },
+  "retiredBinaryAgainstCurrentDatabase": {
+    "keptRunning": true,
+    "dboTablesItCreated": 6,
+    "enforcedBy": "DEPLOYMENT_PROCEDURE_NOT_CODE",
+    "note": "The retired binary is frozen and cannot know the current schema. Separation in this direction comes from removing the old programs at cutover and pointing them only at the restored old backup during rollback."
+  },
+  "afterRollback": {
+    "retiredTables": 5,
+    "transportDemandRows": 2,
+    "currentSchemaPresent": false,
+    "previousDeploymentRunsAgain": true
+  },
+  "mixedModeSupported": false
+}

@@ -1,0 +1,8 @@
+id = "CUSTOMER_BASELINE_WIRE_TO_OPTICAL"
+title = "客户基线：焊线到三光"
+sql = "04_WIRE_TO_OPTICAL.sql"
+readonly = true
+requires_approval = false
+promote_sample = false
+parameters = []
+expected_columns = ["SUBLOT", "AREA", "EQP", "STEP", "DATES", "PACKAGE"]

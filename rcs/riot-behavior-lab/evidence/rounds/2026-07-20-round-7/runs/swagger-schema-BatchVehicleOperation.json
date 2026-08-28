@@ -1,0 +1,15 @@
+{
+  "title": "BatchVehicleOperation",
+  "type": "object",
+  "properties": {
+    "deviceKeys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "serviceId": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,530 @@
+<!--
+  PROTOTYPE — throw away after review.
+  Three visual redesigns plus two selected-design relationship states,
+  switchable with variant A/B/C/D/E or the bottom prototype bar.
+
+  Language rule:
+  - Chinese: navigation, actions, explanations, operational conclusions.
+  - English: entity names, schema fields, enum values, task types, alert codes.
+  Never combine both languages into one slash-separated heading.
+-->
+<Window x:Class="MesIngest.Watch.Prototype.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MesIngest Watch 视觉原型"
+        Width="1440"
+        Height="900"
+        MinWidth="1180"
+        MinHeight="720"
+        Background="#F5F7FA"
+        FontFamily="Microsoft YaHei UI"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        PreviewKeyDown="OnPreviewKeyDown">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Canvas" Color="#F5F7FA" />
+        <SolidColorBrush x:Key="Surface" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="SurfaceSubtle" Color="#F8FAFC" />
+        <SolidColorBrush x:Key="Line" Color="#E2E7EE" />
+        <SolidColorBrush x:Key="LineStrong" Color="#C9D2DE" />
+        <SolidColorBrush x:Key="Ink" Color="#152033" />
+        <SolidColorBrush x:Key="InkSoft" Color="#4B5B70" />
+        <SolidColorBrush x:Key="InkMuted" Color="#728096" />
+        <SolidColorBrush x:Key="Blue" Color="#2563EB" />
+        <SolidColorBrush x:Key="BlueSoft" Color="#EAF1FF" />
+        <SolidColorBrush x:Key="Green" Color="#16845B" />
+        <SolidColorBrush x:Key="GreenSoft" Color="#E9F7F1" />
+        <SolidColorBrush x:Key="Amber" Color="#A45A00" />
+        <SolidColorBrush x:Key="AmberSoft" Color="#FFF4DE" />
+        <SolidColorBrush x:Key="Red" Color="#C43D4B" />
+        <SolidColorBrush x:Key="RedSoft" Color="#FFF0F2" />
+        <SolidColorBrush x:Key="Navy" Color="#14243B" />
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Ink}" />
+        </Style>
+        <Style x:Key="MutedText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource InkMuted}" />
+        </Style>
+        <Style x:Key="Eyebrow" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Blue}" />
+            <Setter Property="FontFamily" Value="Cascadia Mono" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="PageTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="27" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="FieldKey" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource InkMuted}" />
+            <Setter Property="FontFamily" Value="Cascadia Mono" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Margin" Value="0,0,0,3" />
+        </Style>
+        <Style x:Key="CodeValue" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Cascadia Mono" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style TargetType="ContentControl">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Ink}" />
+            <Setter Property="Background" Value="{StaticResource Surface}" />
+            <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#F1F5F9" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.82" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource Blue}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Blue}" />
+        </Style>
+        <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <Style x:Key="RefreshToggle" TargetType="CheckBox">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="Track" Width="32" Height="18" CornerRadius="9" Background="#CBD5E1" VerticalAlignment="Center">
+                                <Ellipse x:Name="Thumb" Width="12" Height="12" Fill="White" HorizontalAlignment="Left" Margin="3" />
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="{StaticResource Blue}" />
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Background" Value="{StaticResource Surface}" />
+            <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="9,5" />
+            <Setter Property="Background" Value="{StaticResource Surface}" />
+            <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+        </Style>
+
+        <Style x:Key="Segment" TargetType="ToggleButton">
+            <Setter Property="MinWidth" Value="76" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="Foreground" Value="{StaticResource InkSoft}" />
+            <Setter Property="Background" Value="{StaticResource Surface}" />
+            <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border x:Name="SegmentBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="12,6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="White" />
+                                <Setter TargetName="SegmentBorder" Property="Background" Value="{StaticResource Blue}" />
+                                <Setter TargetName="SegmentBorder" Property="BorderBrush" Value="{StaticResource Blue}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="SegmentBorder" Property="Opacity" Value="0.88" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="CanUserAddRows" Value="False" />
+            <Setter Property="CanUserDeleteRows" Value="False" />
+            <Setter Property="CanUserResizeRows" Value="False" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource Line}" />
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="{StaticResource Surface}" />
+            <Setter Property="RowBackground" Value="{StaticResource Surface}" />
+            <Setter Property="AlternatingRowBackground" Value="#FBFCFE" />
+            <Setter Property="RowHeight" Value="42" />
+            <Setter Property="ColumnHeaderHeight" Value="38" />
+            <Setter Property="SelectionMode" Value="Single" />
+            <Setter Property="SelectionUnit" Value="FullRow" />
+            <Setter Property="EnableRowVirtualization" Value="True" />
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{StaticResource SurfaceSubtle}" />
+            <Setter Property="Foreground" Value="{StaticResource InkMuted}" />
+            <Setter Property="FontFamily" Value="Cascadia Mono" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="BorderBrush" Value="{StaticResource Line}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource BlueSoft}" />
+                    <Setter Property="Foreground" Value="{StaticResource Ink}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="DataGridRow">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource Ink}" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource BlueSoft}" />
+                    <Setter Property="Foreground" Value="{StaticResource Ink}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="TaskGrid">
+            <DataGrid ItemsSource="{Binding DataContext.Tasks, RelativeSource={RelativeSource AncestorType=Window}}"
+                      SelectedItem="{Binding DataContext.SelectedTask, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+                      AlternationCount="2"
+                      HorizontalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="TASK_TYPE" Binding="{Binding TaskType}" Width="185" />
+                    <DataGridTextColumn Header="SUBLOT" Binding="{Binding Sublot}" Width="130" />
+                    <DataGridTextColumn Header="AREA" Binding="{Binding Area}" Width="82" />
+                    <DataGridTextColumn Header="EQP" Binding="{Binding Eqp}" Width="98" />
+                    <DataGridTextColumn Header="STEP" Binding="{Binding Step}" Width="110" />
+                    <DataGridTextColumn Header="DATES" Binding="{Binding Dates}" Width="190" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="InputFields">
+            <Grid DataContext="{Binding DataContext.SelectedTask, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Margin="0,0,12,13"><TextBlock Text="TASK_TYPE" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding TaskType}" Style="{StaticResource CodeValue}" /></StackPanel>
+                <StackPanel Grid.Column="1" Margin="0,0,0,13"><TextBlock Text="SUBLOT" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding Sublot}" Style="{StaticResource CodeValue}" /></StackPanel>
+                <StackPanel Grid.Row="1" Margin="0,0,12,13"><TextBlock Text="AREA" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding Area}" Style="{StaticResource CodeValue}" /></StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,13"><TextBlock Text="EQP" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding Eqp}" Style="{StaticResource CodeValue}" /></StackPanel>
+                <StackPanel Grid.Row="2" Margin="0,0,12,13"><TextBlock Text="STEP" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding Step}" /></StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,13"><TextBlock Text="DATES" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding Dates}" Style="{StaticResource CodeValue}" /></StackPanel>
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="2"><TextBlock Text="PACKAGE" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding Package}" Style="{StaticResource CodeValue}" TextWrapping="Wrap" /></StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid x:Name="RootLayout" Background="{StaticResource Canvas}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="28" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="20,0">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="34" Height="34" CornerRadius="8" Background="{StaticResource Blue}" Margin="0,0,12,0">
+                        <TextBlock Text="MI" Foreground="White" FontFamily="Cascadia Mono" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="MesIngest Watch" FontSize="17" FontWeight="SemiBold" />
+                        <TextBlock Text="只读接入运维台" Style="{StaticResource MutedText}" FontSize="11" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="{StaticResource GreenSoft}" CornerRadius="14" Padding="10,5" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal"><Ellipse Width="7" Height="7" Fill="{StaticResource Green}" Margin="0,0,6,0" /><TextBlock Text="连接正常" Foreground="{StaticResource Green}" FontSize="12" FontWeight="SemiBold" /></StackPanel>
+                    </Border>
+                    <CheckBox x:Name="AutoRefreshToggle" Content="自动刷新" Style="{StaticResource RefreshToggle}" VerticalAlignment="Center" Margin="0,0,12,0" Checked="OnAutoRefreshChanged" Unchecked="OnAutoRefreshChanged" />
+                    <Button x:Name="RefreshButton" Content="刷新" Style="{StaticResource PrimaryButton}" Click="OnRefreshClick" />
+                    <StackPanel x:Name="PrototypeControls" Orientation="Horizontal" Margin="12,0,0,0">
+                        <TextBlock Text="评审数据" VerticalAlignment="Center" Margin="0,0,6,0" Style="{StaticResource MutedText}" />
+                        <ComboBox x:Name="ScenarioPicker" Width="128" SelectionChanged="OnScenarioChanged">
+                            <ComboBoxItem Content="当前异常" Tag="Active" IsSelected="True" />
+                            <ComboBoxItem Content="健康" Tag="Healthy" />
+                            <ComboBoxItem Content="连接中断" Tag="Offline" />
+                            <ComboBoxItem Content="无结果" Tag="Empty" />
+                            <ComboBoxItem Content="分页浏览" Tag="Paging" />
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- A — Explainable operations workbench: navigation + list + inspector. -->
+        <Grid x:Name="VariantA" Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="194" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Border Background="{StaticResource Navy}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="14,0,14,18">
+                        <Border Background="#20344F" CornerRadius="8" Padding="12">
+                            <StackPanel><TextBlock Text="只读模式" Foreground="#AFC3DC" FontSize="11" /><TextBlock Text="不会修改业务数据" Foreground="White" Margin="0,4,0,0" /></StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Margin="12,22,12,0">
+                        <TextBlock Text="工作区" Foreground="#7790AE" FontSize="11" Margin="10,0,0,10" />
+                        <Border CornerRadius="7" Padding="11,9" Margin="0,2"><TextBlock Text="概览" Foreground="#BFCDE0" /></Border>
+                        <Border Background="#29466C" CornerRadius="7" Padding="11,9" Margin="0,2"><StackPanel><TextBlock Text="任务浏览" Foreground="White" FontWeight="SemiBold" /><TextBlock Text="TransportDemand" Foreground="#9FC2F9" FontFamily="Cascadia Mono" FontSize="10" Margin="0,3,0,0" /></StackPanel></Border>
+                        <Border CornerRadius="7" Padding="11,9" Margin="0,2"><StackPanel><TextBlock Text="接入告警" Foreground="#BFCDE0" /><TextBlock Text="IngestAlert" Foreground="#7790AE" FontFamily="Cascadia Mono" FontSize="10" Margin="0,3,0,0" /></StackPanel></Border>
+                        <Border CornerRadius="7" Padding="11,9" Margin="0,2"><TextBlock Text="设置" Foreground="#BFCDE0" /></Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Grid Grid.Column="1" Margin="24,18,20,16">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel><TextBlock Text="TRANSPORTDEMAND" Style="{StaticResource Eyebrow}" /><TextBlock Text="任务浏览" Style="{StaticResource PageTitle}" Margin="0,3,0,0" /><TextBlock Text="查看输入快照与本地投影。此页面仅提供只读查询。" Style="{StaticResource MutedText}" Margin="0,5,0,0" /></StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right"><TextBlock Text="数据时间" Style="{StaticResource MutedText}" FontSize="11" HorizontalAlignment="Right" /><TextBlock Text="2026-08-08 09:30:00" Style="{StaticResource CodeValue}" Margin="0,4,0,0" /></StackPanel>
+                </Grid>
+                <Border Grid.Row="1" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9" Padding="14,11" Margin="0,16,0,12">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="180" /><ColumnDefinition Width="160" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal"><ToggleButton Content="VISIBLE" Style="{StaticResource Segment}" IsChecked="True" /><ToggleButton Content="GONE" Style="{StaticResource Segment}" /></StackPanel>
+                        <StackPanel Grid.Column="2" Margin="18,0,0,0"><TextBlock Text="任务类型" Style="{StaticResource MutedText}" FontSize="10" /><TextBlock Text="全部" VerticalAlignment="Center" Margin="0,4,0,0" /></StackPanel>
+                        <StackPanel Grid.Column="3" Margin="12,0,0,0"><TextBlock Text="子批次" Style="{StaticResource MutedText}" FontSize="10" /><TextBlock Text="不限" VerticalAlignment="Center" Margin="0,4,0,0" /></StackPanel>
+                        <TextBlock Grid.Column="4" Text="筛选条件作用于当前状态，不会改变其它视图。" Style="{StaticResource MutedText}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        <StackPanel Grid.Column="5" Orientation="Horizontal"><Button Content="重置" Margin="0,0,8,0" /><Button Content="查询" Style="{StaticResource PrimaryButton}" /></StackPanel>
+                    </Grid>
+                </Border>
+                <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="14" /><ColumnDefinition Width="340" /></Grid.ColumnDefinitions>
+                    <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9" ClipToBounds="True">
+                        <Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <DockPanel Margin="14,12"><TextBlock DockPanel.Dock="Right" Text="8 条结果" Style="{StaticResource MutedText}" /><TextBlock Text="查询结果" Style="{StaticResource SectionTitle}" /></DockPanel>
+                            <ContentControl Grid.Row="1" Content="{Binding SelectedPage}" ContentTemplate="{StaticResource TaskGrid}" />
+                            <DockPanel Grid.Row="2" Margin="14,10"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="上一页" Margin="0,0,8,0" /><Button Content="下一页" /></StackPanel><TextBlock Text="第 1 页 · 每页 100 条" Style="{StaticResource MutedText}" VerticalAlignment="Center" /></DockPanel>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Column="2" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9" Padding="18">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel>
+                            <TextBlock Text="字段解释" Style="{StaticResource SectionTitle}" /><TextBlock Text="同一条记录由两层数据组成。字段保持原始名称，解释使用中文。" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,5,0,16" />
+                            <TextBlock Text="MES INPUT" Style="{StaticResource Eyebrow}" /><TextBlock Text="输入字段" FontSize="18" FontWeight="SemiBold" Margin="0,4,0,13" />
+                            <ContentControl Content="{Binding SelectedPage}" ContentTemplate="{StaticResource InputFields}" />
+                            <Separator Margin="0,18" Background="{StaticResource Line}" />
+                            <TextBlock Text="LOCAL PROJECTION" Style="{StaticResource Eyebrow}" /><TextBlock Text="本地投影" FontSize="18" FontWeight="SemiBold" Margin="0,4,0,13" />
+                            <StackPanel DataContext="{Binding SelectedTask}"><TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding DemandId}" Style="{StaticResource CodeValue}" /><TextBlock Text="STATUS" Style="{StaticResource FieldKey}" Margin="0,13,0,3" /><TextBlock Text="{Binding Status}" Style="{StaticResource CodeValue}" /></StackPanel>
+                            <Border Background="{StaticResource BlueSoft}" CornerRadius="7" Padding="12" Margin="0,18,0,0"><StackPanel><TextBlock Text="为什么分成两层？" FontWeight="SemiBold" /><TextBlock Text="输入字段描述源数据；本地投影负责稳定标识、可见状态与生命周期。" TextWrapping="Wrap" Margin="0,5,0,0" Foreground="{StaticResource InkSoft}" /></StackPanel></Border>
+                        </StackPanel></ScrollViewer>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- B — Relationship explainer: concept rail + wide list + selected record narrative. -->
+        <Grid x:Name="VariantB" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <Border Background="{StaticResource Navy}" Padding="20,0">
+                <DockPanel><TextBlock DockPanel.Dock="Left" Text="关系解释器" Foreground="White" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,28,0" /><StackPanel Orientation="Horizontal"><TextBlock Text="概览" Foreground="#9FB0C8" VerticalAlignment="Center" Margin="0,0,28,0" /><StackPanel VerticalAlignment="Center" Margin="0,0,28,0"><TextBlock Text="任务浏览" Foreground="White" FontWeight="SemiBold" /><Border Height="2" Background="#61A0FF" Margin="0,5,0,0" /></StackPanel><TextBlock Text="接入告警" Foreground="#9FB0C8" VerticalAlignment="Center" Margin="0,0,28,0" /><TextBlock Text="设置" Foreground="#9FB0C8" VerticalAlignment="Center" /></StackPanel></DockPanel>
+            </Border>
+            <Grid Grid.Row="1" Margin="20,16"><Grid.ColumnDefinitions><ColumnDefinition Width="250" /><ColumnDefinition Width="14" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="18">
+                    <StackPanel><TextBlock Text="HOW TO READ" Style="{StaticResource Eyebrow}" /><TextBlock Text="如何理解一条任务" FontSize="20" FontWeight="SemiBold" Margin="0,4,0,18" />
+                        <Border Background="{StaticResource BlueSoft}" CornerRadius="8" Padding="12"><StackPanel><Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource Blue}" HorizontalAlignment="Left"><TextBlock Text="1" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><TextBlock Text="查看来源字段" FontWeight="SemiBold" Margin="0,9,0,4" /><TextBlock Text="先确认设备、区域、工序和进入时间。" Foreground="{StaticResource InkSoft}" TextWrapping="Wrap" /><TextBlock Text="MES INPUT" Style="{StaticResource FieldKey}" Margin="0,10,0,0" /></StackPanel></Border>
+                        <TextBlock Text="↓" FontSize="22" Foreground="{StaticResource InkMuted}" HorizontalAlignment="Center" Margin="0,5" />
+                        <Border Background="{StaticResource GreenSoft}" CornerRadius="8" Padding="12"><StackPanel><Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource Green}" HorizontalAlignment="Left"><TextBlock Text="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><TextBlock Text="确认本地实例" FontWeight="SemiBold" Margin="0,9,0,4" /><TextBlock Text="稳定标识和可见状态由本地投影维护。" Foreground="{StaticResource InkSoft}" TextWrapping="Wrap" /><TextBlock Text="TRANSPORTDEMAND" Style="{StaticResource FieldKey}" Margin="0,10,0,0" /></StackPanel></Border>
+                        <TextBlock Text="↓" FontSize="22" Foreground="{StaticResource InkMuted}" HorizontalAlignment="Center" Margin="0,5" />
+                        <Border Background="{StaticResource RedSoft}" CornerRadius="8" Padding="12"><StackPanel><Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource Red}" HorizontalAlignment="Left"><TextBlock Text="3" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><TextBlock Text="检查异常关联" FontWeight="SemiBold" Margin="0,9,0,4" /><TextBlock Text="异常只用于解释，不提供处置命令。" Foreground="{StaticResource InkSoft}" TextWrapping="Wrap" /><TextBlock Text="INGESTALERT" Style="{StaticResource FieldKey}" Margin="0,10,0,0" /></StackPanel></Border>
+                    </StackPanel>
+                </Border>
+                <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="190" /></Grid.RowDefinitions>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="TRANSPORTDEMAND" Style="{StaticResource Eyebrow}" /><TextBlock Text="任务关系" Style="{StaticResource PageTitle}" Margin="0,3,0,0" /><TextBlock Text="按照来源、实例、异常的顺序解释每一条记录。" Style="{StaticResource MutedText}" Margin="0,5,0,0" /></StackPanel><Border Grid.Column="1" Background="{StaticResource GreenSoft}" CornerRadius="8" Padding="12,8" VerticalAlignment="Center"><StackPanel><TextBlock Text="当前结论" Style="{StaticResource MutedText}" FontSize="10" /><TextBlock Text="投影可用" Foreground="{StaticResource Green}" FontWeight="SemiBold" Margin="0,3,0,0" /></StackPanel></Border></Grid>
+                    <Border Grid.Row="1" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,14,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="180" /><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel Orientation="Horizontal"><ToggleButton Content="VISIBLE" Style="{StaticResource Segment}" IsChecked="True" /><ToggleButton Content="GONE" Style="{StaticResource Segment}" /></StackPanel><StackPanel Grid.Column="1" Margin="14,0,0,0"><TextBlock Text="TASK_TYPE" Style="{StaticResource FieldKey}" /><TextBlock Text="ALL" Style="{StaticResource CodeValue}" /></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="SUBLOT" Style="{StaticResource FieldKey}" /><TextBlock Text="ANY" Style="{StaticResource CodeValue}" /></StackPanel><TextBlock Grid.Column="3" Text="8 条记录满足当前条件" Style="{StaticResource MutedText}" VerticalAlignment="Center" /><Button Grid.Column="4" Content="重新查询" Style="{StaticResource PrimaryButton}" /></Grid></Border>
+                    <Border Grid.Row="2" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9" ClipToBounds="True"><ContentControl Content="{Binding SelectedPage}" ContentTemplate="{StaticResource TaskGrid}" /></Border>
+                    <Border Grid.Row="3" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9" Margin="0,10,0,0" Padding="16"><Grid DataContext="{Binding SelectedTask}"><Grid.ColumnDefinitions><ColumnDefinition Width="1.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.3*" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="MES INPUT" Style="{StaticResource Eyebrow}" /><TextBlock Text="来源字段" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><TextBlock Text="{Binding TaskType}" Style="{StaticResource CodeValue}" /><TextBlock Text="{Binding Sublot}" Style="{StaticResource CodeValue}" Margin="0,5,0,0" /><TextBlock Text="该快照说明产品当前所在设备与工序。" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,10,20,0" /></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="TransportDemand" Style="{StaticResource Eyebrow}" /><TextBlock Text="本地实例" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><TextBlock Text="{Binding DemandId}" Style="{StaticResource CodeValue}" /><TextBlock Text="{Binding Status}" Style="{StaticResource CodeValue}" Margin="0,5,0,0" /><TextBlock Text="该实例提供稳定标识和生命周期。" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,10,20,0" /></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="IngestAlert" Style="{StaticResource Eyebrow}" /><TextBlock Text="异常关联" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><Border Background="{StaticResource RedSoft}" CornerRadius="6" Padding="10"><TextBlock Text="{Binding AlertSummary}" Foreground="{StaticResource Red}" FontFamily="Cascadia Mono" TextWrapping="Wrap" /></Border><TextBlock Text="异常解释投影问题，但不会在此页面被处置。" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,10,0,0" /></StackPanel></Grid></Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- C — Focused browser: filter rail + full-width list + bottom details. -->
+        <Grid x:Name="VariantC" Grid.Row="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="66" /><ColumnDefinition Width="278" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Border Background="#102A2E"><StackPanel Margin="0,16"><Border Width="38" Height="38" CornerRadius="9" Background="#1F4A50" Margin="0,0,0,10"><TextBlock Text="概" Foreground="#9CC7CA" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><Border Width="38" Height="38" CornerRadius="9" Background="#2A7881" Margin="0,0,0,10"><TextBlock Text="任" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><Border Width="38" Height="38" CornerRadius="9" Background="#1F4A50" Margin="0,0,0,10"><TextBlock Text="警" Foreground="#9CC7CA" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><Border Width="38" Height="38" CornerRadius="9" Background="#1F4A50"><TextBlock Text="设" Foreground="#9CC7CA" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border></StackPanel></Border>
+            <Border Grid.Column="1" Background="#F0F5F5" BorderBrush="#D8E3E4" BorderThickness="0,0,1,0" Padding="18"><StackPanel><TextBlock Text="FILTERS" Foreground="#25717A" FontFamily="Cascadia Mono" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="筛选条件" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,5" /><TextBlock Text="条件只作用于当前列表。" Foreground="{StaticResource InkMuted}" Margin="0,0,0,20" />
+                <TextBlock Text="状态" Style="{StaticResource MutedText}" FontSize="11" /><StackPanel Orientation="Horizontal" Margin="0,6,0,18"><ToggleButton Content="VISIBLE" Style="{StaticResource Segment}" IsChecked="True" /><ToggleButton Content="GONE" Style="{StaticResource Segment}" MinWidth="66" /></StackPanel>
+                <TextBlock Text="TASK_TYPE" Style="{StaticResource FieldKey}" /><Border Height="36" Background="{StaticResource Surface}" BorderBrush="{StaticResource LineStrong}" BorderThickness="1" CornerRadius="6" Padding="10,0" Margin="0,5,0,16"><DockPanel><TextBlock DockPanel.Dock="Right" Text="⌄" Foreground="{StaticResource InkMuted}" VerticalAlignment="Center" /><TextBlock Text="ALL" FontFamily="Cascadia Mono" VerticalAlignment="Center" /></DockPanel></Border>
+                <TextBlock Text="SUBLOT" Style="{StaticResource FieldKey}" /><TextBox Margin="0,5,0,16" />
+                <TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBox Margin="0,5,0,16" />
+                <TextBlock Text="DATES" Style="{StaticResource FieldKey}" /><TextBox Text="2026-08-07 01:30:00 +08:00" Margin="0,5,0,20" />
+                <Button Content="应用条件" Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" /><Button Content="清空条件" />
+                <Border Background="#DDEDEE" CornerRadius="8" Padding="12" Margin="0,20,0,0"><StackPanel><TextBlock Text="阅读提示" FontWeight="SemiBold" /><TextBlock Text="先在列表定位记录，再在底部查看来源字段与本地投影。" Foreground="{StaticResource InkSoft}" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+            </StackPanel></Border>
+            <Grid Grid.Column="2" Margin="20,16,20,14"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="210" /></Grid.RowDefinitions>
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="TransportDemand" Foreground="#25717A" FontFamily="Cascadia Mono" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="聚焦浏览" Style="{StaticResource PageTitle}" Margin="0,3,0,0" /><TextBlock Text="列表负责定位，详情负责解释。两个区域不会争夺注意力。" Style="{StaticResource MutedText}" Margin="0,5,0,0" /></StackPanel><Border Grid.Column="1" Background="{StaticResource GreenSoft}" CornerRadius="8" Padding="12,7" VerticalAlignment="Bottom"><StackPanel Orientation="Horizontal"><Ellipse Width="7" Height="7" Fill="{StaticResource Green}" Margin="0,0,7,0" /><TextBlock Text="8 条结果" Foreground="{StaticResource Green}" FontWeight="SemiBold" /></StackPanel></Border></Grid>
+                <Border Grid.Row="1" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" ClipToBounds="True" Margin="0,14,0,10"><Grid><Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions><ContentControl Content="{Binding SelectedPage}" ContentTemplate="{StaticResource TaskGrid}" /><DockPanel Grid.Row="1" Margin="14,10"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="上一页" Margin="0,0,8,0" /><Button Content="下一页" /></StackPanel><TextBlock Text="第 1 页 · 每页 100 条" Style="{StaticResource MutedText}" VerticalAlignment="Center" /></DockPanel></Grid></Border>
+                <Border Grid.Row="2" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="16"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="1.25*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="250" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="MES INPUT" Foreground="#25717A" FontFamily="Cascadia Mono" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="来源字段" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><ContentControl Content="{Binding SelectedPage}" ContentTemplate="{StaticResource InputFields}" /></StackPanel><StackPanel Grid.Column="1" Margin="24,0" DataContext="{Binding SelectedTask}"><TextBlock Text="LOCAL PROJECTION" Foreground="#25717A" FontFamily="Cascadia Mono" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="本地投影" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBlock Text="{Binding DemandId}" Style="{StaticResource CodeValue}" /><TextBlock Text="STATUS" Style="{StaticResource FieldKey}" Margin="0,12,0,3" /><TextBlock Text="{Binding Status}" Style="{StaticResource CodeValue}" /><TextBlock Text="投影实例用于追踪生命周期，不等同于源数据行。" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,12,0,0" /></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="EXPLANATION" Foreground="#25717A" FontFamily="Cascadia Mono" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="当前结论" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><Border Background="{StaticResource GreenSoft}" CornerRadius="8" Padding="12"><StackPanel><TextBlock Text="记录可用" Foreground="{StaticResource Green}" FontSize="17" FontWeight="SemiBold" /><TextBlock Text="来源字段完整，本地投影已建立稳定标识。" Foreground="{StaticResource InkSoft}" TextWrapping="Wrap" Margin="0,6,0,0" /></StackPanel></Border><Border Background="{StaticResource RedSoft}" CornerRadius="8" Padding="12" Margin="0,10,0,0"><StackPanel><TextBlock Text="关联异常" Foreground="{StaticResource Red}" FontWeight="SemiBold" /><TextBlock Text="DUPLICATE_RECONCILE_KEY" Foreground="{StaticResource Red}" FontFamily="Cascadia Mono" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border></StackPanel></Grid></Border>
+            </Grid>
+        </Grid>
+
+        <!-- D — Selected synthesis: A navigation + C filters + Demand to Alert explanation. -->
+        <Grid x:Name="VariantD" Grid.Row="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="194" /><ColumnDefinition Width="260" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Border Background="{StaticResource Navy}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="14,0,14,18">
+                        <Border Background="#20344F" CornerRadius="8" Padding="12"><StackPanel><TextBlock Text="只读模式" Foreground="#AFC3DC" FontSize="11" /><TextBlock Text="不会修改业务数据" Foreground="White" Margin="0,4,0,0" /></StackPanel></Border>
+                    </StackPanel>
+                    <StackPanel Margin="12,22,12,0">
+                        <TextBlock Text="工作区" Foreground="#7790AE" FontSize="11" Margin="10,0,0,10" />
+                        <Border CornerRadius="7" Padding="11,9" Margin="0,2"><TextBlock Text="概览" Foreground="#BFCDE0" /></Border>
+                        <Border Background="#29466C" CornerRadius="7" Padding="11,9" Margin="0,2"><StackPanel><TextBlock Text="任务浏览" Foreground="White" FontWeight="SemiBold" /><TextBlock Text="TransportDemand" Foreground="#9FC2F9" FontFamily="Cascadia Mono" FontSize="10" Margin="0,3,0,0" /></StackPanel></Border>
+                        <Border CornerRadius="7" Padding="11,9" Margin="0,2"><StackPanel><TextBlock Text="接入告警" Foreground="#BFCDE0" /><TextBlock Text="IngestAlert" Foreground="#7790AE" FontFamily="Cascadia Mono" FontSize="10" Margin="0,3,0,0" /></StackPanel></Border>
+                        <Border CornerRadius="7" Padding="11,9" Margin="0,2"><TextBlock Text="设置" Foreground="#BFCDE0" /></Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Border Grid.Column="1" Background="#EEF2F7" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0" Padding="18,17">
+                <StackPanel>
+                    <TextBlock Text="FILTERS" Style="{StaticResource Eyebrow}" /><TextBlock Text="筛选条件" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,3" /><TextBlock Text="条件只作用于任务列表。" Style="{StaticResource MutedText}" Margin="0,0,0,17" />
+                    <TextBlock Text="状态" Style="{StaticResource MutedText}" FontSize="11" /><StackPanel Orientation="Horizontal" Margin="0,6,0,15"><ToggleButton Content="VISIBLE" Style="{StaticResource Segment}" MinWidth="78" IsChecked="True" /><ToggleButton Content="GONE" Style="{StaticResource Segment}" MinWidth="68" /></StackPanel>
+                    <TextBlock Text="TASK_TYPE" Style="{StaticResource FieldKey}" /><Border Height="36" Background="White" BorderBrush="{StaticResource LineStrong}" BorderThickness="1" CornerRadius="6" Padding="10,0" Margin="0,5,0,13"><DockPanel><TextBlock DockPanel.Dock="Right" Text="⌄" Foreground="{StaticResource InkMuted}" VerticalAlignment="Center" /><TextBlock Text="ALL" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></DockPanel></Border>
+                    <TextBlock Text="SUBLOT" Style="{StaticResource FieldKey}" /><TextBox Text="Q26063201-2" Margin="0,5,0,13" />
+                    <TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBox Margin="0,5,0,13" />
+                    <TextBlock Text="进入时间起始" Style="{StaticResource MutedText}" FontSize="11" /><TextBox Margin="0,5,0,13" />
+                    <TextBlock Text="进入时间结束" Style="{StaticResource MutedText}" FontSize="11" /><TextBox Margin="0,5,0,17" />
+                    <Button Content="应用条件" Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" /><Button Content="清空条件" />
+                    <Border Background="{StaticResource BlueSoft}" CornerRadius="8" Padding="11" Margin="0,17,0,0"><StackPanel><TextBlock Text="关联规则" FontWeight="SemiBold" /><TextBlock Text="相关告警按精确标识或业务键匹配；全局与任务类型告警不会伪装成精确关联。" Foreground="{StaticResource InkSoft}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+                </StackPanel>
+            </Border>
+            <Grid Grid.Column="2" Margin="20,15,20,13">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="252" /></Grid.RowDefinitions>
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="TransportDemand" Style="{StaticResource Eyebrow}" /><TextBlock Text="任务浏览" Style="{StaticResource PageTitle}" Margin="0,2,0,0" /><TextBlock Text="选中任务后，查看与它有关的接入告警及关联依据。" Style="{StaticResource MutedText}" Margin="0,4,0,0" /></StackPanel><Border Grid.Column="1" Background="{StaticResource GreenSoft}" CornerRadius="8" Padding="11,7" VerticalAlignment="Bottom"><StackPanel Orientation="Horizontal"><Ellipse Width="7" Height="7" Fill="{StaticResource Green}" Margin="0,0,7,0" /><TextBlock Text="8 条结果" Foreground="{StaticResource Green}" FontWeight="SemiBold" /></StackPanel></Border></Grid>
+                <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Margin="0,13,0,10" ClipToBounds="True">
+                    <Grid><Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="42" /><RowDefinition Height="42" /><RowDefinition Height="42" /><RowDefinition Height="42" /><RowDefinition Height="*" /><RowDefinition Height="42" /></Grid.RowDefinitions>
+                        <Grid Background="{StaticResource SurfaceSubtle}"><Grid.ColumnDefinitions><ColumnDefinition Width="175" /><ColumnDefinition Width="128" /><ColumnDefinition Width="92" /><ColumnDefinition Width="102" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="TASK_TYPE" Style="{StaticResource FieldKey}" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="SUBLOT" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="AREA" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="EQP" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="DATES" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /></Grid>
+                        <Border Grid.Row="1" Background="{StaticResource BlueSoft}" BorderBrush="#B8CCF7" BorderThickness="0,1,0,1"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="175" /><ColumnDefinition Width="128" /><ColumnDefinition Width="92" /><ColumnDefinition Width="102" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="DIE_TO_WIRE_STAGING" Style="{StaticResource CodeValue}" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="Q26063201-2" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="C6-12" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="3ZPS122" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="2026-07-24 13:58:12" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid></Border>
+                        <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="175" /><ColumnDefinition Width="128" /><ColumnDefinition Width="92" /><ColumnDefinition Width="102" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="DIE_TO_OVEN" Style="{StaticResource CodeValue}" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="Q26063224-8" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="C6-14" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="3ZPS136" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="2026-07-24 13:55:34" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid>
+                        <Grid Grid.Row="3" Background="#FBFCFE"><Grid.ColumnDefinitions><ColumnDefinition Width="175" /><ColumnDefinition Width="128" /><ColumnDefinition Width="92" /><ColumnDefinition Width="102" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="WIRE_TO_GATE" Style="{StaticResource CodeValue}" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="Q26063189-5" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="B4-09" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="WB-031" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="2026-07-24 13:50:08" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid>
+                        <Grid Grid.Row="4"><Grid.ColumnDefinitions><ColumnDefinition Width="175" /><ColumnDefinition Width="128" /><ColumnDefinition Width="92" /><ColumnDefinition Width="102" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="WIRE_TO_OPTICAL" Style="{StaticResource CodeValue}" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="Q26063177-3" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="A3-18" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="WB-114" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="2026-07-24 13:47:21" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid>
+                        <DockPanel Grid.Row="6" Margin="12,7"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="上一页" Padding="10,4" MinHeight="26" Margin="0,0,7,0" /><Button Content="下一页" Padding="10,4" MinHeight="26" /></StackPanel><TextBlock Text="第 1 页 · 每页 100 条" Style="{StaticResource MutedText}" VerticalAlignment="Center" /></DockPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="16">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="270" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Text="SELECTED" Style="{StaticResource Eyebrow}" /><TextBlock Text="当前任务" Style="{StaticResource SectionTitle}" Margin="0,4,0,11" /><TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBlock Text="dmd-7f91c2a8" Style="{StaticResource CodeValue}" /><TextBlock Text="TASK_TYPE + SUBLOT" Style="{StaticResource FieldKey}" Margin="0,12,0,3" /><TextBlock Text="DIE_TO_WIRE_STAGING" Style="{StaticResource CodeValue}" /><TextBlock Text="Q26063201-2" Style="{StaticResource CodeValue}" Margin="0,4,0,0" /><Border Background="{StaticResource GreenSoft}" CornerRadius="7" Padding="10" Margin="0,14,18,0"><TextBlock Text="找到 2 条相关告警" Foreground="{StaticResource Green}" FontWeight="SemiBold" /></Border></StackPanel>
+                        <Border Grid.Column="1" Background="{StaticResource Line}" />
+                        <Grid Grid.Column="2" Margin="18,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions><DockPanel><TextBlock DockPanel.Dock="Right" Text="IngestAlert" Style="{StaticResource Eyebrow}" /><TextBlock Text="相关告警" Style="{StaticResource SectionTitle}" /></DockPanel>
+                            <Border Grid.Row="1" Background="{StaticResource RedSoft}" CornerRadius="8" Padding="12" Margin="0,10,0,6"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="145" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="FIELD_DRIFT" Foreground="{StaticResource Red}" FontFamily="Cascadia Mono" FontWeight="SemiBold" /><TextBlock Text="冻结字段 EQP 与当前快照不一致。" Foreground="{StaticResource InkSoft}" Margin="0,5,0,0" /></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="EXACT DemandId" Style="{StaticResource FieldKey}" /><TextBlock Text="精确关联" FontWeight="SemiBold" /></StackPanel></Grid></Border>
+                            <Border Grid.Row="2" Background="{StaticResource AmberSoft}" CornerRadius="8" Padding="12" Margin="0,0,0,2"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="145" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="DUPLICATE_RECONCILE_KEY" Foreground="{StaticResource Amber}" FontFamily="Cascadia Mono" FontWeight="SemiBold" /><TextBlock Text="同一 TASK_TYPE + SUBLOT 在快照中重复。" Foreground="{StaticResource InkSoft}" Margin="0,5,0,0" /></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="BUSINESS KEY" Style="{StaticResource FieldKey}" /><TextBlock Text="业务键关联" FontWeight="SemiBold" /></StackPanel></Grid></Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- E — Same selected synthesis, viewed from Alert to Demand. -->
+        <Grid x:Name="VariantE" Grid.Row="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="194" /><ColumnDefinition Width="260" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Border Background="{StaticResource Navy}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="14,0,14,18"><Border Background="#20344F" CornerRadius="8" Padding="12"><StackPanel><TextBlock Text="只读模式" Foreground="#AFC3DC" FontSize="11" /><TextBlock Text="不会修改业务数据" Foreground="White" Margin="0,4,0,0" /></StackPanel></Border></StackPanel>
+                    <StackPanel Margin="12,22,12,0"><TextBlock Text="工作区" Foreground="#7790AE" FontSize="11" Margin="10,0,0,10" /><Border CornerRadius="7" Padding="11,9" Margin="0,2"><TextBlock Text="概览" Foreground="#BFCDE0" /></Border><Border CornerRadius="7" Padding="11,9" Margin="0,2"><StackPanel><TextBlock Text="任务浏览" Foreground="#BFCDE0" /><TextBlock Text="TransportDemand" Foreground="#7790AE" FontFamily="Cascadia Mono" FontSize="10" Margin="0,3,0,0" /></StackPanel></Border><Border Background="#29466C" CornerRadius="7" Padding="11,9" Margin="0,2"><StackPanel><TextBlock Text="接入告警" Foreground="White" FontWeight="SemiBold" /><TextBlock Text="IngestAlert" Foreground="#9FC2F9" FontFamily="Cascadia Mono" FontSize="10" Margin="0,3,0,0" /></StackPanel></Border><Border CornerRadius="7" Padding="11,9" Margin="0,2"><TextBlock Text="设置" Foreground="#BFCDE0" /></Border></StackPanel>
+                </DockPanel>
+            </Border>
+            <Border Grid.Column="1" Background="#EEF2F7" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0" Padding="18,17">
+                <StackPanel><TextBlock Text="FILTERS" Style="{StaticResource Eyebrow}" /><TextBlock Text="筛选条件" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,3" /><TextBlock Text="条件只作用于告警列表。" Style="{StaticResource MutedText}" Margin="0,0,0,17" />
+                    <TextBlock Text="生命周期" Style="{StaticResource MutedText}" FontSize="11" /><StackPanel Orientation="Horizontal" Margin="0,6,0,15"><ToggleButton Content="ACTIVE" Style="{StaticResource Segment}" MinWidth="76" IsChecked="True" /><ToggleButton Content="RESOLVED" Style="{StaticResource Segment}" MinWidth="86" /></StackPanel>
+                    <TextBlock Text="SEVERITY" Style="{StaticResource FieldKey}" /><Border Height="36" Background="White" BorderBrush="{StaticResource LineStrong}" BorderThickness="1" CornerRadius="6" Padding="10,0" Margin="0,5,0,12"><DockPanel><TextBlock DockPanel.Dock="Right" Text="⌄" Foreground="{StaticResource InkMuted}" VerticalAlignment="Center" /><TextBlock Text="ALL" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></DockPanel></Border>
+                    <TextBlock Text="CODE" Style="{StaticResource FieldKey}" /><Border Height="36" Background="White" BorderBrush="{StaticResource LineStrong}" BorderThickness="1" CornerRadius="6" Padding="10,0" Margin="0,5,0,12"><DockPanel><TextBlock DockPanel.Dock="Right" Text="⌄" Foreground="{StaticResource InkMuted}" VerticalAlignment="Center" /><TextBlock Text="REAPPEAR_AFTER_GONE" FontFamily="Cascadia Mono" FontSize="10" VerticalAlignment="Center" /></DockPanel></Border>
+                    <TextBlock Text="TASK_TYPE" Style="{StaticResource FieldKey}" /><TextBox Text="DIE_TO_OVEN" Margin="0,5,0,12" /><TextBlock Text="SUBLOT" Style="{StaticResource FieldKey}" /><TextBox Text="Q26063224-8" Margin="0,5,0,12" /><TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBox Margin="0,5,0,16" />
+                    <Button Content="应用条件" Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" /><Button Content="清空条件" />
+                    <Border Background="{StaticResource AmberSoft}" CornerRadius="8" Padding="11" Margin="0,17,0,0"><StackPanel><TextBlock Text="定位能力" FontWeight="SemiBold" /><TextBlock Text="全局告警没有任务目标；任务类型告警只能缩小范围；业务键查询不代表唯一历史实例。" Foreground="{StaticResource InkSoft}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+                </StackPanel>
+            </Border>
+            <Grid Grid.Column="2" Margin="20,15,20,13"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="252" /></Grid.RowDefinitions>
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="IngestAlert" Style="{StaticResource Eyebrow}" /><TextBlock Text="接入告警" Style="{StaticResource PageTitle}" Margin="0,2,0,0" /><TextBlock Text="选中告警后，区分精确目标、业务键范围与不可定位范围。" Style="{StaticResource MutedText}" Margin="0,4,0,0" /></StackPanel><Border Grid.Column="1" Background="{StaticResource RedSoft}" CornerRadius="8" Padding="11,7" VerticalAlignment="Bottom"><TextBlock Text="6 条活动告警" Foreground="{StaticResource Red}" FontWeight="SemiBold" /></Border></Grid>
+                <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Margin="0,13,0,10" ClipToBounds="True"><Grid><Grid.RowDefinitions><RowDefinition Height="38" /><RowDefinition Height="44" /><RowDefinition Height="44" /><RowDefinition Height="44" /><RowDefinition Height="44" /><RowDefinition Height="*" /><RowDefinition Height="42" /></Grid.RowDefinitions>
+                    <Grid Background="{StaticResource SurfaceSubtle}"><Grid.ColumnDefinitions><ColumnDefinition Width="82" /><ColumnDefinition Width="205" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="92" /></Grid.ColumnDefinitions><TextBlock Text="SEVERITY" Style="{StaticResource FieldKey}" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="CODE" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="SCOPE" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="TASK_TYPE" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="COUNT" Style="{StaticResource FieldKey}" VerticalAlignment="Center" /></Grid>
+                    <Border Grid.Row="1" Background="{StaticResource BlueSoft}" BorderBrush="#B8CCF7" BorderThickness="0,1,0,1"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="82" /><ColumnDefinition Width="205" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="92" /></Grid.ColumnDefinitions><TextBlock Text="WARNING" Foreground="{StaticResource Amber}" FontFamily="Cascadia Mono" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="REAPPEAR_AFTER_GONE" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="Demand" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="DIE_TO_OVEN" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="1" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid></Border>
+                    <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="82" /><ColumnDefinition Width="205" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="92" /></Grid.ColumnDefinitions><TextBlock Text="ERROR" Foreground="{StaticResource Red}" FontFamily="Cascadia Mono" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="DUPLICATE_RECONCILE_KEY" FontFamily="Cascadia Mono" FontSize="11" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="BusinessKey" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="DIE_TO_WIRE_STAGING" FontFamily="Cascadia Mono" FontSize="11" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="4" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid>
+                    <Grid Grid.Row="3" Background="#FBFCFE"><Grid.ColumnDefinitions><ColumnDefinition Width="82" /><ColumnDefinition Width="205" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="92" /></Grid.ColumnDefinitions><TextBlock Text="ERROR" Foreground="{StaticResource Red}" FontFamily="Cascadia Mono" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="PAUSED_ZERO_DROP" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="TaskType" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="STAGING_TO_WIRE" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="2" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid>
+                    <Grid Grid.Row="4"><Grid.ColumnDefinitions><ColumnDefinition Width="82" /><ColumnDefinition Width="205" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="92" /></Grid.ColumnDefinitions><TextBlock Text="ERROR" Foreground="{StaticResource Red}" FontFamily="Cascadia Mono" Margin="10,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="POLL_FAILURE" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="Global" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="—" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="3" Style="{StaticResource CodeValue}" VerticalAlignment="Center" /></Grid>
+                    <DockPanel Grid.Row="6" Margin="12,7"><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="上一页" Padding="10,4" MinHeight="26" Margin="0,0,7,0" /><Button Content="下一页" Padding="10,4" MinHeight="26" /></StackPanel><TextBlock Text="第 1 页 · 每页 100 条" Style="{StaticResource MutedText}" VerticalAlignment="Center" /></DockPanel>
+                </Grid></Border>
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="16"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="285" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <StackPanel><TextBlock Text="SELECTED" Style="{StaticResource Eyebrow}" /><TextBlock Text="当前告警" Style="{StaticResource SectionTitle}" Margin="0,4,0,10" /><TextBlock Text="REAPPEAR_AFTER_GONE" Foreground="{StaticResource Amber}" FontFamily="Cascadia Mono" FontWeight="SemiBold" /><TextBlock Text="同一业务键在 GONE 后再次出现，系统创建了新的 DemandId。" Foreground="{StaticResource InkSoft}" TextWrapping="Wrap" Margin="0,7,18,0" /><Border Background="{StaticResource BlueSoft}" CornerRadius="7" Padding="10" Margin="0,13,18,0"><TextBlock Text="找到 2 个精确任务目标" Foreground="{StaticResource Blue}" FontWeight="SemiBold" /></Border></StackPanel>
+                    <Border Grid.Column="1" Background="{StaticResource Line}" />
+                    <Grid Grid.Column="2" Margin="18,0,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions><DockPanel><TextBlock DockPanel.Dock="Right" Text="TransportDemand" Style="{StaticResource Eyebrow}" /><TextBlock Text="相关任务" Style="{StaticResource SectionTitle}" /></DockPanel>
+                        <Border Grid.Row="1" Background="{StaticResource SurfaceSubtle}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="11" Margin="0,10,0,6"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="145" /><ColumnDefinition Width="*" /><ColumnDefinition Width="100" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="PREVIOUS" Style="{StaticResource FieldKey}" /><TextBlock Text="先前 GONE" FontWeight="SemiBold" /></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBlock Text="dmd-old-116a" Style="{StaticResource CodeValue}" /></StackPanel><Button Grid.Column="2" Content="精确查看" Padding="10,5" /></Grid></Border>
+                        <Border Grid.Row="2" Background="{StaticResource GreenSoft}" BorderBrush="#B9E2D1" BorderThickness="1" CornerRadius="8" Padding="11" Margin="0,0,0,2"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="145" /><ColumnDefinition Width="*" /><ColumnDefinition Width="100" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="NEW" Style="{StaticResource FieldKey}" /><TextBlock Text="当前再现" Foreground="{StaticResource Green}" FontWeight="SemiBold" /></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="DemandId" Style="{StaticResource FieldKey}" /><TextBlock Text="dmd-2a10bd44" Style="{StaticResource CodeValue}" /></StackPanel><Button Grid.Column="2" Content="精确查看" Style="{StaticResource PrimaryButton}" Padding="10,5" /></Grid></Border>
+                    </Grid>
+                </Grid></Border>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="2" Background="#EDF1F5" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="12,4">
+            <DockPanel><TextBlock DockPanel.Dock="Right" Text="F5 刷新 · Esc 取消 · 方向键切换方案" Style="{StaticResource MutedText}" FontSize="11" /><TextBlock Text="{Binding RefreshStatus}" Foreground="{StaticResource InkSoft}" FontSize="11" TextTrimming="CharacterEllipsis" /></DockPanel>
+        </Border>
+        <Border x:Name="PrototypeSwitcher" Grid.Row="3" Background="#0F172A" Padding="8" HorizontalAlignment="Center" CornerRadius="22" Margin="0,8,0,10">
+            <StackPanel Orientation="Horizontal"><Button Content="←" Click="OnPreviousVariantClick" Style="{StaticResource QuietButton}" Foreground="White" Padding="10,5" /><TextBlock x:Name="VariantLabel" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center" MinWidth="260" TextAlignment="Center" /><Button Content="→" Click="OnNextVariantClick" Style="{StaticResource QuietButton}" Foreground="White" Padding="10,5" /></StackPanel>
+        </Border>
+    </Grid>
+</Window>

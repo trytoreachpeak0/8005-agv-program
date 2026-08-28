@@ -1,0 +1,49 @@
+{
+  "post": {
+    "tags": [
+      "路由"
+    ],
+    "summary": "获取车辆列表到达指定站点的代价",
+    "operationId": "getRouteCostsByUsingPOST",
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/申请车辆列表到达站点代价"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "*/*": {
+            "schema": {
+              "$ref": "#/components/schemas/ResponseMsg«回复车辆列表到达站点代价»"
+            }
+          }
+        }
+      },
+      "201": {
+        "description": "Created"
+      },
+      "401": {
+        "description": "Unauthorized"
+      },
+      "403": {
+        "description": "Forbidden"
+      },
+      "404": {
+        "description": "Not Found"
+      }
+    },
+    "security": [
+      {
+        "Authorization": [
+          "global"
+        ]
+      }
+    ]
+  }
+}

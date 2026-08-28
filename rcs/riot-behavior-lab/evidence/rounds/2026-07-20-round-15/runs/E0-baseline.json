@@ -1,0 +1,15 @@
+{
+    "at":  "2026-07-20 14:28:39.431",
+    "station":  0,
+    "noStation":  true,
+    "mapName":  "api测试",
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "movementState":  "MT_FINISHED",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  null,
+    "orderId":  null,
+    "numericId":  null,
+    "upperId":  ""
+}

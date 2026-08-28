@@ -1,0 +1,241 @@
+      Starting V2 Oracle single-flight poll loop (post-delay=00:00:05, command-timeout=30s).
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      Now listening on: http://[redacted]:52532
+info: Microsoft.Hosting.Lifetime[14]
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+      Content root path: C:\Users\szy\AppData\Local\Temp\claude\C--Users-szy-Desktop-8005---AGV\4adfcda2-045f-4b66-8e85-98a9da46dc65\scratchpad\ticket26-package\MesIngest\service
+info: MesIngest.Latency[0]
+      correlationId=10a8f9316ac246899f04968b99feda80 component=Host stage=HTTP_OK elapsedMs=32 endpoint=/api/v2/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=ef4a77c379064891a60525385bafed62 component=Host stage=HTTP_STATUS elapsedMs=17 endpoint=/api/v2/current-ingest-attention statusCode=409
+info: MesIngest.Latency[0]
+      correlationId=503deecf5fe04d71a90395e4ec367fde component=Host stage=HTTP_STATUS elapsedMs=2 endpoint=/api/v2/current-ingest-attention statusCode=409
+info: MesIngest.Latency[0]
+      correlationId=4cc4734def874cf0a960b93a4be241ac component=Host stage=HTTP_STATUS elapsedMs=1 endpoint=/api/v2/current-ingest-attention statusCode=409
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 1f180130b4ce445789214fb2d4febb01 completed as Success; projectionCommit=7c9c9c65260047a6bd5da0f5e9163ddb.
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round a32ad6759d35445dbe5d0244d2614683 completed as Success; projectionCommit=23b0ba3434904373889bb46578d61cb8.
+info: MesIngest.Latency[0]
+      correlationId=3cf8b19b549248a5b28f7173da0e904d component=Host stage=HTTP_OK elapsedMs=16141 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=1bd1821418da4c4a81ca09bc5f44da67 component=Host stage=HTTP_OK elapsedMs=34 endpoint=/api/v2/poll-traces/a32ad6759d35445dbe5d0244d2614683 statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=feee5be4c29b40bb9015fbc4a7c6e626 component=Host stage=HTTP_OK elapsedMs=18 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=d18bb20d5bd440e9b085f6f5582c6231 component=Host stage=HTTP_OK elapsedMs=14 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=550d181adf3743f4b469576111b2ac1c component=Host stage=HTTP_OK elapsedMs=13 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 728e818e19e74bf1a4257cc146ecfda0 completed as Success; projectionCommit=491a7112d8a948ca8738118db18ce724.
+info: MesIngest.Latency[0]
+      correlationId=528d61f32ef6476abed796aefad2c137 component=Host stage=HTTP_OK elapsedMs=1156 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=de56ce904c0d49559671433fc772040d component=Host stage=HTTP_OK elapsedMs=7 endpoint=/api/v2/poll-traces/728e818e19e74bf1a4257cc146ecfda0 statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=e8aef02aa3724de5b106ff9351a7424a component=Host stage=HTTP_OK elapsedMs=5 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=a3dbe4bbdac24c7d8672bd9f4097eb5e component=Host stage=HTTP_OK elapsedMs=21 endpoint=/api/v2/current-ingest-attention statusCode=200
+      correlationId=110125558f3c462f83afbd6c1051cacd component=Host stage=HTTP_OK elapsedMs=14 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+info: MesIngest.Latency[0]
+      correlationId=b8b5fe12099e4e6e9b4f5fda2742288c component=Host stage=HTTP_OK elapsedMs=17 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=932c2271b0204a8cb2c76982836c0a65 component=Host stage=HTTP_OK elapsedMs=15 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=135f8d8b17e740f6a66255184df1dddb component=Host stage=HTTP_OK elapsedMs=14 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=247f3e36932f49dcbda00c8392e4d5c1 component=Host stage=HTTP_OK elapsedMs=13 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=b45db582211f48d485ebd4f1e61da02a component=Host stage=HTTP_OK elapsedMs=13 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=3531761a8da7445a8214b79caa4ddc66 component=Host stage=HTTP_OK elapsedMs=19 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=68a6b91a71344d468be49679eff8c634 component=Host stage=HTTP_OK elapsedMs=13 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 5a8d98ee22574a37a0b3b546ef5a9677 completed as Success; projectionCommit=39779f5ef21a42cdaf11df3339e76404.
+info: MesIngest.Latency[0]
+      correlationId=9d748a2fa6d44b919c976c793073bd00 component=Host stage=HTTP_OK elapsedMs=2420 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=db49170deac94cd4899aef77a3861f13 component=Host stage=HTTP_OK elapsedMs=9 endpoint=/api/v2/poll-traces/5a8d98ee22574a37a0b3b546ef5a9677 statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=88a8c4ad45674928a7e7c2545a9d9b90 component=Host stage=HTTP_OK elapsedMs=4 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=d05b058197f44af2b5daff92cb1f0b5b component=Host stage=HTTP_OK elapsedMs=342 endpoint=/api/v2/error-search statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=9e01d8969571495a97d7840fbf87d3ce component=Host stage=HTTP_OK elapsedMs=124 endpoint=/api/v2/error-search/4257b9d149e6486e9082091296059f3f statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=fc7e9fa786624a0c92e7a540d0f43008 component=Host stage=HTTP_STATUS elapsedMs=1 endpoint=/api/v2/error-search/4257b9d149e6486e9082091296059f3f/evidence/c70754558cbd4b58afdc885f82772a9a/raw-observations statusCode=403
+info: MesIngest.Latency[0]
+      correlationId=2177fad3643747a794cc63fcc041d4c0 component=Host stage=HTTP_STATUS elapsedMs=0 endpoint=/api/v2/error-search/4257b9d149e6486e9082091296059f3f/evidence/c70754558cbd4b58afdc885f82772a9a/raw-observations statusCode=403
+info: MesIngest.Latency[0]
+      correlationId=2e4bcefc42ee4e9ea44832dffa020966 component=Host stage=HTTP_OK elapsedMs=65 endpoint=/api/v2/error-search/4257b9d149e6486e9082091296059f3f/evidence/c70754558cbd4b58afdc885f82772a9a/raw-observations statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=517834cb6df945e4bb7e7b3b08606dd8 component=Host stage=HTTP_OK elapsedMs=3 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=455901675582459eb257d9a1e9ce6f42 component=Host stage=HTTP_OK elapsedMs=2 endpoint=/api/v2/externally-readable-demand-catalog statusCode=304
+info: MesIngest.Latency[0]
+      correlationId=f60a3cdf3e924009ae1d675d89f48c57 component=Host stage=HTTP_OK elapsedMs=904 endpoint=/api/v2/demand-series statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=b91f6315b8174d18a20f3b37a4a70aea component=Host stage=HTTP_OK elapsedMs=504 endpoint=/api/v2/readability-audit statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=8392e4d908cc42258053c1af5b974608 component=Host stage=HTTP_OK elapsedMs=1017 endpoint=/api/v2/error-search statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=49d96fb93a544fbca21707ed64707864 component=Host stage=HTTP_OK elapsedMs=20 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=a1a104344a34442fa8d2e95be74f7a14 component=Host stage=HTTP_OK elapsedMs=872 endpoint=/api/v2/watch-overview statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=7e33634f3141443b941e6751b0949dcb component=Host stage=HTTP_OK elapsedMs=529 endpoint=/api/v2/demand-series statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=6087f9f128a749d296c70907391fe90f component=Host stage=HTTP_OK elapsedMs=17 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=7483fe69ed6547f0ab4d51bbf478a254 component=Host stage=HTTP_OK elapsedMs=17 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=8e80ffe917e14a3d8db719f2cbf31189 component=Host stage=HTTP_OK elapsedMs=17 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 520ea796281649f8b38dfa90fdea6848 completed as Success; projectionCommit=f819009c796e421d85cf4f607152692e.
+info: MesIngest.Latency[0]
+      correlationId=a676fa099fc345adac63b51708e241ea component=Host stage=HTTP_OK elapsedMs=2170 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=70b1f87c76d84cc09bf969f01cddc8fb component=Host stage=HTTP_OK elapsedMs=1839 endpoint=/api/v2/demand-series statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=ac94ece1e6604d43bc9097cfd02030e1 component=Host stage=HTTP_OK elapsedMs=19 endpoint=/api/v2/task-type-protections statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=628bcc41c19048abac2b318a768f8325 component=Host stage=HTTP_OK elapsedMs=14 endpoint=/api/v2/absence-authority statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=cdabb70019374569ae27f4ed441c2ef7 component=Host stage=HTTP_OK elapsedMs=4 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      Continuous V2 Oracle poll disabled; service idle.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[redacted]:53446
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\szy\AppData\Local\Temp\claude\C--Users-szy-Desktop-8005---AGV\4adfcda2-045f-4b66-8e85-98a9da46dc65\scratchpad\ticket26-package\MesIngest\service
+info: MesIngest.Latency[0]
+      correlationId=a7277faa489847229aec7fc9286a7b6f component=Host stage=HTTP_OK elapsedMs=34 endpoint=/api/v2/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=74c507d272da4eb98648211125d8b31d component=Host stage=HTTP_OK elapsedMs=32 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=708ff383098646b9b5bf1374faacdc06 component=Host stage=HTTP_OK elapsedMs=6 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=6a54bbaf747b40e5950a621416b7d929 component=Host stage=HTTP_OK elapsedMs=12 endpoint=/api/v2/absence-authority statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      Starting V2 Oracle single-flight poll loop (post-delay=00:00:05, command-timeout=30s).
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[redacted]:53463
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\szy\AppData\Local\Temp\claude\C--Users-szy-Desktop-8005---AGV\4adfcda2-045f-4b66-8e85-98a9da46dc65\scratchpad\ticket26-package\MesIngest\service
+info: MesIngest.Latency[0]
+      correlationId=2d685335213443c49a338f3e1712abe0 component=Host stage=HTTP_OK elapsedMs=31 endpoint=/api/v2/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=e993bcde92744dcb94593a8706676561 component=Host stage=HTTP_OK elapsedMs=1 endpoint=/api/v2/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=913f9e61196d4b2593322971fdb81760 component=Host stage=HTTP_OK elapsedMs=2241 endpoint=/api/v2/watch-overview statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=0461afb2bf224a8592406ad2f6b5a438 component=Host stage=HTTP_OK elapsedMs=1640 endpoint=/api/v2/demand-series statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=d8c2ccf495fb43ccafa7403b1b93d1f4 component=Host stage=HTTP_OK elapsedMs=740 endpoint=/api/v2/error-search statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=3c09c6868b944940b3d6fdee62639e90 component=Host stage=HTTP_OK elapsedMs=37 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=c257596c28aa43faac22022624e3de30 component=Host stage=HTTP_OK elapsedMs=15001 endpoint=/api/v2/readability-audit statusCode=200
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNNU4BFEUK7S", Request id "0HNNU4BFEUK7S:00000001": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): Transaction (Process ID 62) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteReader(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteReaderAsync>b__201_1(IAsyncResult asyncResult)
+      --- End of stack trace from previous location ---
+         at MesIngest.Infrastructure.SqlServer.SqlServerMesIngestProjection.ReadAuditPageAsync(SqlConnection connection, SqlTransaction transaction, Int64 snapshotSequence, ReadabilityAuditFilter filter, Int32 pageNumber, Int32 pageSize, ReadabilityAuditCursor cursor, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Infrastructure\SqlServer\SqlServerMesIngestProjection.ReadabilityAudit.cs:line 686
+         at MesIngest.Infrastructure.SqlServer.SqlServerMesIngestProjection.ReadAuditPageAsync(SqlConnection connection, SqlTransaction transaction, Int64 snapshotSequence, ReadabilityAuditFilter filter, Int32 pageNumber, Int32 pageSize, ReadabilityAuditCursor cursor, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Infrastructure\SqlServer\SqlServerMesIngestProjection.ReadabilityAudit.cs:line 743
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+         at MesIngest.Infrastructure.SqlServer.SqlServerMesIngestProjection.ListReadabilityAuditAsync(ReadabilityAuditQuery query, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Infrastructure\SqlServer\SqlServerMesIngestProjection.ReadabilityAudit.cs:line 62
+         at MesIngest.Infrastructure.SqlServer.SqlServerMesIngestProjection.ListReadabilityAuditAsync(ReadabilityAuditQuery query, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Infrastructure\SqlServer\SqlServerMesIngestProjection.ReadabilityAudit.cs:line 111
+         at MesIngest.Infrastructure.SqlServer.SqlServerMesIngestProjection.ListReadabilityAuditAsync(ReadabilityAuditQuery query, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Infrastructure\SqlServer\SqlServerMesIngestProjection.ReadabilityAudit.cs:line 111
+         at MesIngest.Infrastructure.SqlServer.SqlServerMesIngestProjection.ListReadabilityAuditAsync(ReadabilityAuditQuery query, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Infrastructure\SqlServer\SqlServerMesIngestProjection.ReadabilityAudit.cs:line 111
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<TaskOfTToValueTaskOfObject>g__ExecuteAwaited|92_0[T](Task`1 task)
+         at MesIngest.Host.NewMesIngestEndpoints.ListReadabilityAuditAsync(HttpRequest request, IMesIngestProjection projection, CancellationToken cancellationToken) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\NewMesIngestEndpoints.cs:line 517
+         at MesIngest.Host.NewMesIngestEndpoints.<>c__DisplayClass2_0.<<DescribeV2>b__0>d.MoveNext() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\NewMesIngestEndpoints.cs:line 122
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<ExecuteValueTaskOfObject>g__ExecuteAwaited|129_0(ValueTask`1 valueTask, HttpContext httpContext, JsonTypeInfo`1 jsonTypeInfo)
+         at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+         at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+      --- End of stack trace from previous location ---
+         at Program.<>c.<<<Main>$>b__0_5>d.MoveNext() in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\Program.cs:line 164
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:a8f58c3b-060a-4830-8922-0b1694f9e574
+      Error Number:1205,State:51,Class:13
+         at MesIngest.Host.HostRequestLatencyMiddleware.InvokeAsync(HttpContext context) in C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\HostRequestLatencyMiddleware.cs:line 32
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 175a86a1c54b44d4ad5cf5db5c4a85cd completed as Success; projectionCommit=977950cb5fd64612acc6f35095499b9b.
+info: MesIngest.Latency[0]
+      correlationId=032bf88513574553b03cc6aff299b4ce component=Host stage=HTTP_OK elapsedMs=1815 endpoint=/api/v2/watch-overview statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 301243e9f34f4496b85670f0e34729ee completed as Success; projectionCommit=25db7ccc09064832825edef9e04c9365.
+info: MesIngest.Latency[0]
+      correlationId=9cd92fc02f3e41dd968c0f11ad19e07d component=Host stage=HTTP_OK elapsedMs=1535 endpoint=/api/v2/watch-overview statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round c05f0c7f6cf34dddbdef5bde0bb3487d completed as Success; projectionCommit=943fa6b628c243b4a7d067f7d712b5a0.
+info: MesIngest.Latency[0]
+      correlationId=bd86642f5d2e42c884dc64497831fc70 component=Host stage=HTTP_OK elapsedMs=1108 endpoint=/api/v2/watch-overview statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 99386d8e430f44ff9e31f3bfd88d8e36 completed as Success; projectionCommit=2813e5ef3b9b40fb9bd9ede2636348b6.
+info: MesIngest.Latency[0]
+      correlationId=e1789c3e85684342b5d45dddf95dd59e component=Host stage=HTTP_OK elapsedMs=327 endpoint=/api/v2/demand-series/4257b9d149e6486e9082091296059f3f statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=375031c780734f2585431533e849456e component=Host stage=HTTP_OK elapsedMs=3348 endpoint=/api/v2/watch-overview statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=0134d4f316024777897f86592a07569d component=Host stage=HTTP_OK elapsedMs=746 endpoint=/api/v2/demand-series statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=e7d7807e25654cecb255472df44692a0 component=Host stage=HTTP_OK elapsedMs=81 endpoint=/api/v2/demand-series/4257b9d149e6486e9082091296059f3f statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=037434ec9cc84f3796bd6e8429e65803 component=Host stage=HTTP_OK elapsedMs=19 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=46c9bfc84fdd469d9fe646a2fa0518ad component=Host stage=HTTP_OK elapsedMs=44 endpoint=/api/v2/error-search statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      Starting V2 Oracle single-flight poll loop (post-delay=00:00:05, command-timeout=30s).
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[redacted]:53463
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\szy\AppData\Local\Temp\claude\C--Users-szy-Desktop-8005---AGV\4adfcda2-045f-4b66-8e85-98a9da46dc65\scratchpad\ticket26-package\MesIngest\service
+info: MesIngest.Latency[0]
+      correlationId=1fa887d58e6a461b8c21ee64bdeb2017 component=Host stage=HTTP_OK elapsedMs=65 endpoint=/api/v2/contract statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=e8524f1fa7ac4654916c6ba595b4a45c component=Host stage=HTTP_OK elapsedMs=71 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=43815165bf61438ca2a4e9934ef76150 component=Host stage=HTTP_OK elapsedMs=22 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Latency[0]
+      correlationId=7ec10d73991446db8733b5458dbe25bd component=Host stage=HTTP_OK elapsedMs=23 endpoint=/api/v2/current-ingest-attention statusCode=200
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round 2b183737a749447788d323f91796959d completed as Success; projectionCommit=c7450c39d7de421693ab1bc06859fc7d.
+info: MesIngest.Host.MesTaskUnionPollHostedService[0]
+      V2 Oracle round c5fd52d2a48f46d4896a7ded14edceb7 completed as Success; projectionCommit=f3ae3ef42a3243c493620d924fb0649d.
+info: MesIngest.Latency[0]
+      correlationId=5cc5266219b7458799f96c4f94aa1845 component=Host stage=HTTP_OK elapsedMs=20639 endpoint=/api/v2/current-ingest-attention statusCode=200
+      correlationId=409b80a94389424f99177c9ec5cdde04 component=Host stage=HTTP_OK elapsedMs=19 endpoint=/api/v2/externally-readable-demand-catalog statusCode=200
+info: MesIngest.Latency[0]
+

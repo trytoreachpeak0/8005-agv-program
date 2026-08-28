@@ -1,0 +1,11 @@
+﻿recordedAt=2026-08-10T01:42:36.3093129+00:00 correlationId=a62b69132fd8475eb6b398eb976dc31a component=Watch stage=HTTP_OK elapsedMs=71 endpoint=/api/contract statusCode=200 rowCount=1 bytes=59
+recordedAt=2026-08-10T01:42:36.3599367+00:00 correlationId=f2d356f187954603af119c5f1473f8ad component=Watch stage=HTTP_OK elapsedMs=44 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T01:42:36.4095111+00:00 correlationId=75ac157d48344d72913a048c40e8e918 component=Watch stage=HTTP_OK elapsedMs=4 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T01:42:36.4322453+00:00 correlationId=cfc090d18cdf4ef8a5609d17ec763ab5 component=Watch stage=HTTP_OK elapsedMs=13 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-10T01:42:36.4322453+00:00 correlationId=552645729fe2423f85ab0b9ed1421233 component=Watch stage=HTTP_OK elapsedMs=18 endpoint=/api/alerts statusCode=200 rowCount=1 bytes=519
+recordedAt=2026-08-10T01:42:36.9159445+00:00 correlationId=c70946efe17e48aa83a3e33a9c4e41bf component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/alerts statusCode=200 rowCount=1 bytes=519
+recordedAt=2026-08-10T01:42:37.6658966+00:00 correlationId=c2f672fae2cd4ca18a40bb3085ec893c component=Watch stage=HTTP_OK elapsedMs=5 endpoint=/api/demands/journey-visible-001 statusCode=200 rowCount=1 bytes=390
+recordedAt=2026-08-10T01:42:37.9965667+00:00 correlationId=2e67cd835be24ba3825aee3e6d056f4b component=Watch stage=HTTP_OK elapsedMs=2 endpoint=/api/demands/journey-visible-001 statusCode=200 rowCount=1 bytes=390
+recordedAt=2026-08-10T01:42:38.0011872+00:00 correlationId=1fad277bb06e4c6ca322fd5916dd0673 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-10T01:42:38.0470600+00:00 correlationId=e2d0fd0e65b94002af9f36ca06bad120 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands/journey-visible-001 statusCode=200 rowCount=1 bytes=390
+recordedAt=2026-08-10T01:42:38.2565758+00:00 correlationId=36bbb8183aff49da8991dbb94a535b35 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands/journey-visible-001 statusCode=200 rowCount=1 bytes=390

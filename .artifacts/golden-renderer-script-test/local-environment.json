@@ -1,0 +1,33 @@
+{
+  "Status": "FAILED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-10T08:08:15.2940476+08:00",
+    "Hostname": "LAB-WIN-01",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 2560,
+    "DesktopHeight": 1440,
+    "Dpi": 144,
+    "ScalePercent": 150,
+    "AppsUseLightTheme": true,
+    "Culture": "en-US",
+    "UiCulture": "en-US",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": [
+    "expected desktop=1920x1080; actual=2560x1440",
+    "expected DPI=96; actual=144",
+    "expected culture=zh-CN; actual=en-US",
+    "expected UI culture=zh-CN; actual=en-US"
+  ]
+}

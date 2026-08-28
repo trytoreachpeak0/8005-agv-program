@@ -1,0 +1,7 @@
+{
+    "uid":  "riot-behavior-lab-R23-after-loc-20260721-084626",
+    "dest":  3,
+    "cost":  250,
+    "code":  "0",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"appointVehicleGroupId\":0,\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"createTime\":\"2026-07-21 08:48:09\",\"createdBy\":\"api-test\",\"endStationName\":\"站点3\",\"endStationNo\":3,\"finalState\":false,\"id\":488624,\"isAppointEnable\":1,\"lockStatus\":0,\"missions\":[{\"actionId\":0,\"actionName\":\"\",\"actionParam1\":0,\"actionParam2\":0,\"actionParamStr\":\"\",\"createTime\":\"2026-07-21 08:48:09\",\"createType\":0,\"destination\":3,\"destinationName\":\"\",\"executingIndex\":0,\"failStrategy\":\"\",\"failValue\":\"\",\"functionKey\":\"\",\"id\":7423927,\"isDeleted\":0,\"length\":0,\"mapId\":30,\"mapName\":\"\",\"missionState\":0,\"orderId\":488624,\"orderUuid\":\"9be500c8-52d5-4b1c-9470-fc94ea2517ec\",\"resultCode\":0,\"resultStr\":\"\",\"speed\":0.0,\"successStrategy\":\"SUCCESS_STRATEGY_VOID\",\"type\":\"move\",\"updateTime\":\"2026-07-21 08:48:09\",\"width\":0}],\"modifiedBy\":\"api-test\",\"orderId\":\"order-2079367793383440384\",\"orderName\":\"riot-behavior-lab-R23-after-loc-20260721-084626\",\"orderState\":1,\"orderType\":1,\"priority\":0,\"source\":\"FMS\",\"startEndStationNameDetail\":\"null null \u003e null null\",\"startStationName\":\"站点3\",\"startStationNo\":3,\"updateTime\":\"2026-07-21 08:48:09\",\"upperId\":\"riot-behavior-lab-R23-after-loc-20260721-084626\",\"userId\":0},\"tid\":\"\"}"
+}

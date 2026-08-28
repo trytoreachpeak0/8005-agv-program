@@ -1,0 +1,6 @@
+{
+    "req":  "{\"commandType\":\"CMD_ORDER_CONTINUE_FROM_REJECTED\",\"disableVehicle\":false,\"reason\":\"riot-lab-R11-cont-rej\"}",
+    "code":  "10016",
+    "message":  "订单无法移回队列",
+    "body":  "{\"code\":\"10016\",\"detail\":\"code:[10016], msg:[order.can.not.remove.in.queue]\",\"message\":\"订单无法移回队列\",\"msgDetail\":\"订单无法移回队列\",\"tid\":\"\"}"
+}

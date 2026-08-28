@@ -1,0 +1,41 @@
+{
+  "Ticket": "golden-renderer-smoke",
+  "Suite": "watch-vm-tests",
+  "Configuration": "Release",
+  "RequestedRuns": 10,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\golden-renderer-smoke\\run-20260810-081344-watch-vm-tests",
+  "CreatedAt": "2026-08-10T08:13:49.1542358+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "aeae8a99dd818fa927e5136ffd713521aeba3d51",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/Invoke-WatchUiTests.ps1",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/MesIngest.Watch.UiTests.csproj",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/README.md",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchVisualEnvironment.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchVisualEnvironmentTests.cs",
+    "?? mes/ingest/csharp/.artifacts/",
+    "?? mes/ingest/csharp/Invoke-GoldenRendererValidation.ps1",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/UI-GATE-POLICY.md",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchJourneyEvidence.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchJourneyEvidenceTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowBaseline.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowFakeHost.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowFakeHostTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowJourneyTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WatchWindowNative.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.UiTests/WindowBaselines/",
+    "?? mes/ingest/csharp/New-WatchWindowBaselineProposal.ps1",
+    "?? mes/ingest/csharp/Test-GoldenRendererEnvironment.ps1",
+    "?? mes/ingest/csharp/Test-WatchUiGateStability.ps1",
+    "?? mes/ingest/csharp/Test-WatchWindowBaselineStability.ps1"
+  ],
+  "PayloadSha256": "095196705EDF34BF5DA943ECB1B760D8646592685C52274EC3F4970059A36C71",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  }
+}

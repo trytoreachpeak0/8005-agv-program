@@ -1,0 +1,38 @@
+[
+  {
+    "actionId": 78,
+    "actionName": "结束充电",
+    "actionParam1": 2,
+    "actionParam2": 0,
+    "actionParamStr": "",
+    "createdBy": "admin",
+    "functionKey": "",
+    "functionName": "",
+    "gmtCreate": "2023-08-30 14:35:12",
+    "gmtModified": "2023-08-30 14:35:12",
+    "id": 11,
+    "isDeleted": 0,
+    "modifiedBy": "admin",
+    "productKey": "",
+    "templateType": "2",
+    "userId": 2
+  },
+  {
+    "actionId": 78,
+    "actionName": "开始充电",
+    "actionParam1": 1,
+    "actionParam2": 0,
+    "actionParamStr": "",
+    "createdBy": "admin",
+    "functionKey": "",
+    "functionName": "",
+    "gmtCreate": "2023-08-30 14:35:03",
+    "gmtModified": "2023-08-30 14:35:03",
+    "id": 10,
+    "isDeleted": 0,
+    "modifiedBy": "admin",
+    "productKey": "",
+    "templateType": "2",
+    "userId": 2
+  }
+]

@@ -1,0 +1,273 @@
+{
+  "SchemaVersion": 1,
+  "StartedAtUtc": "2026-08-24T20:39:44.8042507+00:00",
+  "SqlServer": {
+    "ProductVersion": "16.0.1190.2",
+    "ProductMajor": 16,
+    "EngineEdition": 3,
+    "CompatibilityLevel": 160,
+    "LocalDb": false
+  },
+  "ReleasePackage": {
+    "ManifestPath": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package\\RELEASE-MANIFEST.json",
+    "ManifestSha256": "15cb4db5c4d07cb85f61b03c28192f728ed15b484e9a44252d31454c675643fa",
+    "SourceCommit": "0373531ba90cf0f5b525d84af505e3bf17f52afb",
+    "SourceDirty": false,
+    "Configuration": "Release",
+    "Runtime": "win-x64",
+    "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "SchemaVersion": 28,
+    "SharedContractSha256": "c80b96c4df15cc2493c460b52d570cd9240647359c5a922ee40c1e37a6f80a66",
+    "ServiceAndWatchContractIdentical": true
+  },
+  "OldHostGateMode": "WINDOWS_SCHEDULED_TASK",
+  "Failure": {
+    "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+    "OldDatabaseName": "MesIngest_Ticket26_F_b8c64334d89240898faddc40f7563452_Old",
+    "NewDatabaseName": "MesIngest_Ticket26_F_6967b605aa31461f8d0a53e2ecc50f6b_New",
+    "HistoryEpoch": "5a6ce5bd-239f-46e4-9662-8dfb8026a19f",
+    "OldHostStopGate": {
+      "TaskName": "MesIngestCutoverOld_11644e4e9f464cb08854a7183b08e6fa",
+      "State": "Disabled",
+      "LastRunTime": "2026-08-25T04:39:45.0000000+08:00",
+      "LastTaskResult": 267014,
+      "OldDatabaseName": "MesIngest_Ticket26_F_b8c64334d89240898faddc40f7563452_Old",
+      "ExecutablePath": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package\\service\\MesIngest.Host.exe",
+      "ExecutableSha256": "2a97b5bfb4e59278d5acd7ff2072135664c00dffe8b3743da25b6c4ca261e0de",
+      "ActionArgumentsSha256": "1aad85b049c668ebf402fbda2f4f594e74380a692568d2e57c67429ffce4ecde",
+      "StartedAtUtc": "2026-08-24T20:39:45.6584953+00:00",
+      "StoppedAtUtc": "2026-08-24T20:39:49.7092796+00:00"
+    },
+    "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "SchemaVersion": 28,
+    "ExitCode": 1,
+    "ErrorCode": "CUTOVER_HTTP_GATE_UNREACHABLE",
+    "DurationMs": 12936.5,
+    "DrivenRounds": [
+      {
+        "StartPollTraceSequence": 0,
+        "EndPollTraceSequence": 3,
+        "PollTraceCount": 3,
+        "DurationMs": 4914.1,
+        "ProcessExited": true
+      }
+    ],
+    "StepTimings": [
+      {
+        "Name": "PACKAGE_IDENTITY",
+        "Outcome": "PASSED",
+        "DurationMs": 2315.2
+      },
+      {
+        "Name": "EVIDENCE_PREFLIGHT_AND_OLD_HOST_STOP",
+        "Outcome": "PASSED",
+        "DurationMs": 1331.6
+      },
+      {
+        "Name": "DATABASE_IDENTITY",
+        "Outcome": "PASSED",
+        "DurationMs": 172.7
+      },
+      {
+        "Name": "TOMBSTONE_SEED_AND_PROOF",
+        "Outcome": "PASSED",
+        "DurationMs": 128.0
+      },
+      {
+        "Name": "THREE_PROJECTION_ROUNDS",
+        "Outcome": "PASSED",
+        "DurationMs": 6133.5
+      },
+      {
+        "Name": "WATCH_API_AND_CONTRACT",
+        "Outcome": "FAILED",
+        "DurationMs": 2124.7
+      }
+    ],
+    "OldDatabasePreservedAfterFiveSeconds": true,
+    "NewDatabasePreservedAfterFiveSeconds": true,
+    "BackgroundChildProcessCountAfterExit": 0,
+    "CutoverPrincipalExistsAfterExit": false,
+    "PermissionLifecycle": {
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "PrincipalName": "MesIngestCutover_8ff96d54591e460b845b3a9ea653d7aa",
+      "FinalStatus": "NOT_GRANTED_AND_VERIFIED_ABSENT",
+      "VerifiedAbsent": true,
+      "Events": [
+        {
+          "AtUtc": "2026-08-25T04:40:07.6037712+08:00",
+          "Action": "VERIFIED_ABSENT",
+          "Detail": "MesIngestCutover_8ff96d54591e460b845b3a9ea653d7aa"
+        }
+      ]
+    },
+    "EvidenceJson": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\.scratch\\mes-ingest-bounded-storage-low-memory\\evidence\\ticket26-packaged-cutover-2026-08-25\\runs\\8ff96d54-591e-460b-845b-3a9ea653d7aa.json",
+    "EvidenceMarkdown": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\.scratch\\mes-ingest-bounded-storage-low-memory\\evidence\\ticket26-packaged-cutover-2026-08-25\\runs\\8ff96d54-591e-460b-845b-3a9ea653d7aa.md"
+  },
+  "Success": {
+    "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+    "OldDatabaseName": "MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old",
+    "NewDatabaseName": "MesIngest_Ticket26_S_93174e1372f14dc2b916558a57e56436_New",
+    "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23",
+    "OldHostStopGate": {
+      "TaskName": "MesIngestCutoverOld_d8a201803d1d438f890af91a871ab5c8",
+      "State": "Disabled",
+      "LastRunTime": "2026-08-25T04:39:49.0000000+08:00",
+      "LastTaskResult": 267014,
+      "OldDatabaseName": "MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old",
+      "ExecutablePath": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package\\service\\MesIngest.Host.exe",
+      "ExecutableSha256": "2a97b5bfb4e59278d5acd7ff2072135664c00dffe8b3743da25b6c4ca261e0de",
+      "ActionArgumentsSha256": "8e188c94152108d24e037dc6d711046906065658a6a3ad34bc419721d0787ce8",
+      "StartedAtUtc": "2026-08-24T20:39:49.8031058+00:00",
+      "StoppedAtUtc": "2026-08-24T20:39:53.5215566+00:00"
+    },
+    "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "SchemaVersion": 28,
+    "ExitCode": 0,
+    "DurationMs": 16071.3,
+    "DrivenRounds": [
+      {
+        "StartPollTraceSequence": 0,
+        "EndPollTraceSequence": 3,
+        "PollTraceCount": 3,
+        "DurationMs": 5058.6,
+        "ProcessExited": true
+      }
+    ],
+    "StepTimings": [
+      {
+        "Name": "PACKAGE_IDENTITY",
+        "Outcome": "PASSED",
+        "DurationMs": 2262.4
+      },
+      {
+        "Name": "EVIDENCE_PREFLIGHT_AND_OLD_HOST_STOP",
+        "Outcome": "PASSED",
+        "DurationMs": 1255.7
+      },
+      {
+        "Name": "DATABASE_IDENTITY",
+        "Outcome": "PASSED",
+        "DurationMs": 132.8
+      },
+      {
+        "Name": "TOMBSTONE_SEED_AND_PROOF",
+        "Outcome": "PASSED",
+        "DurationMs": 104.9
+      },
+      {
+        "Name": "THREE_PROJECTION_ROUNDS",
+        "Outcome": "PASSED",
+        "DurationMs": 6099.4
+      },
+      {
+        "Name": "WATCH_API_AND_CONTRACT",
+        "Outcome": "PASSED",
+        "DurationMs": 782.3
+      },
+      {
+        "Name": "REFERENCE_CONSUMER_AND_CATALOG",
+        "Outcome": "PASSED",
+        "DurationMs": 398.9
+      },
+      {
+        "Name": "FINAL_DESTRUCTIVE_REVALIDATION",
+        "Outcome": "PASSED",
+        "DurationMs": 2480.3
+      },
+      {
+        "Name": "PRE_DELETE_EVIDENCE_AND_EVENT",
+        "Outcome": "PASSED",
+        "DurationMs": 46.5
+      },
+      {
+        "Name": "EXACT_OLD_DATABASE_DELETE_AND_PERMISSION_REVOCATION",
+        "Outcome": "PASSED",
+        "DurationMs": 2054.0
+      },
+      {
+        "Name": "FINAL_WINDOWS_EVENT",
+        "Outcome": "PASSED",
+        "DurationMs": 5.2
+      }
+    ],
+    "ProjectionRounds": [
+      {
+        "PollTraceSequence": 3,
+        "ProjectionCommitId": "00712f68a9da466dbfa1c0b55366ee1b",
+        "ProjectionSequence": 3,
+        "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23"
+      },
+      {
+        "PollTraceSequence": 2,
+        "ProjectionCommitId": "65df8e5bae4e4657b787116d66a16830",
+        "ProjectionSequence": 2,
+        "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23"
+      },
+      {
+        "PollTraceSequence": 1,
+        "ProjectionCommitId": "02c72d0edeec4a78820d0ab677ba7034",
+        "ProjectionSequence": 1,
+        "HistoryEpoch": "1e2dd82d-55ad-48dd-b622-4b48fd55cd23"
+      }
+    ],
+    "GateCount": 11,
+    "DatabaseDeletion": "DELETED_EXACT_PROVEN_OLD_DATABASE",
+    "OldDatabaseExistsAfterCutover": false,
+    "NewDatabaseExistsAfterCutover": true,
+    "CutoverPrincipalExistsAfterExit": false,
+    "PermissionLifecycle": {
+      "CutoverRunId": "83ef2385-a383-4777-a554-a519fcbfeac3",
+      "PrincipalName": "MesIngestCutover_83ef2385a3834777a554a519fcbfeac3",
+      "DeletePermission": "CONTROL DATABASE::MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old",
+      "SessionVisibilityPermission": "VIEW SERVER STATE; VIEW SERVER PERFORMANCE STATE",
+      "GrantedAtUtc": "2026-08-25T04:40:30.0076731+08:00",
+      "RevokedAtUtc": "2026-08-25T04:40:31.0135269+08:00",
+      "FinalStatus": "REVOKED_AND_PRINCIPAL_DROPPED",
+      "VerifiedAbsent": true,
+      "Events": [
+        {
+          "AtUtc": "2026-08-25T04:40:30.0076731+08:00",
+          "Action": "GRANTED",
+          "Detail": "principal=MesIngestCutover_83ef2385a3834777a554a519fcbfeac3;database=MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old"
+        },
+        {
+          "AtUtc": "2026-08-25T04:40:30.9806009+08:00",
+          "Action": "REVERIFIED_BEFORE_DROP",
+          "Detail": "databaseId=13;createDateUtc=2026-08-25T04:39:45.0830000Z"
+        },
+        {
+          "AtUtc": "2026-08-25T04:40:31.0027646+08:00",
+          "Action": "EXACT_DATABASE_DELETED",
+          "Detail": "database=MesIngest_Ticket26_S_9502db75d61c4d808c3ac0c457ebf7dd_Old;databaseId=13"
+        },
+        {
+          "AtUtc": "2026-08-25T04:40:31.0044199+08:00",
+          "Action": "IMPERSONATED_SESSION_CLOSED",
+          "Detail": "MesIngestCutover_83ef2385a3834777a554a519fcbfeac3"
+        },
+        {
+          "AtUtc": "2026-08-25T04:40:31.0135269+08:00",
+          "Action": "VERIFIED_ABSENT",
+          "Detail": "MesIngestCutover_83ef2385a3834777a554a519fcbfeac3;cleanupAttempt=1"
+        }
+      ]
+    },
+    "EvidenceJson": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\.scratch\\mes-ingest-bounded-storage-low-memory\\evidence\\ticket26-packaged-cutover-2026-08-25\\runs\\83ef2385-a383-4777-a554-a519fcbfeac3.json",
+    "EvidenceMarkdown": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\.scratch\\mes-ingest-bounded-storage-low-memory\\evidence\\ticket26-packaged-cutover-2026-08-25\\runs\\83ef2385-a383-4777-a554-a519fcbfeac3.md",
+    "PreDeleteEvidenceJson": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\.scratch\\mes-ingest-bounded-storage-low-memory\\evidence\\ticket26-packaged-cutover-2026-08-25\\runs\\83ef2385-a383-4777-a554-a519fcbfeac3.pre-delete.json",
+    "PreDeleteEvidenceMarkdown": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\.scratch\\mes-ingest-bounded-storage-low-memory\\evidence\\ticket26-packaged-cutover-2026-08-25\\runs\\83ef2385-a383-4777-a554-a519fcbfeac3.pre-delete.md"
+  },
+  "Cleanup": {
+    "FailureOldDatabaseExists": false,
+    "FailureNewDatabaseExists": false,
+    "SuccessOldDatabaseExists": false,
+    "SuccessNewDatabaseExists": false,
+    "ApplicationLoginExists": false,
+    "FailureOldHostTaskExists": false,
+    "SuccessOldHostTaskExists": false,
+    "RealMesIngestServiceTouched": false
+  },
+  "CompletedAtUtc": "2026-08-24T20:40:33.6050513+00:00",
+  "Status": "PASSED"
+}

@@ -22,11 +22,11 @@ aliases: ["FR-012"]
 
 配置中的模式与脉冲宽度是启动及 reset 的默认值：启动时写入该模块模板定义的 DO 工作模式寄存器（首个模板为 40412～40427）和 DO 脉冲宽度寄存器（首个模板为 40428～40443）。启动完成后，以这些运行时寄存器的当前值为准；主系统合法写入后立即改变相应 DO 的后续行为，不要求修改配置。reset 将模式、脉冲宽度和 DO 电平恢复为配置默认值。配置热重载更新 reset 默认值，但不覆盖现有通道的运行时寄存器值；新增通道按新配置初始化。
 
-结合电磁锁的物理特性（通电开锁、断电闩锁）：对应的锁状态（DI 反馈）实时镜像该 DO 点位的当前值，因此脉冲模式下锁会在脉冲超时后随 DO 自动复位而自动重新闩上，这一镜像关系详见 [[fr-002-slot-state-machine-normal-flow|FR-002]]。
+开锁 DO 的脉冲复位只表示 IO 模块停止驱动电磁铁，不表示仓门已经关闭或锁舌已经重新闩合。正常开锁会由弹簧弹开仓门，锁 DI 在 DO 复位后仍保持“未锁”；只有人工关门并重新闩合后才恢复“锁闭”。DO 回读和锁 DI 必须分别核验，详见 [[fr-002-slot-state-machine-normal-flow|FR-002]]。
 
 ## Origin 需求来源
 
-用户新提出的需求：现场仓位锁是电磁铁，DO 为 1 时锁一直打开，DO 为 0 时电磁铁断电锁自动闩上；现场驱动 DO 的 IO 模块可能是电平输出，也可能是脉冲输出（脉冲继电器模块），模拟器需要能还原两种驱动方式的差异。设计判断（按点位独立配置、锁状态镜像 DO 电平）详见 [[dr-010-do-control-mode|DR-010]]。
+现场仓位锁由电磁铁短时拉下锁舌，并由弹簧把门弹开；IO 模块使用脉冲输出并自行复位。模拟器需要同时表现输出脉冲与独立锁反馈，不能把 DO 复位当作仓门锁闭。按点位配置与反馈分离规则详见 [[dr-010-do-control-mode|DR-010]]。
 
 ## Acceptance Criteria 验收标准
 
@@ -37,8 +37,8 @@ aliases: ["FR-012"]
 - 配置保存后立即热重载：新默认值供后续 reset 使用且不覆盖既有通道当前运行时寄存器值；新增加的通道立即按新默认值初始化。
 - 电平模式：DO 值严格跟随主系统的最近一次写入，模拟器不做任何自动改变。
 - 脉冲模式：每次有效写入 DO=1 均触发或重触发脉冲；重触发时取消原到期时刻，并从最后一次有效 ON 写入时刻起按当时运行时脉宽重新完整计时。写入被协议校验拒绝时不得重触发。
-- 该 DO 对应的锁状态（DI）反馈与 DO 当前值保持同步（DO=1→解锁，DO=0→锁定），包括脉冲模式下的自动复位场景。
-- 除 [[fr-003-exception-scenario-simulation|FR-003]] / [[dr-014-fault-injection-mirror-exception|DR-014]] 明确允许的故障注入外，锁状态 DI 不得脱离 DO 当前电平。
+- 有效开锁脉冲正常触发弹门和锁 DI 变为未锁；DO 自动复位后锁 DI 不自动恢复锁闭。
+- 锁 DI 只有在控制 API 模拟实际关门并成功闩合后才恢复锁闭；开锁/弹门失败可按 [[fr-003-exception-scenario-simulation|FR-003]] 注入。
 
 ## Related Use Case 关联用例
 
@@ -61,7 +61,7 @@ aliases: ["FR-012"]
 - **TC-FR-012-004（编号预留）**
   - **Given** 运行时寄存器值已偏离当前有效配置默认值
   - **When** 调用 reset
-  - **Then** DO 电平、工作模式与脉宽均恢复为配置默认值，锁状态 DI 同步镜像 DO
+  - **Then** DO 电平、工作模式与脉宽均恢复为配置默认值；锁 DI 按当前内部门/闩锁状态恢复，不镜像 DO
 - **TC-FR-012-005（编号预留）**
   - **Given** 运行中的通道已有合法运行时模式和脉宽
   - **When** 保存并成功热重载新的模式或脉宽默认值
@@ -69,4 +69,4 @@ aliases: ["FR-012"]
 
 ## Related 关联
 
-[[fr-001-configurable-slot-count-and-io-mapping|FR-001]]（点位地址映射）、[[fr-002-slot-state-machine-normal-flow|FR-002]]（锁状态与 DO 电平的镜像关系）、[[fr-003-exception-scenario-simulation|FR-003]]（镜像关系的故障注入例外）、[[fr-010-automation-test-infrastructure|FR-010]]（reset）、[[fr-013-configurable-register-table-template|FR-013]]（工作模式与脉宽寄存器定义）、[[dr-010-do-control-mode|DR-010]]、[[dr-011-full-register-table-fidelity|DR-011]]、[[dr-014-fault-injection-mirror-exception|DR-014]]、[[dr-015-do-power-on-state-vs-reset|DR-015]]。
+[[fr-001-configurable-slot-count-and-io-mapping|FR-001]]（点位地址映射）、[[fr-002-slot-state-machine-normal-flow|FR-002]]（DO 与锁 DI 独立语义）、[[fr-003-exception-scenario-simulation|FR-003]]（故障注入）、[[fr-010-automation-test-infrastructure|FR-010]]（reset）、[[fr-013-configurable-register-table-template|FR-013]]（工作模式与脉宽寄存器定义）、[[dr-010-do-control-mode|DR-010]]、[[dr-011-full-register-table-fidelity|DR-011]]、[[dr-014-fault-injection-mirror-exception|DR-014]]、[[dr-015-do-power-on-state-vs-reset|DR-015]]。

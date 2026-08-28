@@ -1,0 +1,672 @@
+{
+  "CandidateRunDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-23-candidate-gate\\run-20260819-010449-watch-window-stability\\Results\\watch-window-stability",
+  "ApprovedPreviewDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-23-acceptance-preview\\run-20260819-001953-watch-production-preview\\watch-ui\\20260819-002016-760\\production-workspace-19-22",
+  "Runs": 10,
+  "States": 11,
+  "StatesMatchingApproval": 11,
+  "StatesDiffering": 0,
+  "ToleratedStepFiles": [],
+  "Verdict": "IDENTICAL_TO_APPROVED_PREVIEW",
+  "Detail": [
+    {
+      "State": "01-overview",
+      "ApprovedSha256": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "43FCF59E6C1CC928771C33C04E9F56C64D8A9F863EAD332C92B788F7A42862A9",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "01e-overview-navigation-expanded",
+      "ApprovedSha256": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "49EA59F06B8437DEB8B03C7761B723F995EB6D37F7773BAEA0234312D754080A",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "01f-overview-offline-retained",
+      "ApprovedSha256": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "B185A2D5B2FF48D4C43AA829AE33CD6DB2E0BBDAA3048851ACB2A9E554A9B25D",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "02-settings",
+      "ApprovedSha256": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "9E24072E2855A7104198693CB328EB94C62FD3AD886EB488D3761826E34740CA",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "02v-settings-timeout-validation",
+      "ApprovedSha256": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "B1FAB35066E41BDF75A771DA53228B6BA8E697B8FEF3E99A89D69CE91B54E98D",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "03-demand-series-detail",
+      "ApprovedSha256": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "6449429E559AEB4872212EC37BF6CDCA0EF98AEEE5F8EB3DA71138367933D408",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "04-readability-audit-detail",
+      "ApprovedSha256": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "14ECA1F675E80BB0135DF1EA312A326B3EBC4FAA584ECD9B2CCED9D7FF0CF6DE",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "05-area-filter-profile",
+      "ApprovedSha256": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "01FF987D3FB0F7152F66FAD062C228A0EB91B8499315AC4B9C70BF110426AB21",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "06-error-search-variant-a",
+      "ApprovedSha256": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "577FC65A8FEFE812A94CA401DCEEBD700248EF7D7CBC6C1688A2A00F74A98691",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "07-current-ingest-attention",
+      "ApprovedSha256": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "364FB5722014AA7FBF8DA628A959E7D9600373651AD9135CC22608E8C883C9F2",
+          "Match": true
+        }
+      ]
+    },
+    {
+      "State": "08-current-attention-error-drill",
+      "ApprovedSha256": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+      "DistinctHashes": 1,
+      "RunsMatching": 10,
+      "RunsTotal": 10,
+      "MatchesApproval": true,
+      "PerRun": [
+        {
+          "Run": "run-01",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-02",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-03",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-04",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-05",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-06",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-07",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-08",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-09",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        },
+        {
+          "Run": "run-10",
+          "Hash": "B7D5DC3DEEBA58D4F3AE9263FFA969C70E80BC6B0472AAA817768254BEF97CFC",
+          "Match": true
+        }
+      ]
+    }
+  ]
+}

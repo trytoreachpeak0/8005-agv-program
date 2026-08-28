@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-21T01:46:44.0896867+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\area-live-sync\\run-20260821-014058-watch-production-preview",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-area-live-sync\\run-20260821-014058-watch-production-preview"
+}

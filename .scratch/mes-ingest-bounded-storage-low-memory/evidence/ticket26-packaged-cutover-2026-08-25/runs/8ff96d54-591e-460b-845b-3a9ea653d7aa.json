@@ -1,0 +1,127 @@
+{
+  "SchemaVersion": 3,
+  "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+  "Status": "FAILED_BEFORE_DELETE_AUTHORIZATION",
+  "StartedAtUtc": "2026-08-24T20:39:55.3719953+00:00",
+  "CompletedAtUtc": "2026-08-24T20:40:07.6074743+00:00",
+  "TotalDurationMs": 12231.4,
+  "Operator": "LAB-WIN-01\\szy",
+  "HistoryEpoch": "5a6ce5bd-239f-46e4-9662-8dfb8026a19f",
+  "ReleasePackage": {
+    "PackageRoot": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package",
+    "ManifestPath": "C:\\Users\\szy\\.codex\\worktrees\\0125\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\ticket26-release-package\\RELEASE-MANIFEST.json",
+    "ManifestSha256": "15cb4db5c4d07cb85f61b03c28192f728ed15b484e9a44252d31454c675643fa",
+    "DeclaredFileCount": 1372,
+    "ManifestSchemaVersion": 3,
+    "ManifestGeneratedAt": "08/25/2026 04:39:39",
+    "SourceCommit": "0373531ba90cf0f5b525d84af505e3bf17f52afb",
+    "SourceDirty": false,
+    "Configuration": "Release",
+    "Runtime": "win-x64",
+    "ContractVersion": "2026.08.new-mes-ingest.v2.1",
+    "SchemaVersion": 28,
+    "OpenApiSha256": "fc0d6fe405b9abceaaa08d27f39e0a4e04ea89a86b720a04a5d06860985bf6ae",
+    "SharedContractSha256": "c80b96c4df15cc2493c460b52d570cd9240647359c5a922ee40c1e37a6f80a66",
+    "ServiceAndWatchContractIdentical": true
+  },
+  "ErrorCode": "CUTOVER_HTTP_GATE_UNREACHABLE",
+  "TombstoneProof": {
+    "AlgorithmVersion": "ARCHIVED_DEMAND_KEY_TOMBSTONE_SHA256_V1",
+    "KeyTokenAlgorithmVersion": "TRANSPORT_DEMAND_KEY_SHA256_LENGTH_PREFIXED_V1",
+    "Count": 2,
+    "Sha256": "db9902e227e34291ec6e7919f64159f2d4ab603be368b48cc750d64753f454a9"
+  },
+  "GateCount": 7,
+  "Gates": [
+    {
+      "Name": "OLD_HOST_STOPPED",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "task=MesIngestCutoverOld_11644e4e9f464cb08854a7183b08e6fa;state=Disabled;executableSha256=2a97b5bfb4e59278d5acd7ff2072135664c00dffe8b3743da25b6c4ca261e0de;argumentsSha256=1aad85b049c668ebf402fbda2f4f594e74380a692568d2e57c67429ffce4ecde"
+    },
+    {
+      "Name": "OLD_DATABASE_NO_BUSINESS_CONNECTIONS",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "foreignSessionCount=0"
+    },
+    {
+      "Name": "CONTRACT_SCHEMA_EXACT",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "old=2026.08.new-mes-ingest.v2.0-test-old/27;new=2026.08.new-mes-ingest.v2.1/28"
+    },
+    {
+      "Name": "OLD_DATABASE_IDENTITY",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "LAB-WIN-01\\MSSQLSERVER/MesIngest_Ticket26_F_b8c64334d89240898faddc40f7563452_Old@F:\\MesIngestTicket26Cutover"
+    },
+    {
+      "Name": "RUN_IDENTITY_NO_DELETE_PERMISSION",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "no CONTROL database or ALTER ANY DATABASE permission"
+    },
+    {
+      "Name": "TOMBSTONE_PROOF_MATCH",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "algorithm=ARCHIVED_DEMAND_KEY_TOMBSTONE_SHA256_V1;keyAlgorithm=TRANSPORT_DEMAND_KEY_SHA256_LENGTH_PREFIXED_V1;count=2;sha256=db9902e227e34291ec6e7919f64159f2d4ab603be368b48cc750d64753f454a9"
+    },
+    {
+      "Name": "THREE_CONSECUTIVE_PROJECTIONS",
+      "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+      "Passed": true,
+      "Detail": "projectionSequences=3,2,1"
+    }
+  ],
+  "StepTimings": [
+    {
+      "Name": "PACKAGE_IDENTITY",
+      "Outcome": "PASSED",
+      "DurationMs": 2315.2
+    },
+    {
+      "Name": "EVIDENCE_PREFLIGHT_AND_OLD_HOST_STOP",
+      "Outcome": "PASSED",
+      "DurationMs": 1331.6
+    },
+    {
+      "Name": "DATABASE_IDENTITY",
+      "Outcome": "PASSED",
+      "DurationMs": 172.7
+    },
+    {
+      "Name": "TOMBSTONE_SEED_AND_PROOF",
+      "Outcome": "PASSED",
+      "DurationMs": 128.0
+    },
+    {
+      "Name": "THREE_PROJECTION_ROUNDS",
+      "Outcome": "PASSED",
+      "DurationMs": 6133.5
+    },
+    {
+      "Name": "WATCH_API_AND_CONTRACT",
+      "Outcome": "FAILED",
+      "DurationMs": 2124.7
+    }
+  ],
+  "PermissionLifecycle": {
+    "CutoverRunId": "8ff96d54-591e-460b-845b-3a9ea653d7aa",
+    "PrincipalName": "MesIngestCutover_8ff96d54591e460b845b3a9ea653d7aa",
+    "FinalStatus": "NOT_GRANTED_AND_VERIFIED_ABSENT",
+    "VerifiedAbsent": true,
+    "Events": [
+      {
+        "AtUtc": "2026-08-24T20:40:07.6037712+00:00",
+        "Action": "VERIFIED_ABSENT",
+        "Detail": "MesIngestCutover_8ff96d54591e460b845b3a9ea653d7aa"
+      }
+    ]
+  },
+  "DatabaseDeletion": "NOT_ATTEMPTED_GATE_FAILURE",
+  "IsDatabaseBackup": false,
+  "HasRollbackPath": false
+}

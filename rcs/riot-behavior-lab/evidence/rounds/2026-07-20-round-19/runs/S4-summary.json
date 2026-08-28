@@ -1,0 +1,45 @@
+{
+  "auth": "callApiKey",
+  "triggerCode": "0",
+  "triggerMessage": "成功",
+  "triggerHit": true,
+  "cancelCode": "0",
+  "cancelMessage": "成功",
+  "cleared": true,
+  "before": {
+    "at": "2026-07-20 16:07:44.884",
+    "emergencyState": "OK",
+    "controlState": "CONTROL_STATE_OK",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 1
+  },
+  "afterTrigger": {
+    "at": "2026-07-20 16:07:46.560",
+    "emergencyState": "CAN_RECOVER",
+    "controlState": "CONTROL_STATE_ERR",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 3
+  },
+  "afterCancel": {
+    "at": "2026-07-20 16:07:48.430",
+    "emergencyState": "OK",
+    "controlState": "CONTROL_STATE_OK",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 1
+  }
+}

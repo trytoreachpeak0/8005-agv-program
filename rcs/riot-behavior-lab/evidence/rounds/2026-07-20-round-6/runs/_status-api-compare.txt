@@ -1,0 +1,18 @@
+Round6 status API review
+Previous primary: GET /api/task/v1/task/getVehicleInfo/{deviceKey}
+  - Enough for procState/battery/currentStation
+  - mapName WAS present but nested: vehicle.previousState.mapName = api测试
+  - also vehicle.plantModel string = api测试
+  - Round4 miss: only scanned top-level *map* property names
+
+Better/complementary for device state:
+  GET /api/device/v1/runtime/properties/{deviceKey}
+  - has mapName, stationNo, sysState, movementState, multiLoadState, etc.
+  - picked.mapName = api测试
+  - picked.stationNo = 1
+
+Insufficient alone:
+  GET /api/device/v1/runtime/status/{deviceKey} -> only online+timestamp
+  GET /api/task/vehicles/getVehicleInfoByDeviceKey -> code=00002 internal error this round
+
+Resolved map: name api测试 -> mapId 29 (from C1 list)

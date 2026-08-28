@@ -1,0 +1,11 @@
+{
+  "bodyPreview": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"type\":\"online\",\"timestamp\":1784514284206},\"tid\":\"\"}",
+  "scenario": "device-runtime-status",
+  "message": "成功",
+  "bodyLength": 104,
+  "code": "0",
+  "mapishTokenHits": [],
+  "at": "2026-07-20 10:23:16",
+  "httpStatus": 200,
+  "url": "http://172.10.1.72:8888/api/device/v1/runtime/status/BROKERX-aee2f93d717546cf9510c98c854fe83e"
+}

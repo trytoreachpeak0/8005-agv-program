@@ -1,0 +1,8 @@
+id = "CUSTOMER_BASELINE_WIRE_TO_GATE"
+title = "客户基线：焊线到关卡"
+sql = "03_WIRE_TO_GATE.sql"
+readonly = true
+requires_approval = false
+promote_sample = false
+parameters = []
+expected_columns = ["SUBLOT", "AREA", "EQP", "STEP", "DATES", "PACKAGE"]

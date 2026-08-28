@@ -1,0 +1,58 @@
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-21T01:57:31.9471110+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-21T02:04:34.4650229+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK

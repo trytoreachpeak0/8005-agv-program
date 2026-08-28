@@ -1,0 +1,42 @@
+{
+  "at": "2026-07-20 10:25:14",
+  "conclusion": {
+    "primaryStatusApi": "GET /api/task/v1/task/getVehicleInfo/{deviceKey}",
+    "whyEarlierMissedMap": "Round4 only scanned top-level vehicle.* names matching map*; mapName actually lives under vehicle.previousState.mapName",
+    "mapName": "api测试",
+    "resolvedMapIdByName": 29,
+    "resolvedMapName": "api测试",
+    "deviceRuntimeStatusUsefulForMap": false,
+    "deviceRuntimePropertiesHasMapName": false
+  },
+  "getVehicleInfo": {
+    "currentStation": 1,
+    "movementState": "MT_FINISHED",
+    "previousState": {
+      "mapName": "api测试",
+      "stationNo": 1,
+      "sysState": 2,
+      "multiLoadState": 0,
+      "movementState": {
+        "avoidPolicy": 0,
+        "curCheckpointNo": 0,
+        "curPathNo": 0,
+        "dstStationType": 0,
+        "no": 2,
+        "remainDistance": 0,
+        "remainTime": 0,
+        "state": 5,
+        "taskResult": 1,
+        "totalDistance": 0,
+        "type": 0
+      }
+    },
+    "vehicleTaskInfo": {
+      "procState": "IDLE",
+      "enable": false,
+      "name": "新基测试300c协作1",
+      "key": "BROKERX-aee2f93d717546cf9510c98c854fe83e"
+    }
+  },
+  "apiCompareNote": "See _status-api-compare.txt; device runtime APIs did not expose mapName in this probe."
+}

@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  Restored C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj (in 382 ms).
+  Restored C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj (in 382 ms).
+  MesIngest.Core -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Core\bin\Release\net8.0\MesIngest.Core.dll
+  MesIngest.Host -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Host\bin\Release\net8.0\win-x64\MesIngest.Host.dll
+  MesIngest.Host -> C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\ccfb576476254e19b458166822db3349\payload\ReleasePackage\MesIngest\service\
+  Determining projects to restore...
+  Restored C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj (in 304 ms).
+  1 of 2 projects are up-to-date for restore.
+  MesIngest.Core -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Core\bin\Release\net8.0\MesIngest.Core.dll
+  MesIngest.Watch -> C:\Users\szy\Desktop\8005---AGV\mes\ingest\csharp\MesIngest.Watch\bin\Release\net8.0-windows\win-x64\MesIngest.Watch.dll
+  MesIngest.Watch -> C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\ccfb576476254e19b458166822db3349\payload\ReleasePackage\MesIngest\watch\
+MESINGEST_RELEASE_PACKAGE_VALID: root=C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\ccfb576476254e19b458166822db3349\payload\ReleasePackage\MesIngest files=905 manifest=C:\Users\szy\AppData\Local\Temp\MesIngestGoldenRenderer\ccfb576476254e19b458166822db3349\payload\ReleasePackage\MesIngest\RELEASE-MANIFEST.json

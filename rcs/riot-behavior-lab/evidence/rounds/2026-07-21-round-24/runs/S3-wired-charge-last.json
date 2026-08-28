@@ -1,0 +1,21 @@
+{
+  "at": "2026-07-21 09:33:41.853",
+  "statusType": "online",
+  "station": 0,
+  "noStation": true,
+  "battery": 23,
+  "batteryState": "CHARGING",
+  "powerMode": "POWER_MODE_FULLER",
+  "actionState": "AT_FINISHED",
+  "movementState": "MT_FINISHED",
+  "locationState": "LOCATION_STATE_RUNNING",
+  "controlState": "CONTROL_STATE_ERR",
+  "state": "ERROR",
+  "procState": "IDLE",
+  "enable": true,
+  "processingOrder": false,
+  "prop_batteryState": 2,
+  "prop_powerState": 1,
+  "prop_operationState": 1,
+  "prop_sysState": 2
+}

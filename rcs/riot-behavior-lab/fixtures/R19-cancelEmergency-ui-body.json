@@ -1,0 +1,14 @@
+{
+  "endpoint": "POST /api/device/v1/command/sync/service/{deviceKey}/cancelEmergency",
+  "source": "RIoT UI Network capture 2026-07-20 (admin session; JWT not stored)",
+  "body": {
+    "messageId": 880815,
+    "mqCallback": { "tag": "string", "topic": "string" },
+    "thingsProperties": {}
+  },
+  "notes": [
+    "messageId is a number in UI traffic",
+    "empty {} body causes sync NPE 00002",
+    "success must be confirmed by emergencyState returning to OK"
+  ]
+}

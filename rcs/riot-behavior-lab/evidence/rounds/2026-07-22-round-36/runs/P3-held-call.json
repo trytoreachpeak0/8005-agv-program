@@ -1,0 +1,6 @@
+{
+    "commandType":  "CMD_ORDER_HELD",
+    "code":  "0",
+    "message":  "成功",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+}

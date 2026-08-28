@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RIoT.Sdk.Facade</RootNamespace>
+    <Description>Thin facade over generated RIoT clients with shared auth.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Kiota.Bundle" Version="1.17.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RIoT.Sdk.Core\RIoT.Sdk.Core.csproj" />
+    <ProjectReference Include="..\RIoT.Sdk.Generated\RIoT.Sdk.Generated.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,21 @@
+{
+  "bodyPreview": "{\"vehicle\":{\"actionState\":\"AT_NA\",\"actionTaskNo\":0,\"agvInfoState\":\"NORMAL\",\"aliveState\":true,\"battery\":36,\"batteryState\":\"NO_CHARGE\",\"breakSwitchState\":\"MOVABLE\",\"confidence\":92,\"connected\":true,\"connectedTimestamp\":1784507855064,\"controlState\":\"CONTROL_STATE_OK\",\"curCheckPointNo\":0,\"curPathNo\":0,\"currentNode\":1,\"currentStation\":1,\"emergencyState\":\"OK\",\"faultCodes\":\"11322,11324,212416,211416\",\"faultCodesList\":[],\"firstReportData\":true,\"fleetMode\":\"FLEET_MODE_OFFLINE\",\"freshState\":1,\"hardWareErrorCode\":0,\"hardwareState\":\"H_STATE_OK\",\"infoState\":{\"srcVersionStr\":\"SRTOS_v3.7.2(93d56ac6)[develop]Tue Apr 16 11:31:43 2024\\n(v0.0.0)\",\"srosVersionStr\":\"4.34.5(46f8d02)[v4.34.5] Apr 19 2024 08:07:35\"},\"key\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"lastErrorCode\":0,\"lastReportTime\":1784514298109,\"lastSyncRotateRadian\":0,\"length\":925,\"loadHandlingDevices\":[],\"loadState\":0,\"locationState\":\"LOCATION_STATE_RUNNING\",\"mode\":\"MODE_AUTO\",\"motorExceptionState\":\"NORMAL\",\"moveTaskNo\":2,\"movementState\":\"MT_FINISHED\",\"name\":\"新基测试300c协作1\",\"noNode\":false,\"noStation\":false,\"orientationAngle\":-1.578,\"originalLength\":925,\"originalWidth\":622,\"paused\":false,\"plantModel\":\"api测试\",\"powerMode\":\"POWER_MODE_FULLER\",\"precisePosition\":{\"x\":128.0,\"y\":-539.0},\"previousState\":{\"actionTask\":{\"id\":0,\"no\":0,\"param0\":0,\"param1\":0,\"paramStr\":\"\",\"result\":0,\"resultCode\":0,\"resultStr\":\"\",\"state\":0},\"currentPosition\":{\"confidence\":92,\"pitch\":0,\"roll\":0,\"x\":128,\"y\":-539,\"yaw\":-1578,\"z\":0},\"emergencyState\":1,\"faultCodesList\":[],\"fleetMode\":1,\"freshState\":1,\"lastErrorCode\":0,\"locationState\":3,\"mapName\":\"api测试\",\"motionControlState\":{\"pathNo\":0,\"state\":2,\"vX\":0,\"vY\":0,\"w\":0},\"movementState\":{\"avoidPolicy\":0,\"curCheckpointNo\":0,\"curPathNo\":0,\"dstStationType\":0,\"no\":2,\"remainDistance\":0,\"remainTime\":0,\"state\":5,\"taskResult\":1,\"totalDistance\":0,\"type\":0},\"multiLoadState\":0,\"newMovementTaskState\":1,\"operationState\":1,\"rotateValue\":0,\"stationNo\":1,\"syncRotate\":false,\"sysState\":2},\"productKey\":\"standard.oasis.300ul\",\"reference\":{\"key\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"name\":\"新基测试300c协作1\",\"referenceClass\":\"sr.riot.dispatch.kernel.model.Vehicle\"},\"rotateValue\":0,\"routingGroup\":\"EXECUTE_FREE\",\"running\":false,\"speed\":0.0,\"startPauseTime\":0,\"state\":\"IDLE\",\"status\":1,\"syncRotate\":false,\"vehicleHardware\":{\"batteryCurrent\":1570,\"batteryPercentage\":36,\"batteryState\":3,\"batteryTemperature\":27,\"batteryUseCycles\":16,\"batteryVoltage\":51850,\"boxTemperature\":46,\"breakSwState\":1,\"cpuTemperature\":50,\"cpuUsage\":70,\"device",
+  "scenario": "task-getVehicleInfo",
+  "message": null,
+  "bodyLength": 5929,
+  "code": null,
+  "mapishTokenHits": [
+    "currentStation=1",
+    "movementState=\"MT_FINISHED\"",
+    "noStation=false",
+    "mapName=\"api测试\"",
+    "dstStationType=0",
+    "multiLoadState=0",
+    "stationNo=1",
+    "sysState=2",
+    "procState=\"IDLE\""
+  ],
+  "at": "2026-07-20 10:23:16",
+  "httpStatus": 200,
+  "url": "http://172.10.1.72:8888/api/task/v1/task/getVehicleInfo/BROKERX-aee2f93d717546cf9510c98c854fe83e"
+}

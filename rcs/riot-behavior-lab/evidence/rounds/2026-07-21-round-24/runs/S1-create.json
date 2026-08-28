@@ -1,0 +1,8 @@
+{
+    "uid":  "riot-behavior-lab-R24-fail-20260721-085542",
+    "dest":  4,
+    "code":  "10008",
+    "message":  "充电订单缺少进入退出点",
+    "req":  "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"isAppointEnable\":1,\"lockStatus\":0,\"orderName\":\"riot-behavior-lab-R24-fail-20260721-085542\",\"upperId\":\"riot-behavior-lab-R24-fail-20260721-085542\",\"mission\":[{\"type\":\"move\",\"mapId\":30,\"destination\":4},{\"type\":\"act\",\"actionId\":78,\"actionParam1\":1,\"actionParam2\":0,\"actionName\":\"charge\"}]}",
+    "body":  "{\"code\":\"10008\",\"detail\":\"code:[10008], msg:[charge.order.no.enter.exit]\",\"message\":\"充电订单缺少进入退出点\",\"msgDetail\":\"充电订单缺少进入退出点\",\"tid\":\"\"}"
+}

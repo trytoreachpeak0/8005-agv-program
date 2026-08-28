@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": 0,
+  "CompletedAt": "2026-08-10T15:02:44.6427069+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\13-final-approved\\run-20260810-145614-watch-package-release",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp\\.artifacts\\golden-renderer\\ticket-13-final-approved"
+}

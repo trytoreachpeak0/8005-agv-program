@@ -1,0 +1,20 @@
+{
+  "auth": "callApiKey",
+  "call": {
+    "http": 200,
+    "code": "0",
+    "message": "成功",
+    "msgDetail": "",
+    "body": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+    "req": "{\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"],\"serviceId\":\"enable\"}"
+  },
+  "after": {
+    "at": "2026-07-20 13:37:00.983",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "procState": "IDLE",
+    "processingOrder": false,
+    "station": 1,
+    "movementState": "MT_FINISHED"
+  }
+}

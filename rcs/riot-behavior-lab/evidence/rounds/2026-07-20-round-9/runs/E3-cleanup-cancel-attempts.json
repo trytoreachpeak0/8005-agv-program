@@ -1,0 +1,16 @@
+{
+  "attempts": [
+    {
+      "api": "task/command/orderId-string",
+      "req": "{\"commandType\":\"CMD_ORDER_CANCEL\",\"disableVehicle\":false,\"reason\":\"riot-behavior-lab-E3-cleanup\"}",
+      "http": 200,
+      "body": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+      "parsed": {
+        "code": "0",
+        "message": "成功",
+        "msgDetail": "",
+        "tid": ""
+      }
+    }
+  ]
+}

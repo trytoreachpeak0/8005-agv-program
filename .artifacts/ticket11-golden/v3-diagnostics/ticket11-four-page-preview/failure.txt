@@ -1,0 +1,9 @@
+step=ticket11-four-page-preview
+exception=Xunit.Sdk.XunitException
+timeoutMs=12000
+message=Timed out after 12s waiting for healthy cold-start overview.
+firstFailureRetained=true
+   at MesIngest.Watch.UiTests.WatchWindowJourneyTests.WaitUntil(Func`1 condition, String description, TimeSpan timeout) in C:\MesIngest\Ticket11\run-de20ea9-20260809-224641-v3\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowJourneyTests.cs:line 486
+   at MesIngest.Watch.UiTests.WatchWindowJourneyTests.RunColdStartOverview(Window window) in C:\MesIngest\Ticket11\run-de20ea9-20260809-224641-v3\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowJourneyTests.cs:line 194
+   at MesIngest.Watch.UiTests.WatchWindowJourneyTests.RunTicket11FourPagePreview(Window window, WatchJourneyEvidence evidence, IntPtr handle)
+   at MesIngest.Watch.UiTests.WatchWindowJourneyTests.RunJourneyAsync(String journeyName) in C:\MesIngest\Ticket11\run-de20ea9-20260809-224641-v3\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWindowJourneyTests.cs:line 138

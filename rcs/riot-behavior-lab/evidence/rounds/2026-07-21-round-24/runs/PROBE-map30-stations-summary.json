@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "name": "站点1",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  },
+  {
+    "id": 2,
+    "name": "站点2",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  },
+  {
+    "id": 3,
+    "name": "站点3",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  },
+  {
+    "id": 4,
+    "name": "站点4",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  },
+  {
+    "id": 5,
+    "name": "站点5",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  },
+  {
+    "id": 6,
+    "name": "站点6",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  },
+  {
+    "id": 7,
+    "name": "站点7",
+    "type": 1,
+    "stationType": null,
+    "mark": null,
+    "remark": null,
+    "property": null,
+    "keys": "check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties"
+  }
+]

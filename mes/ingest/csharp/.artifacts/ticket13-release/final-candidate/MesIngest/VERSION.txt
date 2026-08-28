@@ -1,0 +1,8 @@
+MesIngest install package
+BuiltUtc=2026-08-10T05:48:39.5920089Z
+Configuration=Release
+Runtime=win-x64
+HostFileVersion=1.0.0.0
+WatchIncluded=True
+SourceCommit=d8d88b111911f26f41449420ee5657825b6bdb44
+SourceDirty=False

@@ -1,0 +1,10 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+    MesIngest.Watch.UiTests.WatchVisualEnvironmentTests.Current_environment_supports_real_window_uia_journeys [SKIP]
+      WATCH_UI_JOURNEY_ENVIRONMENT_UNAVAILABLE:
+      - expected culture/UI culture=zh-CN; actual=en-US/en-US
+  Finished:    MesIngest.Watch.UiTests (ID = 'f5fcf60a8b3cc63ef5b40cc41dd65478b8e5cdadf46b6e24d55a9cfdebe0983a')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 68, Errors: 0, Failed: 0, Skipped: 1, Not Run: 0, Time: 47.089s

@@ -1,0 +1,7 @@
+{
+  "Status": "PASSED",
+  "ExitCode": 0,
+  "CompletedAt": "2026-08-10T09:38:04.5879737+08:00",
+  "Suite": "watch-window-stability",
+  "Runs": 10
+}

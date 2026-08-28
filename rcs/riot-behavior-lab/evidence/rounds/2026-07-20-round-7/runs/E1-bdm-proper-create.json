@@ -1,0 +1,13 @@
+{
+  "http": 200,
+  "parsed": {
+    "code": "00007",
+    "message": "无效参数:未知订单来源, ",
+    "msgDetail": "无效参数:未知订单来源, ",
+    "tid": ""
+  },
+  "req": "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"appointMapId\":29,\"appointStationId\":2,\"isAppointEnable\":1,\"lockStatus\":0,\"orderName\":\"riot-behavior-lab-E1-bdm-20260720-121023\",\"upperId\":\"riot-behavior-lab-E1-bdm-20260720-121023\",\"source\":0,\"mission\":[{\"type\":\"move\",\"mapId\":29,\"destination\":2}]}",
+  "at": "2026-07-20 12:10:23",
+  "uid": "riot-behavior-lab-E1-bdm-20260720-121023",
+  "body": "{\"code\":\"00007\",\"message\":\"无效参数:未知订单来源, \",\"msgDetail\":\"无效参数:未知订单来源, \",\"tid\":\"\"}"
+}

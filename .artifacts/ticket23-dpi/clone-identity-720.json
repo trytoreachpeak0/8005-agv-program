@@ -1,0 +1,19 @@
+{
+  "Purpose": "720 epx minimum width at 125% and 150%",
+  "SourceVm": "gpt_win11",
+  "SourceId": "7d804f09-8e93-48f9-9bff-07e85f6adc45",
+  "SourceState": "Off",
+  "SourceDisks": [
+    "F:\\ticket23-font-import-20260818\\Virtual Hard Disks\\gpt_win11_C02E6194-87DE-4104-9F1A-F14909B197D7.avhdx"
+  ],
+  "CloneVm": "gpt_win11_ticket23_dpi720",
+  "CloneId": "83b0777b-1b34-42d1-9f6f-296fd1be2bd6",
+  "CloneState": "Running",
+  "CloneDisks": [
+    "F:\\ticket23-dpi720-import-20260819\\Virtual Hard Disks\\gpt_win11_C02E6194-87DE-4104-9F1A-F14909B197D7.avhdx"
+  ],
+  "ExportRoot": "F:\\ticket23-dpi720-export-20260819",
+  "ImportRoot": "F:\\ticket23-dpi720-import-20260819",
+  "NetworkConnected": false,
+  "CreatedAt": "2026-08-19T11:50:28.7282853+08:00"
+}

@@ -1,0 +1,162 @@
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-10T13:44:17.7204751+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK
+MESINGEST_RELEASE_SMOKE_PASSED: artifacts=C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Results\release-smoke
+  姝ｅ湪纭畾瑕佽繕鍘熺殑椤圭洰鈥?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?[C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€? [C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj]
+  宸茶繕鍘?C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj (鐢ㄦ椂 11.43 绉?銆?
+  宸茶繕鍘?C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj (鐢ㄦ椂 11.43 绉?銆?
+  宸茶繕鍘?C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj (鐢ㄦ椂 11.43 绉?銆?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Net.Http 4.3.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 4.3.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 4.3.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Security.Cryptography.X509Certificates 4.3.0 渚濊禆浜?System.Security.Cryptography.Cng (>= 4.3.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.Cng 4.3.0銆?宸茶В鍐?System.Security.Cryptography.Cng 4.5.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Xml.ReaderWriter 4.3.0 渚濊禆浜?System.Threading.Tasks.Extensions (>= 4.3.0)锛屼絾鎵句笉鍒?System.Threading.Tasks.Extensions 4.3.0銆?宸茶В鍐?System.Threading.Tasks.Extensions 4.5.4 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  宸茶繕鍘?C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj (鐢ㄦ椂 27.99 绉?銆?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Net.Http 4.3.0 渚濊禆浜?System.Diagnostics.DiagnosticSource (>= 4.3.0)锛屼絾鎵句笉鍒?System.Diagnostics.DiagnosticSource 4.3.0銆?宸茶В鍐?System.Diagnostics.DiagnosticSource 6.0.1 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Security.Cryptography.X509Certificates 4.3.0 渚濊禆浜?System.Security.Cryptography.Cng (>= 4.3.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.Cng 4.3.0銆?宸茶В鍐?System.Security.Cryptography.Cng 4.5.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\MesIngest.Tests.csproj : warning NU1603: System.Xml.ReaderWriter 4.3.0 渚濊禆浜?System.Threading.Tasks.Extensions (>= 4.3.0)锛屼絾鎵句笉鍒?System.Threading.Tasks.Extensions 4.3.0銆?宸茶В鍐?System.Threading.Tasks.Extensions 4.5.4 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\MesIngest.Core.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\MesIngest.Host.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  MesIngest.Core -> C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Core\bin\Release\net8.0\MesIngest.Core.dll
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_scfhjuay_wpftmp.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_scfhjuay_wpftmp.csproj : warning NU1801: 鏃犳硶鍔犺浇婧?https://api.nuget.org/v3/index.json 鐨勬湇鍔＄储寮曘€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_scfhjuay_wpftmp.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Memory (>= 4.5.4)锛屼絾鎵句笉鍒?System.Memory 4.5.4銆?宸茶В鍐?System.Memory 4.6.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\MesIngest.Watch_scfhjuay_wpftmp.csproj : warning NU1603: Azure.Identity 1.11.4 渚濊禆浜?System.Security.Cryptography.ProtectedData (>= 4.7.0)锛屼絾鎵句笉鍒?System.Security.Cryptography.ProtectedData 4.7.0銆?宸茶В鍐?System.Security.Cryptography.ProtectedData 8.0.0 鐨勮繎浼兼渶浣冲尮閰嶃€?
+  MesIngest.Host -> C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Host\bin\Release\net8.0\MesIngest.Host.dll
+  MesIngest.Watch -> C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Watch\bin\Release\net8.0-windows\MesIngest.Watch.dll
+  MesIngest.Tests -> C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll
+C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Source\mes\ingest\csharp\MesIngest.Tests\bin\Release\net8.0-windows\MesIngest.Tests.dll (.NETCoreApp,Version=v8.0)鐨勬祴璇曡繍琛?
+VSTest 鐗堟湰 17.11.1 (x64)
+
+姝ｅ湪鍚姩娴嬭瘯鎵ц锛岃绋嶅€?..
+鎬诲叡 1 涓祴璇曟枃浠朵笌鎸囧畾妯″紡鐩稿尮閰嶃€?
+[xUnit.net 00:00:30.04]     MesIngest.Tests.SchemaUpgradeTests.EnsureSchema_never_drops_or_truncates_transport_demands [SKIP]
+  宸茶烦杩?MesIngest.Tests.SchemaUpgradeTests.EnsureSchema_never_drops_or_truncates_transport_demands [1 ms]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SchemaUpgradeTests.Mid_upgrade_failure_leaves_no_half_migration_and_recovers_on_rerun [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SchemaUpgradeTests.Upgrading_phase1_schema_preserves_demands_pauses_alerts_and_poll_health [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerReadApiPersistenceTests.Http_reads_projection_alerts_and_health_after_store_restart [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Persisted_demands_and_pauses_are_readable_after_new_store_instance [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Change_feed_full_purge_keeps_monotonic_watermark_and_expires_stale_cursors [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_desc_with_tied_primary_values_has_no_gap_or_dup [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Persisted_alerts_and_poll_health_are_readable_after_new_store_instance [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_commits_projection_and_alerts_atomically [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_does_not_rewrite_unchanged_resolved_alert_history [SKIP]
+  宸茶烦杩?MesIngest.Tests.SchemaUpgradeTests.Mid_upgrade_failure_leaves_no_half_migration_and_recovers_on_rerun [1 ms]
+  宸茶烦杩?MesIngest.Tests.SchemaUpgradeTests.Upgrading_phase1_schema_preserves_demands_pauses_alerts_and_poll_health [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerReadApiPersistenceTests.Http_reads_projection_alerts_and_health_after_store_restart [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Persisted_demands_and_pauses_are_readable_after_new_store_instance [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Change_feed_full_purge_keeps_monotonic_watermark_and_expires_stale_cursors [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_desc_with_tied_primary_values_has_no_gap_or_dup [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Persisted_alerts_and_poll_health_are_readable_after_new_store_instance [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_commits_projection_and_alerts_atomically [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_does_not_rewrite_unchanged_resolved_alert_history [1 ms]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_desc_page_boundary_inside_tie_group_has_no_gap_or_dup [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_writes_only_changed_rows_and_leaves_gone_immutable [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_uses_read_path_indexes_and_keyset_pagination [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Alert_query_pages_new_sort_columns_on_the_shared_contract [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_is_atomic_across_demand_and_pause_writes [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Gone_history_lookup_uses_ordinal_transport_demand_key_equality [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_new_visible_columns_cover_nulls_ties_and_both_directions [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.Change_feed_survives_host_store_restart_and_purges_expired_entries [SKIP]
+[xUnit.net 00:00:30.05]     MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_appends_change_feed_in_same_transaction_for_created_and_gone [SKIP]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_desc_page_boundary_inside_tie_group_has_no_gap_or_dup [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_writes_only_changed_rows_and_leaves_gone_immutable [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_uses_read_path_indexes_and_keyset_pagination [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Alert_query_pages_new_sort_columns_on_the_shared_contract [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_is_atomic_across_demand_and_pause_writes [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Gone_history_lookup_uses_ordinal_transport_demand_key_equality [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_new_visible_columns_cover_nulls_ties_and_both_directions [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.Change_feed_survives_host_store_restart_and_purges_expired_entries [1 ms]
+  宸茶烦杩?MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_appends_change_feed_in_same_transaction_for_created_and_gone [1 ms]
+缁撴灉鏂囦欢: C:\MesIngest\13-final-gate-audit-2\run-20260810-134334-watch-package-release\Results\core-host-http-sql\core-host-http-sql.trx
+
+宸查€氳繃! - 澶辫触:     0锛岄€氳繃:   499锛屽凡璺宠繃:    19锛屾€昏:   518锛屾寔缁椂闂? 6 s - MesIngest.Tests.dll (net8.0)
+{
+  "Status": "PASSED",
+  "Expected": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "Actual": {
+    "CapturedAt": "2026-08-10T13:45:52.4588803+08:00",
+    "Hostname": "GPT-WIN11",
+    "Interactive": true,
+    "SessionId": 1,
+    "ExplorerInSession": true,
+    "InputDesktop": true,
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96,
+    "ScalePercent": 100,
+    "AppsUseLightTheme": true,
+    "Culture": "zh-CN",
+    "UiCulture": "zh-CN",
+    "TimeZone": "China Standard Time",
+    "MicrosoftYaHeiUiInstalled": true,
+    "ConsolasInstalled": true,
+    "RenderingMode": "SoftwareOnly"
+  },
+  "Differences": []
+}
+GOLDEN_RENDERER_ENVIRONMENT_OK

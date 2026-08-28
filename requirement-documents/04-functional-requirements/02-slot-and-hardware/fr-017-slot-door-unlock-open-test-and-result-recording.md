@@ -1,0 +1,67 @@
+---
+id: FR-017
+type: functional-requirement
+title: "Slot Door Unlock/Open Test and Result Recording 仓门开锁开启测试与结果记录"
+status: draft
+priority: medium
+created_by: "ZhengyuShao 邵正宇"
+updated_by: "ZhengyuShao 邵正宇"
+created: 2026-07-14
+updated: 2026-07-30
+related_uc: ["UC-015"]
+related_br: []
+related_fr: []
+related_nfr: ["NFR-002"]
+related_tc: ["TC-048", "TC-049", "TC-050"]
+aliases: ["FR-017"]
+---
+
+# FR-017 Slot Door Unlock/Open Test and Result Recording 仓门开锁开启测试与结果记录
+
+## Description 需求描述
+
+只有车辆已在线获准进入配置维护态，且整车无货、无活动业务、全部仓门初始锁闭、全部开锁输出已复位时，车载上位机才允许执行开锁测试。车载端先记录准备状态，再向目标仓位发送一次开锁 DO 脉冲，核验锁 DI 变为未锁和 DO 自动复位，并由维护人员目视确认弹簧正常弹门；人工关门后还须确认锁 DI 恢复锁闭。
+
+## Rationale 制定原因
+
+将 [[uc-015-slot-door-unlock-open-test|UC-015]] 描述的"开锁指令下发 → 现场判定 → 结果记录"能力落实为可单独验收的能力切片，确保仓门机械/电子锁环节的维护测试结果可追溯，且异常仓位不会被业务流程误用。
+
+## Origin 需求来源
+
+- [[uc-015-slot-door-unlock-open-test|UC-015]] Normal Flow 第 2、2.1、3、3.1、5 步、Postcondition、Exception Flow E2.1、E3.1
+
+## Acceptance Criteria 验收标准
+
+- **AC-1（开锁测试通过，记录正常）**
+  - **Given** 车辆处于配置维护态且整车无货，维护人员已选择目标仓位
+  - **When** 系统下发的开锁指令被 IO 模块正常接收，且维护人员现场确认该仓位仓门正常弹开/开启
+  - **Then** 系统还须确认锁 DI 已变为未锁、DO 已自动复位、关门后锁 DI 恢复锁闭，并记录各阶段结果
+
+- **AC-2（开锁指令下发失败，记录异常）**
+  - **Given** 维护人员已发起开锁测试
+  - **When** 系统核验发现该开锁指令未能被 IO 模块正常接收（如通信超时、IO 模块无响应）
+  - **Then** 系统提示该仓位开锁指令下发异常，记录本次测试结果为"异常"
+
+- **AC-3（仓门未能正常弹开，标记异常锁定）**
+  - **Given** 开锁指令已被 IO 模块正常接收
+  - **When** 维护人员现场核验发现该仓位仓门未能正常弹开/开启
+  - **Then** 系统不得自动重复开锁，将该仓位标记为测试未通过和硬件不可操作，暂停业务分配并记录异常
+
+## Related 关联
+
+- **Use Cases：** 支撑 [[uc-015-slot-door-unlock-open-test|UC-015]]；车辆配置维护态和整车无货是强制前置条件
+- **Business Rules：** 无
+- **Functional Requirements：** 无
+- **Non-Functional Requirements：** 测试结果记录须满足 [[nfr-002-audit-completeness-and-retention|NFR-002]]
+
+## Verification 验证方式
+
+- [[TC-048|TC-048]]：开锁测试通过，记录正常
+- [[TC-049|TC-049]]：开锁指令下发失败，记录异常
+- [[TC-050|TC-050]]：仓门未能正常弹开，标记异常锁定
+
+## Notes 备注
+
+- 本 FR 依赖维护人员现场目视判断仓门是否"正常弹开/开启"作为测试结果依据，系统本身不具备独立于人工判断的自动化机械动作检测手段（见 UC-015 Assumption 第 2 条）。
+- 本 FR 不与本批其他 FR（FR-018、FR-019）建立 `related_fr` 强依赖：UC 文档中三者互为"建议衔接执行"的顺序关系（同一次巡检可连续测试），但均非彼此的 Precondition 强制要求，因此各自独立成 FR，不互相登记。
+- 本 FR 不经过装卸业务核验，但仍受车载 IO 独占、安全联锁、车辆配置维护态和重新投运规则约束。

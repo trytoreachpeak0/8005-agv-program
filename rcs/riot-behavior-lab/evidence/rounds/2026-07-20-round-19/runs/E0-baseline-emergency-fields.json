@@ -1,0 +1,14 @@
+{
+  "emergencyState": "OK",
+  "breakSwitchState": "MOVABLE",
+  "controlState": "CONTROL_STATE_OK",
+  "hardwareState": "H_STATE_OK",
+  "movementState": "MT_FINISHED",
+  "agvInfoState": "NORMAL",
+  "faultCodes": "",
+  "procState": "IDLE",
+  "enable": true,
+  "integrationLevel": "ON_LINE",
+  "station": 5,
+  "mapName": "api测试2"
+}

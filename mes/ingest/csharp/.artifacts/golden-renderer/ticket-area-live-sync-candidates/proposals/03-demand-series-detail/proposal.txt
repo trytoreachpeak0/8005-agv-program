@@ -1,0 +1,13 @@
+journey=03-demand-series-detail
+reason=DemandSeries list readability work from ticket 28 (fec18303/63dc2a6a/2f8cad24): default page size 10 to 100 and column widths rebalanced. Carried by this promotion because the matrix promotes as a whole.
+ticket=ticket-28-carried
+submitter=claude-code-agent
+reviewer=trytoreachpeak0@gmail.com
+changeType=Hierarchy
+productOrBusinessConfirmed=True
+candidateSha256=7EC5F6F09214CF10F14E5BC90D650370A11EF2BA513A5CC0CDFC9E375715CA3C
+requiredConsecutiveCandidateRuns=3
+approvalState=APPROVED_BY_REVIEWER
+approvedAt=2026-08-21T11:20:00+08:00
+approvalMessage=一并批准，完成 promote
+promotedAt=2026-08-21T11:24:00+08:00

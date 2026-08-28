@@ -1,0 +1,26 @@
+C2 stations overview
+mapId=29 name=api测试 code=0 count=2 hasStation1=True
+mapId=26 name=新基测试1 code=0 count=4 hasStation1=True
+mapId=27 name=新基测试2 code=0 count=31 hasStation1=True
+mapId=28 name=新基测试2opt code=0 count=33 hasStation1=True
+invalid0 code=0 count=0 msg=成功
+schemaKeys=check_pos.x,check_pos.y,check_pos.yaw,desc,dmcode_id,edge_id,enter_backward,enter_pos.x,enter_pos.y,enter_pos.yaw,exit_backward,exit_pos.x,exit_pos.y,exit_pos.yaw,id,name,no_rotate,param,pgv_offset.x,pgv_offset.y,pgv_offset.yaw,pos.x,pos.y,pos.yaw,pos_dynamic,station_offset,type,user_define_properties
+MAP29_STATIONS:
+1	站点1
+2	站点2
+MAP26_STATIONS:
+1	站点1
+2	站点2
+3	站点3
+4	站点4
+MAP27_STATIONS_SAMPLE(first10/31):
+1	发车点
+2	路线1中段
+3	路线1末尾
+4	卸货点
+5	路线2中段
+6	路线3末尾
+7	路线3中段
+8	停靠点1
+9	停靠点2
+10	C1-1

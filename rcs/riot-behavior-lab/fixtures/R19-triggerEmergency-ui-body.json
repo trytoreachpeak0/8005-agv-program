@@ -1,0 +1,13 @@
+{
+  "endpoint": "POST /api/device/v1/command/sync/service/{deviceKey}/triggerEmergency",
+  "source": "RIoT UI Network capture 2026-07-20 (admin session; JWT not stored)",
+  "body": {
+    "messageId": 848312,
+    "mqCallback": { "tag": "string", "topic": "string" },
+    "thingsProperties": {}
+  },
+  "notes": [
+    "same DeviceCommandDto shape as cancelEmergency",
+    "Round19 S4: callApiKey → code=0, then emergencyState=CAN_RECOVER within ~1s"
+  ]
+}

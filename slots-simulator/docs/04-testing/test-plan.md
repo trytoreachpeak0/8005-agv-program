@@ -41,8 +41,8 @@
 | 单元测试 | 纯规则和状态转换 | Guard、占用推导、地址换算 | 否 |
 | 组件测试 | 单模块行为 | RegisterBank、配置校验 | 通常否 |
 | 协议测试 | 真 TCP/PDU 行为 | 功能码、异常码 | 是 |
-| API 测试 | HTTP 契约和错误 | 开门、reset、故障 | 是/内存 Host |
-| 集成测试 | Modbus+API+Core | 主系统写 DO 后 API 开门 | 是 |
+| API 测试 | HTTP 契约和错误 | 关门、reset、故障 | 是/内存 Host |
+| 集成测试 | Modbus+API+Core | 主系统写 DO 后自动弹门 | 是 |
 | WPF 测试 | 关键 UI 行为 | 状态展示、配置校验 | 视工具而定 |
 
 ## 4. 测试环境
@@ -72,13 +72,13 @@
 ### 6.1 正常装载
 
 - Given：仓位锁定、门关闭、光幕无遮挡。
-- When：Modbus 写开锁 DO，随后 API 开门、放料、关门。
+- When：Modbus 写开锁 DO 自动弹门，随后 API 放料、关门。
 - Then：锁 DI 正确、光幕 DI 有遮挡、占用立即为已占用。
 
 ### 6.2 非法迁移
 
-- Given：仓位未解锁。
-- When：API 请求开门。
+- Given：仓位门仍关闭。
+- When：API 请求放料。
 - Then：返回 409 和稳定错误码，全部状态不变。
 
 ### 6.3 Pulse 重触发

@@ -1,0 +1,10 @@
+{
+    "orderId":  "order-2079110526327193600",
+    "state":  1,
+    "cancel":  {
+                   "api":  "command",
+                   "orderId":  "order-2079110526327193600",
+                   "code":  "0",
+                   "message":  "成功"
+               }
+}

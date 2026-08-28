@@ -1,0 +1,37 @@
+{
+  "at": "2026-07-21 16:49:37.455",
+  "phase": "after-release",
+  "vehicle": {
+    "name": "电镀顶升AGV1",
+    "movementState": "MT_RUNNING",
+    "actionState": "AT_FINISHED",
+    "controlState": "CONTROL_STATE_OK",
+    "station": 0,
+    "currentNode": 0,
+    "curPathNo": 1,
+    "curCheckPointNo": 3,
+    "speed": 0.199,
+    "noStation": true,
+    "noNode": true,
+    "procState": "PROCESSING_ORDER",
+    "processingOrder": true
+  },
+  "traffic": {
+    "inAppliedResource": false,
+    "inLockedResourceText": true,
+    "checkFail": null,
+    "resourceDetail": {
+      "shapesAndResources": "{\"appliedCircle\":[],\"appliedEdge\":[],\"appliedNode\":[],\"appliedRectangle\":[],\"lockedCircle\":[],\"lockedEdge\":[\"32\",\"62\"],\"lockedNode\":[\"1\",\"2\",\"3\"],\"lockedRectangle\":[[2670.0,200.0,1670.0,200.0,1670.0,-500.0,2670.0,-500.0],[3050.0,200.0,2170.0,200.0,2170.0,-500.0,3050.0,-500.0],[3550.0,200.0,2550.0,200.0,2550.0,-500.0,3550.0,-500.0],[78.9,-680.77,81.1,-1680.77,781.1,-1679.23,778.9,-679.23],[80.0,-680.0,80.0,-1680.0,780.0,-1680.0,780.0,-680.0],[371.59,-361.87,-46.13,-1270.45,589.87,-1562.85,1007.59,-654.28],[697.75,-147.07,27.99,-889.64,547.79,-1358.47,1217.55,-615.9],[1042.58,15.55,230.62,-568.17,639.23,-1136.54,1451.18,-552.82],[1414.68,139.62,516.87,-300.77,825.15,-929.24,1722.95,-488.85],[1815.11,220.0,862.06,-82.84,1074.05,-749.97,2027.09,-447.13],[2237.42,245.01,1250.24,85.44,1361.93,-605.59,2349.12,-446.02],[2670.0,200.0,1670.0,200.0,1670.0,-500.0,2670.0,-500.0]]}",
+      "deviceKey": "BROKERX-52501bcbe60f4723bc815f24fc763c1e",
+      "allAppliedResourceOccupier": "[]",
+      "mapName": "华士老厂",
+      "deviceName": "电镀顶升AGV1"
+    }
+  },
+  "contrast": {
+    "before_movementState": "MT_WAIT_FOR_CHECKPOINT",
+    "after_movementState": "MT_RUNNING",
+    "before_inApplied": true,
+    "after_inApplied": false
+  }
+}

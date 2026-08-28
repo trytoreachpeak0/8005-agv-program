@@ -1,0 +1,57 @@
+{
+  "at": "2026-07-20 10:09:55",
+  "scenario": "getAllTaskVehicles",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/task/vehicles/getAllTaskVehicles",
+  "httpStatus": 200,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功",
+    "count": 18
+  },
+  "firstItemTopLevelKeys": [
+    "vehicle",
+    "vehicleTaskInfo"
+  ],
+  "firstItemCompactSample": {
+    "vehicle": {
+      "actionState": "AT_NA",
+      "actionTaskNo": 0,
+      "agvInfoState": "NORMAL",
+      "aliveState": true,
+      "battery": 70,
+      "batteryState": "NO_CHARGE",
+      "breakSwitchState": "MOVABLE",
+      "confidence": 0,
+      "connected": false,
+      "connectedTimestamp": 1784510279832,
+      "controlState": "CONTROL_STATE_ERR",
+      "curCheckPointNo": 0,
+      "curPathNo": 0,
+      "currentNode": 0,
+      "currentStation": 0,
+      "emergencyState": "OK",
+      "faultCodes": "11330",
+      "firstReportData": true,
+      "fleetMode": "FLEET_MODE_OFFLINE"
+    },
+    "vehicleTaskInfo": {
+      "batteryMaintenanceTime": 1761619794733,
+      "enable": false,
+      "handlePauseTime": 0,
+      "integrationLevel": "OFF_LINE",
+      "integrationLevelTime": 0,
+      "key": "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+      "lastExecuteOrderTimestamp": 0,
+      "name": "新基测试300c顶升2",
+      "procState": "IDLE",
+      "processingOrder": false,
+      "routeProgressIndex": -1
+    }
+  },
+  "note": "Identity lives under vehicleTaskInfo.key / vehicleTaskInfo.name (not vehicle.deviceKey). For name->deviceKey prefer getAllVehicleSimpleInfo.",
+  "observedIdentityFields": {
+    "vehicleTaskInfo_name": "车辆显示名",
+    "vehicleTaskInfo_key": "BROKERX-..."
+  }
+}

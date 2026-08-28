@@ -1,0 +1,24 @@
+{
+  "CleanedAt": "2026-08-19T08:54:14.8624095+08:00",
+  "CloneVm": "gpt_win11_ticket23_dpi",
+  "Removed": {
+    "CloneId": "4e3e5252-b7be-412e-b557-3b0253dcc446",
+    "CloneRemoved": true,
+    "F:\\ticket23-dpi-export-20260819": true,
+    "F:\\ticket23-dpi-import-20260819": true
+  },
+  "SourceVm": {
+    "Name": "gpt_win11",
+    "Id": "7d804f09-8e93-48f9-9bff-07e85f6adc45",
+    "State": "Off",
+    "ProcessorCount": 12,
+    "NetworkConnected": false,
+    "Disks": [
+      "F:\\ticket23-font-import-20260818\\Virtual Hard Disks\\gpt_win11.vhdx"
+    ],
+    "DisksPresent": [
+      true
+    ]
+  },
+  "RemainingDpiVms": []
+}

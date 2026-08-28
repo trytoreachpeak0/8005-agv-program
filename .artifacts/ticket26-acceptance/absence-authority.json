@@ -1,0 +1,11 @@
+{
+  "hostSessionId": "fee894a750a745e0a42026df63c3e260",
+  "startedAt": "08/20/2026 02:51:07",
+  "phase": "BARRIER",
+  "isCurrent": true,
+  "absenceAuthorityAvailable": false,
+  "eventTypes": [
+    "RESTART_BARRIER_ENTERED"
+  ],
+  "previousHostSessionId": "ba961774108041489dcb3c0ca2b5953a"
+}

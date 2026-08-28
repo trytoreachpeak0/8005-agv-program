@@ -1,0 +1,16 @@
+{
+    "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026filterByState=9\u0026executeVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "status":  200,
+    "summary":  {
+                    "code":  "0",
+                    "message":  "成功",
+                    "total":  0,
+                    "current":  1,
+                    "size":  50,
+                    "count":  0,
+                    "records":  [
+
+                                ]
+                },
+    "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[],\"searchCount\":false,\"size\":50,\"total\":0},\"tid\":\"\"}"
+}

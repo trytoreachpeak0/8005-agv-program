@@ -1,0 +1,53 @@
+from __future__ import annotations
+from collections.abc import Callable
+from kiota_abstractions.base_request_builder import BaseRequestBuilder
+from kiota_abstractions.get_path_parameters import get_path_parameters
+from kiota_abstractions.request_adapter import RequestAdapter
+from typing import Any, Optional, TYPE_CHECKING, Union
+
+if TYPE_CHECKING:
+    from .system_log.system_log_request_builder import SystemLogRequestBuilder
+    from .v1.v1_request_builder import V1RequestBuilder
+    from .vehicles.vehicles_request_builder import VehiclesRequestBuilder
+
+class TaskRequestBuilder(BaseRequestBuilder):
+    """
+    Builds and executes requests for operations under /api/task
+    """
+    def __init__(self,request_adapter: RequestAdapter, path_parameters: Union[str, dict[str, Any]]) -> None:
+        """
+        Instantiates a new TaskRequestBuilder and sets the default values.
+        param path_parameters: The raw url or the url-template parameters for the request.
+        param request_adapter: The request adapter to use to execute the requests.
+        Returns: None
+        """
+        super().__init__(request_adapter, "{+baseurl}/api/task", path_parameters)
+    
+    @property
+    def system_log(self) -> SystemLogRequestBuilder:
+        """
+        The systemLog property
+        """
+        from .system_log.system_log_request_builder import SystemLogRequestBuilder
+
+        return SystemLogRequestBuilder(self.request_adapter, self.path_parameters)
+    
+    @property
+    def v1(self) -> V1RequestBuilder:
+        """
+        The v1 property
+        """
+        from .v1.v1_request_builder import V1RequestBuilder
+
+        return V1RequestBuilder(self.request_adapter, self.path_parameters)
+    
+    @property
+    def vehicles(self) -> VehiclesRequestBuilder:
+        """
+        The vehicles property
+        """
+        from .vehicles.vehicles_request_builder import VehiclesRequestBuilder
+
+        return VehiclesRequestBuilder(self.request_adapter, self.path_parameters)
+    
+

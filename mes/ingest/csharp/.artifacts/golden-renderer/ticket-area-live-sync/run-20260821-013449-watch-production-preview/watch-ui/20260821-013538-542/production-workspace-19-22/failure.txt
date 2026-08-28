@@ -1,0 +1,7 @@
+step=area-filter
+exception=Xunit.Sdk.XunitException
+timeoutMs=20000
+message=Timed out after 20s waiting for the four local AREA TXT profiles.
+firstFailureRetained=true
+   at MesIngest.Watch.UiTests.WatchWorkspaceProductionJourneyTests.WaitUntil(Func`1 condition, String description, TimeSpan timeout) in C:\MesIngest\area-live-sync\run-20260821-013449-watch-production-preview\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWorkspaceProductionJourneyTests.cs:line 2496
+   at MesIngest.Watch.UiTests.WatchWorkspaceProductionJourneyTests.Operator_reviews_the_complete_production_workspace_and_records_the_shared_preview() in C:\MesIngest\area-live-sync\run-20260821-013449-watch-production-preview\Source\mes\ingest\csharp\MesIngest.Watch.UiTests\WatchWorkspaceProductionJourneyTests.cs:line 873

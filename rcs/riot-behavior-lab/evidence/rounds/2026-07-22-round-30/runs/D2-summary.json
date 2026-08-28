@@ -1,0 +1,23 @@
+{
+    "tag":  "D2",
+    "uid":  "riot-behavior-lab-R30-D2-20260722-092054",
+    "beforeLoc":  "LOCATION_STATE_RUNNING",
+    "beforeStation":  0,
+    "beforeXY":  [
+                     null,
+                     null
+                 ],
+    "dest":  3,
+    "destCost":  -1,
+    "createCode":  "0",
+    "hitExec":  false,
+    "hitHang":  false,
+    "hitTerminal":  false,
+    "stayedQueueing":  true,
+    "finalOrderState":  1,
+    "finalExecKey":  "--",
+    "finalLoc":  "LOCATION_STATE_RUNNING",
+    "finalProc":  "IDLE",
+    "finalFail":  "",
+    "watchSec":  120
+}

@@ -13,7 +13,7 @@
 
 1. **对被测系统协议层透明**：模拟真实 IO 模块的 Modbus TCP 行为，被测系统（服务器/工控机的 IO 对接代码）连接模拟器和连接真实硬件不需要改代码。
 2. **可视化直观**：提供图形界面，把锁状态、门状态、光幕/物体检测状态用"仓位"的形式展示出来，而不是裸寄存器数值。
-3. **自动化测试能力**：提供独立于 Modbus 协议之外的 HTTP/JSON 控制 API，让开发自己写的测试脚本可以用代码驱动"开门、关门、放料、取出、故障注入/清除"等原本需要人工完成的动作，从而实现无人值守的自动化回归测试。开锁仍必须由被测主系统通过 Modbus 写 DO 发出，控制 API 不提供绕过协议链路的开锁入口。
+3. **自动化测试能力**：提供独立于 Modbus 协议之外的 HTTP/JSON 控制 API，让测试脚本驱动“关门、放料、取出、故障注入/清除”等人工或环境动作。开锁必须由被测主系统通过 Modbus 写 DO 发出，成功后模拟弹簧自动弹门；控制 API 不提供开锁或开门入口。
 
 ## 3. 范围 In Scope
 
@@ -27,7 +27,7 @@
    - [UC-002 确认任务完成](../../../requirement-documents/03-use-cases/uc-002-confirm-task-completion.md)（不直接操作仓位 IO；通过批量设置仓位实际光幕遮挡、由光幕 DI 推导待确认的占用组合）
    - [UC-005 取出仓位中存错的产品](../../../requirement-documents/03-use-cases/uc-005-retrieve-mis-stored-product-from-slot.md)（重新开锁开门、取出、状态回滚）
    - [UC-006 到站后取消运送任务](../../../requirement-documents/03-use-cases/uc-006-cancel-transport-task-upon-arrival.md)（本身不涉及仓位 IO；通过"全空闲" API 构造所有光幕无遮挡的硬件前置状态）
-   - [UC-010 终点站取出产品存料](../../../requirement-documents/03-use-cases/uc-010-unload-completed-lot-at-destination-station.md)（模拟器只提供开门、取出、关门、光幕变化及故障；按站点筛选仓位、任务/映射维护和确认完成由主系统负责）。详见 [[dr-003-first-batch-scenarios|DR-003]]
+   - [UC-010 终点站取出产品存料](../../../requirement-documents/03-use-cases/uc-010-unload-completed-lot-at-destination-station.md)（模拟器通过 Modbus 开锁后自动弹门，并提供取出、关门、光幕变化及故障；按站点筛选仓位、任务/映射维护和确认完成由主系统负责）。详见 [[dr-003-first-batch-scenarios|DR-003]]
 6. **自动化控制能力**：提供默认仅监听 `localhost` 的 HTTP/JSON API，供脚本驱动人工/环境动作、批量光幕设置、全空闲、完整 reset，以及故障注入和清除；不提供开锁 API。
 7. **可视化面板（WPF）**：供开发自测/日常联调查看和操作仓位状态，并完整编辑 JSON 配置；配置经 JSON Schema 和语义校验后原子热重载。界面按可配置版面布局渲染，不追求美观度，仅内部使用。
 8. **CI 接入能力（架构预留，当前不启用）**：核心逻辑（状态机、Modbus Slave、控制 API）需要能脱离 WPF 独立无界面运行，并具备状态重置、健康检查、确定性时序、结构化日志、干净的进程生命周期等能力，为后续把本模拟器接入主系统 CI 流水线（作为集成测试的"假硬件"）预留架构空间，避免以后返工。当前阶段不要求真正搭建 CI 流水线本身。详见 [[dr-008-ci-readiness|DR-008]]。

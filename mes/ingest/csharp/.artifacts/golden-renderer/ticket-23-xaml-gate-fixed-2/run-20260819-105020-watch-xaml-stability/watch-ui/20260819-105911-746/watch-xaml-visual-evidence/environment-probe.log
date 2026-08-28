@@ -1,0 +1,7 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 8.0.29)
+  Discovering: MesIngest.Watch.UiTests
+  Discovered:  MesIngest.Watch.UiTests
+  Starting:    MesIngest.Watch.UiTests
+  Finished:    MesIngest.Watch.UiTests (ID = '2b7f97bb2e7a3568c8e51b9d1943cae78098bd6b11590dd9f10e8b163bedba9b')
+=== TEST EXECUTION SUMMARY ===
+   MesIngest.Watch.UiTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.166s

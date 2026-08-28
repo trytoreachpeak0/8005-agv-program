@@ -1,0 +1,25 @@
+{
+  "hitHang": false,
+  "hitAct": true,
+  "last": {
+    "at": "2026-07-21 09:17:03.550",
+    "station": 0,
+    "battery": 22,
+    "batteryState": "NO_CHARGE",
+    "actionState": "AT_FINISHED",
+    "movementState": "MT_RUNNING",
+    "procState": "PROCESSING_ORDER",
+    "orderState": 3,
+    "orderId": "order-2079374239101747200",
+    "numericId": 488650,
+    "executingIndex": 0,
+    "curType": "move",
+    "curState": 1,
+    "curActionId": 0,
+    "m1_state": 2,
+    "m1_resultCode": 900,
+    "m1_resultStr": "订单完成",
+    "failReason": ""
+  },
+  "uid": "riot-behavior-lab-R24-fail-m6-20260721-091202"
+}

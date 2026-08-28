@@ -1,0 +1,18 @@
+{
+    "at":  "2026-07-20 13:58:49.187",
+    "station":  0,
+    "noStation":  true,
+    "procState":  "PROCESSING_ORDER",
+    "processingOrder":  true,
+    "movementState":  "MT_RUNNING",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  3,
+    "missionState":  1,
+    "orderId":  "order-2079084003733929984",
+    "numericId":  488072,
+    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "finalState":  false,
+    "upperId":  "riot-behavior-lab-R14-A-exec-20260720-135846"
+}

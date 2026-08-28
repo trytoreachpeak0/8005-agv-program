@@ -1,0 +1,11 @@
+{
+  "Status": "PASSED",
+  "ExitCode": 0,
+  "CompletedAt": "2026-08-10T02:51:06.4209340+08:00",
+  "ReceivedCount": 0,
+  "ReceivedPngCount": 0,
+  "ReceivedXmlCount": 0,
+  "CandidateDirectory": "C:\\MesIngest\\Ticket11\\run-wpf-ui-20260810-0405-v26-normalized\\Source\\mes\\ingest\\csharp\\MesIngest.Watch.UiTests\\Baselines\\SelectedUi",
+  "Diagnostics": "C:\\MesIngest\\Ticket11\\run-wpf-ui-20260810-0405-v26-normalized\\Results\\xaml-stability-diagnostics",
+  "Log": "C:\\MesIngest\\Ticket11\\run-wpf-ui-20260810-0405-v26-normalized\\Results\\xaml-stability.log"
+}

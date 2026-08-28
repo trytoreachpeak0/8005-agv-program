@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>MesIngest.Tests</_Parameter1>
+    </AssemblyAttribute>
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <ProjectReference Include="..\MesIngest.Core\MesIngest.Core.csproj" />
+    <ProjectReference Include="..\MesIngest.Infrastructure\MesIngest.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <!-- Official MES query manuscript from repo; no divergent SQL fork in csharp tree. -->
+  <ItemGroup>
+    <Content Include="..\..\..\queries\mes-task-union\**\*">
+      <Link>queries\mes-task-union\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\..\..\queries\sublot-box-count\**\*">
+      <Link>queries\sublot-box-count\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

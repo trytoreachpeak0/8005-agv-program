@@ -1,0 +1,13 @@
+--- watch-latency-20260810.log ---
+recordedAt=2026-08-10T01:43:35.2451712+00:00 correlationId=ab25fb0830db4d468ca0d0bcaa04bc5e component=Watch stage=HTTP_OK elapsedMs=80 endpoint=/api/contract statusCode=200 rowCount=1 bytes=59
+recordedAt=2026-08-10T01:43:35.3034934+00:00 correlationId=7972cca824614b618b2b8ac593bc8379 component=Watch stage=HTTP_OK elapsedMs=48 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T01:43:35.3391927+00:00 correlationId=e6ee2d936674421fa097fbe02325bde7 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/poll-health statusCode=200 rowCount=1 bytes=210
+recordedAt=2026-08-10T01:43:35.3703223+00:00 correlationId=c837ac5517d54c56a9419f3af8daa2bc component=Watch stage=HTTP_OK elapsedMs=26 endpoint=/api/alerts statusCode=200 rowCount=1 bytes=519
+recordedAt=2026-08-10T01:43:35.3894485+00:00 correlationId=f82187d5c8e4437bb92ca28896288fbc component=Watch stage=HTTP_OK elapsedMs=42 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-10T01:43:35.8541657+00:00 correlationId=c8947ba5326b4eb98816f5f75e29c065 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/alerts statusCode=200 rowCount=1 bytes=519
+recordedAt=2026-08-10T01:43:36.5946377+00:00 correlationId=612e5146d714458dab27e486d825ebaa component=Watch stage=HTTP_OK elapsedMs=4 endpoint=/api/demands/(redacted) statusCode=200 rowCount=1 bytes=390
+recordedAt=2026-08-10T01:43:36.9196022+00:00 correlationId=9bc8f99a12514a7c8f5e905ea31fdf1c component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands/(redacted) statusCode=200 rowCount=1 bytes=390
+recordedAt=2026-08-10T01:43:36.9261236+00:00 correlationId=1c3d9efe44c84c5b93ef1fd8acd579d2 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands statusCode=200 rowCount=1 bytes=436
+recordedAt=2026-08-10T01:43:36.9762516+00:00 correlationId=e889ef15380e4279abd7efdab8e9a910 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands/(redacted) statusCode=200 rowCount=1 bytes=390
+recordedAt=2026-08-10T01:43:37.2170722+00:00 correlationId=2ddc6c63cb914f43991c847261de9947 component=Watch stage=HTTP_OK elapsedMs=1 endpoint=/api/demands/(redacted) statusCode=200 rowCount=1 bytes=390
+

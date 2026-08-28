@@ -1,0 +1,112 @@
+from __future__ import annotations
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from kiota_abstractions.base_request_builder import BaseRequestBuilder
+from kiota_abstractions.base_request_configuration import RequestConfiguration
+from kiota_abstractions.default_query_parameters import QueryParameters
+from kiota_abstractions.get_path_parameters import get_path_parameters
+from kiota_abstractions.method import Method
+from kiota_abstractions.request_adapter import RequestAdapter
+from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.request_option import RequestOption
+from kiota_abstractions.serialization import Parsable, ParsableFactory
+from typing import Any, Optional, TYPE_CHECKING, Union
+from warnings import warn
+
+if TYPE_CHECKING:
+    from .......models.response_msg_of_void import ResponseMsg_Of_Void
+    from .post_state_query_parameter_type import PostStateQueryParameterType
+
+class PullRequestBuilder(BaseRequestBuilder):
+    """
+    Builds and executes requests for operations under /api/imap/v1/mapInfo/file/pull
+    """
+    def __init__(self,request_adapter: RequestAdapter, path_parameters: Union[str, dict[str, Any]]) -> None:
+        """
+        Instantiates a new PullRequestBuilder and sets the default values.
+        param path_parameters: The raw url or the url-template parameters for the request.
+        param request_adapter: The request adapter to use to execute the requests.
+        Returns: None
+        """
+        super().__init__(request_adapter, "{+baseurl}/api/imap/v1/mapInfo/file/pull?mapName={mapName}&note={note}&state={state}&vehicleIP={vehicleIP}", path_parameters)
+    
+    async def post(self,request_configuration: Optional[RequestConfiguration[PullRequestBuilderPostQueryParameters]] = None) -> Optional[ResponseMsg_Of_Void]:
+        """
+        拉取地图
+        param request_configuration: Configuration for the request such as headers, query parameters, and middleware options.
+        Returns: Optional[ResponseMsg_Of_Void]
+        """
+        request_info = self.to_post_request_information(
+            request_configuration
+        )
+        if not self.request_adapter:
+            raise Exception("Http core is null") 
+        from .......models.response_msg_of_void import ResponseMsg_Of_Void
+
+        return await self.request_adapter.send_async(request_info, ResponseMsg_Of_Void, None)
+    
+    def to_post_request_information(self,request_configuration: Optional[RequestConfiguration[PullRequestBuilderPostQueryParameters]] = None) -> RequestInformation:
+        """
+        拉取地图
+        param request_configuration: Configuration for the request such as headers, query parameters, and middleware options.
+        Returns: RequestInformation
+        """
+        request_info = RequestInformation(Method.POST, self.url_template, self.path_parameters)
+        request_info.configure(request_configuration)
+        request_info.headers.try_add("Accept", "application/json")
+        return request_info
+    
+    def with_url(self,raw_url: str) -> PullRequestBuilder:
+        """
+        Returns a request builder with the provided arbitrary URL. Using this method means any other path or query parameters are ignored.
+        param raw_url: The raw URL to use for the request builder.
+        Returns: PullRequestBuilder
+        """
+        if raw_url is None:
+            raise TypeError("raw_url cannot be null.")
+        return PullRequestBuilder(self.request_adapter, raw_url)
+    
+    @dataclass
+    class PullRequestBuilderPostQueryParameters():
+        """
+        拉取地图
+        """
+        def get_query_parameter(self,original_name: str) -> str:
+            """
+            Maps the query parameters names to their encoded names for the URI template parsing.
+            param original_name: The original query parameter name in the class.
+            Returns: str
+            """
+            if original_name is None:
+                raise TypeError("original_name cannot be null.")
+            if original_name == "map_name":
+                return "mapName"
+            if original_name == "vehicle_i_p":
+                return "vehicleIP"
+            if original_name == "note":
+                return "note"
+            if original_name == "state":
+                return "state"
+            return original_name
+        
+        # 地图名
+        map_name: Optional[str] = None
+
+        # 备注
+        note: Optional[str] = None
+
+        # 地图状态
+        state: Optional[PostStateQueryParameterType] = None
+
+        # 车ip
+        vehicle_i_p: Optional[str] = None
+
+    
+    @dataclass
+    class PullRequestBuilderPostRequestConfiguration(RequestConfiguration[PullRequestBuilderPostQueryParameters]):
+        """
+        Configuration for the request such as headers, query parameters, and middleware options.
+        """
+        warn("This class is deprecated. Please use the generic RequestConfiguration class generated by the generator.", DeprecationWarning)
+    
+

@@ -1,0 +1,42 @@
+[
+    {
+        "name":  "nearEnd-1to234",
+        "api":  "queryNearEnd",
+        "req":  "{\"mapId\":28,\"startStationId\":1,\"endStationIds\":[2,3,4]}",
+        "code":  "0",
+        "result":  2,
+        "message":  "成功"
+    },
+    {
+        "name":  "nearEnd-1to2vs33",
+        "api":  "queryNearEnd",
+        "req":  "{\"mapId\":28,\"startStationId\":1,\"endStationIds\":[2,33]}",
+        "code":  "0",
+        "result":  33,
+        "message":  "成功"
+    },
+    {
+        "name":  "nearEnd-1to2only",
+        "api":  "queryNearEnd",
+        "req":  "{\"mapId\":28,\"startStationId\":1,\"endStationIds\":[2]}",
+        "code":  "0",
+        "result":  2,
+        "message":  "成功"
+    },
+    {
+        "name":  "nearStart-4from123",
+        "api":  "queryNearestStart",
+        "req":  "{\"mapId\":28,\"endStationId\":4,\"startStationIds\":[1,2,3]}",
+        "code":  "0",
+        "result":  3,
+        "message":  "成功"
+    },
+    {
+        "name":  "nearStart-4from23",
+        "api":  "queryNearestStart",
+        "req":  "{\"mapId\":28,\"endStationId\":4,\"startStationIds\":[2,3]}",
+        "code":  "0",
+        "result":  3,
+        "message":  "成功"
+    }
+]

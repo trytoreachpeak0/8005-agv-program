@@ -1,0 +1,24 @@
+{
+  "at": "2026-07-20 12:33:28.001",
+  "orderState": 3,
+  "progress": 100,
+  "finalState": false,
+  "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "orderId": "order-2079062513265278976",
+  "numericId": 488008,
+  "missionState": 1,
+  "missionResultCode": 0,
+  "missionResultStr": "",
+  "station": 0,
+  "noStation": true,
+  "procState": "PROCESSING_ORDER",
+  "processingOrder": true,
+  "enable": true,
+  "integrationLevel": "ON_LINE",
+  "movementState": "MT_RUNNING",
+  "pos": {
+    "x": 151.0,
+    "y": -1872.0
+  },
+  "connected": true
+}

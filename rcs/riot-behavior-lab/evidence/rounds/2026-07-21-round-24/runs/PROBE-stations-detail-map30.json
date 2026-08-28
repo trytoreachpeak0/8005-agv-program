@@ -1,0 +1,79 @@
+[
+  {
+    "mapId": 30,
+    "id": 1,
+    "name": "站点1",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  },
+  {
+    "mapId": 30,
+    "id": 2,
+    "name": "站点2",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  },
+  {
+    "mapId": 30,
+    "id": 3,
+    "name": "站点3",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  },
+  {
+    "mapId": 30,
+    "id": 4,
+    "name": "站点4",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  },
+  {
+    "mapId": 30,
+    "id": 5,
+    "name": "站点5",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  },
+  {
+    "mapId": 30,
+    "id": 6,
+    "name": "站点6",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  },
+  {
+    "mapId": 30,
+    "id": 7,
+    "name": "站点7",
+    "type": 1,
+    "enter_pos": 0,
+    "exit_pos": 0,
+    "param": 0,
+    "desc": "",
+    "user_define": {}
+  }
+]

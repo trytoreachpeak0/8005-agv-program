@@ -77,20 +77,6 @@ paths:
                 $ref: "#/components/schemas/SlotState"
         "404":
           $ref: "#/components/responses/NotFound"
-  /api/v1/slots/{slotId}/actions/open-door:
-    post:
-      tags: [Slots]
-      operationId: openDoor
-      summary: 模拟人工开门
-      parameters:
-        - $ref: "#/components/parameters/SlotId"
-      responses:
-        "200":
-          $ref: "#/components/responses/SlotActionSucceeded"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
   /api/v1/slots/{slotId}/actions/close-door:
     post:
       tags: [Slots]

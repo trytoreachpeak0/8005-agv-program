@@ -1,0 +1,11 @@
+{
+  "approvedBy": "szy",
+  "approvedAt": "2026-08-10T14:54:15.7718474+08:00",
+  "userMessage": "我批准 Ticket 13 的打包成品人工验收，批准人：szy。确认启动后 10 秒内可判断连接、轮询、活动 IngestAlert 和 VISIBLE TransportDemand；Demand/Alert 页面符合 D/E 视觉契约；全部 V2 页面与设置符合批准规格；本次运行使用打包目录中的可执行文件而非源码目录。",
+  "confirmedChecks": [
+    "startup-within-10-seconds",
+    "demand-alert-visual-contract",
+    "v2-pages-and-settings",
+    "package-run-not-source"
+  ]
+}

@@ -1,0 +1,11 @@
+journey=slow-request-cancel
+reason=Ticket 12 initial real-window baseline for the user-approved Ticket 11 UI
+ticket=.scratch/mes-ingest-watch-v2-implementation/issues/12-flaui-journeys-window-baselines-and-evidence.md
+submitter=Codex agent
+reviewer=User
+changeType=Initial
+productOrBusinessConfirmed=False
+candidateSha256=4159E39B10E3FDD978652CB68ACD13B00BD212B58E8E813ED3B92A4BC04198FA
+requiredConsecutiveCandidateRuns=10
+approvalState=APPROVED_BY_NON_SUBMITTER
+approvalEvidence=User message on 2026-08-10: 批准

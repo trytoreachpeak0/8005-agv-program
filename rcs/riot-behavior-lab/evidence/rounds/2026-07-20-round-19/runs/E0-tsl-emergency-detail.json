@@ -1,0 +1,71 @@
+{
+  "services": [
+    {
+      "identifier": "triggerEmergency",
+      "name": "触发急停",
+      "required": true,
+      "callType": "sync",
+      "inputData": [],
+      "outputData": [
+        {
+          "identifier": "result",
+          "name": "响应结果",
+          "type": "struct"
+        }
+      ]
+    },
+    {
+      "identifier": "cancelEmergency",
+      "name": "解除急停状态",
+      "required": true,
+      "callType": "sync",
+      "inputData": [],
+      "outputData": [
+        {
+          "identifier": "result",
+          "name": "响应结果",
+          "type": "struct"
+        }
+      ]
+    },
+    {
+      "identifier": "reset",
+      "name": "重启SRC",
+      "required": true,
+      "callType": "sync",
+      "inputData": [],
+      "outputData": [
+        {
+          "identifier": "result",
+          "name": "响应结果",
+          "type": "struct"
+        }
+      ]
+    },
+    {
+      "identifier": "stopMovement",
+      "name": "停止移动",
+      "required": true,
+      "callType": "sync",
+      "inputData": [],
+      "outputData": [
+        {
+          "identifier": "result",
+          "name": "响应结果",
+          "type": "struct"
+        }
+      ]
+    }
+  ],
+  "emergencyStateProperty": {
+    "identifier": "emergencyState",
+    "name": "急停状态",
+    "type": "enum",
+    "specs": {
+      "0": "STATE_EMERGENCY_NA",
+      "1": "STATE_EMERGENCY_NONE",
+      "2": "STATE_EMERGENCY_TRIGER",
+      "3": "STATE_EMERGENCY_RECOVERABLE"
+    }
+  }
+}

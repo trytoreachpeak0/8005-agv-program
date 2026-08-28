@@ -1,0 +1,11 @@
+{
+  "upperId": "riot-behavior-lab-E1-20260720-120911",
+  "http": 200,
+  "body": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+  "parsed": {
+    "code": "0",
+    "message": "成功",
+    "msgDetail": "",
+    "tid": ""
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "Status": "FAILED",
+  "ExitCode": 1,
+  "CompletedAt": "2026-08-10T14:47:43.7630834+08:00",
+  "Error": "System.Management.Automation.RuntimeException: PACKAGED_RELEASE_REQUIRES_MANUAL_ACCEPTANCE: ReleaseApproval\\manual-acceptance.json is missing.",
+  "PostRunEnvironmentError": null
+}

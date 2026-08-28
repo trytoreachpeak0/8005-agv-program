@@ -1,0 +1,10 @@
+{
+  "suites": [
+    "watch-ui-journeys",
+    "watch-vm-tests",
+    "watch-window-visual",
+    "watch-xaml-visual"
+  ],
+  "runnerLogCount": 4,
+  "skipped": []
+}

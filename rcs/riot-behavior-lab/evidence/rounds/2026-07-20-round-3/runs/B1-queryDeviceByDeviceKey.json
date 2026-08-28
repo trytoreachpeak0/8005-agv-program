@@ -1,0 +1,27 @@
+{
+  "at": "2026-07-20 10:09:55",
+  "scenario": "queryDeviceByDeviceKey",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/device/v1/devices/queryDeviceByDeviceKey?deviceKey=BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "httpStatus": 200,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功"
+  },
+  "resultSummary": {
+    "topLevelKeys": [
+      "device",
+      "groups",
+      "properties"
+    ],
+    "device": {
+      "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "deviceName": "新基测试300c协作1",
+      "productKey": "standard.oasis.300ul",
+      "deviceType": "1",
+      "enable": true,
+      "status": 1
+    }
+  },
+  "note": "Successful response nests identity under result.device (not top-level result)."
+}

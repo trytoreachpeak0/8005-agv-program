@@ -1,0 +1,26 @@
+{
+  "Ticket": "23-final-vm-recheck-after-720epx",
+  "Suite": "watch-vm-tests",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "JourneyClientEpx": null,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\23-final-vm-recheck-after-720epx\\run-20260819-120344-watch-vm-tests",
+  "CreatedAt": "2026-08-19T12:04:00.0884671+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "e3ea6e470fee8476a22a31b202579002d4356673",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/MesIngest.Tests/InstallPackageLayoutTests.cs"
+  ],
+  "PayloadSha256": "380575E87B118557A4F32E805139F674C2826BDDD20D8A1A486615493F814B7D",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

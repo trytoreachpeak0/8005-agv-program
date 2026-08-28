@@ -1,0 +1,71 @@
+{
+  "title": "OrderDTO",
+  "type": "object",
+  "properties": {
+    "appointMapId": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "appointStationId": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "appointVehicleGroup": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "appointVehicleKey": {
+      "type": "string"
+    },
+    "createTime": {
+      "type": "string",
+      "example": "yyyy-MM-dd HH:mm:ss"
+    },
+    "deadline": {
+      "type": "string",
+      "example": "yyyy-MM-dd HH:mm:ss"
+    },
+    "executeVehicleKey": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "lockStatus": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "lockVehicleKey": {
+      "type": "string"
+    },
+    "mission": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/MissionDTO"
+      }
+    },
+    "orderId": {
+      "type": "string"
+    },
+    "orderName": {
+      "type": "string"
+    },
+    "orderType": {
+      "type": "string",
+      "enum": [
+        "BATTERY_MAINTAIN",
+        "CHARGE",
+        "NORMAL",
+        "PARKING"
+      ]
+    },
+    "priority": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "upperId": {
+      "type": "string"
+    }
+  }
+}

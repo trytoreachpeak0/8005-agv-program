@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "drill": "WHOLE_DEPLOYMENT_ROLLBACK",
+  "status": "PREVIOUS_DEPLOYMENT_RESTORED",
+  "startedAtUtc": "2026-08-19T16:00:13.8791972+00:00",
+  "completedAtUtc": "2026-08-19T16:00:53.1296715+00:00",
+  "operator": "LAB-WIN-01\\szy",
+  "newServiceName": "MesIngest",
+  "newServiceState": "NOT_INSTALLED",
+  "previousDeploymentRestored": "OLD_PROGRAMS_AND_OLD_CONFIGURATION_RESTORED",
+  "target": {
+    "serverIdentity": "LAB-WIN-01\\MSSQLSERVER",
+    "databaseName": "MesIngest_Ticket25_Cutover",
+    "userTablesAfterRestore": 6,
+    "currentSchemaPresent": false
+  },
+  "backup": {
+    "path": "C:\\Program Files\\Microsoft SQL Server\\MSSQL16.MSSQLSERVER\\MSSQL\\Backup\\MesIngest_Ticket25_pre_cutover.bak",
+    "sha256": "ee2456f3fa35494ee412fd7f48187cbd46f2916426219dfe44c13aeee5213abb"
+  },
+  "mixedModeSupported": false
+}

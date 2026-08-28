@@ -1,0 +1,24 @@
+{
+  "at": "2026-07-20 12:33:02.939",
+  "orderState": null,
+  "progress": null,
+  "finalState": null,
+  "executeVehicleKey": null,
+  "orderId": null,
+  "numericId": null,
+  "missionState": null,
+  "missionResultCode": null,
+  "missionResultStr": null,
+  "station": 2,
+  "noStation": false,
+  "procState": "IDLE",
+  "processingOrder": false,
+  "enable": true,
+  "integrationLevel": "ON_LINE",
+  "movementState": "MT_FINISHED",
+  "pos": {
+    "x": 143.0,
+    "y": -2441.0
+  },
+  "connected": true
+}

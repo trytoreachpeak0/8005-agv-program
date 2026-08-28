@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "baselineRunId": "scale-20260824T212917Z-e6d66c5f",
+  "sampleRunId": "scale-20260824T212942Z-78243ac8",
+  "passed": false,
+  "escalationRequired": true,
+  "failures": [
+    "CAPACITY_GROWTH_NONLINEAR",
+    "CAPACITY_LOGICAL_70_PERCENT_ESCALATION",
+    "CAPACITY_PHYSICAL_70_PERCENT_ESCALATION"
+  ],
+  "identity": {
+    "sourceCommit": "89c54eed2f0f64284a6fbd5f587a0d9e0f6eefb9",
+    "sourceDirty": false,
+    "hostSha256": "b224fde5b5cced91c00d5b9f7647a65072007e0a320fc3e4ffff0f5052fc0485",
+    "packageManifestSha256": "ae501c3ad63010b7ff6379535f3bd6158cf3b048070c35eaa786c289fd3a36e3",
+    "contractVersion": "2026.08.new-mes-ingest.v2.1",
+    "schemaVersion": 28,
+    "sqlDataSource": "LAB-WIN-01",
+    "sqlWindowsService": "MSSQLSERVER",
+    "sqlProductVersion": "16.0.1190.2",
+    "compatibilityLevel": 160,
+    "recoveryModel": "SIMPLE",
+    "maxServerMemoryMb": 1536
+  },
+  "sample": {
+    "historyRounds": 415,
+    "historyRawObservationRows": 249000,
+    "totalRawObservationRows": 249600,
+    "series": 600,
+    "activeSeries": 420,
+    "archivedSeries": 180,
+    "errorSeries": 60
+  },
+  "model": {
+    "targetDays": 30,
+    "targetRounds": 185142,
+    "targetRawObservationRows": 111085200,
+    "safetyMarginFraction": 0.30,
+    "escalationFraction": 0.70,
+    "observedLogicalGrowthMb": 36.367185,
+    "logicalMbPerRound": 0.0876317710843374,
+    "logicalMbPerRow": 0.000146052951807229,
+    "linearityMaximumToMinimumSegmentRate": 2.4277798145421,
+    "projectedLogicalUsedMb": 21094.4594862253,
+    "projectedPhysicalDataMb": 21128.0,
+    "projectedLdfMb": 343.18984375,
+    "projectedTombstoneCount": 180,
+    "projectedTombstoneMb": 0.2925,
+    "projectedDatabaseVersionStorePeakMb": 177.85625,
+    "projectedTempdbImpactMb": 182.89375,
+    "logicalLimitMb": 12288.0,
+    "physicalDataLimitMb": 16384.0,
+    "ldfLimitMb": 2048.0
+  },
+  "cleanup": {
+    "deletedRawObservationRows": 249600,
+    "remainingRawObservationRows": 0,
+    "deletedEligibleSeries": 25,
+    "remainingEligibleSeries": 0,
+    "tombstonesWritten": 25,
+    "activeGraphUnchanged": true,
+    "activeSeries": 420,
+    "activeDemands": 420,
+    "activeEvents": 480,
+    "activeCurrentConditions": 60,
+    "activeErrorPeriods": 60,
+    "activeErrorEvidenceRows": 60,
+    "activeGraphFactCount": 1500,
+    "activeGraphIdentitySha256": "661d764938228dba93fe2ef936fa873bfbc7200bf78a6a889915b6db8297f376",
+    "splitActiveSeries": 0,
+    "defaultCheckIntervalSeconds": 3600,
+    "defaultRawObservationBatch": 210000,
+    "defaultSeriesBatch": 25,
+    "defaultTimeBudgetSeconds": 15
+  },
+  "resources": {
+    "ldfIncrementMb": 255.9921875,
+    "peakPhysicalLdfMb": 263.9921875,
+    "peakUsedLogMb": 64.29296875,
+    "finalLogReuseWait": "NOTHING",
+    "databaseVersionStorePeakMb": 136.8125,
+    "tempdbVersionStorePeakMb": 140.6875,
+    "tempdbUserObjectsDeltaThroughQueryMb": 0.0,
+    "tempdbInternalObjectsDeltaThroughQueryMb": 0.0,
+    "dataFileGrowthMb": 64.0,
+    "logFileGrowthMb": 64.0,
+    "percentGrowth": false
+  },
+  "rawEvidence": {
+    "localRoot": "mes/ingest/csharp/.artifacts/ticket27-clean-evidence-2026-08-25",
+    "baselineJsonSha256": "efff269e3cf721fcdb8b8d6d691ca5d5fa60c0421f381d61d2c9d847441aa92e",
+    "sampleJsonSha256": "77f2749765ede8e008f83cf4ce4b8cd7098a655b4843523bd57c034922058af4",
+    "sampleReplayManifestSha256": "43823401ab60ee154cbc6997be0acabcfc5c775d217accf006a429e08ad54141",
+    "sampleMarkdownSha256": "b914df3d179f8a6f7413c60644467c55c642ec0e3cb4dbbf9cbef1fc806f1c7f"
+  },
+  "escalation": {
+    "releaseBlocked": true,
+    "nextValidation": "Invoke-ScaleAndQueryEvidence.ps1 -ProfileDays 30 -ConfirmFullScaleEscalation MESINGEST_FULL_SCALE_ESCALATION",
+    "contentAddressingDecision": "Re-evaluate only if full-scale validation also fails."
+  },
+  "validation": {
+    "focusedCapacityTests": {
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0
+    },
+    "tier1": {
+      "runCount": 1,
+      "sourceCommit": "89c54eed2f0f64284a6fbd5f587a0d9e0f6eefb9",
+      "sdkVersion": "8.0.424",
+      "platform": "VSTest",
+      "framework": "xUnit v2",
+      "passed": 882,
+      "failed": 0,
+      "skipped": 0,
+      "total": 882,
+      "exitCode": 0,
+      "duration": "00:11:05",
+      "trxSha256": "e2922066b447538f4f65999bb317aed5177c9c7362e538c604958cc4527a1d9e",
+      "attestationSha256": "94cd712b7079a57f23689a85f1624d619cba33d92fd2956b266415bae732ab99",
+      "dataSource": "LAB-WIN-01",
+      "database": "master",
+      "productMajor": 16,
+      "compatibilityLevel": 160,
+      "newResidualDatabases": 0,
+      "preservedPreExistingTicket01Databases": 5
+    },
+    "review": {
+      "standardsFindings": 0,
+      "specFindings": 0,
+      "ticket28ScopeChanges": 0
+    },
+    "tier2OrTier3Run": false
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "Ticket": "area-live-sync",
+  "Suite": "watch-production-preview",
+  "Configuration": "Release",
+  "RequestedRuns": 1,
+  "JourneyClientEpx": null,
+  "VmName": "gpt_win11",
+  "GuestRunDirectory": "C:\\MesIngest\\area-live-sync\\run-20260821-013449-watch-production-preview",
+  "CreatedAt": "2026-08-21T01:35:10.0950697+08:00",
+  "SourceDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "GitRoot": "C:/Users/szy/Desktop/8005---AGV",
+  "GitCommit": "2db69a37b71ea89243100e4551631642ae002591",
+  "GitDirty": true,
+  "GitStatus": [
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchRejectedPrototypeLayoutTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchSelectedPrototypeStructureTests.cs",
+    " M mes/ingest/csharp/MesIngest.Watch.UiTests/WatchTicket21AreaAndResponsiveIntegrationTests.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLivePage.xaml",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLivePage.xaml.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantD.xaml",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantD.xaml.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantE.xaml",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantE.xaml.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantF.xaml",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/AreaFilterLiveVariantF.xaml.cs",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-baseline-current.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-d-invalid.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-d-valid.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-e-invalid.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-e-valid.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-f-invalid.png",
+    "?? mes/ingest/csharp/MesIngest.Watch.FluentPrototype/review/area-live-f-valid.png"
+  ],
+  "PayloadSha256": "C4A81332567B7484FD44821A4EBC48FB81CD4DC4E5EFA1BA3470F1D0B075524D",
+  "ExpectedEnvironment": {
+    "DesktopWidth": 1920,
+    "DesktopHeight": 1080,
+    "Dpi": 96
+  },
+  "SqlSkipApproval": null,
+  "ManualAcceptance": null,
+  "SqlServer": null
+}

@@ -1,0 +1,13 @@
+journey=06-error-search-variant-a
+reason=Shared pager control widened its page-number input by about 45 px, moving the jump button right. Same ticket 28 change as 03; no page-specific edit.
+ticket=ticket-28-carried
+submitter=claude-code-agent
+reviewer=trytoreachpeak0@gmail.com
+changeType=Hierarchy
+productOrBusinessConfirmed=True
+candidateSha256=19D0AD0669BB7B7D4D063768E603D951AC2DDC0846A5ADB269EB31677A4C24AC
+requiredConsecutiveCandidateRuns=3
+approvalState=APPROVED_BY_REVIEWER
+approvedAt=2026-08-21T11:20:00+08:00
+approvalMessage=一并批准，完成 promote
+promotedAt=2026-08-21T11:24:00+08:00

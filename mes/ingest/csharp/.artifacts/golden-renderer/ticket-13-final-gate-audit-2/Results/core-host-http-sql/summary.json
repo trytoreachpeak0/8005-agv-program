@@ -1,0 +1,30 @@
+{
+  "total": 518,
+  "executed": 499,
+  "passed": 499,
+  "failed": 0,
+  "skipped": 19,
+  "skippedTests": [
+    "MesIngest.Tests.SchemaUpgradeTests.EnsureSchema_never_drops_or_truncates_transport_demands",
+    "MesIngest.Tests.SchemaUpgradeTests.Mid_upgrade_failure_leaves_no_half_migration_and_recovers_on_rerun",
+    "MesIngest.Tests.SchemaUpgradeTests.Upgrading_phase1_schema_preserves_demands_pauses_alerts_and_poll_health",
+    "MesIngest.Tests.SqlServerReadApiPersistenceTests.Http_reads_projection_alerts_and_health_after_store_restart",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Alert_query_pages_new_sort_columns_on_the_shared_contract",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Change_feed_full_purge_keeps_monotonic_watermark_and_expires_stale_cursors",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Change_feed_survives_host_store_restart_and_purges_expired_entries",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Gone_history_lookup_uses_ordinal_transport_demand_key_equality",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Persisted_alerts_and_poll_health_are_readable_after_new_store_instance",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Persisted_demands_and_pauses_are_readable_after_new_store_instance",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_desc_page_boundary_inside_tie_group_has_no_gap_or_dup",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_desc_with_tied_primary_values_has_no_gap_or_dup",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_new_visible_columns_cover_nulls_ties_and_both_directions",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.Query_page_uses_read_path_indexes_and_keyset_pagination",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_appends_change_feed_in_same_transaction_for_created_and_gone",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_commits_projection_and_alerts_atomically",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_does_not_rewrite_unchanged_resolved_alert_history",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_is_atomic_across_demand_and_pause_writes",
+    "MesIngest.Tests.SqlServerTransportDemandStoreTests.ReplaceState_writes_only_changed_rows_and_leaves_gone_immutable"
+  ],
+  "approval": null,
+  "approvalMatchesEverySkippedTest": false
+}

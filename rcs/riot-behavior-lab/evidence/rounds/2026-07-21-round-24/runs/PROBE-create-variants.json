@@ -1,0 +1,34 @@
+[
+  {
+    "name": "move-act-move",
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderState": null,
+    "orderId": null
+  },
+  {
+    "name": "act-with-dest",
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderState": null,
+    "orderId": null
+  },
+  {
+    "name": "three-moves-mid-act-same",
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderState": null,
+    "orderId": null
+  },
+  {
+    "name": "orderType2",
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderState": null,
+    "orderId": null
+  }
+]

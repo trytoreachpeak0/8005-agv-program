@@ -1,0 +1,19 @@
+{
+  "SourceVm": "gpt_win11",
+  "SourceId": "7d804f09-8e93-48f9-9bff-07e85f6adc45",
+  "SourceDisks": [
+    "F:\\ticket23-font-import-20260818\\Virtual Hard Disks\\gpt_win11.vhdx"
+  ],
+  "SourceStateDuringDpiWork": "Off (gracefully shut down to free host RAM; 15.3 GB host cannot run two 4 GB VMs, and the runbook forbids parallel desktop suites)",
+  "CloneVm": "gpt_win11_ticket23_dpi",
+  "CloneId": "4e3e5252-b7be-412e-b557-3b0253dcc446",
+  "CloneState": "Running",
+  "CloneDisks": [
+    "F:\\ticket23-dpi-import-20260819\\Virtual Hard Disks\\gpt_win11_BD96E874-1B6D-4EEF-9E0A-D465B1C5F994.avhdx"
+  ],
+  "ExportRoot": "F:\\ticket23-dpi-export-20260819",
+  "ImportRoot": "F:\\ticket23-dpi-import-20260819",
+  "NetworkConnected": false,
+  "GeneratedNewId": true,
+  "CreatedAt": "2026-08-19T08:37:01.7264664+08:00"
+}

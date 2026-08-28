@@ -1,0 +1,12 @@
+{
+  "Status": "PASSED",
+  "ScheduledTaskResult": {
+    "value": 0,
+    "PSComputerName": "gpt_win11",
+    "RunspaceId": "829964b5-9e13-4a7e-8024-aab774d5bf2b",
+    "PSShowComputerName": true
+  },
+  "CompletedAt": "2026-08-10T08:15:40.4077433+08:00",
+  "GuestRunDirectory": "C:\\MesIngest\\golden-renderer-smoke\\run-20260810-081344-watch-vm-tests",
+  "ArtifactsDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\.artifacts\\golden-renderer-script-test\\golden-run-3"
+}

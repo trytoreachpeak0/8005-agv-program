@@ -1,0 +1,1262 @@
+using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Threading;
+using MesIngest.Core.SeriesProjection;
+using MesIngest.Watch;
+
+namespace MesIngest.Tests;
+
+[Collection("WpfDesktop")]
+    public sealed class WatchDemandSeriesInspectorShellTests
+{
+    [Fact]
+    public void Closed_inspector_navigation_and_selection_do_not_fetch_invisible_detail()
+        => StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-closed-no-fetch-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+
+            var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+            Assert.Equal("series-a", window.WorkspaceState.DemandSeries.SelectedId);
+            Assert.Equal(0, client.DetailFetchCount);
+
+            grid.SelectedItem = grid.Items.Cast<WatchDemandSeriesRowPresentation>()
+                .Single(row => row.SeriesId == "series-b");
+
+            Assert.Equal("series-b", window.WorkspaceState.DemandSeries.SelectedId);
+            Assert.Equal(0, client.DetailFetchCount);
+            Assert.False(inspector.IsOpen);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void First_row_is_selected_and_explicit_enter_and_double_click_reuse_the_inspector() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(Path.GetTempPath(), $"watch-inspector-shell-{Guid.NewGuid():N}");
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, new DemandSeriesClient(itemCount: 2), inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            window.Show();
+            window.UpdateLayout();
+
+            var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+            var selected = Assert.IsType<WatchDemandSeriesRowPresentation>(grid.SelectedItem);
+            Assert.Equal("series-a", selected.SeriesId);
+            var command = Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton"));
+            Assert.True(command.IsEnabled);
+            Assert.Equal("打开 Inspector", command.Content);
+            Assert.Equal("打开 Inspector", AutomationProperties.GetName(command));
+
+            command.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            Assert.Equal(1, inspectorWindow.ShowCount);
+            Assert.Equal(1, inspectorWindow.ActivateCount);
+            Assert.Equal("series-a", inspectorWindow.Presentation?.SeriesId);
+            Assert.Equal(
+                "首次观察到",
+                inspectorWindow.Presentation?.FocusedGeneration.FormationReason.ChineseLabel);
+            Assert.Equal(
+                WatchDemandMesBoundaryState.NotApplicable,
+                inspectorWindow.Presentation?.FocusedGeneration.MesBoundary.Before.State);
+            Assert.Equal(
+                WatchDemandMesBoundaryState.Unique,
+                inspectorWindow.Presentation?.FocusedGeneration.MesBoundary.After.State);
+            Assert.Equal("显示 Inspector", command.Content);
+            Assert.Equal("显示 Inspector", AutomationProperties.GetName(command));
+
+            RaiseKey(grid, Key.Enter);
+            RaiseDoubleClick(grid);
+
+            Assert.Equal(1, inspectorWindow.ShowCount);
+            Assert.Equal(3, inspectorWindow.ActivateCount);
+            Assert.True(inspector.IsOpen);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Space_never_opens_or_activates_and_selection_updates_open_content_without_focus_stealing() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(Path.GetTempPath(), $"watch-inspector-space-{Guid.NewGuid():N}");
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, new DemandSeriesClient(itemCount: 2), inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            window.Show();
+            window.UpdateLayout();
+
+            var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            var activationCount = inspectorWindow.ActivateCount;
+
+            RaiseKey(grid, Key.Space);
+            Assert.Equal(activationCount, inspectorWindow.ActivateCount);
+
+            grid.SelectedItem = grid.Items.Cast<WatchDemandSeriesRowPresentation>()
+                .Single(row => row.SeriesId == "series-b");
+
+            Assert.Equal("series-b", inspectorWindow.Presentation?.SeriesId);
+            Assert.Equal(activationCount, inspectorWindow.ActivateCount);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Empty_result_disables_open_and_inline_detail_controls_no_longer_exist() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(Path.GetTempPath(), $"watch-inspector-empty-{Guid.NewGuid():N}");
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, new DemandSeriesClient(itemCount: 0), inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+
+            Assert.False(Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton")).IsEnabled);
+            Assert.Null(window.FindName("DemandSeriesDetailPanel"));
+            Assert.Null(window.FindName("DemandSeriesDetailVisibilityToggle"));
+            Assert.Null(window.FindName("DemandSeriesMasterDetailSplitter"));
+            Assert.False(inspector.IsOpen);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Refresh_that_loses_an_existing_selection_clears_instead_of_selecting_another_series() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(Path.GetTempPath(), $"watch-inspector-selection-loss-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            Assert.Equal("series-a", window.WorkspaceState.DemandSeries.SelectedId);
+
+            client.RemoveFirstSeries = true;
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesApplyFiltersButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+            Assert.Equal(["series-b"], grid.Items.Cast<WatchDemandSeriesRowPresentation>()
+                .Select(row => row.SeriesId)
+                .ToArray());
+            Assert.Null(window.WorkspaceState.DemandSeries.SelectedId);
+            Assert.Null(grid.SelectedItem);
+            Assert.False(Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton")).IsEnabled);
+            var notifications = Assert.IsType<ItemsControl>(
+                window.FindName("NotificationItemsControl"));
+            Assert.Single(notifications.Items);
+            Assert.Equal(
+                "原需求系列已不在刷新结果中",
+                NotificationValue(notifications, "Title"));
+            Assert.Equal("3 秒", NotificationValue(notifications, "TimerText"));
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Refresh_that_loses_open_target_clears_inspector_body_without_choosing_another_series() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-open-selection-loss-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            Assert.Equal("series-a", inspectorWindow.Presentation?.SeriesId);
+
+            client.RemoveFirstSeries = true;
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesApplyFiltersButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.True(inspector.IsOpen);
+            Assert.Null(window.WorkspaceState.DemandSeries.SelectedId);
+            Assert.Null(inspectorWindow.State);
+            Assert.Null(inspectorWindow.Presentation);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Double_click_during_a_new_selection_load_opens_the_still_current_series_after_commit() =>
+        StaTestRunner.Run(() =>
+        {
+            var dispatcher = Dispatcher.CurrentDispatcher;
+            var previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(
+                new DispatcherSynchronizationContext(dispatcher));
+            var root = Path.Combine(Path.GetTempPath(), $"watch-inspector-pending-open-{Guid.NewGuid():N}");
+            try
+            {
+                var client = new DemandSeriesClient(itemCount: 2)
+                {
+                    DelaySeriesBDetail = true,
+                };
+                var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+                using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+                using var window = CreateWindow(root, client, inspector);
+                window.InitializeAsync().GetAwaiter().GetResult();
+                window.NavigateFromOverview(
+                    new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+                window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+                window.Show();
+                window.UpdateLayout();
+
+            var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+            grid.SelectedItem = grid.Items.Cast<WatchDemandSeriesRowPresentation>()
+                .Single(row => row.SeriesId == "series-b");
+            Assert.False(window.WorkspaceState.DemandSeries.IsDetailLoading);
+            Assert.Equal(0, client.DetailFetchCount);
+
+            RaiseDoubleClick(grid);
+
+            Assert.True(inspector.IsOpen);
+            Assert.Equal("series-b", inspectorWindow.State?.SeriesId);
+            Assert.Null(inspectorWindow.Presentation);
+            Assert.True(window.WorkspaceState.DemandSeries.IsDetailLoading);
+            Assert.Equal(1, client.DetailFetchCount);
+            client.ReleaseSeriesBDetail();
+            PumpDispatcherUntil(() => inspectorWindow.Presentation is not null);
+
+                Assert.Equal("series-b", inspectorWindow.Presentation?.SeriesId);
+                Assert.Equal(1, inspectorWindow.ShowCount);
+                Assert.Equal(1, inspectorWindow.ActivateCount);
+
+                window.Close();
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+                TryDelete(root);
+            }
+        });
+
+    [Fact]
+    public void Closing_inspector_cancels_pending_detail_and_rejects_its_late_body() =>
+        StaTestRunner.Run(() =>
+        {
+            var dispatcher = Dispatcher.CurrentDispatcher;
+            var previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(
+                new DispatcherSynchronizationContext(dispatcher));
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-close-cancel-{Guid.NewGuid():N}");
+            try
+            {
+                var client = new DemandSeriesClient(itemCount: 2)
+                {
+                    DelaySeriesBDetail = true,
+                };
+                var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+                using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+                using var window = CreateWindow(root, client, inspector);
+                window.InitializeAsync().GetAwaiter().GetResult();
+                window.NavigateFromOverview(
+                    new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+                window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+                window.Show();
+                window.UpdateLayout();
+
+                var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+                grid.SelectedItem = grid.Items.Cast<WatchDemandSeriesRowPresentation>()
+                    .Single(row => row.SeriesId == "series-b");
+                RaiseDoubleClick(grid);
+                Assert.True(window.WorkspaceState.DemandSeries.IsDetailLoading);
+
+                inspectorWindow.SimulateClose();
+                PumpDispatcherUntil(() => client.DetailCancellationCount == 1);
+                client.ReleaseSeriesBDetail();
+                PumpDispatcherUntil(() => !window.WorkspaceState.DemandSeries.IsDetailLoading);
+
+                Assert.False(inspector.IsOpen);
+                Assert.Null(window.WorkspaceState.DemandSeries.Detail);
+                window.Close();
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+                TryDelete(root);
+            }
+        });
+
+    [Fact]
+    public void Closing_and_reopening_loads_current_selection_and_resets_local_investigation_state() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-close-reopen-context-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2)
+            {
+                IncludeHistoricalGeneration = true,
+            };
+            using var inspectorCoordinator = new WatchDemandSeriesInspectorCoordinator();
+            using var window = CreateWindow(root, client, inspectorCoordinator);
+            try
+            {
+                window.InitializeAsync().GetAwaiter().GetResult();
+                window.NavigateFromOverview(
+                    new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+                window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+                window.Show();
+                window.UpdateLayout();
+
+                Assert.IsAssignableFrom<ButtonBase>(
+                    window.FindName("DemandSeriesOpenInspectorButton"))
+                    .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                var first = Assert.IsType<WatchDemandSeriesInspectorWindow>(
+                    inspectorCoordinator.CurrentWindow);
+                var generations = Assert.IsType<ListBox>(
+                    first.FindName("DemandSeriesInspectorGenerationList"));
+                var historical = generations.Items
+                    .Cast<WatchDemandSeriesInspectorGenerationPresentation>()
+                    .Single(generation => !generation.IsCurrent);
+                generations.SelectedItem = historical;
+                DrainDispatcher();
+                Assert.Equal(
+                    historical.DemandId,
+                    Assert.IsType<WatchDemandSeriesInspectorGenerationPresentation>(
+                        generations.SelectedItem).DemandId);
+                Assert.IsType<TabControl>(first.FindName("DemandSeriesInspectorTabs"))
+                    .SelectedIndex = 1;
+                Assert.IsType<RadioButton>(first.FindName("DemandSeriesInspectorSelectedEventsRadio"))
+                    .IsChecked = true;
+
+                SystemCommands.CloseWindow(first);
+                DrainDispatcher();
+                Assert.False(inspectorCoordinator.IsOpen);
+
+                Assert.Equal(1, client.DetailFetchCount);
+
+                Assert.IsAssignableFrom<ButtonBase>(
+                    window.FindName("DemandSeriesOpenInspectorButton"))
+                    .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                window.DemandSeriesInspectorLoadTask.GetAwaiter().GetResult();
+                var reopened = Assert.IsType<WatchDemandSeriesInspectorWindow>(
+                    inspectorCoordinator.CurrentWindow);
+
+                Assert.NotSame(first, reopened);
+                Assert.Contains("series-a", reopened.Title, StringComparison.Ordinal);
+                Assert.Equal(0, Assert.IsType<TabControl>(
+                    reopened.FindName("DemandSeriesInspectorTabs")).SelectedIndex);
+                Assert.True(Assert.IsType<RadioButton>(
+                    reopened.FindName("DemandSeriesInspectorAllEventsRadio")).IsChecked);
+                Assert.True(Assert.IsType<WatchDemandSeriesInspectorGenerationPresentation>(
+                    Assert.IsType<ListBox>(
+                        reopened.FindName("DemandSeriesInspectorGenerationList")).SelectedItem)
+                    .IsCurrent);
+                Assert.Equal(2, client.DetailFetchCount);
+
+                window.Close();
+            }
+            finally
+            {
+                TryDelete(root);
+            }
+        });
+
+    [Fact]
+    public void Host_change_closes_inspector_cancels_old_detail_and_preserves_saved_layout() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-host-change-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2)
+            {
+                DelayNextDetail = true,
+            };
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            try
+            {
+                window.InitializeAsync().GetAwaiter().GetResult();
+                window.NavigateFromOverview(
+                    new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+                window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+                window.ApplyLocalPreferences(
+                    WatchV2AutoRefreshSettings.Default,
+                    new WatchV2DisplayPreferences(
+                        rememberWindowLayout: true,
+                        windowWidth: 1660,
+                        windowHeight: 980,
+                        isNavigationPaneOpen: true));
+                Assert.IsAssignableFrom<ButtonBase>(
+                    window.FindName("DemandSeriesOpenInspectorButton"))
+                    .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                Assert.True(window.WorkspaceState.DemandSeries.IsDetailLoading);
+
+                window.ApplyHostAsync(new WatchHostSettings("http://host-b", "secret-b", 30))
+                    .GetAwaiter()
+                    .GetResult();
+                PumpDispatcherUntil(() => client.DetailCancellationCount == 1);
+
+                Assert.False(inspector.IsOpen);
+                Assert.False(inspectorWindow.IsVisible);
+                Assert.Null(window.WorkspaceState.DemandSeries.Detail);
+                var persisted = WatchV2PreferencesStore.Load(
+                    Path.Combine(root, "workspace.json"));
+                Assert.True(persisted.Display.RememberWindowLayout);
+                Assert.Equal(1660, persisted.Display.WindowWidth);
+                Assert.Equal(980, persisted.Display.WindowHeight);
+                Assert.True(persisted.Display.IsNavigationPaneOpen);
+
+                window.Close();
+            }
+            finally
+            {
+                TryDelete(root);
+            }
+        });
+
+    [Fact]
+    public void Closing_main_window_closes_inspector_and_cancels_pending_detail() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-main-close-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2)
+            {
+                DelayNextDetail = true,
+            };
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            try
+            {
+                window.InitializeAsync().GetAwaiter().GetResult();
+                window.NavigateFromOverview(
+                    new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+                window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+                Assert.IsAssignableFrom<ButtonBase>(
+                    window.FindName("DemandSeriesOpenInspectorButton"))
+                    .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                Assert.True(window.WorkspaceState.DemandSeries.IsDetailLoading);
+
+                window.Close();
+                PumpDispatcherUntil(() => client.DetailCancellationCount == 1);
+
+                Assert.False(inspector.IsOpen);
+                Assert.False(inspectorWindow.IsVisible);
+            }
+            finally
+            {
+                TryDelete(root);
+            }
+        });
+
+    [Fact]
+    public void Same_series_refresh_failure_keeps_the_last_body_and_marks_it_stale() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-stale-retain-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            window.Show();
+            window.UpdateLayout();
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            var retained = Assert.IsType<WatchDemandSeriesInspectorPresentation>(
+                inspectorWindow.Presentation);
+
+            client.FailNextDetail = true;
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesApplyFiltersButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(retained.SeriesId, inspectorWindow.Presentation?.SeriesId);
+            Assert.Equal(
+                retained.FocusedGeneration.DemandId,
+                inspectorWindow.Presentation?.FocusedGeneration.DemandId);
+            Assert.True(inspectorWindow.State?.IsStale);
+            Assert.Equal("详情刷新失败，已保留上次证据", inspectorWindow.State?.StatusTitle);
+            Assert.Equal(retained.FrozenSnapshot, inspectorWindow.State?.FrozenSnapshot);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void New_list_snapshot_keeps_the_prior_detail_as_an_explicit_stale_unit_until_detail_commits() =>
+        StaTestRunner.Run(() =>
+        {
+            var dispatcher = Dispatcher.CurrentDispatcher;
+            var previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(
+                new DispatcherSynchronizationContext(dispatcher));
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-snapshot-fence-{Guid.NewGuid():N}");
+            try
+            {
+                var client = new DemandSeriesClient(itemCount: 2);
+                var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+                using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+                using var window = CreateWindow(root, client, inspector);
+                window.InitializeAsync().GetAwaiter().GetResult();
+                window.NavigateFromOverview(
+                    new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+                window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+                window.Show();
+                window.UpdateLayout();
+                Assert.IsAssignableFrom<ButtonBase>(
+                    window.FindName("DemandSeriesOpenInspectorButton"))
+                    .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                var retained = Assert.IsType<WatchDemandSeriesInspectorPresentation>(
+                    inspectorWindow.Presentation);
+
+                client.DelayNextDetail = true;
+                Assert.IsAssignableFrom<ButtonBase>(
+                    window.FindName("DemandSeriesApplyFiltersButton"))
+                    .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                PumpDispatcherUntil(() => window.WorkspaceState.DemandSeries.IsDetailLoading);
+
+                Assert.Equal("snapshot-list-2", window.WorkspaceState.DemandSeries.Snapshot?.SnapshotReference);
+                Assert.Equal(retained.FrozenSnapshot, inspectorWindow.State?.FrozenSnapshot);
+                Assert.True(inspectorWindow.State?.IsStale);
+                Assert.Equal(
+                    "正在刷新详情，已保留上次证据",
+                    inspectorWindow.State?.StatusTitle);
+                Assert.Contains(
+                    "正文仍保留上一成功冻结快照",
+                    inspectorWindow.State?.StatusMessage,
+                    StringComparison.Ordinal);
+
+                client.ReleaseDelayedDetail();
+                PumpDispatcherUntil(() => string.Equals(
+                    inspectorWindow.State?.FrozenSnapshot.SnapshotReference,
+                    "snapshot-list-2",
+                    StringComparison.Ordinal));
+
+                Assert.Equal("snapshot-list-2", inspectorWindow.State?.FrozenSnapshot.SnapshotReference);
+                Assert.False(inspectorWindow.State?.IsStale);
+                DrainDispatcher();
+                window.Close();
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+                TryDelete(root);
+            }
+        });
+
+    [Fact]
+    public void Exact_overview_drill_locates_series_opens_inspector_and_carries_source_fence() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-exact-overview-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+
+            window.NavigateFromOverview(new OverviewNavigationIntent(
+                OverviewNavigationTargets.DemandSeriesDetail,
+                SeriesId: "series-b"));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+
+            Assert.Equal("series-b", window.WorkspaceState.DemandSeries.SelectedId);
+            Assert.True(inspector.IsOpen);
+            Assert.Equal("series-b", inspectorWindow.Presentation?.SeriesId);
+            Assert.Contains("概览", inspectorWindow.State?.StatusMessage, StringComparison.Ordinal);
+            Assert.Contains("overview-commit", inspectorWindow.State?.StatusMessage, StringComparison.Ordinal);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Exact_non_overview_drills_locate_focus_open_inspector_and_carry_source_fence() =>
+        StaTestRunner.Run(() =>
+        {
+            var at = DateTimeOffset.Parse("2026-08-21T01:00:00+08:00");
+            var contexts = new[]
+            {
+                new WatchDemandSeriesNavigationContext(
+                    "资格审计", "series-b", "demand-b", "audit-commit", 11, at, at, []),
+                new WatchDemandSeriesNavigationContext(
+                    "错误检索", "series-b", null, "error-commit", 12, at, at, []),
+                new WatchDemandSeriesNavigationContext(
+                    "当前关注", "series-b", "demand-b", "attention-commit", 13, at, at, []),
+            };
+
+            foreach (var navigation in contexts)
+            {
+                var root = Path.Combine(
+                    Path.GetTempPath(),
+                    $"watch-inspector-exact-non-overview-{Guid.NewGuid():N}");
+                try
+                {
+                    var client = new DemandSeriesClient(itemCount: 2);
+                    var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+                    using var inspector = new WatchDemandSeriesInspectorCoordinator(
+                        () => inspectorWindow);
+                    using var window = CreateWindow(root, client, inspector);
+                    window.InitializeAsync().GetAwaiter().GetResult();
+
+                    window.NavigateToDemandSeriesAsync(navigation).GetAwaiter().GetResult();
+
+                    Assert.Equal("series-b", window.WorkspaceState.DemandSeries.SelectedId);
+                    Assert.True(inspector.IsOpen);
+                    Assert.Equal("series-b", inspectorWindow.Presentation?.SeriesId);
+                    Assert.Equal(
+                        navigation.FocusedDemandId ?? "demand-b",
+                        inspectorWindow.Presentation?.FocusedGeneration.DemandId);
+                    Assert.Contains(
+                        navigation.SourceName,
+                        inspectorWindow.State?.StatusMessage,
+                        StringComparison.Ordinal);
+                    Assert.Contains(
+                        navigation.SourceProjectionCommitId,
+                        inspectorWindow.State?.StatusMessage,
+                        StringComparison.Ordinal);
+                    window.Close();
+                }
+                finally
+                {
+                    TryDelete(root);
+                }
+            }
+        });
+
+    [Fact]
+    public async Task Focus_change_invalidates_pending_detail_before_it_can_commit()
+    {
+        var client = new DemandSeriesClient(itemCount: 2)
+        {
+            DelaySeriesBDetail = true,
+        };
+        using var session = new WatchV2WorkspaceSession(_ => client);
+        await session.ApplyAsync(new WatchHostSettings("http://host-a", "secret", 30));
+        await session.RefreshLatestDemandSeriesPageAsync(
+            new DemandSeriesBrowseQuery(new DemandSeriesBrowseFilter()));
+        session.SetDemandSeriesSelection("series-b");
+        session.SetDemandSeriesFocus("demand-b");
+
+        var pending = session.LoadSelectedDemandSeriesDetailAsync();
+        Assert.True(session.State.DemandSeries.IsDetailLoading);
+
+        session.SetDemandSeriesFocus("demand-other");
+        await pending;
+
+        Assert.Equal(1, client.DetailCancellationCount);
+        Assert.Equal("demand-other", session.State.DemandSeries.DetailFocusId);
+        Assert.False(session.State.DemandSeries.IsDetailLoading);
+        Assert.Null(session.State.DemandSeries.Detail);
+    }
+
+    [Fact]
+    public void Switching_series_to_a_failed_target_never_keeps_the_previous_body() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-switch-failure-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            window.Show();
+            window.UpdateLayout();
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            Assert.Equal("series-a", inspectorWindow.Presentation?.SeriesId);
+
+            client.FailNextDetail = true;
+            var grid = Assert.IsType<DataGrid>(window.FindName("DemandSeriesGrid"));
+            grid.SelectedItem = grid.Items.Cast<WatchDemandSeriesRowPresentation>()
+                .Single(row => row.SeriesId == "series-b");
+
+            Assert.Equal("series-b", inspectorWindow.State?.SeriesId);
+            Assert.Null(inspectorWindow.Presentation);
+            Assert.Equal("详情读取失败", inspectorWindow.State?.StatusTitle);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Leaving_demand_series_pauses_page_refresh_and_keeps_inspector_snapshot() =>
+        StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(
+                Path.GetTempPath(),
+                $"watch-inspector-page-pause-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 2);
+            var inspectorWindow = new RecordingDemandSeriesInspectorWindow();
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(() => inspectorWindow);
+            using var window = CreateWindow(root, client, inspector);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            window.Show();
+            window.UpdateLayout();
+            Assert.IsAssignableFrom<ButtonBase>(
+                window.FindName("DemandSeriesOpenInspectorButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            var retainedSnapshot = inspectorWindow.State?.FrozenSnapshot;
+            var fetchCount = client.DetailFetchCount;
+
+            Assert.IsAssignableFrom<ButtonBase>(window.FindName("OverviewNavigationItem"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.Equal(WatchWorkspacePage.Overview, window.ActivePage);
+            Assert.True(inspectorWindow.State?.IsPaused);
+            Assert.Equal(retainedSnapshot, inspectorWindow.State?.FrozenSnapshot);
+            Assert.Equal(fetchCount, client.DetailFetchCount);
+            Assert.Contains(
+                "返回 DemandSeries 页面后恢复刷新",
+                inspectorWindow.State?.StatusMessage,
+                StringComparison.Ordinal);
+
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Inspector_language_switch_reprojects_in_place_without_losing_investigation_state_or_requesting_host()
+        => StaTestRunner.Run(() =>
+        {
+            var root = Path.Combine(Path.GetTempPath(), $"watch-inspector-bilingual-{Guid.NewGuid():N}");
+            var client = new DemandSeriesClient(itemCount: 1);
+            var language = new WatchDisplayLanguageState(WatchDisplayLanguage.SimplifiedChinese);
+            using var inspector = new WatchDemandSeriesInspectorCoordinator(
+                displayLanguageState: language);
+            using var window = CreateWindow(root, client, inspector, language);
+            window.InitializeAsync().GetAwaiter().GetResult();
+            window.NavigateFromOverview(
+                new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries));
+            window.DemandSeriesNavigationTask.GetAwaiter().GetResult();
+            Assert.IsAssignableFrom<ButtonBase>(window.FindName("DemandSeriesOpenInspectorButton"))
+                .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            window.DemandSeriesInspectorLoadTask.GetAwaiter().GetResult();
+            var real = Assert.IsType<WatchDemandSeriesInspectorWindow>(inspector.CurrentWindow);
+            real.Show();
+            _ = real.Activate();
+            real.UpdateLayout();
+            var tabs = Assert.IsType<TabControl>(real.FindName("DemandSeriesInspectorTabs"));
+            tabs.SelectedIndex = 1;
+            real.UpdateLayout();
+            var selectedEvents = Assert.IsType<RadioButton>(
+                real.FindName("DemandSeriesInspectorSelectedEventsRadio"));
+            selectedEvents.IsChecked = true;
+            Assert.Same(selectedEvents, Keyboard.Focus(selectedEvents));
+            var scroll = Assert.IsType<ScrollViewer>(
+                real.FindName("DemandSeriesInspectorGenerationScrollViewer"));
+            var generationList = Assert.IsType<ListBox>(
+                real.FindName("DemandSeriesInspectorGenerationList"));
+            scroll.ScrollToVerticalOffset(31);
+            var offset = scroll.VerticalOffset;
+            var selectedDemandId = Assert.IsType<WatchDemandSeriesInspectorGenerationPresentation>(
+                generationList.SelectedItem).DemandId;
+            var placement = (real.Left, real.Top, real.Width, real.Height, real.WindowState);
+            var workspaceState = window.WorkspaceState;
+            var detailFetchCount = client.DetailFetchCount;
+
+            language.ApplyCommitted(WatchDisplayLanguage.English);
+
+            Assert.Same(workspaceState, window.WorkspaceState);
+            Assert.Equal(detailFetchCount, client.DetailFetchCount);
+            Assert.Equal(
+                selectedDemandId,
+                Assert.IsType<WatchDemandSeriesInspectorGenerationPresentation>(
+                    generationList.SelectedItem).DemandId);
+            Assert.Equal(1, tabs.SelectedIndex);
+            Assert.True(selectedEvents.IsChecked);
+            Assert.Same(selectedEvents, Keyboard.FocusedElement);
+            Assert.Equal(offset, scroll.VerticalOffset);
+            Assert.Equal(placement, (real.Left, real.Top, real.Width, real.Height, real.WindowState));
+            Assert.Equal("Demand series Inspector", real.Title.Split('·')[0].Trim());
+            Assert.Equal(
+                "Generation analysis",
+                Assert.IsType<TabItem>(real.FindName("DemandSeriesInspectorGenerationTab")).Header);
+            Assert.Equal(
+                "Events",
+                Assert.IsType<TabItem>(real.FindName("DemandSeriesInspectorEventsTab")).Header);
+            Assert.Equal(
+                "First observed",
+                Assert.IsType<Wpf.Ui.Controls.TextBlock>(
+                    real.FindName("DemandSeriesInspectorFormationReasonText")).Text);
+            Assert.Equal(
+                "Raw reason code: FIRST_OBSERVED",
+                Assert.IsType<Wpf.Ui.Controls.TextBlock>(
+                    real.FindName("DemandSeriesInspectorFormationReasonCodeText")).Text);
+
+            real.Close();
+            window.Close();
+            TryDelete(root);
+        });
+
+    [Fact]
+    public void Open_inspectors_follow_shared_language_and_new_windows_inherit_it()
+        => StaTestRunner.Run(() =>
+        {
+            var language = new WatchDisplayLanguageState(WatchDisplayLanguage.SimplifiedChinese);
+            using var firstCoordinator = new WatchDemandSeriesInspectorCoordinator(
+                displayLanguageState: language);
+            firstCoordinator.OpenOrShow(new WatchDemandSeriesInspectorStatePresentation(
+                "series-shared",
+                "WIRE_TO_GATE",
+                "SUB-SHARED",
+                "TRACKING",
+                "VISIBLE",
+                new WatchDemandSeriesFrozenSnapshotPresentation(
+                    "snapshot-shared", "commit-shared", 1,
+                    DateTimeOffset.Parse("2026-08-27T14:05:06+08:00"), "poll-shared"),
+                Detail: null,
+                IsLoading: true,
+                IsStale: false,
+                IsPaused: false,
+                WatchPresentationSeverity.Informational,
+                StatusTitle: string.Empty,
+                StatusMessage: string.Empty));
+            var first = Assert.IsType<WatchDemandSeriesInspectorWindow>(firstCoordinator.CurrentWindow);
+
+            language.ApplyCommitted(WatchDisplayLanguage.English);
+
+            Assert.Contains("Demand series Inspector", first.Title, StringComparison.Ordinal);
+            using var secondCoordinator = new WatchDemandSeriesInspectorCoordinator(
+                displayLanguageState: language);
+            secondCoordinator.OpenOrShow(new WatchDemandSeriesInspectorStatePresentation(
+                "series-later",
+                "WIRE_TO_GATE",
+                "SUB-LATER",
+                "TRACKING",
+                "VISIBLE",
+                new WatchDemandSeriesFrozenSnapshotPresentation(
+                    "snapshot-later", "commit-later", 2,
+                    DateTimeOffset.Parse("2026-08-27T14:06:06+08:00"), "poll-later"),
+                Detail: null,
+                IsLoading: true,
+                IsStale: false,
+                IsPaused: false,
+                WatchPresentationSeverity.Informational,
+                StatusTitle: string.Empty,
+                StatusMessage: string.Empty));
+            var second = Assert.IsType<WatchDemandSeriesInspectorWindow>(secondCoordinator.CurrentWindow);
+            Assert.Contains("Demand series Inspector", second.Title, StringComparison.Ordinal);
+
+            first.Close();
+            second.Close();
+        });
+
+    private static WatchWorkspaceWindow CreateWindow(
+        string root,
+        IWatchV2ApiClient client,
+        WatchDemandSeriesInspectorCoordinator inspector,
+        WatchDisplayLanguageState? displayLanguageState = null) => new(
+        new WatchHostSettings("http://host-a", "secret", 30),
+        WatchV2Preferences.Default,
+        Path.Combine(root, "connection.json"),
+        Path.Combine(root, "workspace.json"),
+        _ => client,
+        initializeOnLoaded: false,
+        demandSeriesInspectorCoordinator: inspector,
+        displayLanguageState: displayLanguageState);
+
+    private static string NotificationValue(ItemsControl items, string propertyName)
+    {
+        var item = Assert.Single(items.Items)!;
+        var property = item.GetType().GetProperty(propertyName);
+        Assert.NotNull(property);
+        return Assert.IsType<string>(property!.GetValue(item));
+    }
+
+    private static void RaiseKey(DataGrid grid, Key key)
+    {
+        var source = PresentationSource.FromVisual(grid)
+            ?? throw new InvalidOperationException("The grid must be connected to a presentation source.");
+        grid.RaiseEvent(new KeyEventArgs(
+            Keyboard.PrimaryDevice,
+            source,
+            Environment.TickCount,
+            key)
+        {
+            RoutedEvent = Keyboard.PreviewKeyDownEvent,
+        });
+    }
+
+    private static void RaiseDoubleClick(DataGrid grid)
+    {
+        grid.RaiseEvent(new MouseButtonEventArgs(
+            Mouse.PrimaryDevice,
+            Environment.TickCount,
+            MouseButton.Left)
+        {
+            RoutedEvent = Control.MouseDoubleClickEvent,
+        });
+    }
+
+    private static void PumpDispatcherUntil(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(5);
+        while (!condition())
+        {
+            Assert.True(DateTime.UtcNow < deadline, "Dispatcher condition did not complete.");
+            var frame = new DispatcherFrame();
+            Dispatcher.CurrentDispatcher.BeginInvoke(
+                DispatcherPriority.Background,
+                new Action(() => frame.Continue = false));
+            Dispatcher.PushFrame(frame);
+        }
+    }
+
+    private static void DrainDispatcher()
+    {
+        var frame = new DispatcherFrame();
+        Dispatcher.CurrentDispatcher.BeginInvoke(
+            DispatcherPriority.ApplicationIdle,
+            new Action(() => frame.Continue = false));
+        Dispatcher.PushFrame(frame);
+    }
+
+    private static void TryDelete(string root)
+    {
+        if (Directory.Exists(root))
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private sealed class DemandSeriesClient(int itemCount) : IWatchV2ApiClient
+    {
+        private static readonly DateTimeOffset At =
+            DateTimeOffset.Parse("2026-08-21T01:00:00+08:00");
+
+        public bool RemoveFirstSeries { get; set; }
+
+        public bool DelaySeriesBDetail { get; init; }
+
+        public int DetailFetchCount { get; private set; }
+
+        public int DetailCancellationCount { get; private set; }
+
+        public bool FailNextDetail { get; set; }
+
+        public bool DelayNextDetail { get; set; }
+
+        public bool IncludeHistoricalGeneration { get; init; }
+
+        private int ListFetchCount { get; set; }
+
+        private TaskCompletionSource<DemandSeriesDetailSnapshot>? DelayedSeriesBDetail { get; set; }
+
+        private DemandSeriesDetailSnapshot? SeriesBDetail { get; set; }
+
+        private TaskCompletionSource<DemandSeriesDetailSnapshot>? DelayedDetail { get; set; }
+
+        public Task VerifyContractAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        public Task<WatchOverviewSnapshot> FetchOverviewAsync(
+            WatchOverviewQuery query,
+            CancellationToken cancellationToken = default)
+        {
+            var navigation = new OverviewNavigationIntent(OverviewNavigationTargets.DemandSeries);
+            return Task.FromResult(new WatchOverviewSnapshot(
+                new OperationalSnapshotIdentity("overview-commit", 1, At, "overview-poll", 1, 1, At),
+                query.MesAreas ?? [],
+                new WatchOverviewSeriesSummary(itemCount, itemCount, 0, 0, 0, navigation, navigation, navigation, navigation, navigation),
+                new WatchOverviewReadabilitySummary(0, 0, 0, navigation, navigation, navigation),
+                new WatchOverviewErrorSummary(0, 0, navigation, navigation, navigation),
+                new WatchOverviewAttentionSummary(0, [], [], navigation),
+                [],
+                WatchOverviewRecentActivityStates.NoRecentHighlights,
+                WatchOverviewRecentActivityStates.NoRecentHighlightsMessage));
+        }
+
+        public Task<DemandSeriesListSnapshot> FetchDemandSeriesAsync(
+            DemandSeriesBrowseQuery query,
+            CancellationToken cancellationToken = default)
+        {
+            ListFetchCount++;
+            var items = new[] { "series-a", "series-b" }
+                .Take(itemCount)
+                .Where(seriesId => !RemoveFirstSeries || seriesId != "series-a")
+                .Select(Item)
+                .ToArray();
+            return Task.FromResult(new DemandSeriesListSnapshot(
+                new DemandSeriesSnapshotIdentity(
+                    HistoryEpoch.CreateNew(), "commit-list", 2, At, "poll-list"),
+                $"snapshot-list-{ListFetchCount}",
+                query.Filter,
+                DemandSeriesBrowseOrder.Default,
+                items.Length,
+                new DemandSeriesFacets(items.Length, 0, items.Length, 0, 0),
+                query.PageSize,
+                1,
+                items.Length == 0 ? 0 : 1,
+                items,
+                NextCursor: null,
+                HasMore: false));
+        }
+
+        public Task<DemandSeriesDetailSnapshot> FetchDemandSeriesDetailAsync(
+            string seriesId,
+            string snapshotReference,
+            CancellationToken cancellationToken = default)
+        {
+            DetailFetchCount++;
+            if (FailNextDetail)
+            {
+                FailNextDetail = false;
+                return Task.FromException<DemandSeriesDetailSnapshot>(
+                    new WatchHostQueryException(
+                        WatchHostFailureKind.ServerQuery,
+                        "/api/v2/demand-series/{seriesId}",
+                        "detail-failed",
+                        "DemandSeries detail refresh failed."));
+            }
+
+            var demandId = $"demand-{seriesId[^1]}";
+            var demand = new TransportDemandSnapshot(
+                demandId,
+                seriesId,
+                IncludeHistoricalGeneration ? 2 : 1,
+                PredecessorDemandId: IncludeHistoricalGeneration ? $"{demandId}-old" : null,
+                DemandSeriesLifecycleContract.Visible,
+                At,
+                At,
+                GoneConfirmedAt: null,
+                "poll-create",
+                "commit-create",
+                "commit-list",
+                new LiveMesFieldSetSnapshot("A1", "EQP-1", "焊线", At, "PKG-1"),
+                ExternalReadabilityStates.Readable,
+                [],
+                "poll-create",
+                "commit-create",
+                At);
+            var observation = new DemandRawObservationSnapshot(
+                1,
+                "poll-create",
+                "commit-create",
+                MesObservationAssignment.Assigned,
+                seriesId,
+                demandId,
+                "WIRE_TO_GATE",
+                $"SUB-{seriesId[^1]}",
+                "A1",
+                "EQP-1",
+                "焊线",
+                At,
+                "PKG-1",
+                At,
+                "2026-08-21 01:00:00");
+            var creation = new DemandSeriesEventSnapshot(
+                $"event-{seriesId}",
+                seriesId,
+                1,
+                "TRANSPORT_DEMAND_CREATED",
+                At,
+                "DEMAND",
+                demandId,
+                "poll-create",
+                "commit-create",
+                1,
+                $"{{\"demandId\":\"{demandId}\",\"generation\":1}}");
+            var historicalDemand = demand with
+            {
+                DemandId = $"{demandId}-old",
+                Generation = 1,
+                PredecessorDemandId = null,
+                Status = DemandSeriesLifecycleContract.Gone,
+                GoneConfirmedAt = At,
+                LiveMesFields = null,
+            };
+            var historicalObservation = observation with
+            {
+                Ordinal = 0,
+                PollTraceId = "poll-history",
+                ProjectionCommitId = "commit-history",
+                DemandId = historicalDemand.DemandId,
+            };
+            var historicalCreation = creation with
+            {
+                EventId = $"event-{seriesId}-old",
+                SubjectId = historicalDemand.DemandId,
+                PollTraceId = "poll-history",
+                ProjectionCommitId = "commit-history",
+                PayloadJson = $"{{\"demandId\":\"{historicalDemand.DemandId}\",\"generation\":1}}",
+            };
+            var detail = new DemandSeriesDetailSnapshot(
+                new DemandSeriesSnapshotIdentity(
+                    HistoryEpoch.CreateNew(), "commit-list", 2, At, "poll-list"),
+                snapshotReference,
+                new DemandSeriesSnapshot(
+                    seriesId,
+                    "WIRE_TO_GATE",
+                    $"SUB-{seriesId[^1]}",
+                    DemandSeriesLifecycleContract.Tracking,
+                    DemandSeriesLifecycleContract.Visible,
+                    At,
+                    "poll-create",
+                    "commit-create",
+                    "commit-list",
+                    demand,
+                    IncludeHistoricalGeneration ? [historicalDemand, demand] : [demand],
+                    IncludeHistoricalGeneration ? [historicalObservation, observation] : [observation],
+                    IncludeHistoricalGeneration ? [historicalCreation, creation] : [creation],
+                    [],
+                    [],
+                    ArchivedAt: null,
+                    LastSeriesSequence: 1));
+            if (DelayNextDetail)
+            {
+                DelayNextDetail = false;
+                DelayedDetail = new TaskCompletionSource<DemandSeriesDetailSnapshot>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
+                cancellationToken.Register(() =>
+                {
+                    DetailCancellationCount++;
+                    DelayedDetail.TrySetCanceled(cancellationToken);
+                });
+                SeriesBDetail = detail;
+                return DelayedDetail.Task;
+            }
+
+            if (DelaySeriesBDetail && seriesId == "series-b")
+            {
+                SeriesBDetail = detail;
+                DelayedSeriesBDetail = new TaskCompletionSource<DemandSeriesDetailSnapshot>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
+                cancellationToken.Register(() =>
+                {
+                    DetailCancellationCount++;
+                    DelayedSeriesBDetail.TrySetCanceled(cancellationToken);
+                });
+                return DelayedSeriesBDetail.Task;
+            }
+
+            return Task.FromResult(detail);
+        }
+
+        public void ReleaseSeriesBDetail() => DelayedSeriesBDetail?.TrySetResult(
+            SeriesBDetail ?? throw new InvalidOperationException("Series B detail did not start."));
+
+        public void ReleaseDelayedDetail() => DelayedDetail?.TrySetResult(
+            SeriesBDetail ?? throw new InvalidOperationException("Delayed detail did not start."));
+
+        public Task<ReadabilityAuditListSnapshot> FetchReadabilityAuditAsync(
+            ReadabilityAuditQuery query,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<ReadabilityAuditDetailSnapshot> FetchReadabilityAuditDetailAsync(
+            string demandId,
+            string snapshotReference,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<ErrorSearchListSnapshot> FetchErrorSearchAsync(
+            ErrorSearchQuery query,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<ErrorSearchDetailSnapshot> FetchErrorSearchDetailAsync(
+            string seriesId,
+            string snapshotReference,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<ErrorSearchRawEvidenceSnapshot> FetchErrorRawEvidenceAsync(
+            string seriesId,
+            string evidenceId,
+            string snapshotReference,
+            ErrorSearchRawEvidenceQuery query,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<CurrentIngestAttentionSnapshot> FetchCurrentAttentionAsync(
+            CurrentIngestAttentionQuery query,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public void Dispose()
+        {
+        }
+
+        private static DemandSeriesListItemSnapshot Item(string seriesId) => new(
+            seriesId,
+            "WIRE_TO_GATE",
+            $"SUB-{seriesId[^1]}",
+            DemandSeriesLifecycleContract.Tracking,
+            DemandSeriesLifecycleContract.Visible,
+            At,
+            ArchivedAt: null,
+            $"demand-{seriesId[^1]}",
+            1,
+            DemandSeriesLifecycleContract.Visible,
+            At,
+            GoneConfirmedAt: null,
+            new LiveMesFieldSetSnapshot("A1", "EQP-1", "焊线", At, "PKG-1"),
+            ExternalReadabilityStates.Readable,
+            [],
+            LastSeriesSequence: 1,
+            LatestPollTraceId: "poll-create",
+            LatestProjectionCommitId: "commit-list");
+    }
+}

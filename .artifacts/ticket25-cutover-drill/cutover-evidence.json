@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "drill": "EMPTY_DATABASE_CUTOVER",
+  "status": "EMPTY_DATABASE_READY_FOR_NEW_HOST",
+  "startedAtUtc": "2026-08-19T15:58:15.1988066+00:00",
+  "completedAtUtc": "2026-08-19T15:59:26.6575622+00:00",
+  "operator": "LAB-WIN-01\\szy",
+  "downtimeAcknowledgement": "OLD_HOST_WATCH_AND_CONSUMERS_STOPPED",
+  "target": {
+    "serverIdentity": "LAB-WIN-01\\MSSQLSERVER",
+    "databaseName": "MesIngest_Ticket25_Cutover",
+    "userTablesBefore": 6,
+    "userTablesAfter": 0
+  },
+  "backup": {
+    "path": "C:\\Program Files\\Microsoft SQL Server\\MSSQL16.MSSQLSERVER\\MSSQL\\Backup\\MesIngest_Ticket25_pre_cutover.bak",
+    "sha256": "ee2456f3fa35494ee412fd7f48187cbd46f2916426219dfe44c13aeee5213abb",
+    "verified": true,
+    "role": "INDEPENDENT_ROLLBACK_ASSET"
+  },
+  "nextStep": "Start the new Host; it bootstraps the schema and the first complete SUCCESS round begins the new history."
+}

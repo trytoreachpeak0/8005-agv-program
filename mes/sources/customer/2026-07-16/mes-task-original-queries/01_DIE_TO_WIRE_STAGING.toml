@@ -1,0 +1,8 @@
+id = "CUSTOMER_BASELINE_DIE_TO_WIRE_STAGING"
+title = "客户基线：装片到焊线待送区"
+sql = "01_DIE_TO_WIRE_STAGING.sql"
+readonly = true
+requires_approval = false
+promote_sample = false
+parameters = []
+expected_columns = ["SUBLOT", "AREA", "EQP", "STEP", "DATES", "PACKAGE"]

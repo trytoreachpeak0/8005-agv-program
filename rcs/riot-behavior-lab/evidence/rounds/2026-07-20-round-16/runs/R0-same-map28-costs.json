@@ -1,0 +1,26 @@
+[
+    {
+        "stationId":  1,
+        "costs":  8220,
+        "message":  "ok",
+        "code":  "0"
+    },
+    {
+        "stationId":  3,
+        "costs":  28720,
+        "message":  "ok",
+        "code":  "0"
+    },
+    {
+        "stationId":  4,
+        "costs":  30302,
+        "message":  "ok",
+        "code":  "0"
+    },
+    {
+        "stationId":  29,
+        "costs":  11190,
+        "message":  "ok",
+        "code":  "0"
+    }
+]

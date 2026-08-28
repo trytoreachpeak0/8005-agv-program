@@ -1,0 +1,22 @@
+{
+    "at":  "2026-07-20 15:34:15.723",
+    "station":  0,
+    "noStation":  true,
+    "mapName":  "新基测试2opt",
+    "procState":  "INNER_FORCE_IDLE",
+    "processingOrder":  true,
+    "movementState":  "MT_FINISHED",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  9,
+    "missionState":  1,
+    "missionResultCode":  901,
+    "progress":  100,
+    "orderId":  "order-2079105515861966848",
+    "numericId":  488111,
+    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "finalState":  false,
+    "remainCost":  9223372036854775807,
+    "remainCode":  "0",
+    "upperId":  "riot-behavior-lab-R17-success-20260720-152415"
+}

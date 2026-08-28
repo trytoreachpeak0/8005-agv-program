@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "commandPattern": "dotnet test MesIngest.Tests --configuration Release --results-directory <path> --logger \"trx;LogFileName=runtime-feedback-tier1.trx\"",
+  "workingDirectory": "C:\\Users\\szy\\Desktop\\8005---AGV\\mes\\ingest\\csharp",
+  "startedAt": "2026-08-23T06:18:34.1296471+00:00",
+  "completedAt": "2026-08-23T06:26:06.5918406+00:00",
+  "exitCode": 0,
+  "platform": "VSTest",
+  "framework": "xUnit v2",
+  "testAssembly": "mesingest.tests.dll",
+  "sdkVersion": "8.0.424",
+  "trxFile": "runtime-feedback-tier1.trx",
+  "trxSha256": "5664b0ba0514f89d9d25970a2846ddff7df1252bab74fc88972f9a393cb0b1b8",
+  "counts": {
+    "total": 725,
+    "executed": 725,
+    "passed": 725,
+    "failed": 0,
+    "skipped": 0
+  },
+  "sqlTarget": {
+    "dataSource": "localhost",
+    "database": "master"
+  },
+  "expectedProductMajor": "16",
+  "expectedCompatibilityLevel": "160",
+  "actualProductMajor": 16,
+  "actualCompatibilityLevel": 160,
+  "credentialsWritten": false,
+  "connectionStringWritten": false
+}

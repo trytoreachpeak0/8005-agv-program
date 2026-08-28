@@ -1,0 +1,29 @@
+{
+  "scenario": "map-invalid-key",
+  "transportError": null,
+  "forMock": {
+    "sdkModel": "Bearer callApiKey via Authorization header",
+    "clientMethod": "HttpClient with static callApiKey (no admin/login)",
+    "notes": "Expect HTTP 401 and business code 401; no usable business payload."
+  },
+  "sourceEvidence": "evidence/rounds/2026-07-20-round-2/runs/A2-map-invalid-key.json",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/all",
+  "responseSummary": {
+    "code": "401",
+    "message": "暂未登录或token已经过期",
+    "hasResult": false
+  },
+  "requestBody": null,
+  "responseRaw": {
+    "code": "401",
+    "message": "暂未登录或token已经过期"
+  },
+  "requestHeaders": {
+    "Authorization": "Bearer invalid-call-...(redacted,len=41)"
+  },
+  "elapsedMs": 16,
+  "resultSummary": null,
+  "at": "2026-07-20 10:01:12",
+  "method": "GET",
+  "httpStatus": 401
+}
