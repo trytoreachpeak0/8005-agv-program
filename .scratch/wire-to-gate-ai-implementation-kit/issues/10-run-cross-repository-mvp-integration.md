@@ -532,3 +532,9 @@ Impact on this ticket: 首次 mutation-blocked 影子已消耗逐次授权，并
 Owner repository/evidence: [`8005-agv-control-server@04b1b7e`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/04b1b7e47de682b0e6000c97ac9981b62e5dd577/evidence/g3/20260828-authorized-shadow-preflight-permission-safe-abort/SUMMARY.md)
 
 Impact on this ticket: 哈希绑定运行在 Host 启动前因非提升进程无权读取安装配置、失败路径重复写 ACL 而安全中止；未创建 Host／proxy／peer／shadow DB／permit，也无 RIoT 请求，故按“Host 启动即消耗”条款未消耗操作授权。责任仓改为对固定提升只读任务的完整安全有效态做严格类型化前后哈希，并在最终证据前只验证既有 ACL；独立复核为 mutation-blocked GO，错误身份负测已确认能写出 fail-close 结果。runner 与 package 身份已变化，仍须重新绑定授权后才可运行；本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-28 — 安全时间戳前置误判修复与完整 preflight PASS
+
+Owner repository/evidence: [`8005-agv-control-server@8577b41`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/8577b413697996a6dad4e57953eefa77f86100cd/evidence/g3/20260828-authorized-shadow-preflight-safety-timestamp-safe-abort/SUMMARY.md)
+
+Impact on this ticket: 第二次绑定运行仍在 Host 启动前安全中止；原始安全 JSON 的 UTC offset 被 PowerShell 自动本地化后丢失，导致 runner 将正常 `STOPPED` 样本误判为未来约 8 小时。责任仓改为从 raw JSON 强制读取显式 offset，并新增不会启动 proxy／Host／peer 的完整 `-PreflightOnly`。最终 `8577b41`／manifest `30b33a60...a52e9` 的 preflight 已证明 tool/peer/Python/package、MesIngest v2.4、两次安全样本、生产 DB、安装有效态、端口、清理和 ACL 全部 PASS，`cleanupFailureCount=0`、`authorizationReusable=true`；操作授权仍未消耗，但实际 shadow 必须重新绑定最终 runner `d177d4a4...d344`。本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
