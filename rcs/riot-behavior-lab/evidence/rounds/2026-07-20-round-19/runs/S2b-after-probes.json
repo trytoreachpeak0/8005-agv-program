@@ -1,0 +1,5 @@
+{
+  "emergencyState": "CAN_RECOVER",
+  "controlState": "CONTROL_STATE_ERR",
+  "breakSwitchState": "MOVABLE"
+}

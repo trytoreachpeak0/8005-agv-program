@@ -1,0 +1,160 @@
+{
+  "upperId": "riot-behavior-lab-E1b-2to1-20260720-121102",
+  "orderId": "order-2079056892281356288",
+  "sampleCount": 5,
+  "samples": [
+    {
+      "at": "2026-07-20 12:11:05.180",
+      "orderState": 1,
+      "progress": 0,
+      "executeVehicleKey": "--",
+      "endStationNo": 1,
+      "vehicleStation": 2,
+      "procState": "IDLE",
+      "processingOrder": false,
+      "movementState": "MT_FINISHED",
+      "pos": {
+        "x": 144.0,
+        "y": -1522.0
+      }
+    },
+    {
+      "at": "2026-07-20 12:11:07.416",
+      "orderState": 3,
+      "progress": 100,
+      "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "endStationNo": 1,
+      "vehicleStation": 0,
+      "procState": "PROCESSING_ORDER",
+      "processingOrder": true,
+      "movementState": "MT_RUNNING",
+      "pos": {
+        "x": 145.0,
+        "y": -1409.0
+      }
+    },
+    {
+      "at": "2026-07-20 12:11:09.569",
+      "orderState": 3,
+      "progress": 100,
+      "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "endStationNo": 1,
+      "vehicleStation": 0,
+      "procState": "PROCESSING_ORDER",
+      "processingOrder": true,
+      "movementState": "MT_RUNNING",
+      "pos": {
+        "x": 150.0,
+        "y": -1030.0
+      }
+    },
+    {
+      "at": "2026-07-20 12:11:11.715",
+      "orderState": 3,
+      "progress": 100,
+      "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "endStationNo": 1,
+      "vehicleStation": 0,
+      "procState": "PROCESSING_ORDER",
+      "processingOrder": true,
+      "movementState": "MT_RUNNING",
+      "pos": {
+        "x": 157.0,
+        "y": -479.0
+      }
+    },
+    {
+      "at": "2026-07-20 12:11:13.848",
+      "orderState": 5,
+      "progress": 100,
+      "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "endStationNo": 1,
+      "vehicleStation": 1,
+      "procState": "IDLE",
+      "processingOrder": false,
+      "movementState": "MT_FINISHED",
+      "pos": {
+        "x": 158.0,
+        "y": -479.0
+      }
+    }
+  ],
+  "finalOrder": {
+    "appointMapId": 0,
+    "appointStationId": 0,
+    "appointVehicleGroupId": 0,
+    "appointVehicleGroupName": "0",
+    "appointVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "changeVehicle": 0,
+    "changeVehicleReason": "",
+    "changeVehicleRecord": "",
+    "createTime": "2026-07-20 12:12:45",
+    "createdBy": "api-test",
+    "distance": 0,
+    "doneTime": "2026-07-20 12:12:54",
+    "endStationName": "站点1",
+    "endStationNo": 1,
+    "eta": 0,
+    "executeTime": "2026-07-20 12:12:48",
+    "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "executeVehicleName": "新基测试300c协作1",
+    "executingIndex": -1,
+    "failReason": "",
+    "finalState": true,
+    "id": 488004,
+    "isAppointEnable": 1,
+    "isDeleted": 0,
+    "lockStatus": 0,
+    "missions": [
+      {
+        "actionId": 0,
+        "actionName": "",
+        "actionParam1": 0,
+        "actionParam2": 0,
+        "actionParamStr": "",
+        "createTime": "2026-07-20 12:12:48",
+        "createType": 0,
+        "destination": 1,
+        "destinationName": "站点1",
+        "executeTime": "2026-07-20 12:12:48",
+        "executingIndex": 0,
+        "failStrategy": "FAIL_STRATEGY_VOID",
+        "failValue": "0",
+        "finishTime": "2026-07-20 12:12:54",
+        "functionKey": "",
+        "id": 7416326,
+        "isDeleted": 0,
+        "length": 0,
+        "mapId": 29,
+        "mapName": "api测试",
+        "missionState": 2,
+        "orderId": 488004,
+        "orderUuid": "72461016-4273-4d35-b6f1-ad9f0e726643",
+        "resultCode": 900,
+        "resultStr": "订单完成",
+        "speed": 0.0,
+        "successStrategy": "SUCCESS_STRATEGY_VOID",
+        "type": "move",
+        "updateTime": "2026-07-20 12:12:54",
+        "width": 0
+      }
+    ],
+    "modifiedBy": "internal",
+    "orderId": "order-2079056892281356288",
+    "orderName": "riot-behavior-lab-E1b-2to1-20260720-121102",
+    "orderState": 5,
+    "orderType": 1,
+    "priority": 0,
+    "priorityQueue": 0,
+    "progress": 100,
+    "source": "FMS",
+    "startEndStationNameDetail": "api测试 站点1 > api测试 站点1",
+    "startStationName": "站点1",
+    "startStationNo": 1,
+    "taskState": "1",
+    "totalCosts": 0,
+    "updateTime": "2026-07-20 12:12:54",
+    "upperId": "riot-behavior-lab-E1b-2to1-20260720-121102",
+    "userId": 0
+  }
+}

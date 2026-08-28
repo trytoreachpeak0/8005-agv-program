@@ -1,0 +1,60 @@
+{
+  "at": "2026-07-20 10:19:23",
+  "scenario": "stations-map-26",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/stations/26",
+  "mapId": 26,
+  "mapName": "新基测试1",
+  "httpStatus": 200,
+  "elapsedMs": 30,
+  "responseSummary": {
+    "code": "0",
+    "message": "成功",
+    "resultShape": "array",
+    "stationCount": 4,
+    "hasStationId1": true
+  },
+  "stations": [
+    {
+      "id": 1,
+      "name": "站点1",
+      "type": 1,
+      "desc": "",
+      "pos.x": -180.0,
+      "pos.y": -3640.0,
+      "pos.yaw": 3141.6,
+      "edge_id": 1
+    },
+    {
+      "id": 2,
+      "name": "站点2",
+      "type": 1,
+      "desc": "",
+      "pos.x": 17810.0,
+      "pos.y": -7820.0,
+      "pos.yaw": 6277.871,
+      "edge_id": 3
+    },
+    {
+      "id": 3,
+      "name": "站点3",
+      "type": 1,
+      "desc": "",
+      "pos.x": 29340.0,
+      "pos.y": -3580.0,
+      "pos.yaw": 1657.5347,
+      "edge_id": 7
+    },
+    {
+      "id": 4,
+      "name": "站点4",
+      "type": 1,
+      "desc": "",
+      "pos.x": 9690.0,
+      "pos.y": 4460.0,
+      "pos.yaw": 3120.3389,
+      "edge_id": 10
+    }
+  ],
+  "fieldNote": "stationId=id, stationName=name; coordinates are dotted keys pos.x/pos.y/pos.yaw"
+}

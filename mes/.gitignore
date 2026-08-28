@@ -1,0 +1,20 @@
+# 本机/工厂连接配置（不得提交凭据）
+config.ini
+**/config.ini
+environment.local.*
+
+# 可重新生成的传输包和现场临时输出
+.dist/
+dist/
+bundles/
+output/
+**/output/
+
+# Python 本地环境与缓存
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# evidence/ 与 samples/ 是受治理的版本化资产，不得在此忽略。

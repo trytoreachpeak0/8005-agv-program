@@ -1,0 +1,7 @@
+{
+    "case":  "fake-order",
+    "code":  "0",
+    "message":  "成功",
+    "result":  9223372036854775807,
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":9223372036854775807,\"tid\":\"\"}"
+}

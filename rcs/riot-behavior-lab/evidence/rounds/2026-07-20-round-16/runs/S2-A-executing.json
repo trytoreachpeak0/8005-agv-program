@@ -1,0 +1,22 @@
+{
+    "at":  "2026-07-20 15:09:21.181",
+    "station":  0,
+    "noStation":  true,
+    "mapName":  "新基测试2opt",
+    "procState":  "PROCESSING_ORDER",
+    "processingOrder":  true,
+    "movementState":  "MT_WAIT_FOR_START",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "orderState":  3,
+    "missionState":  1,
+    "progress":  100,
+    "orderId":  "order-2079101743068741632",
+    "numericId":  488102,
+    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "finalState":  false,
+    "remainCost":  31440,
+    "remainCode":  "0",
+    "upperId":  "riot-behavior-lab-R16-S2-A-20260720-150915"
+}

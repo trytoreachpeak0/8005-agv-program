@@ -1,0 +1,24 @@
+{
+    "at":  "2026-07-20 13:25:39.212",
+    "station":  0,
+    "noStation":  true,
+    "procState":  "PROCESSING_ORDER",
+    "processingOrder":  true,
+    "movementState":  "MT_RUNNING",
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "fleetMode":  "FLEET_MODE_OFFLINE",
+    "orderState":  3,
+    "missionState":  1,
+    "missionType":  "move",
+    "missionTypes":  [
+                         "move"
+                     ],
+    "executingIndex":  0,
+    "orderId":  "order-2079075643202600960",
+    "numericId":  488047,
+    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "upperId":  "riot-behavior-lab-R11-rejected-20260720-132533",
+    "progress":  100
+}

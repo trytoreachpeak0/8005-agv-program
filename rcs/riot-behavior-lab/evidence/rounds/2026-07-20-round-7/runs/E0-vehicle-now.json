@@ -1,0 +1,20 @@
+{
+  "at": "2026-07-20 11:03:12",
+  "name": "新基测试300c协作1",
+  "key": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "enable": false,
+  "integrationLevel": null,
+  "procState": "IDLE",
+  "processingOrder": false,
+  "connected": true,
+  "currentStation": 1,
+  "noStation": false,
+  "mapName": "api测试",
+  "battery": 31,
+  "fleetMode": "FLEET_MODE_OFFLINE",
+  "controlState": "CONTROL_STATE_OK",
+  "locationState": "LOCATION_STATE_RUNNING",
+  "movementState": "MT_FINISHED",
+  "aliveState": true,
+  "confidence": 92
+}

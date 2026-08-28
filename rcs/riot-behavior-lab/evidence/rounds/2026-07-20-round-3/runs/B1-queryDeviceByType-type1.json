@@ -1,0 +1,19 @@
+{
+  "at": "2026-07-20 10:09:11",
+  "scenario": "queryDeviceByType-deviceType1",
+  "method": "POST",
+  "url": "http://172.10.1.72:8888/api/device/v1/devices/queryDeviceByType",
+  "requestBody": {
+    "current": 1,
+    "deviceType": 1,
+    "pageSize": 100
+  },
+  "httpStatus": 200,
+  "elapsedMs": 32,
+  "responseSummary": {
+    "code": "00007",
+    "message": "无效参数:页码不能为空, ",
+    "resultCount": null
+  },
+  "devices": []
+}

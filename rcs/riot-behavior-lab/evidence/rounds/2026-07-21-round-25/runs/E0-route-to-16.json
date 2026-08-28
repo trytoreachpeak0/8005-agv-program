@@ -1,0 +1,21 @@
+{
+    "req":  "{\"deviceKeys\":[\"BROKERX-52501bcbe60f4723bc815f24fc763c1e\"],\"mapId\":11,\"stationId\":16}",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"deviceCostsList\":[{\"costs\":9220,\"deviceKey\":\"BROKERX-52501bcbe60f4723bc815f24fc763c1e\",\"message\":\"ok\"}],\"mapId\":11,\"stationId\":16},\"tid\":\"\"}",
+    "parsed":  {
+                   "code":  "0",
+                   "message":  "成功",
+                   "msgDetail":  "",
+                   "result":  {
+                                  "deviceCostsList":  [
+                                                          {
+                                                              "costs":  9220,
+                                                              "deviceKey":  "BROKERX-52501bcbe60f4723bc815f24fc763c1e",
+                                                              "message":  "ok"
+                                                          }
+                                                      ],
+                                  "mapId":  11,
+                                  "stationId":  16
+                              },
+                   "tid":  ""
+               }
+}

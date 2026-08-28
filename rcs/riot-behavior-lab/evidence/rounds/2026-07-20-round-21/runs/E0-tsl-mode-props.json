@@ -1,0 +1,79 @@
+[
+  {
+    "id": "breakSwState",
+    "name": "解抱闸状态",
+    "type": "enum",
+    "specs": {
+      "0": "NA",
+      "1": "OFF",
+      "2": "ON"
+    },
+    "desc": null
+  },
+  {
+    "id": "sysState",
+    "name": "系统状态",
+    "type": "enum",
+    "specs": {
+      "0": "SYS_STATE_ZERO",
+      "1": "SYS_STATE_INITIALING",
+      "2": "SYS_STATE_IDLE",
+      "3": "SYS_STATE_ERROR",
+      "4": "SYS_STATE_START_LOCATING",
+      "5": "SYS_STATE_TASK_NAV_INITIALING",
+      "6": "SYS_STATE_TASK_NAV_FINDING_PATH",
+      "7": "SYS_STATE_TASK_NAV_WAITING_FINISH",
+      "8": "SYS_STATE_TASK_NAV_WAITING_FINISH_SLOW",
+      "9": "SYS_STATE_TASK_NAV_REFINDING_PATH",
+      "10": "SYS_STATE_TASK_NAV_PAUSED",
+      "11": "SYS_STATE_TASK_NAV_NO_WAY",
+      "12": "SYS_STATE_TASK_NEWMAP_DRAWING",
+      "13": "SYS_STATE_TASK_NEWMAP_SAVING",
+      "14": "SYS_STATE_TASK_PATH_NAV_INITIALING",
+      "15": "SYS_STATE_TASK_PATH_WAITING_FINISH",
+      "16": "SYS_STATE_TASK_PATH_WAITING_FINISH_SLOW",
+      "17": "SYS_STATE_TASK_PATH_PAUSED",
+      "18": "SYS_STATE_TASK_NAV_NO_STATION",
+      "19": "SYS_STATE_TASK_MANUAL_PAUSED",
+      "20": "SYS_STATE_TASK_NAV_PATH_ERROR",
+      "21": "SYS_STATE_TASK_MANUAL_PATH_ERROR",
+      "22": "SYS_STATE_HARDWARE_ERROR",
+      "23": "SYS_STATE_TASK_PATH_WAITING_TRAFFIC_CONTROL",
+      "24": "SYS_STATE_TASK_PATH_WAITING_TRAFFIC_CONTROL_SLOW"
+    },
+    "desc": null
+  },
+  {
+    "id": "powerState",
+    "name": "电源状态",
+    "type": "enum",
+    "specs": {
+      "0": "POWER_NA",
+      "1": "POWER_NORMAL",
+      "2": "POWER_SAVE_MODE"
+    },
+    "desc": null
+  },
+  {
+    "id": "operationState",
+    "name": "操作状态",
+    "type": "enum",
+    "specs": {
+      "0": "OPERATION_NONE",
+      "1": "OPERATION_AUTO",
+      "2": "OPERATION_MANUAL"
+    },
+    "desc": null
+  },
+  {
+    "id": "fleetMode",
+    "name": "当前的调度模式",
+    "type": "enum",
+    "specs": {
+      "0": "FLEET_MODE_NONE",
+      "1": "FLEET_MODE_OFFLINE",
+      "2": "FLEET_MODE_ONLINE"
+    },
+    "desc": null
+  }
+]

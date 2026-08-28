@@ -1,0 +1,76 @@
+{
+  "at": "2026-07-20 10:54:33",
+  "tag": "after-online-B",
+  "deviceKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+  "deviceName": "新基测试300c协作1",
+  "getVehicleInfo": {
+    "httpStatus": 200,
+    "currentStation": 1,
+    "noStation": false,
+    "mapName": "api测试",
+    "precisePosition": {
+      "x": 141.0,
+      "y": -489.0
+    },
+    "connected": true,
+    "battery": 32,
+    "movementState": "MT_FINISHED",
+    "locationState": "LOCATION_STATE_RUNNING",
+    "procState": "IDLE",
+    "enable": false,
+    "integrationLevel": "",
+    "processingOrder": false,
+    "vehicleTaskInfoKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e"
+  },
+  "runtimeProperties": {
+    "httpStatus": 200,
+    "mapName": "api测试",
+    "stationNo": 1,
+    "operationState": 1,
+    "sysState": 2,
+    "movementState": {
+      "no": 3,
+      "dstStationType": 0,
+      "remainTime": 0,
+      "stations": [
+        1
+      ],
+      "taskResult": 1,
+      "avoidPolicy": 0,
+      "type": 0,
+      "curCheckpointNo": 0,
+      "curPathNo": 0,
+      "remainDistance": 0,
+      "paths": [
+        {
+          "sx": 150,
+          "sy": -480,
+          "pathType": 4,
+          "rotateAngle": 4712,
+          "ex": 0,
+          "dx": 0,
+          "ey": 0,
+          "cx": 0,
+          "dy": 0,
+          "cy": 0,
+          "limitW": 0,
+          "radius": 0,
+          "limitV": 0,
+          "direction": 0
+        }
+      ],
+      "state": 5,
+      "poses": [],
+      "totalDistance": 0
+    },
+    "currentPosition": {
+      "confidence": 92,
+      "roll": 0,
+      "x": 141,
+      "y": -489,
+      "z": 0,
+      "pitch": 0,
+      "yaw": -1579
+    }
+  }
+}

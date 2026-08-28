@@ -1,0 +1,11 @@
+{
+  "bodyPreview": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[{\"device\":{\"deleted\":false,\"deviceKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"deviceName\":\"新基测试300c协作1\",\"deviceSecret\":\"Lb3hza5SGbf4GwaPRk151g==\",\"deviceSerialNo\":\"B3GSR15110026\",\"deviceType\":\"1\",\"enable\":true,\"gmtCreate\":\"2025-11-05 15:38:02\",\"gmtModified\":\"2026-07-20 10:24:44\",\"hostPort\":\"10.20.36.16:5001\",\"id\":40,\"lastStatusReportTime\":\"2026-07-20 10:24:44\",\"model\":\"300ul\",\"modelVersion\":\"0\",\"nodeType\":1,\"parentDeviceKey\":\"\",\"physicsId\":\"06737679\",\"productKey\":\"standard.oasis.300ul\",\"remarkName\":\"\",\"series\":\"oasis\",\"status\":1,\"totalFinishOrder\":9,\"totalProcessOrder\":10},\"product\":{\"authType\":\"\",\"categoryKey\":\"\",\"createdBy\":\"\",\"dataFormat\":1,\"deleted\":false,\"description\":\"\",\"gmtCreate\":\"2022-06-20 13:44:30\",\"gmtModified\":\"2022-06-20 13:44:30\",\"id\":1,\"imageUrl\":\"\",\"joinPermissionId\":\"\",\"modifiedBy\":\"\",\"netType\":2,\"nodeType\":1,\"productKey\":\"standard.oasis.300ul\",\"productName\":\"Oasis300UL-SRL\",\"productSecret\":\"5f7d5bd45b69053e0179040ec5fe631e\",\"protocolType\":\"protobuf-srv\",\"status\":2,\"templates\":false,\"tenantId\":\"\",\"typesList\":[{\"createdBy\":\"\",\"deleted\":false,\"gmtCreate\":\"2023-06-09 12:29:27\",\"gmtModified\":\"2023-06-09 12:29:27\",\"id\":1,\"modifiedBy\":\"\",\"parentId\":0,\"typeName\":\"AGV\"}],\"validateType\":1}}],\"searchCount\":true,\"size\":10,\"total\":0},\"tid\":\"\"}",
+  "scenario": "device-detail",
+  "message": "成功",
+  "bodyLength": 1395,
+  "code": "0",
+  "mapishTokenHits": [],
+  "at": "2026-07-20 10:23:16",
+  "httpStatus": 200,
+  "url": "http://172.10.1.72:8888/api/device/v1/devices/detail?deviceKey=BROKERX-aee2f93d717546cf9510c98c854fe83e"
+}

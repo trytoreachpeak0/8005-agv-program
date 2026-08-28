@@ -1,0 +1,20 @@
+# 03 — MES 数据质量诊断
+
+**What to build:** 脏/异常 MES 数据可诊断且不静默污染投影：字段漂移只告警不覆盖冻结值；同键多行阻断该键并告警；AREA 空或无法解析仍创建需求但带明确未解析/位置风险信号；只读 HTTP 暴露告警与最近轮询健康。
+
+**Blocked by:** 01 — 录制快照到只读 API 的最小纵切片
+
+**Status:** done
+
+- [x] VISIBLE 需求后续快照字段变化时保留冻结值，并产生漂移告警
+- [x] 同一成功快照内同一 TASK_TYPE+SUBLOT 多行时阻断该键的创建/更新并告警
+- [x] AREA 为空或无法解析时仍创建 TransportDemand，并带有明确的未解析映射/位置风险信号
+- [x] 只读 HTTP 可列出近期/活跃告警
+- [x] 只读 HTTP 可获取最近轮询健康（起止时间、耗时、行数、成功/失败）
+- [x] 无写/命令类接口（不可人工清告警以改变投影语义）
+- [x] Reconciler 与 HTTP 契约测试覆盖漂移、同键多行、AREA 风险信号与健康资源
+
+## Comments
+
+- 2026-07-27: Implemented under `mes/ingest/csharp`. Alert codes: `FIELD_DRIFT`, `DUPLICATE_RECONCILE_KEY`. AREA format check (letter+NN-NN, no 00) sets `locationRisk`/`locationRiskCode` (`AREA_EMPTY`|`AREA_UNPARSEABLE`) without mapping tables. HTTP: `GET /api/alerts`, `GET /api/poll-health`; write verbs rejected.
+- 2026-07-27: Post-review follow-ups → `13-demand-dto-relevant-alerts` (Story 33 relevant alerts on DemandDto); `15-row-parse-errors-as-incomplete` (row-level parse → Incomplete, not POLL_FAILURE).

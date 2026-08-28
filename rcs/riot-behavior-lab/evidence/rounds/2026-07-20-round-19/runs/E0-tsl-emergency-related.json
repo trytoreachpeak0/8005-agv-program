@@ -1,0 +1,73 @@
+{
+  "services": [
+    {
+      "id": "stopChargeActionCmd",
+      "name": "停止充电活动指令",
+      "input": null,
+      "output": "result"
+    },
+    {
+      "id": "triggerEmergency",
+      "name": "触发急停",
+      "input": null,
+      "output": "result"
+    },
+    {
+      "id": "cancelEmergency",
+      "name": "解除急停状态",
+      "input": null,
+      "output": "result"
+    },
+    {
+      "id": "stopMovement",
+      "name": "停止移动",
+      "input": null,
+      "output": "result"
+    },
+    {
+      "id": "stopLocation",
+      "name": "停止定位",
+      "input": null,
+      "output": "result"
+    },
+    {
+      "id": "unlockArea",
+      "name": "解锁区域交管回复",
+      "input": null,
+      "output": "result"
+    },
+    {
+      "id": "reset",
+      "name": "重启SRC",
+      "input": null,
+      "output": "result"
+    }
+  ],
+  "properties": [
+    {
+      "id": "emergencyState",
+      "name": "急停状态",
+      "dataType": "enum"
+    },
+    {
+      "id": "breakSwState",
+      "name": "解抱闸状态",
+      "dataType": "enum"
+    },
+    {
+      "id": "sysState",
+      "name": "系统状态",
+      "dataType": "enum"
+    },
+    {
+      "id": "lastErrorCode",
+      "name": "系统最新错误码",
+      "dataType": "int"
+    },
+    {
+      "id": "faultCodesList",
+      "name": "故障码集",
+      "dataType": "array"
+    }
+  ]
+}

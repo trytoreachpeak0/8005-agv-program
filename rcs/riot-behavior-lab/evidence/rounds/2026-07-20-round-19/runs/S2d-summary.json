@@ -1,0 +1,32 @@
+{
+  "hit": true,
+  "cleared": true,
+  "messageId": 353501,
+  "cancelCode": "0",
+  "cancelMessage": "成功",
+  "before": {
+    "at": "2026-07-20 16:03:39.809",
+    "emergencyState": "CAN_RECOVER",
+    "controlState": "CONTROL_STATE_ERR",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 3
+  },
+  "after": {
+    "at": "2026-07-20 16:03:40.853",
+    "emergencyState": "OK",
+    "controlState": "CONTROL_STATE_ERR",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 1
+  },
+  "auth": "callApiKey"
+}

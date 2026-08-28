@@ -1,0 +1,200 @@
+{
+  "sourceEvidence": "evidence/rounds/2026-07-20-round-4/runs/C1-mapInfo-all.json",
+  "httpStatus": 200,
+  "at": "2026-07-20 10:14:12",
+  "scenario": "mapInfo-all",
+  "note": "mapJson geometry stripped from evidence.",
+  "requestHeaders": {
+    "Authorization": "Bearer eyJ...(redacted)"
+  },
+  "elapsedMs": 4278,
+  "method": "GET",
+  "responseSummary": {
+    "code": "0",
+    "message": "成功",
+    "mapCount": 18
+  },
+  "maps": [
+    {
+      "id": 6,
+      "name": "尊阳电镀线",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-12 15:20:49",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 7,
+      "name": "华士新厂南侧2楼电梯",
+      "floor": 2,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-13 09:20:36",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 8,
+      "name": "华士新厂南侧1楼电梯",
+      "floor": 1,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-13 09:20:46",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 9,
+      "name": "二楼连廊",
+      "floor": 2,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-15 10:40:15",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 11,
+      "name": "华士老厂",
+      "floor": 1,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-15 10:48:06",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 12,
+      "name": "华士新厂",
+      "floor": 1,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-15 14:30:56",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 13,
+      "name": "电镀plus",
+      "floor": 1,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-06-30 13:58:01",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 14,
+      "name": "尊阳电镀线opt",
+      "floor": 1,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-07-10 10:56:15",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 16,
+      "name": "新潮尊阳测试",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2023-11-29 09:42:01",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 17,
+      "name": "2",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2024-01-16 08:38:34",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 18,
+      "name": "3opt",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2024-01-22 16:43:24",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 19,
+      "name": "ZY_WB_Map",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2024-02-28 15:57:42",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 21,
+      "name": "长廊",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2024-07-31 16:16:46",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 25,
+      "name": "ZY_WB_MapF",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2025-03-24 14:36:43",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 26,
+      "name": "新基测试1",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2025-10-24 13:26:21",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 27,
+      "name": "新基测试2",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2025-10-27 13:04:45",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 28,
+      "name": "新基测试2opt",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2025-12-05 12:42:30",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    },
+    {
+      "id": 29,
+      "name": "api测试",
+      "floor": 0,
+      "description": "",
+      "mapError": "",
+      "gmtCreate": "2026-07-20 09:32:45",
+      "gmtUpdate": "2026-07-20 09:49:49",
+      "hasMapJson": true
+    }
+  ],
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/all"
+}

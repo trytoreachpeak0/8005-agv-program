@@ -1,0 +1,1 @@
+{"code":"0","message":"成功","msgDetail":"","result":{"appliedVehicleId":"BROKERX-52501bcbe60f4723bc815f24fc763c1e","detail":"边组合申请:edgeGroup-sys-edgeGroup.老厂电梯单车边组合占用车:[\"BROKERX-f2b50ed499924f86b88f56fd4af9ae30\"]","lockedVehicleIds":["BROKERX-f2b50ed499924f86b88f56fd4af9ae30"],"time":"2026-07-21 16:48:56.020","type":"edgeGroup","vehicleNames":["电镀内部AGV"]},"tid":""}

@@ -1,0 +1,18 @@
+{
+  "a": {
+    "msgDetail": "无效参数:车辆deviceKey列表不能为空, ",
+    "req": "{\"mapId\":29,\"stationId\":2,\"vehicleKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"]}",
+    "body": "{\"code\":\"00007\",\"message\":\"无效参数:车辆deviceKey列表不能为空, \",\"msgDetail\":\"无效参数:车辆deviceKey列表不能为空, \",\"tid\":\"\"}",
+    "message": "无效参数:车辆deviceKey列表不能为空, ",
+    "code": "00007",
+    "http": 200
+  },
+  "b": {
+    "msgDetail": "无效参数:站点id不能为空, ",
+    "req": "{\"mapId\":29,\"destination\":2,\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"]}",
+    "body": "{\"code\":\"00007\",\"message\":\"无效参数:站点id不能为空, \",\"msgDetail\":\"无效参数:站点id不能为空, \",\"tid\":\"\"}",
+    "message": "无效参数:站点id不能为空, ",
+    "code": "00007",
+    "http": 200
+  }
+}

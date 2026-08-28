@@ -1,0 +1,70 @@
+{
+  "at": "2026-07-20 12:11:02.746",
+  "tag": "pre-E1b",
+  "station": 2,
+  "noStation": false,
+  "mapName": "api测试",
+  "pos": {
+    "x": 144.0,
+    "y": -1522.0
+  },
+  "connected": true,
+  "battery": 24,
+  "movementState": "MT_FINISHED",
+  "procState": "IDLE",
+  "enable": true,
+  "integrationLevel": "ON_LINE",
+  "processingOrder": false,
+  "runtimeStation": 2,
+  "runtimeMove": {
+    "no": 8848,
+    "dstStationType": 0,
+    "remainTime": 0,
+    "stations": [
+      2
+    ],
+    "taskResult": 1,
+    "avoidPolicy": 0,
+    "type": 0,
+    "curCheckpointNo": 0,
+    "curPathNo": 0,
+    "remainDistance": 0,
+    "paths": [
+      {
+        "sx": 150,
+        "sy": -480,
+        "pathType": 1,
+        "rotateAngle": 0,
+        "ex": 150,
+        "dx": 0,
+        "ey": -1520,
+        "cx": 0,
+        "dy": 0,
+        "cy": 0,
+        "limitW": 0,
+        "radius": 0,
+        "limitV": 1000,
+        "direction": 0
+      },
+      {
+        "sx": 150,
+        "sy": -1520,
+        "pathType": 4,
+        "rotateAngle": 4712,
+        "ex": 150,
+        "dx": 0,
+        "ey": -1520,
+        "cx": 0,
+        "dy": 0,
+        "cy": 0,
+        "limitW": 0,
+        "radius": 0,
+        "limitV": 1000,
+        "direction": 0
+      }
+    ],
+    "state": 5,
+    "poses": [],
+    "totalDistance": 0
+  }
+}

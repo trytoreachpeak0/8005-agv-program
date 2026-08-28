@@ -1,0 +1,30 @@
+{
+  "upperId": "riot-behavior-lab-E-cancel-20260720-123322",
+  "orderId": "order-2079062513265278976",
+  "samples": [
+    {
+      "at": "2026-07-20 12:33:29.065",
+      "orderState": 2,
+      "progress": 100,
+      "finalState": true,
+      "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "orderId": "order-2079062513265278976",
+      "numericId": 488008,
+      "missionState": 4,
+      "missionResultCode": 0,
+      "missionResultStr": "",
+      "station": 0,
+      "noStation": true,
+      "procState": "IDLE",
+      "processingOrder": false,
+      "enable": true,
+      "integrationLevel": "ON_LINE",
+      "movementState": "MT_FINISHED",
+      "pos": {
+        "x": 152.0,
+        "y": -1886.0
+      },
+      "connected": true
+    }
+  ]
+}

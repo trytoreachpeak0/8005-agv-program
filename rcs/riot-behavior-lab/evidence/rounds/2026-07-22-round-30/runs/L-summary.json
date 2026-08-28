@@ -1,0 +1,23 @@
+{
+    "tag":  "L",
+    "uid":  "riot-behavior-lab-R30-L-20260722-090950",
+    "beforeLoc":  "ERROR",
+    "beforeStation":  0,
+    "beforeXY":  [
+                     null,
+                     null
+                 ],
+    "dest":  3,
+    "destCost":  10421,
+    "createCode":  "0",
+    "hitExec":  false,
+    "hitHang":  false,
+    "hitTerminal":  false,
+    "stayedQueueing":  true,
+    "finalOrderState":  1,
+    "finalExecKey":  "--",
+    "finalLoc":  "ERROR",
+    "finalProc":  "IDLE",
+    "finalFail":  "",
+    "watchSec":  120
+}

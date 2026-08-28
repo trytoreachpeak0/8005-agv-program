@@ -1,0 +1,21 @@
+{
+    "at":  "2026-07-20 15:59:42.539",
+    "emergencyState":  "OK",
+    "breakSwitchState":  "MOVABLE",
+    "controlState":  "CONTROL_STATE_OK",
+    "hardwareState":  "H_STATE_OK",
+    "movementState":  "MT_FINISHED",
+    "agvInfoState":  "NORMAL",
+    "faultCodes":  "",
+    "lastErrorCode":  0,
+    "station":  5,
+    "noStation":  false,
+    "mapName":  "api测试2",
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "enable":  true,
+    "integrationLevel":  "ON_LINE",
+    "propEmergency":  1,
+    "propBreakSw":  1,
+    "propSysState":  2
+}

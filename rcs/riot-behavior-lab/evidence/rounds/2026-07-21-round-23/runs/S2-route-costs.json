@@ -1,0 +1,32 @@
+[
+    {
+        "stationId":  1,
+        "code":  "0",
+        "costs":  -1,
+        "message":  "vehicle route to station unreachable"
+    },
+    {
+        "stationId":  2,
+        "code":  "0",
+        "costs":  -1,
+        "message":  "vehicle route to station unreachable"
+    },
+    {
+        "stationId":  3,
+        "code":  "10006",
+        "costs":  null,
+        "message":  null
+    },
+    {
+        "stationId":  4,
+        "code":  "10006",
+        "costs":  null,
+        "message":  null
+    },
+    {
+        "stationId":  5,
+        "code":  "10006",
+        "costs":  null,
+        "message":  null
+    }
+]

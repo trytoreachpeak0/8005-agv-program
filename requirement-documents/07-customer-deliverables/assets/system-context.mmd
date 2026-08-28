@@ -1,0 +1,24 @@
+flowchart LR
+    Users["现场用户"]
+    MES["MES"]
+    subgraph systemBoundary ["本系统边界"]
+        AGVSystem["多仓位 AGV 系统"]
+    end
+    RCS["RCS / RIOT"]
+    AGV["AGV"]
+    IOModule["IO 模块"]
+    Lock["电子锁"]
+    LightCurtain["光幕"]
+    Users -->|"认证、扫码、装卸确认、任务操作、配置维护"| AGVSystem
+    AGVSystem -->|"作业引导、任务状态、设备状态、告警"| Users
+    MES -->|"搬运任务及生产相关数据"| AGVSystem
+    AGVSystem -->|"当前阶段只读，不回写"| MES
+    AGVSystem -->|"指定目标 AGV 的移动、充电、取消等请求（通常仅目的地）"| RCS
+    RCS -->|"车辆列表、任务队列、位置、到站、电量、执行状态及地图路网（只读）"| AGVSystem
+    RCS -->|"调度、导航及运动控制"| AGV
+    AGV -->|"运行位置、状态及执行结果"| RCS
+    AGVSystem -->|"开锁指令及输出控制"| IOModule
+    IOModule -->|"DI 状态及故障信息"| AGVSystem
+    IOModule -->|"驱动开锁"| Lock
+    Lock -->|"锁/门状态信号"| IOModule
+    LightCurtain -->|"遮挡/通行状态信号"| IOModule

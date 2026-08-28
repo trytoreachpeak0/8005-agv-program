@@ -1,0 +1,49 @@
+{
+    "tag":  "Bhang",
+    "uid":  "riot-behavior-lab-R27-B-20260721-191842",
+    "mode":  "after-cancel-emerg",
+    "beforeOrder":  9,
+    "beforeEmerg":  "CAN_RECOVER",
+    "beforeBreak":  "MOVABLE",
+    "continueCode":  "0",
+    "continueMessage":  "成功",
+    "afterContinueOrder":  3,
+    "afterContinueEmerg":  "OK",
+    "jumpCode":  null,
+    "jumpMessage":  null,
+    "afterJumpOrder":  3,
+    "continueRecovered":  true,
+    "steps":  [
+                  {
+                      "step":  "cancelEmergency",
+                      "code":  "0",
+                      "message":  "成功"
+                  },
+                  {
+                      "step":  "snap-after-cancel-emerg",
+                      "orderState":  9,
+                      "emergencyState":  "OK"
+                  },
+                  {
+                      "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                      "orderId":  "order-2079526911670878208",
+                      "code":  "0",
+                      "message":  "成功",
+                      "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                  },
+                  {
+                      "step":  "snap-after-CONTINUE",
+                      "orderState":  3,
+                      "emergencyState":  "OK",
+                      "procState":  "PROCESSING_ORDER",
+                      "movementState":  "MT_FINISHED"
+                  },
+                  {
+                      "commandType":  "CMD_ORDER_JUMP_FROM_HANG",
+                      "orderId":  "order-2079526911670878208",
+                      "code":  null,
+                      "message":  null,
+                      "body":  ""
+                  }
+              ]
+}

@@ -1,0 +1,24 @@
+{
+  "title": "申请车辆列表到达站点代价",
+  "type": "object",
+  "properties": {
+    "deviceKeys": {
+      "type": "array",
+      "description": "车辆deviceKey列表",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mapId": {
+      "type": "integer",
+      "description": "地图id",
+      "format": "int32"
+    },
+    "stationId": {
+      "type": "integer",
+      "description": "站点id",
+      "format": "int32"
+    }
+  },
+  "description": "申请车辆列表到达站点代价"
+}

@@ -1,0 +1,22 @@
+[
+    {
+        "orderId":  "order-2079101767542505472",
+        "state":  3,
+        "cancel":  {
+                       "api":  "command",
+                       "orderId":  "order-2079101767542505472",
+                       "code":  "0",
+                       "message":  "成功"
+                   }
+    },
+    {
+        "orderId":  "order-2079101765277581312",
+        "state":  1,
+        "cancel":  {
+                       "api":  "command",
+                       "orderId":  "order-2079101765277581312",
+                       "code":  "0",
+                       "message":  "成功"
+                   }
+    }
+]

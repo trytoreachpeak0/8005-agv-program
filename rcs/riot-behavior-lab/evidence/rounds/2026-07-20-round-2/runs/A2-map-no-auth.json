@@ -1,0 +1,26 @@
+{
+  "at": "2026-07-20 10:01:12",
+  "scenario": "map-no-auth",
+  "method": "GET",
+  "url": "http://172.10.1.72:8888/api/imap/v1/mapInfo/all",
+  "requestHeaders": {},
+  "requestBody": null,
+  "httpStatus": 401,
+  "elapsedMs": 83,
+  "transportError": null,
+  "responseRaw": {
+    "code": "401",
+    "message": "暂未登录或token已经过期"
+  },
+  "responseSummary": {
+    "code": "401",
+    "message": "暂未登录或token已经过期",
+    "hasResult": false
+  },
+  "resultSummary": null,
+  "forMock": {
+    "sdkModel": "Bearer callApiKey via Authorization header",
+    "clientMethod": "HttpClient with static callApiKey (no admin/login)",
+    "notes": "Expect HTTP 401 and business code 401; no usable business payload."
+  }
+}

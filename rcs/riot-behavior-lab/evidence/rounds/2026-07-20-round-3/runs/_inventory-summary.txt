@@ -1,0 +1,55 @@
+DEVICES=32 TASK_KEYS=18 BOTH=18 ONLY_DEVICE=14 ONLY_TASK=0
+TEST_NAME=新基测试300c协作1 TEST_KEY=BROKERX-aee2f93d717546cf9510c98c854fe83e IN_TASK=True
+RESOLVE={"inputName":"新基测试300c协作1","hitCount":1,"deviceKeys":["BROKERX-aee2f93d717546cf9510c98c854fe83e"],"unique":true,"matchesKnownTestKey":true}
+BY_PRODUCT:
+  =32
+BY_TYPE:
+  type==32
+ALL_DEVICES:
+VEHICLE|送浮球|BROKERX-a9984c6399a442ca987f60ddcb63a90c|standard.oasis.300ul|type=1|enable=True|status=0
+VEHICLE|新基测试300c协作1|BROKERX-aee2f93d717546cf9510c98c854fe83e|standard.oasis.300ul|type=1|enable=True|status=1
+VEHICLE|新基测试300c多仓位1|BROKERX-7c9efecf2d814a09ac5727f62d00d68c|standard.oasis.300ul|type=1|enable=True|status=2
+VEHICLE|新基测试300c顶升2|BROKERX-8ffb2294db594d7480125d379b39cfd6|standard.oasis.300ul|type=1|enable=True|status=2
+VEHICLE|新基测试300c顶升1|BROKERX-b2674def66064f9d9ac403cc85412c6a|standard.oasis.300ul|type=1|enable=True|status=2
+VEHICLE|辅料多仓位1|BROKERX-bd3e0de0913f4989be32fd57620a3133|standard.oasis.300ul|type=1|enable=True|status=1
+NON_TASK|老厂风淋门|BROKERX-2ddfa6aa17394a6abdf0468755a898fb|1234.2233.3444|type=3|enable=True|status=1
+NON_TASK|新厂风淋门|BROKERX-b6b626920f08490caab682bc8660aa86|1234.2233.3444|type=3|enable=True|status=1
+VEHICLE|劈刀1|BROKERX-ef7caf3f8cbb44d8b359b8279690d79a|standard.oasis.300ul|type=1|enable=True|status=1
+VEHICLE|前线劈刀AGV2|BROKERX-aab9786833544b9fb363b968049da7e5|standard.oasis.300ul|type=1|enable=True|status=2
+VEHICLE|辅料多仓位2|BROKERX-6134f023aa654abead51ffe7bbbcd091|standard.oasis.300ul|type=1|enable=True|status=1
+NON_TASK|新厂磨划内部自动门|BROKERX-e4778ed391e644889bc356ed60273202|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+VEHICLE|新厂磨划刀片AGV|BROKERX-6c2b93a073c74072a7ffa74c84c6d78d|standard.oasis.300ul|type=1|enable=True|status=2
+NON_TASK|老厂前线物料室自动门|BROKERX-9e8248f56d0f42b6acf41c000e3be003|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+VEHICLE|尊阳-多仓位2|BROKERX-03b0297e22f14df393a31e424dff7a80|standard.oasis.300ul|type=1|enable=True|status=1
+VEHICLE|尊阳-多仓位1|BROKERX-757de62710d84cec9fe9907691672cbc|standard.oasis.300ul|type=1|enable=True|status=1
+NON_TASK|电镀自动门|BROKERX-b5397e97e0c54575bae592c87b954ae7|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+VEHICLE|尊阳测试夹抱式AGV|BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4|standard.oasis.300ul|type=1|enable=True|status=1
+NON_TASK|尊阳测试仓库自动门|BROKERX-7e47588563f645ba9a44f60aaebf51e2|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+VEHICLE|测试内部AGV|BROKERX-7cfc7a2757674e56907162cb2f95c746|standard.oasis.300ul|type=1|enable=True|status=1
+NON_TASK|老厂磨划自动门|BROKERX-a43d8e7842ff46069b0c54f1b1ccc6c8|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+NON_TASK|包封车间自动门|BROKERX-08a7e765e0884a1497cf837ec55dd670|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+NON_TASK|切割车间自动门|BROKERX-1cffc04ba42e40bc902cc81582cd1cdc|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+NON_TASK|切割外面车间自动门|BROKERX-b775743911ce43e28746d667186ae0b7|standardrobots.autodoor.v1p03|type=3|enable=False|status=2
+NON_TASK|切割车间电梯前自动门|BROKERX-07a9adbd2b2f484e887742e55c1db8c4|standardrobots.autodoor.v1p03|type=3|enable=True|status=1
+VEHICLE|磨划晶圆AGV2|BROKERX-3929103234654e7bbceb972979ab02cf|standard.oasis.300ul|type=1|enable=True|status=1
+VEHICLE|电镀内部AGV|BROKERX-f2b50ed499924f86b88f56fd4af9ae30|standard.oasis.300ul|type=1|enable=True|status=1
+VEHICLE|磨划晶圆AGV|BROKERX-1faa7ac26c5842bd9a577a5d6da5afed|standard.oasis.300ul|type=1|enable=True|status=1
+NON_TASK|华士新厂南侧电梯|BROKERX-f43712a507924acd8eb7d24e11b687e9|weichuang.lift.00001|type=3|enable=True|status=1
+NON_TASK|华士电镀北侧电梯|BROKERX-22b859a65cae4471a53b0fc0440fb602|weichuang.lift.00001|type=3|enable=True|status=1
+NON_TASK|华士老厂电梯|BROKERX-7ab72d08b7824be9a8de7680a42212e5|weichuang.lift.00001|type=3|enable=True|status=1
+VEHICLE|电镀顶升AGV1|BROKERX-52501bcbe60f4723bc815f24fc763c1e|standard.oasis.300ul|type=1|enable=True|status=1
+ONLY_IN_DEVICES:
+老厂风淋门|BROKERX-2ddfa6aa17394a6abdf0468755a898fb|1234.2233.3444|type=3
+新厂风淋门|BROKERX-b6b626920f08490caab682bc8660aa86|1234.2233.3444|type=3
+新厂磨划内部自动门|BROKERX-e4778ed391e644889bc356ed60273202|standardrobots.autodoor.v1p03|type=3
+老厂前线物料室自动门|BROKERX-9e8248f56d0f42b6acf41c000e3be003|standardrobots.autodoor.v1p03|type=3
+电镀自动门|BROKERX-b5397e97e0c54575bae592c87b954ae7|standardrobots.autodoor.v1p03|type=3
+尊阳测试仓库自动门|BROKERX-7e47588563f645ba9a44f60aaebf51e2|standardrobots.autodoor.v1p03|type=3
+老厂磨划自动门|BROKERX-a43d8e7842ff46069b0c54f1b1ccc6c8|standardrobots.autodoor.v1p03|type=3
+包封车间自动门|BROKERX-08a7e765e0884a1497cf837ec55dd670|standardrobots.autodoor.v1p03|type=3
+切割车间自动门|BROKERX-1cffc04ba42e40bc902cc81582cd1cdc|standardrobots.autodoor.v1p03|type=3
+切割外面车间自动门|BROKERX-b775743911ce43e28746d667186ae0b7|standardrobots.autodoor.v1p03|type=3
+切割车间电梯前自动门|BROKERX-07a9adbd2b2f484e887742e55c1db8c4|standardrobots.autodoor.v1p03|type=3
+华士新厂南侧电梯|BROKERX-f43712a507924acd8eb7d24e11b687e9|weichuang.lift.00001|type=3
+华士电镀北侧电梯|BROKERX-22b859a65cae4471a53b0fc0440fb602|weichuang.lift.00001|type=3
+华士老厂电梯|BROKERX-7ab72d08b7824be9a8de7680a42212e5|weichuang.lift.00001|type=3

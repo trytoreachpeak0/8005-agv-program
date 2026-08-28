@@ -1,0 +1,20 @@
+# 11 — 工厂验证包与回传闭环
+
+**What to build:** 提供工厂机执行清单与回传约定：Thin 探针（必要时切 Thick）、连续轮询、人工核验原始快照与 TransportDemand/告警/WPF、关 WPF 后 Service 仍运行；回传脱敏日志、manifest、性能与计数；Agent/维护者可导入分析。现场执行由人工完成，本票交付验证包与闭环流程，不以“自动宣称现场已通”为完成条件。
+
+**Blocked by:** 10 — 工厂可拷贝安装包与安全配置
+
+**Status:** done
+
+- [x] 工厂执行清单覆盖：填配置、Thin 探针、失败则切 Thick 重试、启动 Service、观察多轮轮询
+- [x] 清单要求人工核验：原始快照行与 VISIBLE 投影、告警、WPF 展示与横幅
+- [x] 清单要求确认关闭 WPF 后 Service 与 HTTP 仍工作
+- [x] 回传约定明确：脱敏日志、manifest、每轮耗时/行数/成败、不得回传含密码的配置
+- [x] 仓库侧有导入/对照回传结果的位置或步骤说明（可复用既有 mes evidence 习惯）
+- [x] 区分“验证包已就绪”与“工厂已签字通过”；后者为人工验收，不阻塞本地后续开发分支
+
+## Comments
+
+- Pack: `FACTORY-VALIDATION.md` + `validation/` (manifest, execution-log, RETURN-CHECKLIST, signoff) shipped via `Publish-MesIngest.ps1`.
+- Repo: `mes/experiments/definitions/mes-ingest-factory-validation/plan.md`; evidence README documents manual import to `mes/evidence/runs/<run_id>/` (no meslab `import-run` / samples promotion).
+- Supporting smoke: `FactoryValidationPackTests` (layout + checklist keywords); formal seams unchanged.

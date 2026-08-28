@@ -1,0 +1,116 @@
+{
+    "uid":  "riot-behavior-lab-R37-OnboardPause-20260722-131300",
+    "probes":  [
+                   {
+                       "cmd":  "CMD_ORDER_CONTINUE_FROM_HELD",
+                       "call":  {
+                                    "commandType":  "CMD_ORDER_CONTINUE_FROM_HELD",
+                                    "code":  "100020",
+                                    "message":  "订单不是暂停状态,订单无法继续执行",
+                                    "body":  "{\"code\":\"100020\",\"detail\":\"code:[100020], msg:[order.state.is.not.held.order.could.not.continue]\",\"message\":\"订单不是暂停状态,订单无法继续执行\",\"msgDetail\":\"订单不是暂停状态,订单无法继续执行\",\"tid\":\"\"}"
+                                },
+                       "after":  {
+                                     "at":  "2026-07-22 13:13:50.989",
+                                     "station":  0,
+                                     "movementState":  "MT_PAUSED",
+                                     "controlState":  "CONTROL_STATE_OK",
+                                     "emergencyState":  "OK",
+                                     "breakSwitchState":  "MOVABLE",
+                                     "locationState":  "LOCATION_STATE_RUNNING",
+                                     "speed":  0.0,
+                                     "faultCodes":  "",
+                                     "lastErrorCode":  0,
+                                     "procState":  "PROCESSING_ORDER",
+                                     "processingOrder":  true,
+                                     "orderState":  3,
+                                     "orderId":  "order-2079797271662297088",
+                                     "numericId":  489332,
+                                     "progress":  20,
+                                     "failReason":  "",
+                                     "m0_resultCode":  0,
+                                     "m0_resultStr":  ""
+                                 }
+                   },
+                   {
+                       "cmd":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                       "call":  {
+                                    "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                                    "code":  "100021",
+                                    "message":  "由于车辆原因订单无法跳过或者继续",
+                                    "body":  "{\"code\":\"100021\",\"detail\":\"code:[100021], msg:[order.could.not.continue.or.skip.due.to.vehicle]\",\"message\":\"由于车辆原因订单无法跳过或者继续\",\"msgDetail\":\"由于车辆原因订单无法跳过或者继续\",\"tid\":\"\"}"
+                                },
+                       "after":  {
+                                     "at":  "2026-07-22 13:13:53.313",
+                                     "station":  0,
+                                     "movementState":  "MT_PAUSED",
+                                     "controlState":  "CONTROL_STATE_OK",
+                                     "emergencyState":  "OK",
+                                     "breakSwitchState":  "MOVABLE",
+                                     "locationState":  "LOCATION_STATE_RUNNING",
+                                     "speed":  0.0,
+                                     "faultCodes":  "",
+                                     "lastErrorCode":  0,
+                                     "procState":  "PROCESSING_ORDER",
+                                     "processingOrder":  true,
+                                     "orderState":  3,
+                                     "orderId":  "order-2079797271662297088",
+                                     "numericId":  489332,
+                                     "progress":  20,
+                                     "failReason":  "",
+                                     "m0_resultCode":  0,
+                                     "m0_resultStr":  ""
+                                 }
+                   },
+                   {
+                       "cmd":  "CMD_ORDER_HELD",
+                       "call":  {
+                                    "commandType":  "CMD_ORDER_HELD",
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                                },
+                       "after":  {
+                                     "at":  "2026-07-22 13:13:55.668",
+                                     "station":  0,
+                                     "movementState":  "MT_PAUSED",
+                                     "controlState":  "CONTROL_STATE_OK",
+                                     "emergencyState":  "OK",
+                                     "breakSwitchState":  "MOVABLE",
+                                     "locationState":  "LOCATION_STATE_RUNNING",
+                                     "speed":  0.0,
+                                     "faultCodes":  "",
+                                     "lastErrorCode":  0,
+                                     "procState":  "USER_FORCE_IDLE",
+                                     "processingOrder":  true,
+                                     "orderState":  7,
+                                     "orderId":  "order-2079797271662297088",
+                                     "numericId":  489332,
+                                     "progress":  20,
+                                     "failReason":  "",
+                                     "m0_resultCode":  0,
+                                     "m0_resultStr":  ""
+                                 }
+                   }
+               ],
+    "final":  {
+                  "at":  "2026-07-22 13:13:55.668",
+                  "station":  0,
+                  "movementState":  "MT_PAUSED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "speed":  0.0,
+                  "faultCodes":  "",
+                  "lastErrorCode":  0,
+                  "procState":  "USER_FORCE_IDLE",
+                  "processingOrder":  true,
+                  "orderState":  7,
+                  "orderId":  "order-2079797271662297088",
+                  "numericId":  489332,
+                  "progress":  20,
+                  "failReason":  "",
+                  "m0_resultCode":  0,
+                  "m0_resultStr":  ""
+              }
+}

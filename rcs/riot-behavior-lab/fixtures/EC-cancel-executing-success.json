@@ -1,0 +1,13 @@
+{
+  "at": "2026-07-20 12:33:28.045",
+  "path": "task/command/order-2079062513265278976",
+  "requestPrimary": "{\"commandType\":\"CMD_ORDER_CANCEL\",\"disableVehicle\":false,\"reason\":\"riot-behavior-lab-EC-cancel\"}",
+  "http": 200,
+  "body": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+  "parsed": {
+    "code": "0",
+    "message": "成功",
+    "msgDetail": "",
+    "tid": ""
+  }
+}

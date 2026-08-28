@@ -1,0 +1,20 @@
+{
+    "at":  "2026-07-22 14:00:28.488",
+    "station":  6,
+    "movementState":  "MT_FINISHED",
+    "controlState":  "CONTROL_STATE_OK",
+    "emergencyState":  "OK",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "speed":  0.0,
+    "procState":  "INNER_FORCE_IDLE",
+    "processingOrder":  true,
+    "orderState":  9,
+    "orderId":  "order-2079808226223849472",
+    "numericId":  489353,
+    "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+    "progress":  40,
+    "failReason":  "启动移动任务时,上一个任务在运行",
+    "m0_resultCode":  901,
+    "m0_resultStr":  "订单被取消,导致订单挂起"
+}

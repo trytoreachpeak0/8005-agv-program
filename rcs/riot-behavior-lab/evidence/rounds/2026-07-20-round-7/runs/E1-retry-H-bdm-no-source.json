@@ -1,0 +1,8 @@
+{
+  "body": "{\"code\":\"0660004\",\"detail\":\"code:[0660004], msg:[can.not.null.appoint.map.station.id]\",\"message\":\"预约地图id和预约站点id不能为空\",\"msgDetail\":\"预约地图id和预约站点id不能为空\",\"tid\":\"\"}",
+  "message": "预约地图id和预约站点id不能为空",
+  "req": "{\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"appointMapId\":29,\"isAppointEnable\":true,\"orderName\":\"riot-lab-H-20260720-120949\",\"upperId\":\"riot-lab-H-20260720-120949\",\"mission\":[{\"type\":\"move\",\"mapId\":29,\"destination\":2}]}",
+  "msgDetail": "预约地图id和预约站点id不能为空",
+  "http": 200,
+  "code": "0660004"
+}

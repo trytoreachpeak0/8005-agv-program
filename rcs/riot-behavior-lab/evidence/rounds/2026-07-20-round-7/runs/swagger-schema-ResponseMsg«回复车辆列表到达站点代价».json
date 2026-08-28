@@ -1,0 +1,24 @@
+{
+  "title": "ResponseMsg«回复车辆列表到达站点代价»",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "detail": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "msgDetail": {
+      "type": "string"
+    },
+    "result": {
+      "$ref": "#/components/schemas/回复车辆列表到达站点代价"
+    },
+    "tid": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+    "at":  "2026-07-20 13:18:57.676",
+    "station":  0,
+    "noStation":  true,
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "movementState":  "MT_FINISHED",
+    "enable":  false,
+    "integrationLevel":  "",
+    "fleetMode":  "FLEET_MODE_OFFLINE",
+    "orderState":  null,
+    "missionState":  null,
+    "missionType":  null,
+    "missionTypes":  [
+
+                     ],
+    "executingIndex":  null,
+    "orderId":  null,
+    "numericId":  null,
+    "executeVehicleKey":  null,
+    "appointVehicleKey":  null,
+    "upperId":  "",
+    "progress":  null
+}

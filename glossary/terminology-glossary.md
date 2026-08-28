@@ -26,6 +26,8 @@
 | 多仓位 AGV | multi-slot AGV | `multiSlotAgv` | 项目核心设备；8 个仓位。英文统一写作 **multi-slot AGV**，与「slot（仓位）」术语一致 |
 | 工控机 | industrial PC | `industrialPc` | 触控屏 Win10 工控机，负责现场操作与 IO 控制；原称「上位机」，不再使用 |
 | 服务器 | server | `server` | 负责任务管理、MES 对接、RIOT 调度 |
+| 管理配置端 | management console | `managementConsole` | 服务器提供的 Web 管理后台，供技术支持/管理类角色登录使用；各角色职责范围不同，不互相代管：IT/软件维护人员（R-12）在此维护本地账号、角色权限（仅限本系统）及流程模板，AGV 运维/调度管理员（R-13）在此维护 AGV 本地调度配置、启停、归档状态及流程模板（仅限 RCS/RIOT 相关配置），生产管理者/车间主任（R-10）等角色按各自被授予的权限查看日志审计；登录见 [[uc-033-login-and-session-management|UC-033]]。与工控机上现场操作界面（扫码装卸料等）是不同入口，不共用登录方式 |
+| 本地认证服务 | local authentication service | `localAuthService` | 服务器内部负责账号校验、会话建立与鉴权的模块，不是独立的第三方系统；使用 [[uc-030-maintain-user-account|UC-030]] 维护的本地个人账号及 [[uc-031-maintain-role-and-permission|UC-031]]/[[uc-032-assign-user-roles|UC-032]] 维护的角色权限。与 MES 校验现场工牌身份/岗位权限的路径互相独立，不共用账号体系 |
 | RIOT | RIOT | `riot` | 斯坦德 AGV 调度平台；通过 HTTP 接口调用 |
 | RCS | RCS (Robot Control System) | `rcs` | 机器人调度/控制系统统称；本项目具体实例为 RIOT |
 | MES | MES (Manufacturing Execution System) | `mes` | 制造执行系统；任务来源与状态核验、回写 |
@@ -84,6 +86,12 @@
 | --- | --- | --- | --- |
 | 搬运任务 | transport task / handling task | `transportTask` | 从 MES 生成本地任务后下发 RIOT |
 | 移动任务 | move order / move task | `moveOrder` | 下发给 RIOT 的 AGV 移动指令 |
+| 流程模板 | workflow template | `workflowTemplate` | 从 [[workflow-step-catalog|预置流程步骤目录]] 选择步骤形成的受限顺序编排；由 [[uc-025-maintain-workflow-template|UC-025]] 维护，不是脚本或任意 API |
+| 流程模板版本 | workflow template version | `workflowTemplateVersion` | 按 [[br-005-workflow-template-versioning|BR-005]] 发布的不可变版本；新实例绑定快照，后续发布或停用不改写历史实例 |
+| 流程实例 | workflow instance | `workflowInstance` | 任务候选经 [[uc-026-select-template-and-create-workflow-instance|UC-026]] 创建的模板快照执行记录；状态表示流程进度，独立于搬运任务的业务状态 |
+| 步骤实例 | workflow step instance | `workflowStepInstance` | [[uc-027-execute-workflow-steps|UC-027]] 按快照执行的单个预置步骤记录，包含输入输出、幂等键、尝试、等待、结果和审计 |
+| 条件跳过 | conditional skip | `conditionalSkip` | 按 [[br-006-workflow-step-execution|BR-006]] 用预置只读条件决定执行或跳过当前可跳过步骤；不是任意分支，不能跳过强制安全步骤 |
+| 人工覆盖 | manual override | `manualOverride` | R-12/R-13 在专项权限、二次认证、填写原因并审计后，对单实例执行的受限匹配或异常处置；见 [[br-004-workflow-template-matching|BR-004]]、[[uc-028-handle-workflow-step-exception|UC-028]]，不得绕过安全约束 |
 | 任务状态：新建 | New | `NEW` | 已创建，待派车 |
 | 任务状态：执行中 | Executing | `EXECUTING` | 已派车，执行中 |
 | 任务状态：完成 | Done | `DONE` | 搬运完成 |
@@ -92,6 +100,8 @@
 | 任务状态：已取消 | Cancelled | `CANCELLED` | 人工取消 |
 | 去重 | deduplication | `deduplication` | 按 `productLot + machineNo + finishTime` 或 MES 事务 ID |
 | 轮询 | polling | `polling` | 服务器定时查询 MES 待搬运数据 |
+
+> 流程实例/步骤实例状态用于描述编排执行进度，并由 [[uc-029-view-workflow-instance-progress|UC-029]] 只读展示；搬运任务状态用于描述物料搬运业务阶段。流程完成、失败、等待或暂停均不自动映射为同名业务任务状态，业务任务状态只能由预置业务能力按既有状态机改变。
 
 ---
 
@@ -188,6 +198,8 @@
 | --- | --- | --- |
 | 2026-07-07 | 初始版本，整理系统、设备、MES、任务、场景、角色等核心术语 | — |
 | 2026-07-07 | 「弹匣/弹夹」与「弹匣盒」合并为弹匣盒，代码统一 `magazineBox` | — |
+| 2026-07-14 | 新增「管理配置端」「本地认证服务」术语，明确与工控机现场操作界面、MES 工牌校验路径的边界 | ZhengyuShao 邵正宇 |
+| 2026-07-14 | 「管理配置端」备注改为按角色分别说明职责范围（R-12 仅本系统账号/角色/流程模板，R-13 仅 RCS/RIOT 调度配置，R-10 按授权查看审计），避免笼统列举角色导致职责范围混淆 | ZhengyuShao 邵正宇 |
 
 ---
 

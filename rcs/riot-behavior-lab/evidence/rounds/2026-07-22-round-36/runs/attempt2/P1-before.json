@@ -1,0 +1,17 @@
+{
+    "at":  "2026-07-22 12:59:21.942",
+    "station":  5,
+    "movementState":  "MT_NA",
+    "controlState":  "CONTROL_STATE_OK",
+    "emergencyState":  "OK",
+    "breakSwitchState":  "MOVABLE",
+    "locationState":  "LOCATION_STATE_RUNNING",
+    "procState":  "IDLE",
+    "processingOrder":  false,
+    "orderState":  null,
+    "orderId":  null,
+    "numericId":  null,
+    "executeVehicleKey":  null,
+    "progress":  null,
+    "failReason":  null
+}

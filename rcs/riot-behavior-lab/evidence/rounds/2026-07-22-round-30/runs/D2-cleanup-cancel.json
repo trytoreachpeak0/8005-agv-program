@@ -1,0 +1,12 @@
+[
+    {
+        "api":  "command",
+        "code":  "0",
+        "message":  "成功"
+    },
+    {
+        "api":  "operate",
+        "code":  "0",
+        "message":  "成功"
+    }
+]

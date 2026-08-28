@@ -1,0 +1,39 @@
+{
+    "tag":  "F",
+    "uid":  "riot-behavior-lab-R27-F-20260721-193043",
+    "mode":  "plain",
+    "beforeOrder":  9,
+    "beforeEmerg":  "OK",
+    "beforeBreak":  "UNMOVABLE",
+    "continueCode":  "14013",
+    "continueMessage":  "车辆状态异常",
+    "afterContinueOrder":  9,
+    "afterContinueEmerg":  "OK",
+    "jumpCode":  "14013",
+    "jumpMessage":  "车辆状态异常",
+    "afterJumpOrder":  9,
+    "continueRecovered":  false,
+    "steps":  [
+                  {
+                      "commandType":  "CMD_ORDER_CONTINUE_FROM_HANG",
+                      "orderId":  "order-2079529938297421824",
+                      "code":  "14013",
+                      "message":  "车辆状态异常",
+                      "body":  "{\"code\":\"14013\",\"detail\":\"code:[14013], msg:[vehicle.state.is.error]\",\"message\":\"车辆状态异常\",\"msgDetail\":\"车辆状态异常\",\"tid\":\"\"}"
+                  },
+                  {
+                      "step":  "snap-after-CONTINUE",
+                      "orderState":  9,
+                      "emergencyState":  "OK",
+                      "procState":  "INNER_FORCE_IDLE",
+                      "movementState":  "MT_FINISHED"
+                  },
+                  {
+                      "commandType":  "CMD_ORDER_JUMP_FROM_HANG",
+                      "orderId":  "order-2079529938297421824",
+                      "code":  "14013",
+                      "message":  "车辆状态异常",
+                      "body":  "{\"code\":\"14013\",\"detail\":\"code:[14013], msg:[vehicle.state.is.error]\",\"message\":\"车辆状态异常\",\"msgDetail\":\"车辆状态异常\",\"tid\":\"\"}"
+                  }
+              ]
+}

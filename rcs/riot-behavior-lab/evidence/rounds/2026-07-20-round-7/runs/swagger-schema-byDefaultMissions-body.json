@@ -1,0 +1,78 @@
+{
+  "title": "OrderRecordDTO对象",
+  "required": [
+    "mission"
+  ],
+  "type": "object",
+  "properties": {
+    "appointMapId": {
+      "type": "integer",
+      "description": "预约指定指定地图id",
+      "format": "int32",
+      "example": 0
+    },
+    "appointStationId": {
+      "type": "integer",
+      "description": "预约指定指定地图站点id",
+      "format": "int32",
+      "example": 0
+    },
+    "appointVehicleGroupId": {
+      "type": "integer",
+      "description": "预约指定车型组id",
+      "format": "int32",
+      "example": 0
+    },
+    "appointVehicleGroupName": {
+      "type": "string",
+      "description": "预约指定车型组名"
+    },
+    "appointVehicleKey": {
+      "type": "string",
+      "description": "预约指定车辆id"
+    },
+    "isAppointEnable": {
+      "type": "integer",
+      "description": "是否支持预约:1.支持,0.不支持",
+      "format": "int32",
+      "example": 0
+    },
+    "lockStatus": {
+      "type": "integer",
+      "description": "是否锁定车辆:1.锁定,0.解锁",
+      "format": "int32"
+    },
+    "lockVehicleKey": {
+      "type": "string",
+      "description": "锁定车辆的key"
+    },
+    "mission": {
+      "type": "array",
+      "description": "默认mission",
+      "items": {
+        "$ref": "#/components/schemas/MissionDTO"
+      }
+    },
+    "orderName": {
+      "type": "string",
+      "description": "订单名称"
+    },
+    "priority": {
+      "type": "integer",
+      "description": "优先级:0:低优先级,1:中优先级,2:高优先级,3:最高优先级",
+      "format": "int32",
+      "example": 0
+    },
+    "source": {
+      "type": "integer",
+      "description": "订单来源:1 FMS, 2 WMS, 3 CALLS, 4 UI",
+      "format": "int32",
+      "example": 1
+    },
+    "upperId": {
+      "type": "string",
+      "description": "中控系统订单唯一ID"
+    }
+  },
+  "description": "OrderRecordDTO对象"
+}

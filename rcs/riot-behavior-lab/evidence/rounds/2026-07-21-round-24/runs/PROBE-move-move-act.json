@@ -1,0 +1,46 @@
+[
+  {
+    "name": "move-move-act-4-1",
+    "enter": 4,
+    "exit": 1,
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderId": null,
+    "orderState": null,
+    "missionCount": null
+  },
+  {
+    "name": "move-move-act-1-2",
+    "enter": 1,
+    "exit": 2,
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderId": null,
+    "orderState": null,
+    "missionCount": null
+  },
+  {
+    "name": "move-move-act-3-4",
+    "enter": 3,
+    "exit": 4,
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderId": null,
+    "orderState": null,
+    "missionCount": null
+  },
+  {
+    "name": "move-move-act-same-3",
+    "enter": 3,
+    "exit": 3,
+    "code": "10008",
+    "message": "充电订单缺少进入退出点",
+    "detail": "code:[10008], msg:[charge.order.no.enter.exit]",
+    "orderId": null,
+    "orderState": null,
+    "missionCount": null
+  }
+]

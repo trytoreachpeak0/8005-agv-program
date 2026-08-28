@@ -1,0 +1,18 @@
+{
+  "hit": true,
+  "last": {
+    "at": "16:35:07.997",
+    "statusType": "offline",
+    "breakSwitchState": "UNMOVABLE",
+    "mode": "MODE_AUTO",
+    "controlState": "CONTROL_STATE_ERR",
+    "hardwareState": "H_STATE_OK",
+    "enable": true,
+    "il": "ON_LINE",
+    "breakSwState": null,
+    "powerState": null,
+    "sysState": null,
+    "operationState": null
+  },
+  "note": "API recovered; knob power-off observed as runtime/status=offline"
+}

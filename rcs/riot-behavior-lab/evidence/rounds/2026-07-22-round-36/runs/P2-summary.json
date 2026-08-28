@@ -1,0 +1,19 @@
+{
+    "uid":  "riot-behavior-lab-R36-P2-20260722-130711",
+    "heldOrder":  7,
+    "cancel":  [
+                   {
+                       "commandType":  "CMD_ORDER_CANCEL",
+                       "code":  "0",
+                       "message":  "成功",
+                       "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+                   },
+                   {
+                       "api":  "operate",
+                       "code":  "0",
+                       "message":  "成功"
+                   }
+               ],
+    "finalOrder":  2,
+    "finalProc":  "IDLE"
+}

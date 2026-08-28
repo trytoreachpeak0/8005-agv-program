@@ -1,0 +1,27 @@
+{
+    "req":  "{\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"],\"serviceId\":\"disable\"}",
+    "code":  "0",
+    "message":  "成功",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}",
+    "after":  {
+                  "at":  "2026-07-20 13:43:06.247",
+                  "station":  0,
+                  "noStation":  true,
+                  "procState":  "PROCESSING_ORDER",
+                  "processingOrder":  true,
+                  "movementState":  "MT_RUNNING",
+                  "enable":  false,
+                  "integrationLevel":  "OFF_LINE",
+                  "orderState":  null,
+                  "missionState":  null,
+                  "missionResultCode":  null,
+                  "missionResultStr":  null,
+                  "orderId":  null,
+                  "numericId":  null,
+                  "executeVehicleKey":  null,
+                  "appointVehicleKey":  null,
+                  "finalState":  null,
+                  "progress":  null,
+                  "upperId":  ""
+              }
+}

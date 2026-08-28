@@ -1,0 +1,15 @@
+{
+  "imported_at": "2026-07-24T07:08:16.214370+00:00",
+  "output_sha256": "cf936f2d760d1feb189a2a7e9fdd40ef275817069f97bf722770ad858a92a6df",
+  "package_coverage": {
+    "local": "package-coverage/summary.md",
+    "source": "evidence/runs/run-20260724T065749Z-c9b74a48bb/reports/package-coverage"
+  },
+  "query_id": "MES_TASK_UNION",
+  "round": 10,
+  "row_count": 672,
+  "run_id": "run-20260724T065749Z-c9b74a48bb",
+  "schema_version": 1,
+  "sourceEvidence": "evidence/runs/run-20260724T065749Z-c9b74a48bb",
+  "source_output": "results/MES_TASK_UNION-round-010.csv"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "站点间的代价返回实体",
+  "type": "object",
+  "properties": {
+    "cost": {
+      "type": "integer",
+      "description": "代价",
+      "format": "int64"
+    },
+    "endStation": {
+      "description": "终点站点",
+      "$ref": "#/components/schemas/站点DTO"
+    },
+    "startStation": {
+      "description": "起点站点",
+      "$ref": "#/components/schemas/站点DTO"
+    }
+  },
+  "description": "站点间的代价返回实体"
+}

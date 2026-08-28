@@ -1,0 +1,41 @@
+[
+  {
+    "via": "sync",
+    "body": "{\"thingsProperties\":{}}",
+    "code": "00002",
+    "message": "内部错误",
+    "result": null,
+    "preview": "{\"code\":\"00002\",\"message\":\"内部错误\",\"msgDetail\":\"java.lang.NullPointerException\\r\\n\\tat java.base/java.util.concurrent.ConcurrentHashMap.replaceNode(ConcurrentHashMap.java:1111)\\r\\n\\tat java.base/java.util.concurrent.ConcurrentHashMap.remove(ConcurrentHashMap.java:1102)\\r\\n\\tat sr.riot.device.commom.util.ResponseFuture.removeQueue(ResponseFuture.java:35)\\r\\n\\tat sr.riot.device.controller.DeviceCommandController.syncServiceCall(DeviceCommandController.java:119)\\r\\n\\tat sr.riot.device.controller.DeviceCommandController$$FastClassBySpringCGLIB$$bb725614.invoke(<generated>)\\r\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\r\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\r\\n\\tat org.springframework"
+  },
+  {
+    "via": "sync",
+    "body": "{\"thingsProperties\":{},\"messageId\":\"r19-cancel-1\"}",
+    "code": "05007",
+    "message": "请求超时没有收到响应",
+    "result": null,
+    "preview": "{\"code\":\"05007\",\"detail\":\"code:[05007], msg:[command_request_error]\",\"message\":\"请求超时没有收到响应\",\"msgDetail\":\"请求超时没有收到响应\",\"tid\":\"\"}"
+  },
+  {
+    "via": "sync",
+    "body": "{\"thingsProperties\":null}",
+    "code": "00002",
+    "message": "内部错误",
+    "result": null,
+    "preview": "{\"code\":\"00002\",\"message\":\"内部错误\",\"msgDetail\":\"java.lang.NullPointerException\\r\\n\\tat java.base/java.util.concurrent.ConcurrentHashMap.replaceNode(ConcurrentHashMap.java:1111)\\r\\n\\tat java.base/java.util.concurrent.ConcurrentHashMap.remove(ConcurrentHashMap.java:1102)\\r\\n\\tat sr.riot.device.commom.util.ResponseFuture.removeQueue(ResponseFuture.java:35)\\r\\n\\tat sr.riot.device.controller.DeviceCommandController.syncServiceCall(DeviceCommandController.java:119)\\r\\n\\tat sr.riot.device.controller.DeviceCommandController$$FastClassBySpringCGLIB$$bb725614.invoke(<generated>)\\r\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\r\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\r\\n\\tat org.springframework"
+  },
+  {
+    "via": "sync",
+    "body": "{}",
+    "code": "00002",
+    "message": "内部错误",
+    "result": null,
+    "preview": "{\"code\":\"00002\",\"message\":\"内部错误\",\"msgDetail\":\"java.lang.NullPointerException\\r\\n\\tat java.base/java.util.concurrent.ConcurrentHashMap.replaceNode(ConcurrentHashMap.java:1111)\\r\\n\\tat java.base/java.util.concurrent.ConcurrentHashMap.remove(ConcurrentHashMap.java:1102)\\r\\n\\tat sr.riot.device.commom.util.ResponseFuture.removeQueue(ResponseFuture.java:35)\\r\\n\\tat sr.riot.device.controller.DeviceCommandController.syncServiceCall(DeviceCommandController.java:119)\\r\\n\\tat sr.riot.device.controller.DeviceCommandController$$FastClassBySpringCGLIB$$bb725614.invoke(<generated>)\\r\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\r\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\r\\n\\tat org.springframework"
+  },
+  {
+    "via": "batch",
+    "body": "{\"serviceId\":\"cancelEmergency\",\"deviceCommandDto\":{\"thingsProperties\":{}},\"deviceKeys\":[\"BROKERX-aee2f93d717546cf9510c98c854fe83e\"]}",
+    "code": "05024",
+    "message": "操作服务ID不能为空",
+    "preview": "{\"code\":\"05024\",\"detail\":\"code:[05024], msg:[device_message_error]\",\"message\":\"操作服务ID不能为空\",\"msgDetail\":\"操作服务ID不能为空\",\"tid\":\"\"}"
+  }
+]

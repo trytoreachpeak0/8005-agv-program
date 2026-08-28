@@ -1,0 +1,41 @@
+{
+  "negOrderFinals": [
+    {
+      "name": "fake-vehicleKey",
+      "upperId": "riot-lab-NEG-fakeveh-20260720-130119",
+      "orderId": "order-2079069545519251456",
+      "nowState": 2,
+      "appoint": "BROKERX-DOES-NOT-EXIST-riot-lab",
+      "execute": "--",
+      "executeName": "0",
+      "finalState": true
+    },
+    {
+      "name": "missing-appointVehicleKey",
+      "upperId": "riot-lab-NEG-nokey-20260720-130119",
+      "orderId": "order-2079069547234721792",
+      "nowState": 2,
+      "appoint": "",
+      "execute": "--",
+      "executeName": "0",
+      "finalState": true
+    }
+  ],
+  "vehicleNow": {
+    "station": 2,
+    "proc": "IDLE",
+    "processing": false,
+    "enable": true,
+    "integration": "ON_LINE"
+  },
+  "q004a_message": "订单已存在",
+  "q004a_code": "0610008",
+  "irq_message": "中断订单的当前子任务索引不为移动任务",
+  "irq_code": "100036",
+  "liveIdempotentProbe": {
+    "http": 200,
+    "code": "0610008",
+    "message": "订单已存在",
+    "msgDetail": "订单已存在"
+  }
+}

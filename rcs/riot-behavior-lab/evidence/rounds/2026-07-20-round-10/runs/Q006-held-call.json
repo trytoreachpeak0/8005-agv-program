@@ -1,0 +1,7 @@
+{
+    "req":  "{\"commandType\":\"CMD_ORDER_HELD\",\"disableVehicle\":false,\"reason\":\"riot-lab-R10-held\"}",
+    "http":  200,
+    "code":  "0",
+    "message":  "成功",
+    "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"tid\":\"\"}"
+}

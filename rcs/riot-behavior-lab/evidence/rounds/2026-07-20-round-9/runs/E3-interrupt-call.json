@@ -1,0 +1,14 @@
+{
+  "at": "2026-07-20 12:33:07.459",
+  "url": "http://172.10.1.72:8888/api/task/v1/order/interrupt",
+  "request": "{\"orderId\":\"order-2079062429630857216\",\"pause\":true}",
+  "http": 200,
+  "body": "{\"code\":\"100036\",\"detail\":\"code:[100036], msg:[interrupt.subtask.index.not.support.edit]\",\"message\":\"中断订单的当前子任务索引不为移动任务\",\"msgDetail\":\"中断订单的当前子任务索引不为移动任务\",\"tid\":\"\"}",
+  "parsed": {
+    "code": "100036",
+    "detail": "code:[100036], msg:[interrupt.subtask.index.not.support.edit]",
+    "message": "中断订单的当前子任务索引不为移动任务",
+    "msgDetail": "中断订单的当前子任务索引不为移动任务",
+    "tid": ""
+  }
+}

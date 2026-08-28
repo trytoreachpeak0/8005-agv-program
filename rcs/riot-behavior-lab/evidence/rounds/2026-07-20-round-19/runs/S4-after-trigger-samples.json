@@ -1,0 +1,26 @@
+[
+  {
+    "at": "2026-07-20 16:07:45.823",
+    "emergencyState": "OK",
+    "controlState": "CONTROL_STATE_ERR",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 1
+  },
+  {
+    "at": "2026-07-20 16:07:46.560",
+    "emergencyState": "CAN_RECOVER",
+    "controlState": "CONTROL_STATE_ERR",
+    "breakSwitchState": "MOVABLE",
+    "movementState": "MT_FINISHED",
+    "procState": "IDLE",
+    "enable": true,
+    "integrationLevel": "ON_LINE",
+    "station": 2,
+    "propEmergency": 3
+  }
+]

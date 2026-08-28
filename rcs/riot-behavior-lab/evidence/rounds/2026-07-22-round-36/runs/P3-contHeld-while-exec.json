@@ -1,0 +1,6 @@
+{
+    "commandType":  "CMD_ORDER_CONTINUE_FROM_HELD",
+    "code":  "100020",
+    "message":  "订单不是暂停状态,订单无法继续执行",
+    "body":  "{\"code\":\"100020\",\"detail\":\"code:[100020], msg:[order.state.is.not.held.order.could.not.continue]\",\"message\":\"订单不是暂停状态,订单无法继续执行\",\"msgDetail\":\"订单不是暂停状态,订单无法继续执行\",\"tid\":\"\"}"
+}

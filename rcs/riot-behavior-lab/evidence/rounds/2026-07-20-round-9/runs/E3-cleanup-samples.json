@@ -1,0 +1,28 @@
+{
+  "samples": [
+    {
+      "at": "2026-07-20 12:33:22.104",
+      "orderState": 2,
+      "progress": 100,
+      "finalState": true,
+      "executeVehicleKey": "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "orderId": "order-2079062429630857216",
+      "numericId": 488007,
+      "missionState": 4,
+      "missionResultCode": 0,
+      "missionResultStr": "",
+      "station": 0,
+      "noStation": true,
+      "procState": "IDLE",
+      "processingOrder": false,
+      "enable": true,
+      "integrationLevel": "ON_LINE",
+      "movementState": "MT_FINISHED",
+      "pos": {
+        "x": 151.0,
+        "y": -1872.0
+      },
+      "connected": true
+    }
+  ]
+}

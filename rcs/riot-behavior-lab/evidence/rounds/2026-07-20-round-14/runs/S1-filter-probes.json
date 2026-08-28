@@ -1,0 +1,356 @@
+[
+    {
+        "name":  "by-execute",
+        "q":  {
+                  "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026pageSize=20\u0026executeVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "status":  200,
+                  "summary":  {
+                                  "code":  "0",
+                                  "message":  "成功",
+                                  "total":  20,
+                                  "current":  1,
+                                  "size":  50,
+                                  "count":  20,
+                                  "records":  [
+                                                  {
+                                                      "id":  488071,
+                                                      "orderId":  "order-2079081676830539776",
+                                                      "upperId":  "",
+                                                      "orderName":  "iiiii",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:51:14",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488069,
+                                                      "orderId":  "order-2079080162946842624",
+                                                      "upperId":  "riot-behavior-lab-R13-ER-recovery-20260720-134330",
+                                                      "orderName":  "riot-behavior-lab-R13-ER-recovery-20260720-134330",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:45:13",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488067,
+                                                      "orderId":  "order-2079080047603482624",
+                                                      "upperId":  "riot-behavior-lab-R13-S4-dis-exec-20260720-134303",
+                                                      "orderName":  "riot-behavior-lab-R13-S4-dis-exec-20260720-134303",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:44:45",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488050,
+                                                      "orderId":  "order-2079076072435089408",
+                                                      "upperId":  "riot-behavior-lab-R11-actonly-20260720-132715",
+                                                      "orderName":  "riot-behavior-lab-R11-actonly-20260720-132715",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:28:58",
+                                                      "endStationNo":  0
+                                                  },
+                                                  {
+                                                      "id":  488048,
+                                                      "orderId":  "order-2079075732541276160",
+                                                      "upperId":  "riot-behavior-lab-R11-act-irq-20260720-132554",
+                                                      "orderName":  "riot-behavior-lab-R11-act-irq-20260720-132554",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:27:37",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488047,
+                                                      "orderId":  "order-2079075643202600960",
+                                                      "upperId":  "riot-behavior-lab-R11-rejected-20260720-132533",
+                                                      "orderName":  "riot-behavior-lab-R11-rejected-20260720-132533",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:27:15",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488045,
+                                                      "orderId":  "order-2079075205799608320",
+                                                      "upperId":  "riot-behavior-lab-R11-multimove-20260720-132349",
+                                                      "orderName":  "riot-behavior-lab-R11-multimove-20260720-132349",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:25:31",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488040,
+                                                      "orderId":  "order-2079073561783435264",
+                                                      "upperId":  "riot-lab-R11-nokey-20260720-131717",
+                                                      "orderName":  "riot-lab-R11-nokey-20260720-131717",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:18:59",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488031,
+                                                      "orderId":  "order-2079069734204211200",
+                                                      "upperId":  "riot-behavior-lab-R10-act-20260720-130202-b",
+                                                      "orderName":  "riot-behavior-lab-R10-act-20260720-130202-b",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:03:47",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488029,
+                                                      "orderId":  "order-2079069698741370880",
+                                                      "upperId":  "riot-behavior-lab-R10-operate-cancel-20260720-130156",
+                                                      "orderName":  "riot-behavior-lab-R10-operate-cancel-20260720-130156",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:03:38",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488028,
+                                                      "orderId":  "order-2079069601190248448",
+                                                      "upperId":  "riot-behavior-lab-R10-held-20260720-130132",
+                                                      "orderName":  "riot-behavior-lab-R10-held-20260720-130132",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:03:15",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488027,
+                                                      "orderId":  "order-2079069551756181504",
+                                                      "upperId":  "riot-behavior-lab-R10-irq-false-20260720-130121",
+                                                      "orderName":  "riot-behavior-lab-R10-irq-false-20260720-130121",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:03:03",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488023,
+                                                      "orderId":  "order-2079069344314294272",
+                                                      "upperId":  "riot-behavior-lab-R10-idem-B-20260720-130031",
+                                                      "orderName":  "riot-behavior-lab-R10-idem-B-20260720-130031",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:02:14",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488020,
+                                                      "orderId":  "order-2079069119654789120",
+                                                      "upperId":  "riot-behavior-lab-R10-id-success-20260720-125937",
+                                                      "orderName":  "riot-behavior-lab-R10-id-success-20260720-125937",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 13:01:20",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488009,
+                                                      "orderId":  "order-2079062542398914560",
+                                                      "upperId":  "riot-behavior-lab-E1b-recovery-20260720-123329",
+                                                      "orderName":  "riot-behavior-lab-E1b-recovery-20260720-123329",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 12:35:12",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488008,
+                                                      "orderId":  "order-2079062513265278976",
+                                                      "upperId":  "riot-behavior-lab-E-cancel-20260720-123322",
+                                                      "orderName":  "riot-behavior-lab-E-cancel-20260720-123322",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 12:35:05",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488007,
+                                                      "orderId":  "order-2079062429630857216",
+                                                      "upperId":  "riot-behavior-lab-E3-interrupt-20260720-123303",
+                                                      "orderName":  "riot-behavior-lab-E3-interrupt-20260720-123303",
+                                                      "orderState":  2,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 12:34:45",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488005,
+                                                      "orderId":  "order-2079060551849345024",
+                                                      "upperId":  "riot-behavior-lab-E8-1to2-20260720-122535",
+                                                      "orderName":  "riot-behavior-lab-E8-1to2-20260720-122535",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 12:27:17",
+                                                      "endStationNo":  2
+                                                  },
+                                                  {
+                                                      "id":  488004,
+                                                      "orderId":  "order-2079056892281356288",
+                                                      "upperId":  "riot-behavior-lab-E1b-2to1-20260720-121102",
+                                                      "orderName":  "riot-behavior-lab-E1b-2to1-20260720-121102",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 12:12:45",
+                                                      "endStationNo":  1
+                                                  },
+                                                  {
+                                                      "id":  488003,
+                                                      "orderId":  "order-2079056586101358592",
+                                                      "upperId":  "riot-lab-I-20260720-120949",
+                                                      "orderName":  "riot-lab-I-20260720-120949",
+                                                      "orderState":  5,
+                                                      "finalState":  true,
+                                                      "appointVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleKey":  "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                                                      "executeVehicleName":  "新基测试300c协作1",
+                                                      "createTime":  "2026-07-20 12:11:32",
+                                                      "endStationNo":  2
+                                                  }
+                                              ]
+                              },
+                  "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":1,\"records\":[{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 13:51:14\",\"createdBy\":\"admin\",\"distance\":0,\"doneTime\":\"2026-07-20 14:00:27\",\"endStationName\":\"站点1\",\"endStationNo\":1,\"eta\":0,\"executeTime\":\"2026-07-20 13:51:16\",\"executeVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"executeVehicleName\":\"新基测试300c协作1\",\"executingIndex\":0,\"failReason\":\"R14-E0-cleanup\",\"finalState\":true,\"id\":488071,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":-1,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079081676830539776\",\"orderName\":\"iiiii\",\"orderState\":2,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":100,\"source\":\"FMS\",\"startEndStationName\":\"站点1 \u003e 站点1\",\"startEndStationNameDetail\":\"api测试 站点1 \u003e api测试 站点1\",\"startStationName\":\"站点1\",\"startStationNo\":1,\"taskState\":\"R14-E0-cleanup\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 14:00:27\",\"upperId\":\"\",\"userId\":2},{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-07-20 13:45:13\",\"createdBy\":\"api-test\",\"distance\":0,\"doneTime\":\"2026-07-20 13:45:42\",\"endStationName\":\"站点2\",\"endStationNo\":2,\"eta\":0,\"executeTime\":\"2026-07-20 13:45:18\",\"executeVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"executeVehicleName\":\"新基测试300c协作1\",\"executingIndex\":-1,\"failReason\":\"\",\"finalState\":true,\"id\":488069,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":0,\"modifiedBy\":\"internal\",\"orderId\":\"order-2079080162946842624\",\"orderName\":\"riot-behavior-lab-R13-ER-recovery-20260720-134330\",\"orderState\":5,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":100,\"source\":\"FMS\",\"startEndStationName\":\"站点2 \u003e 站点2\",\"startEndStationNameDetail\":\"api测试 站点2 \u003e api测试 站点2\",\"startStationName\":\"站点2\",\"startStationNo\":2,\"taskState\":\"已完成\",\"totalCosts\":0,\"updateTime\":\"2026-07-20 13:45:42\",\"upperId\":\"riot-behavior-lab-R13-ER-recovery-20260720-134330\",\"userId\":0},{\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-aee2f93d717546cf9510c98c854fe83e\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecor"
+              }
+    },
+    {
+        "name":  "by-execute+states-137",
+        "q":  {
+                  "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026executeVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e",
+                  "status":  200,
+                  "summary":  {
+                                  "code":  "0",
+                                  "message":  "成功",
+                                  "total":  0,
+                                  "current":  1,
+                                  "size":  50,
+                                  "count":  0,
+                                  "records":  [
+
+                                              ]
+                              },
+                  "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[],\"searchCount\":false,\"size\":50,\"total\":0},\"tid\":\"\"}"
+              }
+    },
+    {
+        "name":  "by-appoint-undoc",
+        "q":  {
+                  "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026appointVehicleKey=BROKERX-aee2f93d717546cf9510c98c854fe83e\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7",
+                  "status":  200,
+                  "summary":  {
+                                  "code":  "0",
+                                  "message":  "成功",
+                                  "total":  0,
+                                  "current":  1,
+                                  "size":  50,
+                                  "count":  0,
+                                  "records":  [
+
+                                              ]
+                              },
+                  "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[],\"searchCount\":false,\"size\":50,\"total\":0},\"tid\":\"\"}"
+              }
+    },
+    {
+        "name":  "by-state1-global",
+        "q":  {
+                  "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026pageSize=50",
+                  "status":  200,
+                  "summary":  {
+                                  "code":  "0",
+                                  "message":  "成功",
+                                  "total":  0,
+                                  "current":  1,
+                                  "size":  50,
+                                  "count":  0,
+                                  "records":  [
+
+                                              ]
+                              },
+                  "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[],\"searchCount\":false,\"size\":50,\"total\":0},\"tid\":\"\"}"
+              }
+    },
+    {
+        "name":  "by-executeName",
+        "q":  {
+                  "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=50\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026executeVehicleName=%E6%96%B0%E5%9F%BA%E6%B5%8B%E8%AF%95300c%E5%8D%8F%E4%BD%9C1",
+                  "status":  200,
+                  "summary":  {
+                                  "code":  "0",
+                                  "message":  "成功",
+                                  "total":  0,
+                                  "current":  1,
+                                  "size":  50,
+                                  "count":  0,
+                                  "records":  [
+
+                                              ]
+                              },
+                  "rawPreview":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":0,\"records\":[],\"searchCount\":false,\"size\":50,\"total\":0},\"tid\":\"\"}"
+              }
+    }
+]
