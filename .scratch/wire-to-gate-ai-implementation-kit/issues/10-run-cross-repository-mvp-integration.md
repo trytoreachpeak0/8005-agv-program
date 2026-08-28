@@ -408,3 +408,13 @@ Evidence artifact: [`Authorized journey attempt: peer monitor ambiguity safe abo
 Published branch/commit: `ControlServer_MVP@7b5ef75783a3b245dccec95b32f2ce58daadab45`
 
 Impact on this ticket: 用户明确授权 `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5`、已部署 ControlServer `6a5de01`、JourneyRuntime、RIoT 建单及一次空载真实旅程。固定权限任务恢复并确认 10% 门槛，原子预检 PASS；有效双层 runtime 启用后，新 generation 53 达到 `Ready`，但 peer 启动助手的直接结果因 ordered dictionary 投影错误全部为 null，无法作为可信监控回执，故按“任何歧义立即停止”在建单前重建 stop marker 并停用。最终双层 runtime=false、peers/临时端口清零、车辆 IDLE／速度 0／无订单、双源 `STOPPED`／0 reason code，无 RIoT mutation、未建单、未动车。投影已在停用后离线修正并验证，但本次授权已经消耗；正式 G3／RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，下一次尝试仍须新的精确授权。
+
+### 2026-08-28 — 84b7f3f 零动作 peer readiness 演练指针
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`Zero-motion peer readiness drill for Onboard 84b7f3f`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/275fa5b37231e02cd1920cc933cbe25e8e6155e7/evidence/g3/20260828-zero-motion-peer-readiness-drill-84b7f3f/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@275fa5b37231e02cd1920cc933cbe25e8e6155e7`
+
+Impact on this ticket: 在双层 JourneyRuntime=false 且 stop marker 持续存在的零动作演练中，修正后的 peer 助手已返回完整非 null 结果并要求 `Ready / READY`；`84b7f3f` 新 generation 56、simulator Ready、HTTPS `STOPPED`／0 reason code，Onboard journal 的已确认安全变化为 departureSafe=true、vehicleStopped=true、unknownPresent=false。演练同时确认公共 sessions API 不提供 departureSafe，且 session `updatedAt` 不是 runtime 使用的 payload evidence 时间；真正的 Capability/Safety `observedAt` 只有 30 秒窗口且不因未变化状态自动刷新，故实车流程不能在 Ready 后额外等待 15～30 秒，必须保持 runtime 先启用、peers 后启动并立即 intake，同时由受保护 probe 每秒监控。最终 peers／端口清零、车辆安全、无 mutation／订单／移动；正式 G3／RC 仍为 `INCONCLUSIVE`，下一次实车仍需新的精确授权。
