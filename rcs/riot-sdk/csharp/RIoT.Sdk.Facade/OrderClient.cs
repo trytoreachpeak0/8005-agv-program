@@ -386,7 +386,9 @@ public sealed class OrderClient
             : null;
 
     private static int? GetOptionalInt32(JsonElement element, string propertyName) =>
-        element.TryGetProperty(propertyName, out JsonElement value) && value.TryGetInt32(out int result)
+        element.TryGetProperty(propertyName, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.Number &&
+        value.TryGetInt32(out int result)
             ? result
             : null;
 }

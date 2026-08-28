@@ -78,7 +78,7 @@ dotnet test ./csharp/RIoT.Sdk.sln
 ### ControlServer 离线包
 
 `RIoT.Sdk.Core`、`RIoT.Sdk.Generated`、`RIoT.Sdk.Facade` 统一使用版本
-`0.1.0-controlserver.1`。从精确干净 commit 打包时必须传入该 commit，确保
+`0.1.0-controlserver.2`。从精确干净 commit 打包时必须传入该 commit，确保
 NuGet 的 `repository` 元数据可追溯：
 
 ```powershell

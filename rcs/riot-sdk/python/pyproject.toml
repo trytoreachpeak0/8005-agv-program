@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "riot-sdk"
-version = "0.1.0+controlserver.1"
+version = "0.1.0+controlserver.2"
 description = "RIoT SDK (Core auth + Kiota-generated device/task/order clients + Facade)"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -8,7 +8,7 @@
     <RootNamespace>RIoT.Sdk.Generated</RootNamespace>
     <Description>Kiota-generated RIoT API clients (device/task/order). Do not edit by hand.</Description>
     <PackageId>RIoT.Sdk.Generated</PackageId>
-    <Version>0.1.0-controlserver.1</Version>
+    <Version>0.1.0-controlserver.2</Version>
     <Authors>8005 AGV</Authors>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/trytoreachpeak0/8005---AGV</RepositoryUrl>

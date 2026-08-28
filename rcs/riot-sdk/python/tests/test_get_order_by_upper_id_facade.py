@@ -111,6 +111,22 @@ async def test_find_order_by_upper_id_returns_found_for_matching_complete_result
 
 
 @pytest.mark.asyncio
+async def test_find_order_by_upper_id_preserves_null_optional_numeric_facts() -> None:
+    result, requests = await _find(
+        "UPPER-7",
+        '{"code":"0","result":{"id":7,"orderId":"ORDER-7","upperId":"UPPER-7",'
+        '"orderState":5,"appointVehicleKey":"VEHICLE-1","endStationNo":12,'
+        '"missions":[{"type":"move","mapId":25,"destination":null}]}}',
+    )
+
+    assert result.status is OrderLookupStatus.Found
+    assert result.order is not None
+    assert result.order.end_station_no == 12
+    assert result.order.missions[0].destination is None
+    assert len(requests) == 1
+
+
+@pytest.mark.asyncio
 async def test_find_order_by_upper_id_returns_not_found_only_for_http_404() -> None:
     result, requests = await _find("UPPER-404", "{}", status_code=404)
 

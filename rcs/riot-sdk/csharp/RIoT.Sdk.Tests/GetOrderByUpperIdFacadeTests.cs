@@ -64,6 +64,23 @@ public class GetOrderByUpperIdFacadeTests
     }
 
     [Fact]
+    public async Task FindOrderByUpperId_preserves_null_optional_numeric_facts()
+    {
+        const string body =
+            """{"code":"0","result":{"id":7,"orderId":"ORDER-7","upperId":"UPPER-7","orderState":5,"appointVehicleKey":"VEHICLE-1","endStationNo":12,"missions":[{"type":"move","mapId":25,"destination":null}]}}""";
+        using var handler = new RecordingJsonHandler(HttpStatusCode.OK, body);
+        await using var session = CreateSession(handler);
+
+        OrderLookupResult result = await session.Order.FindOrderByUpperIdAsync("UPPER-7");
+
+        Assert.Equal(OrderLookupStatus.Found, result.Status);
+        Assert.NotNull(result.Order);
+        Assert.Equal(12, result.Order.EndStationNo);
+        Assert.Null(Assert.Single(result.Order.Missions).Destination);
+        Assert.Equal(1, handler.CallCount);
+    }
+
+    [Fact]
     public async Task FindOrderByUpperId_returns_not_found_only_for_http_404()
     {
         using var handler = new RecordingJsonHandler(HttpStatusCode.NotFound, "{}");
