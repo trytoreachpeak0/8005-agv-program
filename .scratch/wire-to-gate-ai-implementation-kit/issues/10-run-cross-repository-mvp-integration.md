@@ -684,3 +684,27 @@ Owner defect record: [`服务端命令的装货操作会摧毁自己的执行前
 Published branch/commit: `ControlServer_MVP@9310c25f1b896c20e9a3747ab32c7f9608a5935c`（产品修复 `060dba9`）
 
 Impact on this ticket: 用户无法自行判定归属，明确授权由本轮定归属并按归属处理（属 ControlServer 直接修，属受保护仓则只把缺陷放入对应仓库并由用户通知王昆）。**判归服务端**，四条依据：协议只定义 `departureSafe` 这一事实，`SessionReadiness` schema 并不规定就绪度如何计算、`DEPARTURE_SAFETY_NOT_READY` 是本仓自选字符串，故不涉及协议审批；车载端如实上报「开着仓门不能开走」不是缺陷；造成该事实的正是服务端自己刚下达的命令；且服务端的修改既必要（车载端单方面改拦不住服务端降级会话并停住旅程）又充分（服务端不降级则车载端前提成立、装货可继续）。因此未写入任何受保护仓库，无需用户转达王昆。修复 `060dba9`：`DecideReadinessAsync` 的 `row.DepartureSafe == true` 收窄为「安全**或**不安全的全部原因都由一次仍在执行中的、服务端自己授权的仓位操作解释」，放宽集合严格限定为 `LOCK_NOT_CLOSED` 与 `UNLOCK_OUTPUT_NOT_RESET`；`SafetyStateSnapshot`／`SafetyStateChanged` 两条入站路径不再丢弃 `reasonCodes` 与 `unknownPresent` 并持久化（新增可空列与迁移 `ScopedOperationInducedUnsafety`，旧行为 NULL 而放宽要求 `SafetyUnknownPresent == false`，故历史数据默认 fail-closed）。四条边界均已落地并由测试锁定：原因码出现集合外任一项、`unknownPresent=true`、无原因码或旧行、无在执行的授权操作，一律照旧 fail-close；`AuthorizeMovementAsync` 一行未动——真实移动仍由独立的、带新鲜度窗口的 `PreDepartureSafetyCheckResult` 授权，这是判定「修此处不削弱安全」的关键事实，已在缺陷记录中写明。门禁：Release 0 warning/0 error、format PASS、完整测试 **225/225 且 0 skip**、全新库与降级/升级两条迁移路径均通过（`Down` 可逆）、八片 G2 全部绑定 `060dba9` PASS（133 个筛选测试、0 skip）。新增三条测试中，正向那条在去掉放宽后变红，两条反向保护测试在两种情况下都绿。**尚未现场复跑验证**：需再开一次零变更演练窗口并由现场操作员在 HMI 录入子批号，装货物理状态可由模拟器控制面自动驱动、无需人工点击。本票保持 `claimed`，正式 W2G-IS-00～07 G3 与 RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-29 — 装货到关卡段五处修复的路由，并把八片 G2 重绑到精确 commit
+
+Owner repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Published branch/commit: `ControlServer_MVP@3d8b00c7558ae700358f1f995a5ac75d12a3250c`（在 `9310c25` 之后依次为 `ea8dc98`、`12eddf2`、`31569f5`、`f48e616`、`3d8b00c`，五处均已推送并远端回读一致）
+
+Impact on this ticket: 本节补记 `9310c25` 之后五处服务端修复的路由，并纠正其门禁绑定。五处的第一因与现场症状如下，均属 ControlServer，未写入任何受保护仓库：
+
+- `ea8dc98` **结果哈希按对端口径重算**：对端在业务内容进入 wire 之前按 CLR 值计算 `OperationResult` 哈希，其 `observedAt` 由 `DateTimeOffset` 转换器原样写出时区的 `+`；服务端复制收到的 `JsonElement` 重建内容，经 encoder 把 `+` 转义为六字符 unicode 转义，两端哈希不可能相等。现场表现为第一次完成的装货被判内容冲突、连接断开，此后对端每两秒重放一次结果。
+- `12eddf2` **发车安全证据在有效期内判读**：对端在数十毫秒内答复发车安全检查，并附一个短于一个轮询周期的有效期；引擎下一轮才回来取答复，窗口已关闭，旅程停在 `AwaitingDepartureSafety`。改为发出后短暂等待并立即判读，未放宽任何条件——答复存在但不安全则立即结束等待，且刻意不向对端要更长窗口（窗口越宽安全证据越陈旧）。
+- `31569f5` **接受对端实际使用的关联方式**：对端按 check id 关联 `PreDepartureSafetyCheckResult`，服务端要求承载它的请求 messageId。协议要求该消息带 `correlationId`，却从未规定它关联什么，其自带的合法样例两者都不指向。现两种读法都接受，且不丢失身份——check id 本就必须匹配且在本段旅程内唯一。该 commit 同时更正了 `12eddf2` 对现场失败的叙述：`12eddf2` 仍然必要，但当时拒绝该答复的不是时效。
+- `f48e616` **业务结果答复的命令不再被无限重放**：`SublotEntryRequested`、`SlotOperationCommand`、`PreDepartureSafetyCheck` 的答复分别是 `SublotSubmitted`、`OperationResult`、`PreDepartureSafetyCheckResult`，都不是 `DurableAck`，因此它们的 outbox 行从未被标记已确认，会重绑到新 session generation 后重放进每一个后续会话，被对端判为同一业务 id 内容改变并断连。现场表现为车辆到达关卡后每次重连都被一条旅程早已遵守并越过的安全检查拆掉，四分钟内 31 个 generation，排在其后的卸货命令从未被取到。现改为在答复被消费处结算对应命令。
+- `3d8b00c` **每个停靠点用自己的 `worklistRevision`**：取货与关卡的工作单站点不同、角色不同、停靠点不同，却都以 revision 1 发出；对端按类型与 revision 判定快照身份，正确地把第二条读作「内容未变」并拒绝，连接随之断开，排在其后的卸货命令同样取不到。现 revision 改为参数，关卡停靠点按其同级投影既有的方式推进。
+
+**门禁绑定纠正**：这五处对应的八片 G2 证据目录（`artifacts/g2/issue10-{resulthash,safetywait,correlation,settle,worklistrev}/`）虽全部 PASS，但其 `implementationCommit` 分别为 `9310c25`、`ea8dc98`、`12eddf2`、`31569f5`、`f48e616`，即各自修复的**父提交**，整体错位一格。判据已单独证出：五批 G2 的结束时间恒早于对应 commit 的提交时间 1～2 分钟（例如 worklistrev 批结束于 21:40:15，`3d8b00c` 提交于 21:41:54），说明每批都是在修复已在工作树、尚未提交时跑的，`implementationCommit` 取的是当时的 HEAD。被测代码含修复，但「八片 G2 绑定精确 commit」这一条收尾门禁形式上并不成立，五处**没有一处**有绑定自身的 G2。
+
+已在干净且已推送的 `3d8b00c` 工作树上重跑完整收尾门禁：Release 全解非增量构建 0 warning / 0 error、`dotnet format --verify-no-changes` PASS、完整测试 **228/228 且 0 skip**、正式 `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279` 与 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` 下 W2G-IS-00～07 八片 G2 全部 PASS 且 `implementationCommit` 均为 `3d8b00c`，合计 137 个筛选测试、0 skip。证据在本机忽略目录 `artifacts/g2/issue10-3d8b00c/`，八份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `a3c0401caa404473b24d243cd5fd3db99604c23d70a14a9064ced1b9054c003d`。
+
+**尚未现场验证**：`3d8b00c` 至此有单元测试与绑定自身的八片 G2，但**没有跑过现场**；验证需要一轮完整闭环，会再动两次车。上述五处修复各自的现场症状记录在其 commit message 中，但对应的现场运行证据尚未归档到本仓 `evidence/g3/`——该目录当前最新为 `20260829-arrival-to-sublot-field-verify`，装货、发车安全检查、关卡移动三段的现场证据仍只存在于一次性运行目录，因此本节不把这三段表述为已归档证明。
+
+已为下一轮准备但未执行：`3d8b00c` 的 self-contained 发布包（`deployment-manifest.json` SHA-256 `4c7a2c34157d12897773eb5d36c4901853bf8233e11a47eab2e5f7080c17368f`，`appsettings.json` 与在用的 `f48e616` 包逐字节一致），运行脚本已改绑该包并把 `JourneyRuntime__dispatchGeneration` 推进到 `3`（第 1、2 代的 `PICKUP`/`GATE` 订单在 RIoT 均已终结，沿用会直接对账确认而不动车），`CONTROL_SERVER_OPERATOR_ID` 改为必须由环境提供且拒绝演练占位值。本轮未真实建单、未动车、未调用任何 RIoT mutation，未修改受保护的 OnboardHmi、simulator 或协议仓。
+
+本票保持 `claimed`，正式 W2G-IS-00～07 G3 与 RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
