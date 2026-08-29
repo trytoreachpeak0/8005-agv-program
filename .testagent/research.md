@@ -1,4 +1,52 @@
-# Ticket 01 test research
+# Chinese-only Watch UI Tier 2 repair research (2026-08-28)
+
+## User requirement
+
+> "这个地方消失还会写(GONE)的，不要这种中英文同时存在的ui，你帮我看看其他地方有没有这种类似的，一并改掉"
+
+The user accepted the recommended boundary: known codes and static terminology in
+normal Simplified Chinese UI render as Chinese only; English mode stays English;
+unknown codes and explicitly technical/raw evidence keep their source value.
+
+## Current validation boundary
+
+- The focused catalog/presentation tests passed `70 / 70`.
+- Tier 1 passed `939 / 939`, with `137` environment-dependent skips.
+- The first authorized Tier 2 production preview ran on `gpt_win11` at
+  `1920x1080`, `96 DPI`, light theme, `zh-CN`.
+- Tier 2 result: `170` total, `53` failed, `6` skipped, `111` passed. The
+  journey/screenshot phase did not run, so no visual approval artifact exists.
+- Failure evidence is preserved under
+  `mes/ingest/csharp/.artifacts/golden-renderer/ticket-bilingual-ui-chinese-only/run-20260828-193813-watch-production-preview`.
+
+## Failure inventory
+
+| Test group | Failures | Initial classification |
+| --- | ---: | --- |
+| `WatchTicket21AreaAndResponsiveIntegrationTests` | 24 | Mixed: stale `AREA`/command text assertions, selector presentation-shape changes, and real conflict/late-completion behavior checks |
+| `WatchV2ProductionHostTests` | 5 | Stale `Host` text plus missing settings feedback landmark investigation |
+| `WatchDemandSeriesProductionIntegrationTests` | 4 | Stale `Series`/`AREA` text, missing drill landmark, one timeout |
+| `WatchErrorSearchProductionIntegrationTests` | 4 | Stale mixed terminology/count formatting |
+| `WatchDemandAuditSelectedPrototypeIntegrationTests` | 3 | Stale technical label plus missing selected-layout landmarks |
+| `WatchReadabilityAuditProductionIntegrationTests` | 3 | Stale `Host`/`Demand`/technical label assertions |
+| `WatchSelectedPrototypeStructureTests` | 3 | Static text plus selected-prototype geometry mismatch |
+| `WatchTicket22ResponsiveIntegrationTests` | 3 | Stale UIA/raw-code assertion plus header hierarchy mismatch |
+| Current attention / overview / filter label / rejected layout | 4 | One real disappearing-selection behavior check and three stale/structural assertions |
+
+## Constraints
+
+- The selected real prototype sources, not screenshots alone, remain layout and
+  interaction authority.
+- Golden baselines must not be changed in this repair.
+- Existing unrelated worktree edits are user-owned and must be preserved.
+- Formal WPF visual validation runs only through the calibrated Golden VM.
+- The code-testing tool catalog has no `find-untested-sources` or mutation tool;
+  coverage/mutation completion will therefore use source-to-test inventory and
+  targeted regression assertions rather than pretending those tools ran.
+
+---
+
+# Ticket 01 test research (historical)
 
 ## Bounded target inventory
 

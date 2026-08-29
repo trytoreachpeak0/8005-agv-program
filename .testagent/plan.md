@@ -1,4 +1,49 @@
-# Ticket 01 RED test plan
+# Chinese-only Watch UI Tier 2 repair plan (2026-08-28)
+
+## Phase 1 — classify against the selected prototypes
+
+1. Read the selected prototype source and selection records for Overview,
+   bilingual semantics, and the affected wide/responsive page geometries.
+2. Map each failing landmark, row/column, control hierarchy, and command to the
+   corresponding production element.
+3. Mark every failure as stale localization expectation, production behavior
+   defect, or prototype-parity defect before editing.
+
+## Phase 2 — repair production behavior and layout
+
+1. Keep known business codes out of normal Simplified Chinese presentation.
+2. Preserve canonical codes in tags, requests, raw evidence, logs, JSON, and
+   unknown-code fallback paths.
+3. Restore any selected-prototype landmark/hierarchy lost by localization.
+4. Fix selection disappearance and profile conflict/concurrency behavior only
+   where the failing test still represents the selected interaction contract.
+
+## Phase 3 — repair regression tests
+
+1. Replace stale mixed Chinese/English display expectations with catalog-backed
+   or exact pure-Chinese expectations.
+2. Keep raw/canonical assertions at the API and explicit evidence boundaries.
+3. Update hierarchy assertions only after prototype-to-production mapping proves
+   the production structure is authoritative.
+
+## Phase 4 — validation
+
+1. Build locally and run the narrowest relevant non-visual tests.
+2. Run Tier 1 once if production inputs changed after the earlier pass.
+3. Re-run the authorized `watch-production-preview` suite on the Golden VM.
+4. Inspect same-state screenshots side by side; do not promote baselines.
+
+## Requirement mapping
+
+| User requirement | Planned evidence |
+| --- | --- |
+| "不要这种中英文同时存在的ui" | Catalog/presentation assertions plus production screenshot audit in Simplified Chinese |
+| "其他地方有没有这种类似的，一并改掉" | Full normal-UI source inventory, affected UI integration regressions, and Tier 2 production preview |
+| Recommended boundary accepted | English-mode and unknown/raw-code fallback tests remain intact |
+
+---
+
+# Ticket 01 RED test plan (historical)
 
 ## Phase 1 — preference schema and migration
 
