@@ -16,6 +16,27 @@ Blocked by: 18
 `PumpAsync` 只能对 `RecoveryStateReport` 的 `DurableAck` 丢一次包，无法在装货或发车安全检查
 中途断开。两票改同一处，串行避免反复冲突。
 
+### 票据 18 交付后已确立的事实（**不要重新摸一遍**）
+
+1. 注入能力已就位：`PumpAsync` 的规则表支持 `drop-and-close`／`drop`／`delay`／`hold-until-next`，
+   按 `direction` + `messageType` + `acceptedMessageType` 匹配，一次性触发，由
+   `[StagedG3TlsHarness]::AddFault(...)` 在运行时装配。
+2. **服务端 accept 循环串行**：`OnboardTcpServer.ExecuteAsync` 在循环体内 `await
+   HandleClientAsync`，同一时刻只服务一个车载连接。合成对端不能与真实车载端并存——必须先停车载端
+   再驱动业务面。runner 已按此排序。
+3. **本票范围里有一半在 staged 运行中不可达**，与 18 同源：
+   - 「在仓位操作进行中断开」需要一行 `StationOperations`，它只由 `PrepareSlotOperationAsync`
+     写入，需来自 MesIngest 与 RIoT 的已受理 demand。
+   - `OperationResult` 同理不可达（`SingleAsync` 在 `StationOperations` 上解析 forced recovery
+     generation，捏造 attempt 会在确认前抛出）。
+   - 恢复动作族（`LoadCancellationStartRequested` 等）走
+     `OnboardRecoveryCoordinator.ProcessRequestAsync`，先确认它需要多少既有 workflow 状态，
+     再决定哪些分支能在无 demand 的 staged 运行中取证。
+
+   **先做这一步分类**：把本票范围切成「staged 可达」与「需带 demand 运行」两半，可达的先取证，
+   不可达的具名写进 `coverageLimits`，不要为了凑覆盖率捏造 `StationOperations` 行——那会同时
+   破坏 `noMovementOrExternalSideEffects` 断言的含义。
+
 ### 范围
 
 - **断联安全收尾**：在仓位操作进行中断开连接，断言服务端把操作与 Demand 转入
