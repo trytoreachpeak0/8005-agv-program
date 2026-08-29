@@ -2,8 +2,8 @@
 
 Type: task
 Mode: AFK
-Status: claimed
-Blocked by: 08, 09, 17
+Status: open
+Blocked by: 08, 09, 17, 18, 19, 20
 
 ## Question
 
@@ -744,3 +744,26 @@ Impact on this ticket: 此前 staged runner 默认绑 `ControlServer ea3050d` + 
 runner 在本机原本**无法启动**，三处缺口均已修复并各自验证：`pnpm` 不可解析（本机无 node/npm/pnpm，改用与 node 同目录的 `pnpm.cjs`）；精确克隆无 `node_modules` 而 G1 依赖 `ajv`（G1 前加 `install --frozen-lockfile`，改动前已在一次性克隆上验证 install exit 0、G1 PASS、54 消息类型、1341 反例、0 失败）；结果文档 `commits` 段硬编码 `onboardRunnerBinding = 4d8629c` 与 `onboardProductFix = 0584322` 两个 `15c6387` 时代的 commit，导致首次运行同时报出三个互相矛盾的车载端身份，已删除并重跑取得干净证据。另记录一条环境约束：`StageRoot` 必须是短路径，否则克隆 protocol 仓时会撞 Windows MAX_PATH。
 
 **本轮不构成切片 G3**：`W2G-IS-00`／`W2G-IS-06` 仍为 `INCONCLUSIVE`，`formalSlicePass = false`。drop／重放探针只覆盖 `RecoveryStateReport` 一种消息，未触及 `SlotOperationCommand`／`OperationResult`／`PreDepartureSafetyCheck`，而本票要求的「结果重放」正是后者；「乱序／延迟」「断联安全收尾」「恢复分支」未覆盖；「进程崩溃重启」由独立脚本 `run-staged-g3-no-movement.ps1` 负责，该脚本仍绑 `cc6e2b9` + `0455147` 且位于规划仓而非归属仓。因此正式 W2G-IS-00～07 的 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-29 — 剩余 G3 向量移交 18／19／20，本票退到其后
+
+本票的 Question 要求 W2G-IS-00～07 覆盖八类向量。截至本次，四类已有绑定当前双端 commit
+（`ControlServer 3d8b00c` + `OnboardHmi 304e6ad`）的证据：正常端到端旅程（现场 `gen3` 闭环）、
+不同内容冲突、重复、结果重放中的 `RecoveryStateReport` 一支。
+
+此前这些剩余工作是雾——「逐段调试未知的跨端分歧」无法预先切片。闭环走通与 staged 重绑把雾清了：
+剩余四类边界已经清晰，且实测确认了扩展成本的落点（drop 判定集中在 harness `PumpAsync` 的三行，
+消息类型为硬编码字符串；`RunProbeAsync` 已有消息构造器，业务消息可手工构造而不需驱动真实旅程）。
+按 Wayfinder 的 fog graduation，这些已可精确表述，因此升格为独立票据：
+
+- [把故障注入泛化到业务消息面](18-generalise-fault-injection-to-business-messages.md) —— 结果重放、重复／乱序／延迟
+- [覆盖断联安全收尾与恢复分支向量](19-cover-disconnect-closure-and-recovery-branches.md) —— 断联安全收尾、恢复分支、RIoT UNKNOWN 对账正式记录
+- [进程崩溃重启 runner 归位并重绑](20-relocate-and-rebind-the-restart-runner.md) —— 进程崩溃重启
+
+拆分理由是效率：这些工作按「改哪一层」切而不是按向量分类切——18 与 19 都改
+`scripts/run-staged-g3.ps1` 的同一处 harness，若按向量拆会让多张票反复冲突并重复理解同一段代码；
+20 只碰独立脚本。三票串行推进（18 → 19 → 20），保持单一前沿。
+
+本票 `Blocked by` 增加 18／19／20 并由 `claimed` 改回 `open`：八类向量集齐后本票才能收口，
+届时在此写 `## Answer` 并更新地图 Decisions so far。当前正式 W2G-IS-00～07 的 G3 与 RC
+仍为 `INCONCLUSIVE`。
