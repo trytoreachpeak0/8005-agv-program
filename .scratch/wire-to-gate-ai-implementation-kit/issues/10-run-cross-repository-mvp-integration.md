@@ -703,7 +703,11 @@ Impact on this ticket: 本节补记 `9310c25` 之后五处服务端修复的路�
 
 已在干净且已推送的 `3d8b00c` 工作树上重跑完整收尾门禁：Release 全解非增量构建 0 warning / 0 error、`dotnet format --verify-no-changes` PASS、完整测试 **228/228 且 0 skip**、正式 `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279` 与 manifest `a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f` 下 W2G-IS-00～07 八片 G2 全部 PASS 且 `implementationCommit` 均为 `3d8b00c`，合计 137 个筛选测试、0 skip。证据在本机忽略目录 `artifacts/g2/issue10-3d8b00c/`，八份 `gate-result.json` 的排序路径/文件哈希集合 SHA-256 为 `a3c0401caa404473b24d243cd5fd3db99604c23d70a14a9064ced1b9054c003d`。
 
-**尚未现场验证**：`3d8b00c` 至此有单元测试与绑定自身的八片 G2，但**没有跑过现场**；验证需要一轮完整闭环，会再动两次车。上述五处修复各自的现场症状记录在其 commit message 中，但对应的现场运行证据尚未归档到本仓 `evidence/g3/`——该目录当前最新为 `20260829-arrival-to-sublot-field-verify`，装货、发车安全检查、关卡移动三段的现场证据仍只存在于一次性运行目录，因此本节不把这三段表述为已归档证明。
+**现场证据已归档**：`ControlServer_MVP@8b6b0ad` 新增 [`装货到关卡到站首次走通`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/8b6b0ad/evidence/g3/20260829-load-to-gate-field-verify/SUMMARY.md)，事实全部从六次运行的 SQLite 与日志中读出。**子批录入、装货、发车安全检查、`TO_GATE` 移动、关卡到站五段已在现场走通**：`fullloop` 中两段真实移动均 `CreateAttemptCount = 1`（`TO_PICKUP` → 站点 21 `order-2093689119296323584`、`TO_GATE` → 站点 210 `order-2093690819126099968`，均 `CONFIRMED`），`Load` 操作 `Committed` 且结果 `OverallOutcome = COMPLETED`，六次运行 `host.err.log` 全部 0 字节。`safetywait` 一次是当日方法论教训的现场记录：`12eddf2` 落地后阻断码一字未变，推翻了「十二个条件里只有时效不满足」的判断，真因由 `31569f5` 修复。
+
+**关卡批量卸货与四事实原子完成仍未走通**，且原因已用一手数据单独证出：`gate` 与 `fullloop` 到达关卡后分别出现 35 次与 74 次 `ProtocolProblem`，原因码全部为 `SNAPSHOT_REVISION_CONTENT_CONFLICT`、被拒消息全部为 `CurrentStopWorklistSnapshot`；`fullloop` 的 outbox 中该快照、关卡计划快照与**卸货命令**各 2 条、各 1 条未确认——卸货命令排在被拒快照之后从未被对端取到。`UnloadBatches`、`StopClosures`、`TransportDemandCompletions` 三张表均为 0 行且车辆租约未释放，按设计 fail-closed，未误报完成。该判据正是 `3d8b00c` 的修复对象。
+
+**`3d8b00c` 尚未现场验证**：至此有单元测试与绑定自身的八片 G2，但**没有跑过现场**；验证需要一轮完整闭环，会再动两次车。
 
 已为下一轮准备但未执行：`3d8b00c` 的 self-contained 发布包（`deployment-manifest.json` SHA-256 `4c7a2c34157d12897773eb5d36c4901853bf8233e11a47eab2e5f7080c17368f`，`appsettings.json` 与在用的 `f48e616` 包逐字节一致），运行脚本已改绑该包并把 `JourneyRuntime__dispatchGeneration` 推进到 `3`（第 1、2 代的 `PICKUP`/`GATE` 订单在 RIoT 均已终结，沿用会直接对账确认而不动车），`CONTROL_SERVER_OPERATOR_ID` 改为必须由环境提供且拒绝演练占位值。本轮未真实建单、未动车、未调用任何 RIoT mutation，未修改受保护的 OnboardHmi、simulator 或协议仓。
 

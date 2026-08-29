@@ -7,7 +7,7 @@
 
 | 组件 | 版本 |
 | --- | --- |
-| ControlServer | `ControlServer_MVP@f94483c14448e06c87adf04f3e870c7aba0e818a`（证据提交 `1b9ed3b`）|
+| ControlServer | `ControlServer_MVP@3d8b00c7558ae700358f1f995a5ac75d12a3250c`（证据提交 `8b6b0ad`；现场已验证到 `f48e616`，`3d8b00c` 尚未现场复跑）|
 | OnboardHmi | `OnboardHmi_MVP@304e6ad9952a41d5c0d50c0c4e79bab5c8804bd6`（王昆实现，配置未做任何覆盖）|
 | slots-simulator | `main@fb5f7c593742bf98bc3957b8729a38aad5321f28` |
 | 协议 | `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279` |
@@ -112,6 +112,35 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 
 证据：`8005-agv-control-server` `evidence/g3/20260829-arrival-to-sublot-field-verify/`
 
+## 八、装货到关卡到站走通（2026-08-29 深夜新增）
+
+同一台车、同一条 Demand 的六次绑定运行把旅程从 `AwaitingSublot` 推进到 `AwaitingUnloadResult`，
+每次修复恰好推进一段：
+
+| 运行 | 服务端 | 到达 `Stage` | 阻断 |
+| --- | --- | --- | --- |
+| `loadfix` | `060dba9` | `AwaitingLoadResult` | `ONBOARD_SESSION_NOT_READY` |
+| `resulthash` | `ea8dc98` | `AwaitingDepartureSafety` | `PRE_DEPARTURE_SAFETY_NOT_VALID` |
+| `safetywait` | `12eddf2` | `AwaitingDepartureSafety` | `PRE_DEPARTURE_SAFETY_NOT_VALID` |
+| `correlation` | `31569f5` | `AwaitingGateArrival` | `GATE_CreateDispatchDisabled` |
+| `gate` | `f48e616` | `AwaitingUnloadResult` | 无 |
+| `fullloop` | `f48e616` | `AwaitingUnloadResult` | `ONBOARD_SESSION_NOT_READY` |
+
+最终运行 `fullloop` 的终态事实：
+
+- **两段真实移动**，均 `CreateAttemptCount = 1`：`TO_PICKUP` → 站点 21
+  （`order-2093689119296323584`）、`TO_GATE` → 站点 210（`order-2093690819126099968`），
+  两者 `CONFIRMED`
+- **装货 `Committed`**，Sublot `Q26081298-1` 仓位 `[1]`，结果 `OverallOutcome = COMPLETED`
+- 子批录入与发车安全检查各消费一条对端答复（`ConsumedSublotMessageId`、
+  `ConsumedSafetyResultMessageId` 均已落值）
+- 六次运行 `host.err.log` 全部 0 字节
+
+`safetywait` 是当日方法论教训的现场记录：`12eddf2` 落地后阻断码一字未变，推翻了「十二个条件里
+只有时效不满足」的判断——真因是 `correlationId` 关联对象，由 `31569f5` 修复。
+
+证据：`8005-agv-control-server` `evidence/g3/20260829-load-to-gate-field-verify/`
+
 ## 本日落地的产品修复
 
 | 修复 | commit | 性质 |
@@ -124,13 +153,25 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 | 出站 wire 可被对端逐字节复现 + 重放冻结 `sentAt` | `b426ef6` | 解除到站后第一次 ack 被拒与断连 |
 | MesIngest `demandId` 归一化为规范 UUID | `f94483c` | 解除取货阶段 `DemandId must be a UUID` |
 
+| 结果哈希按对端口径重算 | `ea8dc98` | 解除装货结果被判内容冲突与两秒重放 |
+| 发车安全证据在有效期内判读 | `12eddf2` | 答复在有效期内被判读 |
+| 接受对端实际使用的关联方式 | `31569f5` | 解除发车安全检查被拒（真因） |
+| 业务结果答复的命令不再被无限重放 | `f48e616` | 解除关卡重连被历史命令拆连接 |
+| 每个停靠点用自己的 `worklistRevision` | `3d8b00c` | 解除关卡工作单被判 revision 冲突（**未现场验证**）|
+
 每一处均：Release 构建 0 warning／0 error、`dotnet format` 通过、完整测试全绿 0 skip、
-W2G-IS-00～07 八片 G2 全 PASS 并绑定精确 commit、可回滚本机部署 PASS。最终测试数 222/222、0 skip；
-八片 G2 合计 129 个筛选测试、0 skip，集合 SHA-256
-`0b887c0898549d1c68ae257eb68edb6d1903f77de9f29ed770adf8e614176e21`。
+可回滚本机部署 PASS。
+
+**八片 G2 绑定的更正**：`ea8dc98`～`f48e616` 五批 G2 的 `implementationCommit` 均为各自修复的
+父提交（每批都在修复已进工作树、尚未提交时跑，取的是当时 HEAD），故「绑定精确 commit」这条
+门禁当时并不成立。已在干净的 `3d8b00c` 上重跑：完整测试 **228/228、0 skip**，八片 G2 全 PASS 且
+均绑定 `3d8b00c`，合计 137 个筛选测试、0 skip，集合 SHA-256
+`a3c0401caa404473b24d243cd5fd3db99604c23d70a14a9064ced1b9054c003d`。
 
 ## 明确未证明的事项
 
-正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。`SublotEntryRequested` 尚未被确认——它在等
-现场操作员在 HMI 扫码或键入子批号，不是缺陷。其后的装货、发车安全检查、`TO_GATE` 移动、
-关卡批量卸货与原子完成五段均未走通，原因见剩余工作文档。
+正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。**关卡批量卸货与四事实原子完成两段仍未走通**
+——`fullloop` 中 `UnloadBatches`、`StopClosures`、`TransportDemandCompletions` 均为 0 行，车辆租约
+未释放，按设计 fail-closed，未误报完成。原因与下一步见剩余工作文档。
+
+`3d8b00c` 有单元测试与绑定自身的八片 G2，但**没有跑过现场**。
