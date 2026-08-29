@@ -53,6 +53,7 @@ Label: wayfinder:map
 - [最终批准并发布不可变协议版本](issues/17-finalize-and-publish-the-approved-protocol-release.md) — 两名真实负责人批准精确 commit/hash，正式 G1 通过，annotated tag 与 GitHub Release `protocol-v0.1.0` 已发布且外部批准证明哈希独立回读一致。
 - [把故障注入泛化到业务消息面](issues/18-generalise-fault-injection-to-business-messages.md) — 硬编码 drop 换成四动作规则表，合成对端在四种业务消息上取得重复／冲突／同会话结果重放／延迟／乱序证据，十二条断言绑 `3d8b00c`+`304e6ad` 全 PASS（`ControlServer_MVP@6a678a1`）；`OperationResult` 与 `SlotOperationCommand` 经证实需带 demand 的运行，已具名列为不可达而非默认覆盖。
 - [覆盖断联安全收尾与恢复分支向量](issues/19-cover-disconnect-closure-and-recovery-branches.md) — 判据是「是否需要一行 `StationOperations`」：`FORCED_MECHANICAL_RECOVERY` 是唯一无需 demand 的接受路径，由它承载中途断联（命令被丢弃断连后按新会话代从同一 outbox 行重放，无重复命令行）与代际向量（1→2 单调推进，旧代结果只进历史证据，成功结果仍置 `RecoveryRequired` 而非完成）；其余七种恢复动作只在授权边界取证，RIoT UNKNOWN 对账证实不可达并路由回票据 10。十九条断言绑 `3d8b00c`+`304e6ad` 全 PASS（`ControlServer_MVP@9a94c3b`），八条单点变异全部被断言检出。
+- [进程崩溃重启 runner 归位并重绑](issues/20-relocate-and-rebind-the-restart-runner.md) — 脚本归位为 ControlServer 仓 `scripts/run-staged-g3-restart.ps1`，四个 peer commit 改为解析主 runner `param()` 块默认值读回而非重述，规划仓副本已删；二十条断言绑 `3d8b00c`+`304e6ad`+`fb5f7c5`+`1531489e` 全 PASS（`ControlServer_MVP@3c699d9`），三十条单点变异全检出。重启事实由 OS 进程身份承担——`serverInstanceId` 经证实是每连接一个而非每进程一个；跨重启身份取自两端存储（车载 journal epoch 不变、两侧重启前行原样保留、三条 `RecoveryStateReport` messageId 两端同集合）。Demand 与车辆租约因 `VehicleDispatchLeases` 以 `DemandId` 为主键，在不建单形态下证实不可达，与票据 18 的 `OperationResult` 并入带 demand 的运行。
 
 ## Not yet specified
 
