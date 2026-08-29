@@ -51,6 +51,7 @@ Label: wayfinder:map
 - [实现并自测 OnboardHmi MVP](issues/09-implement-onboardhmi-mvp.md) — AI 候选曾在 `398a957` 完成本地 G2，但用户随后指定王昆从本人 `bc56fa9` 基线开发；远程 `05bf9f4` 已回退全部 AI 产品代码，只保留交接文档，故旧候选不再是当前 Onboard 实现或有效 G3 输入。
 - [解决协议清单与批准记录的发布闭环](issues/16-resolve-protocol-manifest-approval-finalization-cycle.md) — 两名真实负责人批准内容 manifest/外部 attestation 分离；协议 `main@3ad309f` 已实现审批中立稳定 manifest、双 Schema/G1 校验和无 commit 自引用的 Release Asset 流程，正式 tag 留待两人批准新 commit/hash。
 - [最终批准并发布不可变协议版本](issues/17-finalize-and-publish-the-approved-protocol-release.md) — 两名真实负责人批准精确 commit/hash，正式 G1 通过，annotated tag 与 GitHub Release `protocol-v0.1.0` 已发布且外部批准证明哈希独立回读一致。
+- [把故障注入泛化到业务消息面](issues/18-generalise-fault-injection-to-business-messages.md) — 硬编码 drop 换成四动作规则表，合成对端在四种业务消息上取得重复／冲突／同会话结果重放／延迟／乱序证据，十二条断言绑 `3d8b00c`+`304e6ad` 全 PASS（`ControlServer_MVP@6a678a1`）；`OperationResult` 与 `SlotOperationCommand` 经证实需带 demand 的运行，已具名列为不可达而非默认覆盖。
 
 ## Not yet specified
 
