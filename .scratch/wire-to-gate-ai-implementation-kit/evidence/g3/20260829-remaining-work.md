@@ -2,14 +2,18 @@
 
 配套文档：[`20260829-proven-state.md`](20260829-proven-state.md)（已证明的部分）。
 
-本文不做乐观估计。截止定为今日 17:00，本文写于当日午后——**该截止不可能达成**，下面逐段
-说明还差什么、卡在谁那里。
+本文不做乐观估计。截止已第二次顺延至 2026-08-30 17:00，范围与完成定义未变。下面逐段说明还差
+什么、卡在谁那里。
+
+> 2026-08-29 深夜更新：原文写于当日午后，彼时旅程停在 `AwaitingSublot`。此后子批录入、装货、
+> 发车安全检查、`TO_GATE` 移动、关卡到站五段已在现场走通，本文按当前状态重写。
 
 ## 一句话
 
-WIRE_TO_GATE 的**取货段与到站后第一段**（受理 → 建单 → 移动 → 到站认定 → 三条快照确认 →
-发出子批录入请求）已在现场走通；旅程停在 `AwaitingSublot`，**等现场操作员扫码或键入子批号**。
-其后的装货、发车安全检查、`TO_GATE`、关卡卸货与原子完成五段仍未走通。
+WIRE_TO_GATE 已在现场走通到**关卡到站、待卸货**：受理 → 建单 → 取货移动 → 到站认定 → 三条快照
+确认 → 子批录入 → 装货 → 发车安全检查 → `TO_GATE` 移动 → 关卡到站。旅程停在
+`AwaitingUnloadResult`。**仅剩关卡批量卸货与四事实原子完成两段未走通**，且已定位到精确原因、
+修复已提交（`3d8b00c`）但尚未现场复跑。
 
 ## 已解除的阻断：快照 revision 与重连的契约冲突（2026-08-29 晚）
 
@@ -33,23 +37,38 @@ SHA-256，`appliedContentSha256` 仍返回完整信封哈希以兼容服务端 o
 协议 `SnapshotAppliedAck.schema.json` 仍只把 `appliedContentSha256` 声明为 `Sha256` 类型而
 **未说明覆盖范围**——两端现在靠一致的实现互通，不是靠契约。该项仍列入下面的未解决项。
 
-## 尚未走通的业务段
+## 业务段现状
 
-以下每一段都**从未在真实双端运行过**，因此其规模只能按代码面估计，不能按"快好了"表述：
-
-| 段 | 状态 | 前置 |
+| 段 | 状态 | 证据 |
 | --- | --- | --- |
-| `AwaitingSublot`（扫码／键盘录入 Sublot）| **已到达**，`SublotEntryRequested` 已发出、待确认 | — |
-| Sublot 提交与准入复检 | 未走通 | **现场操作员在 HMI 扫码或键入子批号** |
-| `AwaitingLoadResult`（八仓装货、逐仓解锁与锁反馈）| 未到达 | 上一段 + 现场实物与操作员 |
-| 离站前安全检查（`PreDepartureSafetyCheck`）| 未到达 | 上一段 |
-| `TO_GATE` 移动 | 未到达 | 上一段；另需一次新的真实建单授权 |
-| 关卡批量卸货（多仓位单命令）| 未到达 | 上一段 |
+| Sublot 提交与准入复检 | **已走通** | `SublotSubmitted` 1 条，`ConsumedSublotMessageId` 已落值 |
+| `AwaitingLoadResult`（装货、解锁与锁反馈）| **已走通** | `Load` `Committed`，结果 `COMPLETED`、`HistoricalOnly=0` |
+| 离站前安全检查（`PreDepartureSafetyCheck`）| **已走通** | `ConsumedSafetyResultMessageId` 已落值 |
+| `TO_GATE` 移动 | **已走通** | `order-2093690819126099968` `CONFIRMED`，目的站 210，`CreateAttemptCount=1` |
+| 关卡到站 | **已走通** | 旅程进入 `AwaitingUnloadResult` |
+| 关卡批量卸货（多仓位单命令）| **未走通** | 见下节 |
 | 原子完成（UnloadBatch + StopClosureCommit + Demand success + 租约释放）| 未到达 | 上一段 |
 
 其中「关卡批量卸货」还叠着一个已知情况：车载执行器逐门串行开锁
 （`ValidateCommand` 接受 1～8 仓位，`ExecuteExclusiveAsync` 串行执行），与模拟器
 `maxOpenDoors: 1` 一致；这满足"一条命令覆盖多仓位"，但现场是否符合作业预期需要业务确认。
+
+## 唯一的技术阻断：关卡工作单 revision 冲突（已修复，待现场复跑）
+
+`gate` 与 `fullloop` 两次运行到达关卡后分别出现 35 次与 74 次 `ProtocolProblem`，原因码全部是
+`SNAPSHOT_REVISION_CONTENT_CONFLICT`，被拒消息全部是 `CurrentStopWorklistSnapshot`。
+
+取货与关卡的工作单站点不同、角色不同、停靠点不同，却都以 revision 1 发出
+（`fullloop` 结束时 `WorklistRevision` 仍为 `1`）。对端按类型与 revision 判定快照身份，**正确地**
+把第二条读作「内容未变」并拒绝，连接随之断开、重连、再拒绝。`fullloop` 的 outbox 直接坐实后果：
+`CurrentStopWorklistSnapshot`、`UpcomingStopPlanSnapshot`、`SlotOperationCommand` 各 2 条、
+各有 1 条未确认——**卸货命令排在被拒快照之后，从未被对端取到**，关卡段无从开始。
+
+修复 `ControlServer_MVP@3d8b00c`：revision 改为参数，关卡停靠点按其同级投影既有的方式推进。
+已过完整测试 228/228（0 skip）与绑定自身的八片 G2（137 个筛选测试、0 skip），**尚未现场复跑**。
+
+复跑要一轮完整闭环、再动两次车，且必须把 `JourneyRuntime__dispatchGeneration` 推进到 `3`——
+第 1、2 代的 `PICKUP`／`GATE` 订单在 RIoT 均已终结，沿用会直接对账确认而不动车。
 
 ## 其它未解决项
 
@@ -60,25 +79,30 @@ SHA-256，`appliedContentSha256` 仍返回完整信封哈希以兼容服务端 o
    要求 `MT_FINISHED`，因此每次重启／人工挪车后都需先跑一次 RIoT 移动订单才能开工。当前
    判断这不是产品缺陷（Behavior Lab 无契约支持把 `MT_NA` 视为安全停稳），但它是每日开工的
    实际摩擦，值得单独做一轮实验把语义定下来。
-3. **协议未定义字段** —— 已累计三处。建议在协议仓补齐定义，该仓为审批门禁，需两名负责人
-   批准。
+3. **协议未定义字段** —— 已累计**六处**：`supportsBatchUnlock`、两个快照的发送节奏与新鲜度、
+   `appliedContentSha256` 覆盖范围、`resultContentSha256` 序列化口径、
+   `PreDepartureSafetyCheckResult.correlationId` 关联对象、`validUntil` 最短有效期。其中四处
+   同源于一个成因：`DateTimeOffset` 转换器原样写出时区的 `+`，而 `JsonElement` 重序列化会把它
+   转义成六字符 unicode 转义——两端语义相同、字节不同。建议在协议仓补齐定义，该仓为审批门禁，
+   需两名负责人批准。
 
 ## 对截止日期的判断
 
-快照契约冲突已于当日晚间解除，旅程也已推进一段，但**判断不变**：其后五段业务流程需要真实现场
-（操作员扫码、实物篮筐、关卡卸货）逐段调试，每段都可能像今天一样暴露新的跨端未定义约定。
-今日一天解决了七处产品缺陷、首次打通取货段与到站后第一段——**剩余部分不是小时级，是天级**。
+当日深夜又推进五段，旅程已到关卡待卸货，**只剩两段**且技术阻断已定位并修复。但
+`3d8b00c` 尚未现场复跑，而复跑本身可能像前六次一样暴露新的跨端未定义约定——当日六次运行里有
+五次各暴露一处。
 
-17:00 的截止已不可能达成。把「文档齐全」「取货段通了」「到站通了」表述为 MVP 完成都不成立，
+因此判断为：**剩余部分是一到两轮完整闭环的量级，前提是复跑不再暴露新的跨端分歧**。在
+`3d8b00c` 现场验证通过、卸货与四事实原子完成走通之前，不得把当前状态表述为 MVP 完成；
 路线图本身也明确禁止这种表述。
 
 ## 建议的下一步顺序
 
 1. ~~王昆就快照 revision 去重键给出决定并实现~~ —— 已完成（`OnboardHmi_MVP@304e6ad`）。
 2. ~~复跑取货到站，确认推进到 `AwaitingSublot`~~ —— 已完成（`ControlServer_MVP@1b9ed3b`）。
-3. **现场操作员在 HMI 完成一次子批录入**，让旅程离开 `AwaitingSublot`。车辆现停在取货站
-   `N2-5_N3-5`（站点 21），空载，电量 36%。这是当前唯一的前沿动作，且只有人能做。
-4. 紧接着安排一次带实物与操作员的装货试跑，逐段推进到关卡卸货；`TO_GATE` 段需另取一次现场
-   物理安全 GO 与逐次建单授权。
-5. 期间把三处协议未定义字段（`supportsBatchUnlock`、快照发送节奏／新鲜度、
-   `appliedContentSha256` 覆盖范围）整理成一次协议修订，走两人批准。
+3. ~~子批录入、装货、发车安全检查、`TO_GATE`、关卡到站~~ —— 已完成
+   （`ControlServer_MVP@f48e616`，证据 `20260829-load-to-gate-field-verify`）。
+4. **用 `3d8b00c` 跑一轮完整闭环**，确认关卡工作单不再被拒、卸货命令被取到、四事实原子完成。
+   需要：`dispatchGeneration = 3`、真实操作员身份、两个方向各一次现场物理安全 GO 与逐次建单
+   授权。车辆现停在关卡站点 210。
+5. 期间把六处协议未定义字段整理成一次协议修订，走两人批准。
