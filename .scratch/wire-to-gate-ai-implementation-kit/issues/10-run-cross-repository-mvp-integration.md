@@ -790,3 +790,27 @@ resume／compensation／correction／cancellation／fault-cargo 的接受路径�
 `PrepareSlotOperationAsync` 写入的 `StationOperations`，三者是同一个前置。
 
 本票继续 `open`，正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。
+
+### 2026-08-30 — 进程崩溃重启已取证；八类向量的剩余缺口收敛为「带 demand 的运行」
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`staged G3 进程崩溃重启向量`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/3c699d936227bdd0c15b6f982511dca6b3cc1bbc/evidence/g3/20260830-process-restart/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@3c699d936227bdd0c15b6f982511dca6b3cc1bbc`
+
+Impact on this ticket: 票据 20 已交付「进程崩溃重启」向量，二十条断言绑
+`3d8b00c` + `304e6ad` + `fb5f7c5` + `1531489e` 全 PASS。八类向量的账因此更新为：**七类已有绑定当前
+双端 commit 的证据**（正常端到端旅程、不同内容冲突、重复、乱序／延迟、断联安全收尾、恢复分支、
+进程崩溃重启）；剩余缺口只有两项，且都收敛为同一个前置：
+
+| 缺口 | 前置 |
+| --- | --- |
+| `OperationResult` 结果重放 | 需一行由 `PrepareSlotOperationAsync` 写入的 `StationOperations`，即已受理 demand |
+| RIoT UNKNOWN 对账 | 需带 demand、对接真实 RIoT 的运行 |
+
+票据 20 另证实一项同源不可达：`VehicleDispatchLeases` 以 `DemandId` 为主键，不建单就没有租约行，
+因此「跨重启复用同一 Demand 与车辆租约」也只能在带 demand 的运行里取证。三项并为同一个前置条件。
+
+18／19／20 三票已全部 resolved，本票不再被它们阻断，成为当前前沿。正式 W2G-IS-00～07 的 G3
+与 RC 仍为 `INCONCLUSIVE`。
