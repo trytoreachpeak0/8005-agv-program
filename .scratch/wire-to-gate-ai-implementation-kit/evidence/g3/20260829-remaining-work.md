@@ -10,10 +10,12 @@
 
 ## 一句话
 
-WIRE_TO_GATE 已在现场走通到**关卡到站、待卸货**：受理 → 建单 → 取货移动 → 到站认定 → 三条快照
-确认 → 子批录入 → 装货 → 发车安全检查 → `TO_GATE` 移动 → 关卡到站。旅程停在
-`AwaitingUnloadResult`。**仅剩关卡批量卸货与四事实原子完成两段未走通**，且已定位到精确原因、
-修复已提交（`3d8b00c`）但尚未现场复跑。
+**WIRE_TO_GATE 端到端闭环已在现场走通**：受理 → 建单 → 取货移动 → 到站认定 → 三条快照确认 →
+子批录入 → 装货 → 发车安全检查 → `TO_GATE` 移动 → 关卡到站 → 关卡批量卸货 → 四事实原子完成，
+旅程终态 `Completed`，全程 1 分 58 秒。
+
+**但这只是八类 G3 向量中的一条**（正常端到端旅程）。票据 10 要求的其余七类仍未在当前双端 commit
+下的现场覆盖，正式 W2G-IS-00～07 的 G3 与 RC 继续 `INCONCLUSIVE`。
 
 ## 已解除的阻断：快照 revision 与重连的契约冲突（2026-08-29 晚）
 
@@ -46,29 +48,45 @@ SHA-256，`appliedContentSha256` 仍返回完整信封哈希以兼容服务端 o
 | 离站前安全检查（`PreDepartureSafetyCheck`）| **已走通** | `ConsumedSafetyResultMessageId` 已落值 |
 | `TO_GATE` 移动 | **已走通** | `order-2093690819126099968` `CONFIRMED`，目的站 210，`CreateAttemptCount=1` |
 | 关卡到站 | **已走通** | 旅程进入 `AwaitingUnloadResult` |
-| 关卡批量卸货（多仓位单命令）| **未走通** | 见下节 |
-| 原子完成（UnloadBatch + StopClosureCommit + Demand success + 租约释放）| 未到达 | 上一段 |
+| 关卡批量卸货（多仓位单命令）| **已走通** | `Unload` `Committed`，结果 `COMPLETED` |
+| 原子完成（UnloadBatch + StopClosureCommit + Demand success + 租约释放）| **已走通** | 四事实同一时刻提交，租约已释放 |
 
 其中「关卡批量卸货」还叠着一个已知情况：车载执行器逐门串行开锁
 （`ValidateCommand` 接受 1～8 仓位，`ExecuteExclusiveAsync` 串行执行），与模拟器
 `maxOpenDoors: 1` 一致；这满足"一条命令覆盖多仓位"，但现场是否符合作业预期需要业务确认。
 
-## 唯一的技术阻断：关卡工作单 revision 冲突（已修复，待现场复跑）
+## 已解除：关卡工作单 revision 冲突
 
 `gate` 与 `fullloop` 两次运行到达关卡后分别出现 35 次与 74 次 `ProtocolProblem`，原因码全部是
-`SNAPSHOT_REVISION_CONTENT_CONFLICT`，被拒消息全部是 `CurrentStopWorklistSnapshot`。
+`SNAPSHOT_REVISION_CONTENT_CONFLICT`，被拒消息全部是 `CurrentStopWorklistSnapshot`；卸货命令排在
+被拒快照之后，从未被对端取到。修复 `ControlServer_MVP@3d8b00c` 已于 `gen3` 现场验证：
+`ProtocolProblem` 归零、`ProtocolOutbox` 全部 `unacked = 0`、旅程到达 `Completed`。
 
-取货与关卡的工作单站点不同、角色不同、停靠点不同，却都以 revision 1 发出
-（`fullloop` 结束时 `WorklistRevision` 仍为 `1`）。对端按类型与 revision 判定快照身份，**正确地**
-把第二条读作「内容未变」并拒绝，连接随之断开、重连、再拒绝。`fullloop` 的 outbox 直接坐实后果：
-`CurrentStopWorklistSnapshot`、`UpcomingStopPlanSnapshot`、`SlotOperationCommand` 各 2 条、
-各有 1 条未确认——**卸货命令排在被拒快照之后，从未被对端取到**，关卡段无从开始。
+## 剩余的 G3 向量
 
-修复 `ControlServer_MVP@3d8b00c`：revision 改为参数，关卡停靠点按其同级投影既有的方式推进。
-已过完整测试 228/228（0 skip）与绑定自身的八片 G2（137 个筛选测试、0 skip），**尚未现场复跑**。
+票据 10 要求 W2G-IS-00～07 覆盖八类向量。当前只有第一类有当前双端 commit 下的现场结果：
 
-复跑要一轮完整闭环、再动两次车，且必须把 `JourneyRuntime__dispatchGeneration` 推进到 `3`——
-第 1、2 代的 `PICKUP`／`GATE` 订单在 RIoT 均已终结，沿用会直接对账确认而不动车。
+| 向量 | 现场状态 | 已有的非现场证据 |
+| --- | --- | --- |
+| 正常端到端旅程 | **PASS**（`gen3`） | — |
+| 重复／乱序／延迟 | 未覆盖 | 「重复」有 staged G3 probe（绑 `ea3050d`）；乱序／延迟无 |
+| 不同内容冲突 | 未覆盖 | staged G3 probe 的同 ID 异内容稳定冲突（绑 `ea3050d`）|
+| 断联安全收尾 | 未覆盖 | 八片 G2 |
+| 进程崩溃重启 | 未覆盖 | `20260826-staged-no-movement`（绑 `cc6e2b9`）|
+| 结果重放 | 未覆盖 | `RecoveryStateReport` 首 Ack 丢失重放（绑 `264e98b`）；`OperationResult` 首结果重放无 |
+| RIoT UNKNOWN 对账 | 部分 | `20260829-authorized-single-real-create` 的 PRE/POST UNKNOWN 审计链，未作为 G3 向量正式记录 |
+| 恢复分支 | 未覆盖 | 恢复命令族八片 G2（绑 `ea3050d`）|
+
+**关键判断：这七类里没有一类需要真实移动。** 需要真车的是「正常端到端旅程」，已经做完。其余都是
+故障注入与进程控制，可在 loopback 隔离环境完成——`scripts/run-staged-g3.ps1` 已有 TLS fault
+proxy、drop／duplicate／异内容探针与精确克隆机制。
+
+该 runner 的两处缺口是实打实的工作量，不是配置修改：
+
+1. **绑定过期**：默认绑 `ControlServer ea3050d` + `Onboard 15c6387`，需更新到 `3d8b00c` +
+   `304e6ad`，并重跑既有向量。
+2. **消息面过窄**：drop／重放探针只针对 `RecoveryStateReport`，未覆盖 `SlotOperationCommand`、
+   `OperationResult`、`PreDepartureSafetyCheck` 等业务消息，而票据要的「结果重放」正是后者。
 
 ## 其它未解决项
 
@@ -88,13 +106,15 @@ SHA-256，`appliedContentSha256` 仍返回完整信封哈希以兼容服务端 o
 
 ## 对截止日期的判断
 
-当日深夜又推进五段，旅程已到关卡待卸货，**只剩两段**且技术阻断已定位并修复。但
-`3d8b00c` 尚未现场复跑，而复跑本身可能像前六次一样暴露新的跨端未定义约定——当日六次运行里有
-五次各暴露一处。
+端到端闭环已经走通，**性质变了**：此前每一轮都在解跨端未定义约定，现在剩的是把已实现的行为在
+故障向量下逐条证明。这类工作可预期性高得多——它不依赖现场、不依赖操作员、不动车，失败模式也
+不再是「两端对同一字段理解不同」。
 
-因此判断为：**剩余部分是一到两轮完整闭环的量级，前提是复跑不再暴露新的跨端分歧**。在
-`3d8b00c` 现场验证通过、卸货与四事实原子完成走通之前，不得把当前状态表述为 MVP 完成；
-路线图本身也明确禁止这种表述。
+但**量不小**：七类向量、八个切片，加上 runner 本身要更新绑定与扩展消息面。且票据 10 之后还串着
+11 → 13 → 14 → 12 → 15 五张票（发布候选、真实适配器与部署边界、验收、授权发布、交接）。
+
+因此判断为：**2026-08-30 17:00 的截止，完整 RC 仍不可能达成**。闭环走通是实质里程碑，但路线图
+明确禁止把它表述为 MVP 完成——完成定义要求关键重复、断联、重启和恢复场景通过，那正是剩下的七类。
 
 ## 建议的下一步顺序
 
@@ -102,7 +122,11 @@ SHA-256，`appliedContentSha256` 仍返回完整信封哈希以兼容服务端 o
 2. ~~复跑取货到站，确认推进到 `AwaitingSublot`~~ —— 已完成（`ControlServer_MVP@1b9ed3b`）。
 3. ~~子批录入、装货、发车安全检查、`TO_GATE`、关卡到站~~ —— 已完成
    （`ControlServer_MVP@f48e616`，证据 `20260829-load-to-gate-field-verify`）。
-4. **用 `3d8b00c` 跑一轮完整闭环**，确认关卡工作单不再被拒、卸货命令被取到、四事实原子完成。
-   需要：`dispatchGeneration = 3`、真实操作员身份、两个方向各一次现场物理安全 GO 与逐次建单
-   授权。车辆现停在关卡站点 210。
-5. 期间把六处协议未定义字段整理成一次协议修订，走两人批准。
+4. ~~用 `3d8b00c` 跑一轮完整闭环~~ —— 已完成（证据 `20260829-closed-loop-gen3`）。
+5. **把 `run-staged-g3.ps1` 的绑定更新到 `3d8b00c` + `304e6ad` 并重跑既有向量**。这是最便宜的
+   一步：不动车、不需要现场，直接把「重复」「异内容冲突」「恢复报告重放」三条从旧 commit 抬到
+   当前 commit。
+6. **扩展 drop／重放探针到业务消息面**（`SlotOperationCommand`、`OperationResult`、
+   `PreDepartureSafetyCheck`），覆盖票据要求的「结果重放」与「断联安全收尾」。
+7. 补「乱序／延迟」与「恢复分支」两类向量的现场或隔离结果。
+8. 期间把六处协议未定义字段整理成一次协议修订，走两人批准——这一项独立于上面，可并行。
