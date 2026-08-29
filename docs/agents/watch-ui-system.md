@@ -12,10 +12,14 @@ operator must be able to answer “is ingest healthy and what needs attention?�
 within ten seconds, then move from a summary to the exact task or alert without
 losing context.
 
-Use Chinese for navigation, actions, explanations, and operational conclusions.
-Keep domain identifiers and schema names in their production form, including
-`TransportDemand`, `IngestAlert`, `TASK_TYPE`, `SUBLOT`, and alert codes. Do not
-create slash-separated bilingual headings.
+In Simplified Chinese mode, use Chinese for every fixed user-facing string,
+including product identity, navigation, actions, explanations, operational
+conclusions, field labels, table headers, filter names, tooltips, copied headers,
+and accessibility text. Keep only runtime values in their production form,
+including identifiers, stable codes, source values, paths, commands, JSON, and
+logs; pair known codes with a Chinese meaning instead of using the code as a
+label. English mode remains fully English. Do not create slash-separated
+bilingual headings.
 
 ## Component boundary
 
@@ -65,16 +69,16 @@ with visible text and an accessible name.
 
 ```text
 FluentWindow
-├─ integrated TitleBar: icon + “MesIngest Watch” + native caption buttons
+├─ integrated TitleBar: icon + localized product name + native caption buttons
 ├─ NavigationView
 │  ├─ 概览
-│  ├─ 任务浏览 (TransportDemand)
-│  ├─ 接入告警 (IngestAlert)
+│  ├─ 需求系列
+│  ├─ 接入告警
 │  ├─ 设置
-│  └─ pane footer: compact Host connection entry
+│  └─ pane footer: compact localized server connection entry
 ├─ active page
 │  ├─ one page title + optional one-line purpose
-│  ├─ page context: Host, last success, automatic-refresh interval
+│  ├─ page context: server, last success, automatic-refresh interval
 │  ├─ compact scoped fault status beside the page title
 │  ├─ page-scoped commands: query/filter actions and overflow
 │  └─ page content

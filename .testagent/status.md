@@ -1,4 +1,19 @@
-# Ticket 01 test-generator status
+# Chinese-only Watch UI Tier 2 repair status (2026-08-29)
+
+- [x] User authorized Tier 2 and confirmed the expanded 53-failure repair.
+- [x] Preserved the failed Golden evidence; no baseline was touched.
+- [x] Recorded the 53 failures by test group.
+- [x] Completed selected-prototype mapping for structural failures.
+- [x] Repaired production behavior/layout defects.
+- [x] Updated stale localization/UIA assertions, including localized Inspector automation names.
+- [x] Tier 1 final gate: `939 passed / 0 failed / 137 skipped` in 6 minutes 50 seconds. The named skips require the real SQL Server environment variables documented by the repository.
+- [x] Tier 2 final production preview passed: `ticket-bilingual-ui-chinese-only-final/run-20260829-011332-watch-production-preview`.
+- [x] Inspected the final overview, readability, and Inspector screenshots; normal Chinese UI no longer contains `GONE`, `VISIBLE`, `PASS`, `FAIL`, or `SERIES_LIFECYCLE`.
+- [x] User visually approved the final calibrated screenshots on 2026-08-29 and confirmed the change is publishable. No baseline was touched.
+
+---
+
+# Ticket 01 test-generator status (historical)
 
 ## Implementation green update
 
