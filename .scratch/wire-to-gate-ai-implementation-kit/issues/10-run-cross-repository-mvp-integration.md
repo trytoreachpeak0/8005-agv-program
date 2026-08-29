@@ -634,3 +634,13 @@ Owner repository/evidence: [`8005-agv-control-server@f22d3d1`](https://github.co
 Product: `ControlServer_MVP@addc2fab11d506b19d9a94c83537ed24d4233ef8`
 
 Impact on this ticket: 用户把车辆开回关卡并再次给出同一路线的现场 GO 与逐次授权，本次运行用于验证 `"--"` 占位符修复后的完整链路，但在任何 RIoT mutation 之前安全中止，未验证到目标链路。会话 fail-close 在 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`、`DepartureSafe=0`、`/health/ready` 503；`RiotDispatchAuditEvents` 0 行，`AcceptedDemands`／`OrderIntents`／`JourneyRuntimes` 均 0 行，未 arm、未建单、车辆未移动、四端口回收、stderr 空。原因唯一：安全投影返回 `motionState=UNKNOWN`、`reasonCodes=["RIOT_MOVEMENT_NOT_FINISHED"]`，车辆 `movementState` 为 `MT_NA`（`moveTaskNo=0`）——用户手动开回，未产生已完成的 RIoT 移动任务，因而缺少「上一次移动已结束」的正向证据；首次建单时车辆刚由 RIoT 订单完成移动处于 `MT_FINISHED` 才得以通过。其余 Round-41 谓词（speed 0、emergency OK、brake MOVABLE、control OK、location RUNNING、无非终态订单）全部通过。判断这**不是**产品缺陷：Behavior Lab 中没有任何契约把 `MT_NA` 认定为安全停稳，唯一一次 `MT_NA` 观测（Round 35）出现在「`orderState=3` 执行中但车未真正跑起来」的情形，正是不该被当作安全的状态；在缺少证据前放宽该谓词等于削弱安全门禁，故未改代码。复跑前置：车辆需先完成一次 RIoT 移动订单进入 `MT_FINISHED`，且因受理门禁本身依赖该安全事实、无法经 ControlServer 自举，须由现场／RIoT 侧直接下发一次任意短程移动。另需注意电量已降至 31%，逼近已批准的 30% 阈值，低于阈值后受理将改为 `BATTERY_POLICY_NOT_SATISFIED` 阻断。本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
+
+### 2026-08-29 — 到站推进首次可达，暴露跨代次快照重放死循环
+
+Owner repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Published product: `ControlServer_MVP@bf22a48d5d0e386e7af21d162800f7cf09b0032d`
+
+Owner defect record: [`跨会话代次重放快照造成自我维持的重连死循环`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/4aac129/docs/defects/20260829-snapshot-replay-across-session-generations.md)
+
+Impact on this ticket: 用户为车辆充电、派 RIoT 订单使其回到 `MT_FINISHED`，随后又把车派到站点 21（`N2-5_N3-5`），三次运行逐步推进。第一次（`create3`）证明 `"--"` 与 `orderState 5` 两处修复生效：intent 首次达到 `CONFIRMED`、`CreateAttemptCount=0`（决定性 upperId 命中首轮遗留的同一订单并直接确认，未建第二单），对 RIoT 零 mutation、车辆未移动，证据见 `651b97f`。车辆到达站点 21 后重跑，`IsTrustedArrivalAsync` **首次判定到站成功**并触发 `PublishPickupStateAsync` 发出 `VehicleBusinessStateSnapshot`／`CurrentStopWorklistSnapshot`／`UpcomingStopPlanSnapshot` 三条快照——这是此前完全不可达的代码路径。但随即进入死循环，`Stage` 无法推进到 `AwaitingSublot`。诊断分两步：先发现 ControlServer 不支持协议正式定义的 `ProtocolProblem`（有独立 schema 且在 manifest 中），收到即抛 `InvalidDataException` 并拆掉连接，既加剧重连又丢弃了唯一诊断，已修复为记录并保持会话（`bf22a48`，219/219 测试）；修复后对端原因显现为 `SNAPSHOT_REVISION_CONTENT_CONFLICT`。根因是三个设计选择在重连下互相矛盾：快照 `messageId` 由旅程状态决定性派生因而跨重连不变、`ProtocolOutbox` 冻结首次 wire 字节做逐字节重放、协议信封内嵌 `sessionGeneration`；冻结信封写着 `sessionGeneration=21` 而活动会话已是第 22 代，对端遂拒绝，连接结束，下一次发布因无已恢复对端抛 `IOException` 使旅程迭代 fail-closed，对端重连、代次再进、重放仍是旧信封——150 秒内会话重建 22 次，`ProtocolContentConflictException` 51 次、`IOException` 43 次，三条快照一条未确认。候选修法三种（messageId 纳入代次／重放时重新盖章／禁止跨代次重放），其中 `ReplayPendingForSessionAsync` 已接收 `sessionGeneration` 参数，提示原意可能就是只在同代次内重放，需先查清实际重放路径再定。取货到站之后的所有阶段目前不可达。本票保持 `claimed`，正式 G3／RC 保持 `INCONCLUSIVE`。
