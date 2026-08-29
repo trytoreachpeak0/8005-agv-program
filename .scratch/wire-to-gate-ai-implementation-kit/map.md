@@ -52,6 +52,7 @@ Label: wayfinder:map
 - [解决协议清单与批准记录的发布闭环](issues/16-resolve-protocol-manifest-approval-finalization-cycle.md) — 两名真实负责人批准内容 manifest/外部 attestation 分离；协议 `main@3ad309f` 已实现审批中立稳定 manifest、双 Schema/G1 校验和无 commit 自引用的 Release Asset 流程，正式 tag 留待两人批准新 commit/hash。
 - [最终批准并发布不可变协议版本](issues/17-finalize-and-publish-the-approved-protocol-release.md) — 两名真实负责人批准精确 commit/hash，正式 G1 通过，annotated tag 与 GitHub Release `protocol-v0.1.0` 已发布且外部批准证明哈希独立回读一致。
 - [把故障注入泛化到业务消息面](issues/18-generalise-fault-injection-to-business-messages.md) — 硬编码 drop 换成四动作规则表，合成对端在四种业务消息上取得重复／冲突／同会话结果重放／延迟／乱序证据，十二条断言绑 `3d8b00c`+`304e6ad` 全 PASS（`ControlServer_MVP@6a678a1`）；`OperationResult` 与 `SlotOperationCommand` 经证实需带 demand 的运行，已具名列为不可达而非默认覆盖。
+- [覆盖断联安全收尾与恢复分支向量](issues/19-cover-disconnect-closure-and-recovery-branches.md) — 判据是「是否需要一行 `StationOperations`」：`FORCED_MECHANICAL_RECOVERY` 是唯一无需 demand 的接受路径，由它承载中途断联（命令被丢弃断连后按新会话代从同一 outbox 行重放，无重复命令行）与代际向量（1→2 单调推进，旧代结果只进历史证据，成功结果仍置 `RecoveryRequired` 而非完成）；其余七种恢复动作只在授权边界取证，RIoT UNKNOWN 对账证实不可达并路由回票据 10。十九条断言绑 `3d8b00c`+`304e6ad` 全 PASS（`ControlServer_MVP@9a94c3b`），八条单点变异全部被断言检出。
 
 ## Not yet specified
 
