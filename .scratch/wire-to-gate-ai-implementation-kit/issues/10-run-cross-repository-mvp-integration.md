@@ -728,3 +728,19 @@ Impact on this ticket: 用户对 `210 → 21` 与 `21 → 210` 两个方向分�
 两段真实移动均 `CreateAttemptCount = 1`：`TO_PICKUP` → 站点 21（`order-2093706784945602560`）、`TO_GATE` → 站点 210（`order-2093707175561134080`），均 `CreateResponseAccepted` → `PostCreateReconciliationConfirmed`。`DispatchGeneration = 3` 生效。装卸货各一条 `OperationResult`，均 `OverallOutcome = COMPLETED`、`HistoricalOnly = 0`。四事实在同一时刻 `22:28:03.0683663+08:00` 原子提交，四个时间戳逐位一致。收尾 `portsReleased = true`、`hostStderrEmpty = true`。
 
 **本次只证明正常端到端旅程一条向量。** 票据要求的其余向量——重复/乱序/延迟、不同内容冲突、断联安全收尾、进程崩溃重启、结果重放、RIoT UNKNOWN 对账与恢复分支——均未在现场覆盖，其中多数已有本端 G2 或绑定旧 commit 的阶段性 staged G3，但都不是当前双端 commit 下的现场结果。因此正式 W2G-IS-00～07 的 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-29 — staged G3 重绑当前双端，三类向量抬到 `3d8b00c` + `304e6ad`
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`staged G3 重绑当前双端`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/8e4a85f/evidence/g3/20260829-staged-g3-rebind-3d8b00c-304e6ad/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@8e4a85f`（runner 修复 `50728f8`、`a4de76b`、`be91169`）
+
+Impact on this ticket: 此前 staged runner 默认绑 `ControlServer ea3050d` + `Onboard 15c6387`，两者均已过期，其证据无法支撑本票剩余向量。已重绑到 `3d8b00c` + `304e6ad` 并重跑，七条断言全部 PASS：`identityRejections`、`sameConnectionSameMessageIdSameContent`、`sameMessageIdDifferentContentStableConflict`、`recoveryStateReportFirstAckDropReplay`、`recoveryStateReportFirstAckDropReplayOverTls`、`noMovementOrExternalSideEffects`、`secretScan`。运行 loopback 隔离、**不动车、不建单、未使用现场凭据**，`orderIntentCount`／`acceptedDemandCount`／`stationOperationCount` 均为 0，`temporaryTrustCleanupVerified = true`，运行后独立复核根证书、端口、进程均无残留。
+
+**风险点已排除**：`304e6ad` 改的正是快照 revision 去重键，而重放探针打的就是这块，换代后本可能变红。实测 PASS——第 1 代首个 `DurableAck` 被丢弃并断开 TLS，第 2 代在新连接上以同一 messageId 与同一 payload SHA-256 重放成功，inbox 中该 messageId 仅 1 行，稳定到 `RecoveryRequired / CAPABILITY_SNAPSHOT_REQUIRED`。
+
+runner 在本机原本**无法启动**，三处缺口均已修复并各自验证：`pnpm` 不可解析（本机无 node/npm/pnpm，改用与 node 同目录的 `pnpm.cjs`）；精确克隆无 `node_modules` 而 G1 依赖 `ajv`（G1 前加 `install --frozen-lockfile`，改动前已在一次性克隆上验证 install exit 0、G1 PASS、54 消息类型、1341 反例、0 失败）；结果文档 `commits` 段硬编码 `onboardRunnerBinding = 4d8629c` 与 `onboardProductFix = 0584322` 两个 `15c6387` 时代的 commit，导致首次运行同时报出三个互相矛盾的车载端身份，已删除并重跑取得干净证据。另记录一条环境约束：`StageRoot` 必须是短路径，否则克隆 protocol 仓时会撞 Windows MAX_PATH。
+
+**本轮不构成切片 G3**：`W2G-IS-00`／`W2G-IS-06` 仍为 `INCONCLUSIVE`，`formalSlicePass = false`。drop／重放探针只覆盖 `RecoveryStateReport` 一种消息，未触及 `SlotOperationCommand`／`OperationResult`／`PreDepartureSafetyCheck`，而本票要求的「结果重放」正是后者；「乱序／延迟」「断联安全收尾」「恢复分支」未覆盖；「进程崩溃重启」由独立脚本 `run-staged-g3-no-movement.ps1` 负责，该脚本仍绑 `cc6e2b9` + `0455147` 且位于规划仓而非归属仓。因此正式 W2G-IS-00～07 的 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
