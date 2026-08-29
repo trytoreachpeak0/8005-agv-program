@@ -141,6 +141,29 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 
 证据：`8005-agv-control-server` `evidence/g3/20260829-load-to-gate-field-verify/`
 
+## 九、端到端闭环走通（2026-08-29 深夜，`3d8b00c` + generation 3）
+
+同车同 Demand，`gen3` 运行**全程走通**：受理 → 建单 → 取货移动 → 到站认定 → 三条快照确认 →
+子批录入 → 装货 → 发车安全检查 → `TO_GATE` 移动 → 关卡到站 → 关卡批量卸货 → 四事实原子完成。
+旅程终态 `Stage = Completed`、无阻断码，全程 1 分 58 秒。操作员 `S0020310`。
+
+| 指标 | `fullloop`（`f48e616`）| `gen3`（`3d8b00c`）|
+| --- | --- | --- |
+| `Stage` | `AwaitingUnloadResult` | **`Completed`** |
+| `SessionHello` | 74 | **1** |
+| `ProtocolProblem` | 74 | **0** |
+| `SnapshotAppliedAck` | 4 | **6** |
+| `ProtocolOutbox` 未确认 | 3 条 | **0** |
+| 四事实（ub／sc／tc）| 0／0／0 | **1／1／1** |
+| 车辆租约 | 未释放 | **已释放** |
+
+两段真实移动均 `CreateAttemptCount = 1`：`TO_PICKUP` → 站点 21
+（`order-2093706784945602560`）、`TO_GATE` → 站点 210（`order-2093707175561134080`）。
+四事实在同一时刻 `22:28:03.0683663+08:00` 提交，时间戳逐位一致。收尾 `portsReleased = true`、
+`hostStderrEmpty = true`。
+
+证据：`8005-agv-control-server` `evidence/g3/20260829-closed-loop-gen3/`
+
 ## 本日落地的产品修复
 
 | 修复 | commit | 性质 |
@@ -157,7 +180,7 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 | 发车安全证据在有效期内判读 | `12eddf2` | 答复在有效期内被判读 |
 | 接受对端实际使用的关联方式 | `31569f5` | 解除发车安全检查被拒（真因） |
 | 业务结果答复的命令不再被无限重放 | `f48e616` | 解除关卡重连被历史命令拆连接 |
-| 每个停靠点用自己的 `worklistRevision` | `3d8b00c` | 解除关卡工作单被判 revision 冲突（**未现场验证**）|
+| 每个停靠点用自己的 `worklistRevision` | `3d8b00c` | 解除关卡工作单被判 revision 冲突（已于 `gen3` 现场验证）|
 
 每一处均：Release 构建 0 warning／0 error、`dotnet format` 通过、完整测试全绿 0 skip、
 可回滚本机部署 PASS。
@@ -170,8 +193,9 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 
 ## 明确未证明的事项
 
-正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。**关卡批量卸货与四事实原子完成两段仍未走通**
-——`fullloop` 中 `UnloadBatches`、`StopClosures`、`TransportDemandCompletions` 均为 0 行，车辆租约
-未释放，按设计 fail-closed，未误报完成。原因与下一步见剩余工作文档。
+正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。端到端闭环走通只覆盖票据 10 要求的**八类
+向量中的第一类**（正常端到端旅程）。其余七类——重复／乱序／延迟、不同内容冲突、断联安全收尾、
+进程崩溃重启、结果重放、RIoT UNKNOWN 对账、恢复分支——均无当前双端 commit 下的现场结果；
+多数只有本端 G2 或绑定旧 commit 的阶段性 staged G3。清单与下一步见剩余工作文档。
 
-`3d8b00c` 有单元测试与绑定自身的八片 G2，但**没有跑过现场**。
+功能性 happy path 成功不被扩大为完整切片 G3 PASS。

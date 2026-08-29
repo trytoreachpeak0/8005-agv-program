@@ -712,3 +712,19 @@ Impact on this ticket: 本节补记 `9310c25` 之后五处服务端修复的路�
 已为下一轮准备但未执行：`3d8b00c` 的 self-contained 发布包（`deployment-manifest.json` SHA-256 `4c7a2c34157d12897773eb5d36c4901853bf8233e11a47eab2e5f7080c17368f`，`appsettings.json` 与在用的 `f48e616` 包逐字节一致），运行脚本已改绑该包并把 `JourneyRuntime__dispatchGeneration` 推进到 `3`（第 1、2 代的 `PICKUP`/`GATE` 订单在 RIoT 均已终结，沿用会直接对账确认而不动车），`CONTROL_SERVER_OPERATOR_ID` 改为必须由环境提供且拒绝演练占位值。本轮未真实建单、未动车、未调用任何 RIoT mutation，未修改受保护的 OnboardHmi、simulator 或协议仓。
 
 本票保持 `claimed`，正式 W2G-IS-00～07 G3 与 RC 保持 `INCONCLUSIVE`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
+
+### 2026-08-29 — 端到端闭环首次走通（`3d8b00c` 现场验证）
+
+Owner repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`WIRE_TO_GATE 端到端闭环首次走通`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/fa03e06/evidence/g3/20260829-closed-loop-gen3/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@fa03e06`（产品提交仍为 `3d8b00c`，本次未改产品代码）
+
+Impact on this ticket: 用户对 `210 → 21` 与 `21 → 210` 两个方向分别给出现场物理安全 GO 与逐次建单授权，操作员身份 `S0020310`。**受理 → 建单 → 取货移动 → 到站认定 → 三条快照确认 → 子批录入 → 装货 → 发车安全检查 → `TO_GATE` 移动 → 关卡到站 → 关卡批量卸货 → 四事实原子完成，首次全程走通**，旅程终态 `Stage = Completed`、无阻断码，全程 1 分 58 秒。此前唯一未经现场验证的修复 `3d8b00c` 至此验证通过。
+
+与上一轮 `fullloop`（`f48e616`、generation 2）同车同 Demand 对比：`Stage` 由 `AwaitingUnloadResult` 变为 **`Completed`**，`SessionHello` 由 74 降为 **1**，`ProtocolProblem` 由 74 降为 **0**，`SnapshotAppliedAck` 由 4 增为 **6**，`UnloadBatches`／`StopClosures`／`TransportDemandCompletions` 由 0／0／0 变为 **1／1／1**，车辆租约由未释放变为**已释放**。`ProtocolOutbox` 本轮全部 `unacked = 0`——上一轮卡死的关卡工作单快照被确认，排在其后的关卡计划快照与卸货命令随即被取到，这是 `3d8b00c` 失败判据被翻转的直接证据。
+
+两段真实移动均 `CreateAttemptCount = 1`：`TO_PICKUP` → 站点 21（`order-2093706784945602560`）、`TO_GATE` → 站点 210（`order-2093707175561134080`），均 `CreateResponseAccepted` → `PostCreateReconciliationConfirmed`。`DispatchGeneration = 3` 生效。装卸货各一条 `OperationResult`，均 `OverallOutcome = COMPLETED`、`HistoricalOnly = 0`。四事实在同一时刻 `22:28:03.0683663+08:00` 原子提交，四个时间戳逐位一致。收尾 `portsReleased = true`、`hostStderrEmpty = true`。
+
+**本次只证明正常端到端旅程一条向量。** 票据要求的其余向量——重复/乱序/延迟、不同内容冲突、断联安全收尾、进程崩溃重启、结果重放、RIoT UNKNOWN 对账与恢复分支——均未在现场覆盖，其中多数已有本端 G2 或绑定旧 commit 的阶段性 staged G3，但都不是当前双端 commit 下的现场结果。因此正式 W2G-IS-00～07 的 G3 与 RC 继续 `INCONCLUSIVE`，本票保持 `claimed`，不写 `## Answer`、不设 `resolved`、不更新地图 Decisions so far。
