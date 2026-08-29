@@ -7,8 +7,8 @@
 
 | 组件 | 版本 |
 | --- | --- |
-| ControlServer | `ControlServer_MVP@8caf7465b1096903d1f84d6d4788472b0c3c665a` |
-| OnboardHmi | `OnboardHmi_MVP@84b7f3f66ff2f867b18121760f38e26e0bbd6fa5`（王昆实现，配置未做任何覆盖）|
+| ControlServer | `ControlServer_MVP@f94483c14448e06c87adf04f3e870c7aba0e818a`（证据提交 `1b9ed3b`）|
+| OnboardHmi | `OnboardHmi_MVP@304e6ad9952a41d5c0d50c0c4e79bab5c8804bd6`（王昆实现，配置未做任何覆盖）|
 | slots-simulator | `main@fb5f7c593742bf98bc3957b8729a38aad5321f28` |
 | 协议 | `protocol-v0.1.1@1531489e42e328f28bfe0c51ed3f8c56e5ce0279` |
 | MesIngest | 本机 `http://127.0.0.1:5088`，contract `2026.08.new-mes-ingest.v2.4` |
@@ -93,6 +93,25 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 
 证据：`8005-agv-control-server` `evidence/g3/20260829-second-create-safe-abort/`
 
+## 七、到站之后第一段成立（2026-08-29 晚新增）
+
+同一台车、同一条 Demand 的复跑中，旅程**首次推进到 `AwaitingSublot`**：
+
+| 指标 | 修复前 | 本次 |
+| --- | --- | --- |
+| `SessionHello`（会话建立次数）| 22 | **1** |
+| `ProtocolContentConflictException` | 51 | **0** |
+| 车载 `ProtocolProblem` | 20 | **0** |
+| 三条旅程快照被确认 | 0 / 3 | **3 / 3** |
+| `SublotEntryRequested` | 从未发出 | **已发出** |
+| `Stage` | `AwaitingPickupArrival` | **`AwaitingSublot`** |
+
+订单 `order-2093605636779671552` `CONFIRMED`，车辆由 210 移动到 21（`N2-5_N3-5`）后
+`MT_FINISHED`、空载。另以生产代码对生产代码完成跨仓互操作验证：真实 `OnboardJourneyPublisher`
+产出的 wire 被真实 `WireToGateProtocolSerializer` 逐字节复现，三个阶段 ACK 全部接受。
+
+证据：`8005-agv-control-server` `evidence/g3/20260829-arrival-to-sublot-field-verify/`
+
 ## 本日落地的产品修复
 
 | 修复 | commit | 性质 |
@@ -102,11 +121,16 @@ mutation 之前安全中止：零审计行、零订单、车辆未移动、端�
 | `"--"` 占位符与 `orderState 5 → 已确认` | `addc2fa` | 解除 intent 永不可确认 |
 | `ProtocolProblem` 不再拆连接 | `bf22a48` | 保留对端诊断，止住连接被杀 |
 | 快照 `observedAt` 取信封冻结 `sentAt` | `8caf746` | payload 不再嵌漂移时钟 |
+| 出站 wire 可被对端逐字节复现 + 重放冻结 `sentAt` | `b426ef6` | 解除到站后第一次 ack 被拒与断连 |
+| MesIngest `demandId` 归一化为规范 UUID | `f94483c` | 解除取货阶段 `DemandId must be a UUID` |
 
 每一处均：Release 构建 0 warning／0 error、`dotnet format` 通过、完整测试全绿 0 skip、
-W2G-IS-00～07 八片 G2 全 PASS 并绑定精确 commit、可回滚本机部署 PASS。最终测试数 220/220。
+W2G-IS-00～07 八片 G2 全 PASS 并绑定精确 commit、可回滚本机部署 PASS。最终测试数 222/222、0 skip；
+八片 G2 合计 129 个筛选测试、0 skip，集合 SHA-256
+`0b887c0898549d1c68ae257eb68edb6d1903f77de9f29ed770adf8e614176e21`。
 
 ## 明确未证明的事项
 
-正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。取货到站之后的所有阶段（装货、安全检查、
-`TO_GATE` 移动、关卡批量卸货、原子完成）均未走通，原因见剩余工作文档。
+正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。`SublotEntryRequested` 尚未被确认——它在等
+现场操作员在 HMI 扫码或键入子批号，不是缺陷。其后的装货、发车安全检查、`TO_GATE` 移动、
+关卡批量卸货与原子完成五段均未走通，原因见剩余工作文档。
