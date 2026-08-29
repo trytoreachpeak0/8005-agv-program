@@ -767,3 +767,26 @@ runner 在本机原本**无法启动**，三处缺口均已修复并各自验证
 本票 `Blocked by` 增加 18／19／20 并由 `claimed` 改回 `open`：八类向量集齐后本票才能收口，
 届时在此写 `## Answer` 并更新地图 Decisions so far。当前正式 W2G-IS-00～07 的 G3 与 RC
 仍为 `INCONCLUSIVE`。
+
+### 2026-08-30 — 断联安全收尾与恢复分支已取证；RIoT UNKNOWN 对账回到本票
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`staged G3 断联安全收尾与恢复分支`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/9a94c3b99cbe8449140c72c630bd541e87bfa259/evidence/g3/20260830-recovery-and-disconnect-vectors/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@9a94c3b99cbe8449140c72c630bd541e87bfa259`
+
+Impact on this ticket: 票据 19 已交付「断联安全收尾」与「恢复分支」两类向量在 staged 可达面上的
+证据（十九条断言绑 `3d8b00c` + `304e6ad` 全 PASS）。八类向量的账因此更新为：正常端到端旅程、
+不同内容冲突、重复、乱序／延迟、断联安全收尾、恢复分支六类已有绑定当前双端 commit 的证据；
+结果重放仅 `RecoveryStateReport` 与业务面同会话重放已覆盖，`OperationResult` 仍缺；进程崩溃重启
+留在票据 20。
+
+**RIoT UNKNOWN 对账经证实无法在 staged 运行中取证**，因此回到本票：staged 运行把 RIoT 指向死端口
+且不存在 demand，不会发生任何建单尝试，也就无从产生 UNKNOWN disposition。该行为已出现在
+`evidence/g3/20260829-authorized-single-real-create/` 的审计链中，但要成为断言向量，必须在本票的
+带 demand、对接真实 RIoT 的运行里取证。同理，`OperationResult` 与
+resume／compensation／correction／cancellation／fault-cargo 的接受路径也都需要一行由
+`PrepareSlotOperationAsync` 写入的 `StationOperations`，三者是同一个前置。
+
+本票继续 `open`，正式 W2G-IS-00～07 的 G3 与 RC 仍为 `INCONCLUSIVE`。
