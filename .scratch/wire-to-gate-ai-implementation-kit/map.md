@@ -61,6 +61,8 @@ Label: wayfinder:map
 
 - [复核尚未经过审查的服务端现场修复与发布/runner 改动](issues/21-review-the-unreviewed-server-and-runner-changes.md) — Standards + Spec 双轴复核 `ea8dc98..ee54988` 共 31 个 commit，**发现两个真产品代码缺陷**：`worklistRevision` 从不持久化（唯一写入点恒为 1，gate 的 `+1` 读时算，新 demand 新 runtime 行即重置，同一 AGV 第二趟按 ADR-0048 必然被车载端幂等 ACK 或丢弃，甚至复演 `3d8b00c` 的连接被拆——车载端会话间是否重置 revision 是待确认的未知数）；`f48e616` 的四处 settle 只有两处有回归保护，删掉 safety check 那处 tier 1 全绿，而那正是其 commit message 自述的故障本体。另记录五项脚本／证据偏差（票 20 留了等价的 `-CommitBindingSource` 漂移口、票 11 的二十六条断言只是 markdown 无机器可读记录且证据目录缺 manifest／SHA256SUMS／秘密扫描产物、发布脚本的扫描结果不设闸、三个 runner 逐字复制公共函数）与三票已披露的范围偏差。三处现场 fix（`12eddf2`+`31569f5`、`3d8b00c` 单趟那一半）经证实真锚在缺陷上。缺陷修复路由至新建的票 22。
 
+- [修掉跨趟 worklist revision 与两处 settle 的回归缺口](issues/22-close-the-worklist-revision-and-settle-coverage-defects.md) — 动手前那个未知数由**只读检查车载端仓**解掉，两条既定路径（问王昆／双 demand staged 运行）都不需要：`OnboardHmi_MVP@304e6ad` 把已采用快照持久在 SQLite、**键只有 MessageType**、永不删除、每次重连在 SessionHello 前从 journal 还原，所以**不在会话间也不按 demand 重置**——第二趟是必然被拒，且形态是更硬的 `SNAPSHOT_REVISION_REGRESSION`（1 < 2）而非内容冲突。缺陷范围也比复核所述宽：`ToRuntimeRow` 把 `VehicleBusinessRevision`／`WorklistRevision`／`PlanRevision` **三个**都写死为 1，三条快照流同时回退。修复是新 runtime 行从该 `AgvId` 已存储最高值 +2 起算（一趟发出存储值与 +1 两个 revision），无新表无迁移；**否掉了「per (AgvId, StationId) 计数器」**——车载端按 MessageType 记账不按站点，按站点各自计数会让同一趟取货与关卡双双落在 1，正是 `3d8b00c` 修掉的冲突。缺陷二补两条断言覆盖安全检查与卸货命令的 settle。三处变异各自证红（revision 实际序列 `[1, 2, 1]`；两条 settle 的失败 messageId 不同故互相独立）。Release 0 warning、`dotnet format` 干净、230 passed / **0 skipped**、八片 G2 全 PASS 绑 `127b137`（`ControlServer_MVP@127b137` + 证据 `@0e4d471`，**尚未推送**）。新发现两项本票范围外：ACK 丢失会让快照在更高 revision 之后重发而同样触发 regression（票 23）；车载端「更低 revision 抛异常拆连接」与 ADR「丢弃并返回当前版本」偏差，归只读仓需用户指定目的地。
+
 ## Not yet specified
 
 无。
