@@ -760,6 +760,10 @@ _Avoid_: IngestAlert 历史总数、错误期间总数、Watch 连接横幅数�
 WatchOverviewSnapshot 中由真实状态转换形成、值得跨页下钻的近期事实，例如 Series 生命周期转换、错误期间开闭、轮询失败或恢复及 TaskTypeProtection 变化；静态总数本身不是动态。
 _Avoid_: 页面摘要变化猜测、当前数量排行、重复轮询观测、旧 IngestAlert occurrence
 
+**OverviewAttentionExplanation（概览关注解释）**:
+与 OverviewAttentionEvent 在同一概览快照中冻结的结构化操作员解释，用明确事件语义、业务对象和最小诊断事实回答“发生了什么”；它保留语义下钻所需身份，但不是 Watch 事后追加查询或原始事件 JSON。
+_Avoid_: 只有技术大类的标题、逐行补查当前详情、把原始事件码当作正常界面文案、完整原始观测
+
 **OverviewAttentionOrder（概览关注顺序）**:
 概览只显示最近 24 小时内最新的五个 OverviewAttentionEvent，按发生时间降序和稳定事件标识排序；同一领域转换只出现一次，没有事件时明确表示近期无重点动态而不宣称系统健康。
 _Avoid_: 无限动态流、每页各取一条、静态卡片补位、空列表即健康

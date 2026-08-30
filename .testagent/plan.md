@@ -119,3 +119,56 @@ File: `mes/ingest/csharp/MesIngest.Tests/WatchTextCatalogContractTests.cs`
 - Detect SDK/platform from `dotnet --version`, `global.json`, test csproj, `Directory.Build.props`, and `Directory.Packages.props`.
 - Run a single VSTest filter covering only the three new Ticket 01 classes.
 - Expected state for this generator handoff: RED because the production language/catalog contracts do not yet exist. Do not weaken, skip, or convert the tests to reflection-only placeholders merely to compile green.
+
+# Watch overview structured activity explanations (2026-08-30)
+
+## Planned tests
+
+File: `mes/ingest/csharp/MesIngest.Tests/WatchOverviewPresentationTests.cs`
+
+1. `Known_overview_event_types_project_human_conclusions_semantic_severity_and_navigation`
+   - Table-drive every EventType emitted by the Overview SQL and pin its Chinese conclusion, semantic severity, visible severity text, and target page.
+2. `Ended_error_periods_distinguish_recovery_demand_disappearance_and_series_archive`
+   - Pin wording for `CONDITION_CLEARED`, `DEMAND_GONE`, and `SERIES_ARCHIVED`.
+3. `Invalid_area_format_explains_observed_and_expected_values_from_the_frozen_snapshot`
+   - Assert `INVALID_MES_FIELD_FORMAT`, `AREA`, observed `D7-04`, expected `D7-4`, and labeled metadata.
+4. `Chinese_activity_metadata_localizes_known_work_type_and_escalates_unknown_codes`
+   - Keep known WorkType raw codes out of normal visible Chinese while preserving an unfamiliar code in a Chinese escalation fallback.
+5. `Poll_failure_uses_safe_detail_without_reclassifying_it_as_an_observed_value`
+   - Assert poll diagnostics use `SafeDetail`, not `ObservedValue`.
+6. `Structured_conflict_explanations_use_counts_and_localized_related_work_types`
+   - Assert `ObservationCount` and `RelatedWorkTypes` produce bounded Chinese explanations without leaking known raw WorkType codes.
+
+File: `mes/ingest/csharp/MesIngest.Tests/WatchOverviewSnapshotTests.cs`
+
+7. `Invalid_area_activity_carries_a_same_snapshot_structured_explanation`
+   - Through the real SQL-backed `/api/v2/watch-overview` seam, insert Area `D7-04`, locate `SERIES_ERROR_PERIOD_STARTED`, compare its projection commit to the enclosing snapshot, and assert the complete structured explanation.
+
+File: `mes/ingest/csharp/MesIngest.Tests/WatchV2ProductionShellTests.cs`
+
+8. `Recent_activity_rows_expose_distinct_shape_color_and_visible_severity_text`
+   - Render Error, Warning, Success, and Informational rows; assert red/amber/green/blue color distinction, four semantic symbols, visible Chinese severity text, and severity-bearing accessible names.
+
+File: `mes/ingest/csharp/MesIngest.Tests/WatchV2ApiClientTests.cs`
+
+9. Strengthen `Overview_normalizes_area_scope_and_decodes_one_atomic_v2_snapshot`
+   - Round-trip all eight optional explanation fields across the real Watch HTTP JSON decoder.
+
+## Requirement mapping
+
+| Requirement | Planned evidence |
+| --- | --- |
+| Structured same-snapshot explanations | Tests 3, 6, 7, and 9 |
+| All emitted EventType human mappings | Test 1, fifteen theory rows |
+| Concrete invalid AREA format | Tests 3 and 7 |
+| End-reason wording | Test 2 |
+| Semantic severities/navigation | Test 1 |
+| Chinese WorkType and unknown fallback | Test 4 |
+| Labeled metadata | Tests 3 and 4 |
+| Color, shape, visible text accessibility | Test 8 |
+
+## Validation
+
+- Run one VSTest filter covering the three touched classes only.
+- Preserve RED evidence if production implementation is incomplete; never weaken or skip a requirement to obtain green.
+- Invoke `test-gap-analysis` after the first generated-test run and add only verified missing cases.
