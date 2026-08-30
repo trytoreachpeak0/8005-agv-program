@@ -57,6 +57,8 @@ Label: wayfinder:map
 
 - [完成双端联合测试并修复跨仓缺陷](issues/10-run-cross-repository-mvp-integration.md) — 八类 G3 向量集齐，按「是否需要一行 `StationOperations`」分三种形态承担：现场授权闭环、staged 合成对端注入、带 demand 的存储恢复。最后两类经证实**不需要移动车辆，且移动帮不上忙**——RIoT UNKNOWN 是每次新代次建单的必经路径，`OperationResult` 首次接受只在「命令已下发、结果未到」的存储上可达，而真实车载端会立刻回结果。二十条断言绑 `3d8b00c`+`304e6ad`+`fb5f7c5`+`1531489e` 全 PASS，三十六条单点变异全检出（`ControlServer_MVP@acc8a6d`）；票 20 遗留的跨重启 Demand／租约复用一并收口。产品代码未改，W2G-IS-00～07 与 RC 仍为 `INCONCLUSIVE`。
 
+- [构建并验证可安装的 MVP 发布候选](issues/11-build-and-verify-the-portable-delivery-package.md) — 一条命令从 `ControlServer_MVP@2eeb6f0` + `OnboardHmi_MVP@304e6ad` + `protocol-v0.1.1` 组装出含两端 self-contained 二进制、联合 manifest、868 个文件 SHA-256、依赖／许可证清单与秘密扫描的 RC；协议身份从产物读回而非重述，车载端从一次性克隆构建、只读仓零写入。隔离第二实例（58405／58407）上二十六条断言全 PASS，五条可证伪性检查证明绿能变红，生产服务全程未动。修掉三个真缺陷（相对路径按进程 CWD 解析、根证书导入弹框卡死非交互安装、服务无持久日志），另报告四项未修发现。**不构成发布物已推送远程**（二进制不进 Git，GitHub Release 属票 12／15），W2G-IS-00～07 与 RC 仍 `INCONCLUSIVE`（`ControlServer_MVP@ee54988`）。
+
 ## Not yet specified
 
 无。
