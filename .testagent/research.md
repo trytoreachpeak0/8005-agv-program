@@ -93,3 +93,34 @@ unknown codes and explicitly technical/raw evidence keep their source value.
 - The composition/window currently has no shared display-language state.
 - No production `WatchTextCatalog`, structured display-value semantics, or language-aware time/count formatter exists.
 - The intended first run is RED. Production implementation belongs to the parent implementation channel.
+
+# Watch overview structured activity explanations (2026-08-30)
+
+## Acceptance checklist
+
+- [ ] "structured same-snapshot explanations"
+- [ ] "all emitted EventType human mappings"
+- [ ] "concrete INVALID_MES_FIELD_FORMAT AREA D7-04 expected D7-4"
+- [ ] "end-reason wording"
+- [ ] "semantic severities/navigation"
+- [ ] "Chinese WorkType and unknown fallback"
+- [ ] "labeled metadata"
+- [ ] "color+shape+visible severity text accessibility"
+
+## Production and test inventory
+
+- The frozen snapshot contract is `MesIngest.Core/SeriesProjection/WatchOverviewContract.cs`; the activity explanation is an optional final record parameter so existing callers remain source-compatible.
+- SQL activity materialization is in `MesIngest.Infrastructure/SqlServer/SqlServerMesIngestProjection.Overview.cs`; Host JSON projection is in `MesIngest.Host/NewMesIngestEndpoints.cs`; Watch presentation is in `MesIngest.Watch/WatchOverviewPresentation.cs`; recent-activity WPF rows are rendered in `MesIngest.Watch/WatchWorkspaceWindow.xaml.cs`.
+- Existing target suites are `WatchOverviewPresentationTests`, `WatchOverviewSnapshotTests`, and `WatchV2ProductionShellTests` under `MesIngest.Tests`.
+- The repository uses xUnit 2.4.2 on VSTest, targets `net8.0-windows`, and keeps WPF assertions on the `WpfDesktop` collection with `StaTestRunner.Run`.
+- The code-testing source-discovery tool was searched for but is not available in this environment; source and test inventories were completed with `rg` and direct file inspection.
+
+## Emitted overview EventType inventory
+
+The Overview SQL emits fifteen operator-visible event types: `DEMAND_SERIES_STARTED`, `DEMAND_GONE`, `GONE_TIMEOUT_ARCHIVED`, `SERIES_ERROR_PERIOD_STARTED`, `SERIES_ERROR_PERIOD_ENDED`, `TRANSPORT_DEMAND_CREATED`, `TASK_TYPE_PROTECTION_ENTERED`, `TASK_TYPE_PROTECTION_RECOVERY_PROGRESS`, `TASK_TYPE_PROTECTION_CLEARED`, `TASK_TYPE_ABSENCE_AUTHORITY_RESTORED`, `UNASSIGNED_MES_OBSERVATION_APPEARED`, `UNASSIGNED_MES_OBSERVATION_CONTENT_CHANGED`, `UNASSIGNED_MES_OBSERVATION_CLEARED`, `POLL_RUN_FAILED`, and `POLL_RUN_RECOVERED`.
+
+## Test seams
+
+1. Pure presenter tests construct frozen activity snapshots and assert conclusion, explanation, labeled metadata, severity text, semantic severity, and navigation without a WPF dependency.
+2. A SQL-backed API integration test creates the concrete invalid AREA observation and proves that the returned activity explanation is carried by the same projection commit as its enclosing snapshot.
+3. A WPF shell test injects four severity variants through `IWatchV2ApiClient`, then inspects the rendered production rows for distinct symbols, visible severity labels, colors, and accessible names.
