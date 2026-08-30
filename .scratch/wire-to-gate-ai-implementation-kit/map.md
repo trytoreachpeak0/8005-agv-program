@@ -59,6 +59,8 @@ Label: wayfinder:map
 
 - [构建并验证可安装的 MVP 发布候选](issues/11-build-and-verify-the-portable-delivery-package.md) — 一条命令从 `ControlServer_MVP@2eeb6f0` + `OnboardHmi_MVP@304e6ad` + `protocol-v0.1.1` 组装出含两端 self-contained 二进制、联合 manifest、868 个文件 SHA-256、依赖／许可证清单与秘密扫描的 RC；协议身份从产物读回而非重述，车载端从一次性克隆构建、只读仓零写入。隔离第二实例（58405／58407）上二十六条断言全 PASS，五条可证伪性检查证明绿能变红，生产服务全程未动。修掉三个真缺陷（相对路径按进程 CWD 解析、根证书导入弹框卡死非交互安装、服务无持久日志），另报告四项未修发现。**不构成发布物已推送远程**（二进制不进 Git，GitHub Release 属票 12／15），W2G-IS-00～07 与 RC 仍 `INCONCLUSIVE`（`ControlServer_MVP@ee54988`）。
 
+- [复核尚未经过审查的服务端现场修复与发布/runner 改动](issues/21-review-the-unreviewed-server-and-runner-changes.md) — Standards + Spec 双轴复核 `ea8dc98..ee54988` 共 31 个 commit，**发现两个真产品代码缺陷**：`worklistRevision` 从不持久化（唯一写入点恒为 1，gate 的 `+1` 读时算，新 demand 新 runtime 行即重置，同一 AGV 第二趟按 ADR-0048 必然被车载端幂等 ACK 或丢弃，甚至复演 `3d8b00c` 的连接被拆——车载端会话间是否重置 revision 是待确认的未知数）；`f48e616` 的四处 settle 只有两处有回归保护，删掉 safety check 那处 tier 1 全绿，而那正是其 commit message 自述的故障本体。另记录五项脚本／证据偏差（票 20 留了等价的 `-CommitBindingSource` 漂移口、票 11 的二十六条断言只是 markdown 无机器可读记录且证据目录缺 manifest／SHA256SUMS／秘密扫描产物、发布脚本的扫描结果不设闸、三个 runner 逐字复制公共函数）与三票已披露的范围偏差。三处现场 fix（`12eddf2`+`31569f5`、`3d8b00c` 单趟那一半）经证实真锚在缺陷上。缺陷修复路由至新建的票 22。
+
 ## Not yet specified
 
 无。
