@@ -1,8 +1,8 @@
 # 完成双端联合测试并修复跨仓缺陷
 
 Type: task
-Mode: AFK
-Status: open
+Mode: HITL
+Status: resolved
 Blocked by: 08, 09, 17, 18, 19, 20
 
 ## Question
@@ -814,3 +814,75 @@ Impact on this ticket: 票据 20 已交付「进程崩溃重启」向量，二�
 
 18／19／20 三票已全部 resolved，本票不再被它们阻断，成为当前前沿。正式 W2G-IS-00～07 的 G3
 与 RC 仍为 `INCONCLUSIVE`。
+
+### 2026-08-30 — 最后两类向量取证，八类集齐；本票收口
+
+Integration repository: `https://github.com/trytoreachpeak0/8005-agv-control-server`
+
+Evidence artifact: [`带 demand 的 G3：结果重放与 RIoT UNKNOWN 对账`](https://github.com/trytoreachpeak0/8005-agv-control-server/blob/acc8a6d293bcf2196bdb6c8e73a445e28048725e/evidence/g3/20260830-demand-bearing-vectors/SUMMARY.md)
+
+Published branch/commit: `ControlServer_MVP@acc8a6d293bcf2196bdb6c8e73a445e28048725e`
+
+Impact on this ticket: 八类向量集齐，本票 resolved。见下方 `## Answer`。
+
+进票前先与用户确认了本轮范围。用户初选「完整带 demand 现场旅程」；随后查明两个缺口都不需要
+移动车辆，且**移动帮不上忙**，用户改选零移动路径。真实建单／动车的逐次授权与现场安全 GO
+本轮未被请求，也未被使用。
+
+## Answer
+
+W2G-IS-00～07 的八类 G3 向量已全部取得绑定当前双端 commit 的证据。执行方式不是一次统一的
+G3 运行，而是**按「向量需要什么前置」分成三种运行形态**，每种只承担它能诚实承担的那部分：
+
+| 形态 | 承担的向量 | 证据 |
+| --- | --- | --- |
+| 现场授权闭环运行 | 正常端到端旅程 | `evidence/g3/20260829-closed-loop-gen3/` |
+| staged 双真实对端 + 合成对端注入 | 不同内容冲突、重复、乱序／延迟、断联安全收尾、恢复分支、进程崩溃重启 | `20260830-business-message-fault-injection/`、`20260830-recovery-and-disconnect-vectors/`、`20260830-process-restart/` |
+| 带 demand 的存储恢复 + 合成对端 | `OperationResult` 结果重放、RIoT UNKNOWN 对账、跨重启复用 Demand 与车辆租约 | `20260830-demand-bearing-vectors/` |
+
+分形态的判据不是方便，而是**可达性**：一条向量能不能取证，取决于它是否需要一行由
+`PrepareSlotOperationAsync` 写入的 `StationOperations`。三票（18／19／20）把这条判据逐步逼出来，
+本轮把最后一组收掉。
+
+### 本轮的三条关键事实
+
+**一、剩余两个缺口都不需要移动车辆，而且移动帮不上忙。**
+
+- RIoT UNKNOWN 对账不是偶发故障：任何从未创建过的 `upperId`，RIoT 都以 HTTP 200／业务码 0／
+  无 result 应答，落到 `RiotOrderObservationKind.Unknown`
+  （`WireToGateOrchestration.cs` 的 `IsExactAbsentAtObservation` 分支）。它在**每次新代次建单**
+  的建单前对账上必然出现，因此已存在于真实运行的审计链里，只是从未被抬成具名断言。
+- `OperationResult` 首次被接受只可能发生在「命令已下发、结果未到」的站点操作上。
+  `ApplyOperationResultAsync` 以 `ResultId` 或 `(attemptId, ForcedRecoveryGeneration)` 去重，
+  已带结果的 attempt 只会冲突；而真实车载端会立刻回结果，所以**新跑一趟现场旅程反而取不到
+  这一步**。需要的是恢复一份真实授权运行留下的该状态。
+
+**二、`OperationResult` 的跨代次重放按设计就是冲突，不是缺陷。**
+`RecoveryStateReport` 有一个把 `sessionGeneration` 归零的重放身份哈希，`OperationResult` 没有；
+再加上 `RequireCurrentSession` 在去重之前拦截旧代次消息，所以同一 messageId 换代次重发必然
+内容哈希不同。重放向量只能在**同一会话内**成立。
+
+**三、到站门禁完全锚在真实 RIoT 事实上。**
+`IsTrustedArrivalAsync` 要求一条 `OrderState == 5` 且 `orderId` 与 `OrderIntents` 一致的终态订单，
+外加真实车辆观测停在目标站点。`RiotCreateDispatch` 与 `JourneyRuntime` 是两个独立开关，可以
+「受理 demand 但不建单」，但那样 `intent.OrderId` 为空、门禁必然关闭，**永远走不到
+`PrepareSlotOperationAsync`**。没有产品内绕过路径。
+
+### 缺陷路由
+
+本轮未在产品代码中发现缺陷。所有改动都在 ControlServer 仓 `scripts/` 与 `evidence/`，
+产品代码保持 `3d8b00c`。两个 runner 缺陷在正式运行前由变异回路抓到并修掉，已写入证据摘要：
+`$x = if (...) { @(单元素) }` 被 `if` 语句输出流拆包导致 `.Count` 返回键数；以及一条按位置
+选行的变异改到了另一条 attempt 上而假存活。
+
+### 这不构成什么
+
+- **不是任一切片的正式 G3 PASS。** W2G-IS-00～07 全部保持 `INCONCLUSIVE`，RC 同样。
+  八类向量各自有证据，不等于八个切片各自通过。
+- 带 demand 的运行使用的存储由早于 `3d8b00c` 的构建写入；被测行为属于 `3d8b00c`，
+  状态来源不是。已记录在证据的 `storeProvenance`。
+- 真实移动闭环只有 `gen3` 一次，未覆盖多次重复、异常中断后的现场恢复与长时稳定性。
+- 服务端五处现场修复（`ea8dc98`～`3d8b00c`）与五轮 runner 改动（`938eb67`～`acc8a6d`）
+  尚未经过 Standards + Spec 复核。
+
+后续 11／13／14／12／15 五票不受本票结论影响，按原路线推进。

@@ -55,6 +55,8 @@ Label: wayfinder:map
 - [覆盖断联安全收尾与恢复分支向量](issues/19-cover-disconnect-closure-and-recovery-branches.md) — 判据是「是否需要一行 `StationOperations`」：`FORCED_MECHANICAL_RECOVERY` 是唯一无需 demand 的接受路径，由它承载中途断联（命令被丢弃断连后按新会话代从同一 outbox 行重放，无重复命令行）与代际向量（1→2 单调推进，旧代结果只进历史证据，成功结果仍置 `RecoveryRequired` 而非完成）；其余七种恢复动作只在授权边界取证，RIoT UNKNOWN 对账证实不可达并路由回票据 10。十九条断言绑 `3d8b00c`+`304e6ad` 全 PASS（`ControlServer_MVP@9a94c3b`），八条单点变异全部被断言检出。
 - [进程崩溃重启 runner 归位并重绑](issues/20-relocate-and-rebind-the-restart-runner.md) — 脚本归位为 ControlServer 仓 `scripts/run-staged-g3-restart.ps1`，四个 peer commit 改为解析主 runner `param()` 块默认值读回而非重述，规划仓副本已删；二十条断言绑 `3d8b00c`+`304e6ad`+`fb5f7c5`+`1531489e` 全 PASS（`ControlServer_MVP@3c699d9`），三十条单点变异全检出。重启事实由 OS 进程身份承担——`serverInstanceId` 经证实是每连接一个而非每进程一个；跨重启身份取自两端存储（车载 journal epoch 不变、两侧重启前行原样保留、三条 `RecoveryStateReport` messageId 两端同集合）。Demand 与车辆租约因 `VehicleDispatchLeases` 以 `DemandId` 为主键，在不建单形态下证实不可达，与票据 18 的 `OperationResult` 并入带 demand 的运行。
 
+- [完成双端联合测试并修复跨仓缺陷](issues/10-run-cross-repository-mvp-integration.md) — 八类 G3 向量集齐，按「是否需要一行 `StationOperations`」分三种形态承担：现场授权闭环、staged 合成对端注入、带 demand 的存储恢复。最后两类经证实**不需要移动车辆，且移动帮不上忙**——RIoT UNKNOWN 是每次新代次建单的必经路径，`OperationResult` 首次接受只在「命令已下发、结果未到」的存储上可达，而真实车载端会立刻回结果。二十条断言绑 `3d8b00c`+`304e6ad`+`fb5f7c5`+`1531489e` 全 PASS，三十六条单点变异全检出（`ControlServer_MVP@acc8a6d`）；票 20 遗留的跨重启 Demand／租约复用一并收口。产品代码未改，W2G-IS-00～07 与 RC 仍为 `INCONCLUSIVE`。
+
 ## Not yet specified
 
 无。
