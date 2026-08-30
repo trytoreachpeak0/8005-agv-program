@@ -34,6 +34,8 @@ Label: wayfinder:map
 - 2026-08-25 用户重新划定 OnboardHmi 分工：车载端产品代码由王昆从本人 `bc56fa9` 基线开发；后续 AI 只为车载端保留开发交接文档，不再自行修改 OnboardHmi 产品代码，除非用户日后再次明确授权。远程 `OnboardHmi_MVP@05bf9f4` 已用可追溯 revert 把当前产品树恢复到 `bc56fa9`，仅保留 README 和交接文档；历史中的 AI 候选提交不能表述为王昆已开发或批准。
 - 2026-08-28 22:45 原截止逾期：正式 G3／RC 仍为 `INCONCLUSIVE`，用户决定只把截止顺延到 2026-08-29 17:00，范围与完成定义不变。
 - 2026-08-29 第二次截止逾期：当日已首次打通取货段与到站后第一段（旅程达到 `AwaitingSublot`），但正式 G3／RC 仍为 `INCONCLUSIVE`，剩余五段业务流程需真实现场逐段调试。用户第二次只把截止顺延到 2026-08-30 17:00，范围与完成定义仍不变。
+- 2026-08-30 第三次截止逾期：17:00 时点上核心验收尚未开跑；当晚 19:26 在 RC 生产形态下走通完整闭环，服务安装与干净安装验收也已 PASS。范围与完成定义仍不变，剩下的是发布授权（票 12）与交接（票 15），以及归车载端只读仓的 HMI 缺陷（票 27）。
+- 本机网络会伪造 RIoT 可达性：Clash 全局模式下内核给 `172.19.206.222` 选 Clash TUN 源地址，ICMP 与 TCP connect 对任意端口、乃至不存在的主机全部「成功」；`vEthernet (Default Switch)` 又占着 `172.19.192.1/20` 覆盖该地址。判定 RIoT 可达只能用返回 body 的 HTTP 往返，不能用 ping 或 TCP connect。
 - 2026-08-28 用户划定 RIoT 责任边界：RIoT owner 不提供技术支持，也不会修改 RIoT 程序，因此不得再把「等 owner 确认合同语义」当作路线阻断；「HTTP 200 但实际未建单」由用户定性为 RIoT 自身缺陷，本项目只负责实现正确的建单链路。建单安全性据 `OBSERVED` 级 BC-ORDER-004 改由服务端 upperId 幂等保证（重复提交返回 `0610008 订单已存在`，不建第二单），已在 `ControlServer_MVP@21f1dd6` 落地，不再需要一次性 permit。RIoT Behavior Lab 与 SDK（`8005---AGV` 仓）是 RIoT 行为的权威依据。
 
 ## Decisions so far
@@ -71,6 +73,8 @@ Label: wayfinder:map
 
 - [验证真实适配器、目标部署与硬件边界](issues/13-qualify-target-adapters-and-deployment.md) — 用户到场并给出安全 GO，仍**未动车、未建单**：不是授权缺失也不是时钟，而是部署链在 readiness 上断掉，移动段不可达。对票 25 那份 RC（不是票 11 的 `2eeb6f0`）跑隔离资格验证，19 条断言 11 PASS／5 FAIL／3 INCONCLUSIVE，且是**机器可读断言的第一次真实发射**——收掉票 21 第 2 项／票 24 拒绝事后转写的那个缺口。PASS：服务端从 RC 目录直接启动并自动迁移、八仓 IO 模拟器、车载端↔服务端会话（`SessionRecoveries=1`／`ProtocolInbox=19`）、MesIngest（`JourneyBacklog=282` 真实需求在流）、`RiotDispatchAuditEvents=0` 证明未建单。真实 RIoT 降级 INCONCLUSIVE（网络可达 PASS，但读路径不落持久行且只在受理后才走到）；屏幕／触摸／扫码枪与真实八仓 IO 按外部输入缺失具名 INCONCLUSIVE。**主发现**：`OnboardMessageProcessor.cs:56` 在 SessionHello 无条件置 `RecoveryRequired`，干净安装三次运行全部停在那里，`/health/ready` 恒 503、282 条 backlog 零受理，故票 14 的「从干净安装开始完成一个完整场景」在当前 RC 上走不通——开票 26 承载并挂成 14 的阻断。**次发现**：RC 服务端出厂即现场真值，车载端出厂却是样例值（`wireToGate.enabled=false`、`agvId=AGV-8005-01`、`onboardBuildCommit` 过期、`vehicleSafety.endpoint` 是 `.invalid` 占位符），本轮只在副本里改正、RC 本体未改。**三条判据被自己杀掉并留档**：搜服务端日志的会话检测器永远不可能变绿（那份日志 64,373 行全是 EF SQL，从不打印消息类型名），503 探早于车载端启动读到的是闸门在工作，「连接被强制关闭」是我自己的 kill；两个适配器判据靠 grep 连接串误判为绿，第三版全改为读派生行并各带同库内保持为 0 的对照表。证据 `evidence/g3/20260830-issue13-target-qualification/`。
 - [定位干净安装停在 RecoveryRequired 的那一步](issues/26-settle-clean-install-readiness-stuck-at-recovery-required.md) — 真实回读证伪「恢复报告没发」：阻断是资格 harness 沿用开发默认、漏配可信车辆停稳投影；同一握手仅改变停稳事实即 `RECOVERY_REQUIRED→READY`，公开 RC 步骤已补齐 HTTPS 信任、车辆身份与新鲜 STOPPED 预检（`ControlServer_MVP@81cb9cf`）。
+
+- [执行可用 MVP 验收并关闭阻断缺陷](issues/14-run-usable-mvp-acceptance.md) — **核心验收 PASS，逐项资格分开给不合并**。干净安装验收 23 PASS／0 FAIL（868 哈希、HTTPS 安全投影 200 且无凭据 401、真实 RIoT `STOPPED`、`readiness=Ready`、`/health/ready` 503→200、受理 1 条、`StationTaskTypeAdmissions=205` 让票 13 的 RIoT 读路径 INCONCLUSIVE 终于成立、重启 generation 1→2 回到 Ready），两条单字段变异各自证红。现场闭环 generation 7 在 RC 生产形态下走通取货→装货→发车安全→`TO_GATE`→关卡卸货→原子完成，`Stage=Completed`、`SessionGeneration` 全程 1、5 分 42 秒、两条真单各一次建单；**这补上了 08-29 那次闭环（绑 `3d8b00c`）之后五个未现场复跑的提交**，并证实生产形态的安全闸门在移动中拦、停稳后自动放行而不卡死旅程。gen4／5／6 未通**全是本目录脚手架缺陷**，产品四次行为一致。服务安装由用户以管理员跑隔离实例 PASS（九检查、NDJSON 落盘），ACL 硬化由 agent 侧读被拒独立证实。开工前还解掉一个假绿：Clash 全局模式让安全投影恒 `RIOT_READ_TIMEOUT`，而 ICMP 与 TCP-connect 对任意端口乃至不存在的主机全绿——**票 13 的 `NET-RIOT PASS` 用的正是这种探针**。**具名 FAIL 归只读车载端仓**：生产形态下 `DisabledRuleGateway.IsConnected` 恒 false 把 HMI 状态机钉死在 `Connecting`，业务不进横幅与操作记录，`RecoveryRequired` 无操作员出口，已开票 27 路由。真实八仓 IO 与车载目标终端硬件仍 INCONCLUSIVE（`ControlServer_MVP@9daeef4`）。
 
 ## Not yet specified
 
