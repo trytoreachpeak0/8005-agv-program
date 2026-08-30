@@ -98,10 +98,16 @@ Get-Content .\SHA256SUMS.txt | ForEach-Object {
 
 ## 5. 已知限制（发布时原样携带，不得省略）
 
-1. **车载端 HMI 在生产形态下不反映 WIRE_TO_GATE 业务，且 `RecoveryRequired` 无操作员出口。**
-   `DisabledRuleGateway.IsConnected` 恒 `false`，把 HMI 状态机钉死在 `Connecting`；WIRE_TO_GATE 业务过程不进状态横幅与操作记录。站点操作一旦落进 `RecoveryRequired`，现场操作员在随包 HMI 上没有前进或撤销的手段。
-   业务闭环本身不受影响（上表 generation 7 已 `Completed`），受影响的是**随包 HMI 对现场操作员可用**这一条资格。
-   该缺陷归车载端仓 `8005-agv-onboard-hmi`，去向**尚未落定**；落定后回补。
+1. **车载端 HMI 在本 RC 的生产形态下不反映 WIRE_TO_GATE 业务，且 `RecoveryRequired` 无操作员出口。**
+   业务闭环本身不受本项影响（上表 generation 7 已 `Completed`），受影响的是**随包 HMI 对现场操作员可用**这一条资格。该缺陷归车载端仓 `8005-agv-onboard-hmi`，两半的去向已落定，但**性质不同**：
+
+   **1a 状态与操作记录不反映业务 —— 已在车载端仓修复，但不在本资产内。**
+   本 RC 的车载端二进制建自 `OnboardHmi_MVP@304e6ad`，其中 `DisabledRuleGateway.IsConnected` 恒 `false`，把 HMI 状态机钉死在 `Connecting`，WIRE_TO_GATE 业务过程不进状态横幅与操作记录。该仓负责人已于 2026-08-30 在 `OnboardHmi_MVP@31263b1` 修复：横幅与「任务系统」状态改由正式上层会话驱动，不再依赖恒为离线的 `DisabledRuleGateway`；子批录入、仓位操作阶段、结果确认与恢复阻断均投影到操作记录；批量操作失败后保持「需要管理员恢复」而不退回「连接中」。
+   **该修复不在本资产内**，本 RC 的行为仍如上所述；需要它必须重建候选。
+
+   **1b `RecoveryRequired` 无操作员出口 —— 不是车载端可单独修复的缺陷，是跨端结果身份缺口，未决。**
+   站点操作落进 `RecoveryRequired` 后，现场操作员在随包 HMI 上没有前进或撤销的手段。经两端核对，车载端对恢复命令保持 fail-closed 是当前唯一正确的行为：`SlotOperationResumeCommand` 复用原 `slotOperationAttemptId` 且没有独立的 resume 结果消息，而 ControlServer 以 `(slotOperationAttemptId, forcedRecoveryGeneration)` 唯一接受 `OperationResult`，`RESUME_AFTER_REPAIR` 又不推进 `forcedRecoveryGeneration`。因此修复物理状态后发送同 attempt 的新结果会被判为内容冲突，重放原结果会被按 replay 忽略，恢复 workflow 两条路都不收敛。
+   收敛需要两端先选定一个结果身份方案（resume 命令携带新的 operation/result identity；或服务端在活动 `recoveryActionId` 下允许同 attempt 的授权替代结果；或协议新增独立的 resume result 并明确它如何关闭原 `OperationResult`），涉及协议仓变更与两名负责人批准，**判为本 RC 范围外**。在方案选定并通过带 demand 的联合回归之前，`RecoveryRequired` 的现场处置须走人工流程。
 
 2. **真实八仓 IO 与车载目标终端硬件未取得资格。**
    本轮 IO 全程是模拟器 `127.0.0.1:1502`。这**不构成**真实 IO 模块、接线、锁或光幕的资格，也不构成车载目标终端（屏幕、触摸、扫码枪）的资格。上线这两项前，本候选只适用于受控测试环境。
