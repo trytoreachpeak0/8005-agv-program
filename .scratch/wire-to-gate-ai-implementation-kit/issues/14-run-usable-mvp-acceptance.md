@@ -30,7 +30,7 @@ Published branch/commit: `ControlServer_MVP@9daeef4`（验收运行 `@e605ffa`�
 | 真实 RIoT 适配器（读 + 建单） | **PASS** | 两条真单各一次成功；读路径落 205 行派生数据 |
 | 八仓 IO | **模拟器 PASS，真实 IO INCONCLUSIVE** | `ioModule 127.0.0.1:1502` |
 | 车载目标硬件（屏/触摸/扫码枪） | **INCONCLUSIVE** | 运行在开发工作站 |
-| 服务安装、ACL 与 NDJSON 持久日志 | **PASS** | 用户以管理员跑隔离安装，九项检查全过 |
+| 服务安装、ACL、NDJSON 日志、卸载回滚 | **PASS** | 隔离实例装→跑→卸全过，生产部署未受影响 |
 | 车载端 HMI 生产形态可用性 | **FAIL（归只读仓）** | 见下 |
 
 **干净安装可用性验收（`evidence/g3/20260830-issue14-usable-mvp-acceptance/`）。** 对票 25 之后
@@ -85,6 +85,14 @@ InstallRoot／DataRoot／BackupRoot、端口 58505／58507、`-SkipMachineEnviro
 `orderCreated=false`、`vehicleMoved=false`。**ACL 硬化是独立证实的而非脚本自报**：安装目录与数据根
 对本 agent 的非管理员会话双双 `Access denied`，同时服务本身 `Running / LocalSystem / Automatic`
 且在 58505／58507 上监听。
+
+随后用户以管理员跑手册第 9 节的卸载（`-ConfirmUninstall`，不加 `-RemoveDataRoot`），结果 `PASS`，
+同样独立核验而非采信脚本自报：服务已消失、安装目录已删除、数据根按预期保留（可用同一包重装）、
+隔离端口 58505／58507 零残留。`trustedRootCertificatesRemoved=0` 与安装时的
+`trustStore: none (pinned CA file)` 一致——安装从未写入证书存储，故无可移除项。生产服务
+`8005 AGV ControlServer` 全程 `Running`，58005／58007 的 `OwningProcess` 在会话首尾都是同一个
+PID 36960，证明隔离实例的安装与卸载都没有触碰生产部署。**安装→启动→停止→重启→卸载→回滚整条
+生命周期至此在发布候选上闭合。**
 
 **仍为 INCONCLUSIVE 的项，照录不隐藏**：真实八仓 IO（本轮由模拟器提供）、车载目标终端硬件
 （屏幕／触摸／扫码枪，本轮运行在开发工作站）。W2G-IS-00～07 的切片门禁状态不由本票改变。
