@@ -2,7 +2,7 @@
 
 Type: task
 Mode: HITL
-Status: open
+Status: claimed
 Blocked by: 13, 26
 
 ## Question
