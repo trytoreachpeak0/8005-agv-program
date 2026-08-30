@@ -80,6 +80,8 @@ Label: wayfinder:map
 
 - [发布并交接可运行 WIRE_TO_GATE MVP](issues/15-complete-candidate-based-ai-development-start-handoff.md) — **已发布**：`8005-agv-control-server` 的 annotated tag `w2g-mvp-rc-0.1.0` 绑 `9daeef4`（GitHub 侧 tag 对象 peel 证实，且该 commit 就是 `ControlServer_MVP` 当前 tip；`gh` 报的 `targetCommitish=main` 是建 tag 用的分支字段，易误读，已具名留档），该仓唯一一个 release，三个资产全部 `uploaded`。**包内一字节未改**——打包前 `OK=868 MISMATCH=0`、打包后 `OK=868 BAD=0`，手册第 11 节的 `dispatchGeneration` 更正写在**包外** Release 说明里正是为此。四条判据都是回读取证而非上传返回码：远程资产**下回来重算**三个哈希全 MATCH（红侧翻一字符 MISMATCH）；解压到新目录跑**手册第 3 节原文脚本输出 0 行**、翻一字节输出恰好 1 行 `MISMATCH RELEASE-CANDIDATE.md`；协议身份补上票 12 没验的车载端侧——二进制内嵌 `1531489e`／`a467c0c4`／`e04296e9` 与服务端逐字一致，**第四个 `vectorsSha256` 据实记为车载端 ABSENT**（构建期资产，运行时不需要，故不能笼统说「两端完全一致」），三个真值各翻一字符全 ABSENT、一个真在别处的真值也 ABSENT 故绿不空；端到端由票 14 的 generation 7 承担，本票未动车未建单。交接主体是包内手册第 1～13 节，Release 说明只做包外三件事。**票 27 的 HMI 缺陷作为已知限制第 1 项原样进说明**，标注去向未定、落定后回补。**只完成两个仓**：车载端只读仓零 tag 零 release（本会话对其零写入，协议仓亦未动），那一份开票 28 交用户或王昆。未触产品代码故未跑 tier 1。
 
+- [处置生产形态下车载端 HMI 不反映 WIRE_TO_GATE 且无恢复出口](issues/27-route-the-onboard-production-shape-hmi-defect.md) — **转交件起了作用，路由由现实作出**：只读 fetch 发现 owner 已在 `OnboardHmi_MVP@31263b1`（08-30 20:06，现场闭环之后）修掉可见性半边，本仓对该仓全程零写入。两半性质不同：可见性**已修但不在本 RC 内**（本资产建自 `304e6ad`，要它必须重建候选，故本轮未构建未验证）；恢复出口**根本不是车载端能单独修的**——owner 弹回的四点服务端约束在我们可写的 `9daeef4` 上逐条读代码核对**全部属实**（`AdvanceForcedRecoveryGenerationAsync` 只在 `FORCED_MECHANICAL_RECOVERY` 分支内、`WireToGateStore.cs:1352-1372` 对同 attempt 同代次的新 `ResultId` 抛冲突、重放原结果被 replay 忽略），故 `RESUME_AFTER_REPAIR` 没有可收敛的结果身份，车载端 fail-closed 是唯一正确行为而非占位。三选一接口方案涉及协议仓与双人批准，**AI 不代批**，判为本地图范围外。**收掉票 15 的唯一尾巴**：线上 Release 说明已知限制第 1 项从「去向尚未落定」改写为 1a／1b 两段（编号不重排），只动包外、868 条哈希与三个资产一字未改；四条回读取证（改前副本逐字忠实、改后 `VERBATIM MATCH`、三资产 `uploaded` 尺寸不变、tag 对象仍 `0c4d1103…`），比对器翻一字符即证红。给 owner 的答复件在仓外，不代选方案并明说不要等答复。未触产品代码故未跑 tier 1。
+
 ## Not yet specified
 
 无。
@@ -92,4 +94,5 @@ Label: wayfinder:map
 - 未经单独授权自动执行真实车辆动作、Golden WPF tier 2/3、工厂 P0～P7 或真实物料试运行。
 - 把 Fake 通过、协议生成、Spec 完成、构建成功或 README 齐全单独表述为整个 MVP 软件完成。
 - 为赶工删除已接受的安全、持久化、幂等、断联或恢复约束，或用手工演示掩盖核心路径缺失。
+- `RESUME_AFTER_REPAIR` 的结果身份收敛（票 27 揭出）。当前协议下 `SlotOperationResumeCommand` 复用原 `slotOperationAttemptId` 且无独立结果消息，而服务端以 `(slotOperationAttemptId, forcedRecoveryGeneration)` 唯一接受 `OperationResult`、`RESUME_AFTER_REPAIR` 又不推进代次，故恢复 workflow 两条路都不收敛，车载端只能 fail-closed。收敛须两端选定三个方案之一（resume 命令带新 identity／服务端在活动 `recoveryActionId` 下允许授权替代结果／协议新增独立 resume result），至少一个要动审批门禁的协议仓、需双人批准，并须新增带 demand 的联合回归且证据不得继承 2026-08-30 的红运行。本地图 Destination 在票 15 已成立、发布时六条已知限制已被接受，故这是 RC 之后的独立一轮，不是本轮的续。owner 侧记录见车载端仓 `31263b1` 的 `docs/W2G_PRODUCTION_HMI_RECOVERY_GAP.md`。
 - 把三个 G3 runner 的重复公共函数抽成共享模块（票 21 第 5 项、票 24 第 5 项）。失败形态是启动即抛异常，响亮且立刻，不污染证据；而改动要同时动三个零测试覆盖、承载本地图全部证据的脚本。与到达 RC 无关，RC 之后另起。

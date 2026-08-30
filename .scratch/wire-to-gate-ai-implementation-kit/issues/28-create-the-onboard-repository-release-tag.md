@@ -25,5 +25,10 @@ Owning repository: https://github.com/trytoreachpeak0/8005-agv-onboard-hmi
 
 Routing status: read-only for agents；需用户或王昆执行
 
+2026-08-30 更新（票 27 会话只读 fetch 所得）：`OnboardHmi_MVP` 的 tip **已不再是 `304e6ad`**，
+owner 于当日 20:06 推送 `31263b1`（`Fix production W2G HMI status and recovery visibility`）。因此
+「给本轮 MVP 打 tag」必须显式指向 `304e6ad`，不能用 `HEAD` 或分支名——那会把一个**不在本 RC 二进制
+内**的修复错标成本轮版本。票 27 的答案已确认该修复不在本资产内。该仓仍为零 tag、零 release。
+
 Impact on this ticket: 不影响已发布的服务端 release 可用性与版本可追溯性；影响的是车载端仓自身是否
 有不可变引用。
