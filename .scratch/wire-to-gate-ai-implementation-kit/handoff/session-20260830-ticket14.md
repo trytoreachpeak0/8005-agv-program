@@ -31,16 +31,19 @@
 验收 + 红侧变异）与 `evidence/g3/20260830-issue14-field-closed-loop/`（四次现场运行 + 启停观测
 脚本）。
 
-## 等用户做的两件事
+## 等用户做的一件事
 
-1. **卸掉隔离服务。** 用户以管理员装了 `8005 AGV ControlServer Ticket14`（InstallRoot
-   `C:\Program Files\8005 AGV\ControlServer-Ticket14`，DataRoot
-   `C:\ProgramData\8005\ControlServer-Ticket14`，端口 58505／58507），**目前仍在 Running**。
-   卸载命令已给出，用户尚未回报结果。卸载脚本需要 `-ConfirmUninstall`，不加 `-RemoveDataRoot`
-   即保留数据根。生产服务 `8005 AGV ControlServer`（58005／58007）全程未动。
-2. **决定车载端 HMI 缺陷的去向。** 转交件在
-   `C:\Users\szy\Desktop\致王昆20260830车载端生产形态HMI缺陷.md`（仓外，按跨仓路由规则不写进任何
-   仓库）。票 27 等这个决定。
+**决定车载端 HMI 缺陷的去向。** 转交件在
+`C:\Users\szy\Desktop\致王昆20260830车载端生产形态HMI缺陷.md`（仓外，按跨仓路由规则不写进任何
+仓库）。票 27 等这个决定。
+
+## 隔离实例已装完又卸完
+
+`8005 AGV ControlServer Ticket14` 装（`result.json`）与卸（`uninstall.json`）都 `PASS`，两份结果在
+`C:\Users\szy\Desktop\w2g-ticket14-install\`。服务与安装目录已消失，数据根
+`C:\ProgramData\8005\ControlServer-Ticket14` 按预期保留（未加 `-RemoveDataRoot`），端口 58505／
+58507 零残留。生产服务 `8005 AGV ControlServer` 全程 `Running`，58005／58007 的 OwningProcess 在
+会话首尾都是同一个 PID，未被触碰。**机器上没有本会话遗留的服务。**
 
 ## 本机陷阱（会伪造绿）
 
