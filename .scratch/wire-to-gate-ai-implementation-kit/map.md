@@ -63,6 +63,8 @@ Label: wayfinder:map
 
 - [修掉跨趟 worklist revision 与两处 settle 的回归缺口](issues/22-close-the-worklist-revision-and-settle-coverage-defects.md) — 动手前那个未知数由**只读检查车载端仓**解掉，两条既定路径（问王昆／双 demand staged 运行）都不需要：`OnboardHmi_MVP@304e6ad` 把已采用快照持久在 SQLite、**键只有 MessageType**、永不删除、每次重连在 SessionHello 前从 journal 还原，所以**不在会话间也不按 demand 重置**——第二趟是必然被拒，且形态是更硬的 `SNAPSHOT_REVISION_REGRESSION`（1 < 2）而非内容冲突。缺陷范围也比复核所述宽：`ToRuntimeRow` 把 `VehicleBusinessRevision`／`WorklistRevision`／`PlanRevision` **三个**都写死为 1，三条快照流同时回退。修复是新 runtime 行从该 `AgvId` 已存储最高值 +2 起算（一趟发出存储值与 +1 两个 revision），无新表无迁移；**否掉了「per (AgvId, StationId) 计数器」**——车载端按 MessageType 记账不按站点，按站点各自计数会让同一趟取货与关卡双双落在 1，正是 `3d8b00c` 修掉的冲突。缺陷二补两条断言覆盖安全检查与卸货命令的 settle。三处变异各自证红（revision 实际序列 `[1, 2, 1]`；两条 settle 的失败 messageId 不同故互相独立）。Release 0 warning、`dotnet format` 干净、230 passed / **0 skipped**、八片 G2 全 PASS 绑 `127b137`（`ControlServer_MVP@127b137` + 证据 `@0e4d471`，**尚未推送**）。新发现两项本票范围外：ACK 丢失会让快照在更高 revision 之后重发而同样触发 regression（票 23）；车载端「更低 revision 抛异常拆连接」与 ADR「丢弃并返回当前版本」偏差，归只读仓需用户指定目的地。
 
+- [收口票 21 记录的五项脚本／证据层偏差](issues/24-close-the-script-and-evidence-deviations.md) — 做 1、3、4，不做 2、5。主体是第 4 项：发布脚本的扫描结果从「写进 JSON」升成 `Assert-ReleaseScanGate` 闸门，任何 finding、任何密钥材料文件、任何**不在具名允许清单内**的 UNRESOLVED 许可证都中止发布；允许清单只有三个自建 RIoT SDK 包、逐个具名，所以**新**的无许可证依赖会失败而不是并进计数。闸门放在 `inventory/` 落盘之后、manifest 之前，失败留证据但绝不出包；报错只给「路径:行号:规则名」。同时修掉 `Get-PackageLicense` 的 `%USERPROFILE%` 硬编码——它与缺闸门是**互相掩护**的一对：设了 `NUGET_PACKAGES` 的机器上许可证全 UNRESOLVED 而照常出包。第 1 项拆掉 `run-staged-g3-restart.ps1` 的 `-CommitBindingSource` 覆盖口（读回的四个 commit 不变）；第 3 项把 RC 的 manifest／SHA256SUMS／inventory 抄进证据目录，**归档前先验证两个根哈希仍与票 11 记录一致**——并因此撞出一件证据完整性问题：仓内 `text=auto eol=lf` 会把 manifest 从 171,544 字节存成 162,774，checkout 出来的哈希不再是证据宣称的值，已加 `-text` 并从对象库回读验证。第 2 项拒绝事后把 markdown 表格转写成 `assertions` 数组——那是转写不是观测，却长得像 harness 输出，比诚实的表格更坏；真修法是下次安装验证自己发射，属票 13／12。第 5 项（三个 runner 抽公共模块）不做：失败形态是启动即抛异常、响亮且立刻，而改动要同时动三个零测试覆盖、承载全部证据的 runner。两个 harness 用 **AST 从提交进仓的脚本取出规则与闸门**并与基线 `0e4d471` 并排，17 条断言全 PASS，红侧逐条直接证出（植入 apiKey 抛错、基线被证明根本没有闸门、报错不含植入值、`.pfx` 抛错、未列清单的 UNRESOLVED 抛错、reader 会毫无怨言接受带假 commit 的副本）。闸门不追溯，故另证 `2eeb6f0` 那份既有 RC **能通过**新闸门。未触产品代码、未跑 tier 1（`ControlServer_MVP` 证据 + 脚本改动，**尚未推送**）。
+
 ## Not yet specified
 
 无。
@@ -75,3 +77,4 @@ Label: wayfinder:map
 - 未经单独授权自动执行真实车辆动作、Golden WPF tier 2/3、工厂 P0～P7 或真实物料试运行。
 - 把 Fake 通过、协议生成、Spec 完成、构建成功或 README 齐全单独表述为整个 MVP 软件完成。
 - 为赶工删除已接受的安全、持久化、幂等、断联或恢复约束，或用手工演示掩盖核心路径缺失。
+- 把三个 G3 runner 的重复公共函数抽成共享模块（票 21 第 5 项、票 24 第 5 项）。失败形态是启动即抛异常，响亮且立刻，不污染证据；而改动要同时动三个零测试覆盖、承载本地图全部证据的脚本。与到达 RC 无关，RC 之后另起。
