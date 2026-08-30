@@ -82,6 +82,17 @@ Label: wayfinder:map
 
 - [处置生产形态下车载端 HMI 不反映 WIRE_TO_GATE 且无恢复出口](issues/27-route-the-onboard-production-shape-hmi-defect.md) — **转交件起了作用，路由由现实作出**：只读 fetch 发现 owner 已在 `OnboardHmi_MVP@31263b1`（08-30 20:06，现场闭环之后）修掉可见性半边，本仓对该仓全程零写入。两半性质不同：可见性**已修但不在本 RC 内**（本资产建自 `304e6ad`，要它必须重建候选，故本轮未构建未验证）；恢复出口**根本不是车载端能单独修的**——owner 弹回的四点服务端约束在我们可写的 `9daeef4` 上逐条读代码核对**全部属实**（`AdvanceForcedRecoveryGenerationAsync` 只在 `FORCED_MECHANICAL_RECOVERY` 分支内、`WireToGateStore.cs:1352-1372` 对同 attempt 同代次的新 `ResultId` 抛冲突、重放原结果被 replay 忽略），故 `RESUME_AFTER_REPAIR` 没有可收敛的结果身份，车载端 fail-closed 是唯一正确行为而非占位。三选一接口方案涉及协议仓与双人批准，**AI 不代批**，判为本地图范围外。**收掉票 15 的唯一尾巴**：线上 Release 说明已知限制第 1 项从「去向尚未落定」改写为 1a／1b 两段（编号不重排），只动包外、868 条哈希与三个资产一字未改；四条回读取证（改前副本逐字忠实、改后 `VERBATIM MATCH`、三资产 `uploaded` 尺寸不变、tag 对象仍 `0c4d1103…`），比对器翻一字符即证红。给 owner 的答复件在仓外，不代选方案并明说不要等答复。未触产品代码故未跑 tier 1。
 
+- [在车载端只读仓创建对应的版本 tag](issues/28-create-the-onboard-repository-release-tag.md) — **由用户执行，agent 对该只读仓零写入**：annotated tag `w2g-mvp-rc-0.1.0`（与服务端同名）已建在 `8005-agv-onboard-hmi`，**显式绑 40 位完整 SHA `304e6ad`**——本票唯一真风险是打错目标，owner 当日 20:06 推的 `31263b1` 用 `HEAD` 或分支名就会被错标成本轮版本，`merge-base --is-ancestor` 证实该修复**不在** tag 内。不建 Release：缺的只是该仓自身的不可变引用，二进制已随服务端 release 分发过一次，再建空 Release 只会与刚在票 27 改过的包外说明两头漂移。四条判据全是回读取证——ref 是 tag 对象 `bee6224f…`、peel 出的 commit 与 `release-manifest.json` 的 `components.onboardHmi.commit` 逐字一致、annotation 正文本地与远程同 sha256 `0eb3bba8…`、该仓仍零 release 且两分支与服务端 tag／三资产／协议仓两 tag 全未动；**同一归一化下**把正文 `0.1.0` 翻成 `0.1.9` 即 DIFFERS，红侧成立。具名残留：tag 不携带二进制，托管构建每次新 MVID，复核车载端产物的权威来源仍是包内 868 条 SHA-256 而非从此 tag 重建。未触产品代码故未跑 tier 1。
+
+## 地图状态
+
+**已走完。** Destination 在票 15 成立（RC 已发布并由用户验收），票 27 收掉发布说明的最后一条尾巴，
+票 28 补齐第三个仓的不可变引用。三个版本绑定仓库现各有一个指向本轮 RC 的不可变引用：
+`8005-agv-control-server@w2g-mvp-rc-0.1.0`（→ `9daeef4`，唯一带资产的 release）、
+`8005-agv-onboard-hmi@w2g-mvp-rc-0.1.0`（→ `304e6ad`，无 release）、
+`8005-agv-protocol@protocol-v0.1.1`（→ `1531489e`）。无开放票据，无未定 fog。
+`RESUME_AFTER_REPAIR` 结果身份收敛与 runner 公共模块抽取见下方 Out of scope，均属 RC 之后另起一轮。
+
 ## Not yet specified
 
 无。
