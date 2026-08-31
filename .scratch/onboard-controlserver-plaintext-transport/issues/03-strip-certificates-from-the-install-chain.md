@@ -1,8 +1,8 @@
 # 从安装、卸载、更新与 G3 runner 中拆除证书机制
 
 Type: task
-Mode: AFK
-Status: claimed
+Mode: HITL（完成判据要求提权，Claude 会话默认不是管理员；开票时误记为 AFK）
+Status: resolved
 Blocked by: 01
 
 ## Question
@@ -50,19 +50,47 @@ Blocked by: 01
 与目录状态，全程无任何证书生成、导入或移除动作，且**不弹出任何信任确认对话框**，可在非交互环境
 完整跑完。生产服务全程不受影响。
 
-## Progress（2026-08-31，未 resolved）
+## Answer（2026-08-31）
 
-代码改动已全部落地并**已推送**：`8005-agv-control-server` `ControlServer_MVP@c7874f0`
-（票 02 的 `ae4a17d` 随同推出，基线 `e5ee065`）。取证目录
-`evidence/g2/20260831-plaintext-transport-ticket03/`（`SUMMARY.md` 是入口）。
+安装链里的整套证书机制已拆除，隔离实例上的全生命周期验收通过。代码在
+`8005-agv-control-server` `ControlServer_MVP@c7874f0`（票 02 的 `ae4a17d` 随同推出，基线 `e5ee065`）。
+取证目录 `evidence/g2/20260831-plaintext-transport-ticket03/`（`SUMMARY.md` 是入口）。
 
-**本票仍然 open 的唯一原因**：完成判据要求的隔离生命周期验收**没有跑**。
-`Install-ControlServerLocal.ps1` 与 `Uninstall-ControlServerLocal.ps1` 都以 `Assert-Administrator`
-开头，本轮会话不是管理员。验收脚本已写好并随证据入仓：
-`evidence/g2/20260831-plaintext-transport-ticket03/Invoke-IsolatedLifecycle.ps1`，隔离服务名
-`8005 AGV ControlServer Ticket03 Probe`、独立安装／数据／备份根、端口 58405／58407，并在安装前后
-快照 `CurrentUser\Root` 指纹集、机器级证书口令变量与生产服务监听端口。下一个 session 在提权
-PowerShell 7 里执行它，读回 `lifecycle-report.json` 即可收尾本票。
+### 完成判据回读（`lifecycle-report.json`）
+
+在提权 PowerShell 7 里跑 `Invoke-IsolatedLifecycle.ps1 -Root <scratch>`，隔离服务
+`8005 AGV ControlServer Ticket03 Probe`、独立安装／数据／备份根、端口 58405／58407，被测包在
+`c7874f0` 上重发（`sourceCommit: c7874f0c6616...`，与被测代码同一提交）：
+
+- **全流程通过**：`installResult.result = PASS`，`checks` 含 `http-live-after-start`、
+  `http-ready-after-start`、`stop-start`、`restart`、`http-version`、`log-file-written`；
+  `uninstallResult.result = PASS`，服务／安装根／数据根三项均 `Removed: true`、`Present: false`。
+  安装脚本自身第 296–307 行就带启动→停止→再启动→`Restart-Service -Force`，判据里那串生命周期不
+  需要外层脚本另写。
+- **明文形态**：`transport = plaintext`，`httpEndpoint = http://127.0.0.1:58407`，
+  `onboardTransportEndpoint = tcp://127.0.0.1:58405`；结果 JSON 已无 `certificate` 块。
+- **全程无证书生成／导入／移除**：`currentUserRootUnchangedAcrossInstall` 与
+  `...AcrossUninstall` 均 `true`（44 张指纹逐张比对）；`certsDirectoryPresentAfterInstall = false`；
+  `keyMaterialFilesUnderInstall = []`；服务环境变量只有三项，无证书口令；
+  `machineCertificatePasswordUntouched = true`。判据里的「不弹出任何信任确认对话框」是**回读这两个
+  布尔**取证的，不是「没看见弹窗」。
+- **非交互**：`-SkipMachineEnvironmentInjection` + `-ConfirmUninstall`，零提示；三次健康检查是
+  `curl` 直连 `http://`，无 `--cacert`／`--ssl-revoke-best-effort`。
+- **生产服务不受影响**：`productionBefore` 与 `productionAfterUninstall` 完全一致（`Running`，
+  `127.0.0.1:58005`／`:58007`／`::1:58007`）。
+
+两个如实记下的口径问题：`productionAfterInstall.listeners` 里混入了 58405／58407，是
+`Get-ProductionSnapshot` 按进程名 `ControlServer.Host` 取端口、隔离探针与生产进程同名造成的**测量
+伪影**，生产不受影响以卸载后快照为准；`firstStartReadiness` 为
+`not-ready / RECOVERY_HANDSHAKE_REQUIRED`，是全新实例未握手的预期状态，`Get-ReadyCheck` 只对
+`DATABASE_UNAVAILABLE` 抛错。
+
+验收脚本原本把上一轮 session 的 scratchpad 路径写死在 `$root`，本轮改成 `-Root` / `-PackagePath`
+参数并加了「包不存在直接报错」的前置检查，`$scripts` 改为从 `$PSScriptRoot` 推导仓库根。
+
+**流程教训（已进地图 Notes）**：安装／卸载脚本以 `Assert-Administrator` 开头，Claude 会话默认不是
+管理员。本票开票时记为 `Mode: AFK`，实际必须 HITL。票 09 与任何触及 Windows 服务的票要在开票时就
+标 HITL，而不是改完代码才发现跑不了。
 
 ### 已改完的承载点
 
@@ -112,7 +140,8 @@ PowerShell 7 里执行它，读回 `lifecycle-report.json` 即可收尾本票。
 
 数据根此前是被 `New-Item -Path $certificateDirectory -Force` 顺带创建的。删掉证书目录后，全新安装
 会在 `Set-RestrictedDirectoryAcl $dataRoot` 处失败。已补显式创建（`c7874f0`）。**该缺陷是静态核查
-出来的，不是被某次运行证伪的**——生命周期验收仍然欠着，这正是为什么它必须真跑一次。
+出来的，不是被某次运行证伪的**；此后的生命周期验收在全新数据根上跑通（数据根由本次安装创建，卸载时
+`dataRootRemoved: true`），补上了运行侧确认。
 
 ### 无法在隔离实例上排练的部分
 

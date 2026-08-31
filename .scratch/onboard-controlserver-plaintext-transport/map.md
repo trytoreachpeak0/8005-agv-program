@@ -59,6 +59,13 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 - 技术实现继续遵守上一轮的「成熟复用优先」与证据规则：判据必须是回读取证，红侧必须证明检测器
   会响；托管构建每次新 MVID，`.dll` 哈希不构成内容证据，要用新增／消失的符号名。
 - 凭据、密钥只登记安全引用，不进 Git、发布包、日志或测试证据。
+- **触及 Windows 服务的票一律 HITL**。`Install-/Uninstall-/Update-ControlServerLocal.ps1` 都以
+  `Assert-Administrator` 开头，Claude 会话默认不是管理员。票 03 开票时误记为 `Mode: AFK`，代码改完才
+  发现跑不了验收。票 09（干净安装验收）与后续任何装卸服务的票**开票时**就要标 HITL 并写明需要用户在
+  UAC 上确认，不要事后补。
+- **票 02 式的「显式拒绝已删配置键」改动，必须同时扫全仓的环境变量注入点**，而不只是
+  `appsettings*.json`。过时键校验比对的是键名，`Key__Sub=''` 这类空值注入同样算键存在。票 02 与票 03
+  之间，`run-staged-g3-restart.ps1` 与 `run-demand-bearing-g3-vectors.ps1` 因此静默失效过一段。
 
 ## Decisions so far
 
@@ -73,6 +80,14 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   — 服务端 TLS/HTTPS 代码路径已删净并提交 `ControlServer_MVP@ae4a17d`（2026-08-31 随票 03 一并推送）；`0.0.0.0` 明文启动、
   `/health/live` 200、投影经 HTTP 可达且无凭据仍 401，四个过时键任一存在即拒绝启动，均为回读取证；
   tier 1 249 绿 0 跳过。另删掉票 01 漏列的 `FakeOnboard --tls` 死分支；本仓自此再无测试触及 Schannel。
+- [`从安装、卸载、更新与 G3 runner 中拆除证书机制`](issues/03-strip-certificates-from-the-install-chain.md)
+  — 安装／卸载／更新脚本与三个 G3 runner 的证书机制已拆净（`c7874f0`）；隔离实例上安装→启动→停止→
+  再启动→强制重启→卸载全流程 `PASS`，`CurrentUser\Root` 44 张指纹跨安装与卸载零变动、无 certs 目录、
+  无任何密钥材料文件，健康检查直连 http，生产服务不受影响。安装脚本新增 `-ListenAddress`／
+  `-HealthBindAddress`（默认仍 `127.0.0.1`）；升级路径**额外**加了配置迁移（超出票的字面范围，但不做
+  升级必然失败并回滚，有红侧证据）；`New-WireToGateReleaseCandidate.ps1` 有意不改（其证书相关规则是
+  阻止密钥进包的发布门禁）。`Update-ControlServerLocal.ps1` 硬写生产值、无法在隔离实例排练，证书目录
+  删除／机器级口令清除／备份回滚三段的真实执行仍无证据，是否参数化留给票 09。
 
 ## Not yet specified
 
