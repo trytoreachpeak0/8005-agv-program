@@ -28,3 +28,31 @@ Blocked by: 05
 
 上一轮的教训直接适用：托管构建每次新 MVID，`.dll` 哈希不构成内容证据；要证明改动进了二进制得用
 新增／消失的**符号名**。本票只核验源码与 commit 关系，二进制层面的核验归票 08。
+
+## 票 05 交来的输入（2026-08-31）
+
+待核验的 commit 是 **`OnboardHmi_MVP@238b46e`**（`238b46eb2c9ae90584e4288a782176f66b7de942`，
+`refactor: switch onboard transports to plaintext`，Kun Wang，2026-08-31 22:11 +0800），是 `31263b1`
+的**快进**一个提交。票 05 只看了元信息与 `--stat`，未读一行改动后的代码，因此下列全部仍未证。
+
+`git diff --stat 31263b1..238b46e` 共 17 个文件、+172/−140。按转交件对照：
+
+- **点名且已动**：`Configuration.cs`（+66/−…）、`WireToGateSessionClient.cs`（−68）、
+  `ControlServerVehicleSafetySignalProvider.cs`、`appsettings.json`、
+  `appsettings.Production.example.json`、`ConfigurationTests.cs`、
+  `ControlServerVehicleSafetySignalProviderTests.cs`、`WireToGateG2Tests.cs`（4 行）、
+  `scripts/run-staged-g3-recovery-ack-drop.ps1`（恰 −1 行）、以及 §7 的三个文档。
+- **点名为「不要动」且确未动**：`evidence/g3/20260826-recovery-ack-drop-cc6e2b9-0455147/runner.ps1`
+  不在 diff 里。
+- **未点名却被他改了，本票须逐个判读**：`docs/LOCAL_VALIDATION_RUNBOOK.md`、
+  `docs/WANG_KUN_FIRST_INTEGRATION_WORK_PACKAGE.md`、`scripts/run-local-validation.ps1`、
+  `scripts/run-w2g-g2.ps1`、`src/SQCD.Agv.Wpf/WireToGateBusinessService.cs`。判据同上：读代码，
+  不接受「大概是顺手改的」。`WireToGateBusinessService.cs` 尤其要看——它在 WPF 侧，是唯一被改到的
+  非 Infrastructure 产品文件。
+
+`merge-base --is-ancestor 31263b1 238b46e` 预期为真（快进）；按本票判据设计要求，仍须在一个已知
+不含 `31263b1` 的 commit 上验证该判据会返回否定，否则这条判据没有红侧。
+
+王昆**没有文字答复**，只推了提交。因此「他是否跑过车载端测试」目前是**未知**；若从远程判不出来，
+据实记为未知，不得推定通过，也不要替他跑——该仓对 agent 只读，跑测试需要 checkout 到可写副本，
+若要跑必须在仓外一次性克隆里跑并保证对该仓工作树零影响。
