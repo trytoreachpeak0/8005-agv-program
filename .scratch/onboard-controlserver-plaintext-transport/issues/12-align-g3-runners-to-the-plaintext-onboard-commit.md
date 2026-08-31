@@ -175,3 +175,9 @@ run 的 `controlserver.db` 作为 `-FieldRunRoot`。
 匹配串，是一次纯改名但打击面等于本票的杠杆面，不该混在本票里。
 （本票只顺手改掉了 restart runner 头部一条**已经失真**的注释：它声称自己是唯一不需要交互确认的
 runner，票 03 拆完证书后 `run-staged-g3.ps1` 同样不装信任根。）
+
+### 第 3 节的决定（用户 2026-08-31）
+
+用户选 **A：推到票 08 之后**。实跑连同 `ControlServerCommit` 的更新已落为
+[`在明文绑定上实跑 staged G3`](13-run-staged-g3-on-the-plaintext-binding.md)（`Blocked by: 08`）。
+本票不再持有该待决项。
