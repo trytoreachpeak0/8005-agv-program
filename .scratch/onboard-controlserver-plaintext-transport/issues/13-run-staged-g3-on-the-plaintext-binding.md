@@ -26,6 +26,12 @@ Blocked by: 08
 同时更新，否则 `New-ExactClone -RemoteRef 'origin/OnboardHmi_MVP'` 会以 remote ref mismatch 硬失败——
 那是设计意图，不是回归）。
 
+票 08 已给出目标值（2026-09-01）：`$ControlServerCommit` 改为
+`56d4b1cc2f26325ca853acc4e7278bbde8651874`；`$OnboardCommit` **不动**，王昆在票 08 期间未推新提交，
+远端 `origin/OnboardHmi_MVP` 头仍是 `238b46eb2c9ae90584e4288a782176f66b7de942`（开跑前仍应自己再核
+一次远端头，不要照抄本行）。注意票 08 之后本仓又多了证据提交 `eaaa5b1`，那**不是**候选身份，不要
+把绑定设到它。
+
 注意杠杆（票 12 已取证）：`run-staged-g3.ps1` 的 param block 是三个 runner 的**唯一**绑定源，
 `run-staged-g3-restart.ps1` 的 `Get-SharedCommitBinding` 与 `run-demand-bearing-g3-vectors.ps1`
 都是解析它，不各自持有副本。改一处三个都变，改错也一次打穿三个。
