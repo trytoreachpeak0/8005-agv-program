@@ -2,7 +2,7 @@
 
 Type: task
 Mode: HITL
-Status: claimed
+Status: resolved
 Blocked by: 01
 
 ## Question
@@ -86,3 +86,57 @@ Blocked by: 01
 
 转交动作（把该文件发给王昆）由用户执行，agent 不代发。王昆回应后在此追加 `## Answer`，据实记录
 他的实际答复（接受／反对／替代方案），再决定本票能否 resolve 以及本地图完成定义是否需要重新协商。
+
+## Answer
+
+**转交件已由用户发给王昆；他接受了本改动，并以提交代替文字答复。**
+
+### 他的回应形态
+
+| 项 | 值 |
+| --- | --- |
+| 提交 | `238b46eb2c9ae90584e4288a782176f66b7de942`（短 `238b46e`） |
+| 分支 | `origin/OnboardHmi_MVP`（`31263b1..238b46e`，快进一个提交） |
+| 作者 | Kun Wang <867963893@qq.com> |
+| 时间 | 2026-08-31 22:11:03 +0800（转交件产出于当日 21:43） |
+| 提交信息 | `refactor: switch onboard transports to plaintext` |
+
+**没有文字答复**，也没有提出反对或替代方案（例如「链路 B 保留 TLS」）。因此本地图的 Destination
+与完成定义**不需要与用户重新协商**，票 06 起可按原路线继续。
+
+### 判定「接受」的依据（只读取证）
+
+对 `8005-agv-onboard-hmi` 的写入仍为**零**：本轮只做 `git fetch --all --prune` 与
+`git log/diff --stat`，未 checkout、未建分支、未提交、未推送。本地克隆的工作分支仍停在
+`bbfbc52`（`behind 3`），未动。
+
+`git diff --stat 31263b1..238b46e` 覆盖了转交件点名的全部文件，方向一致：
+
+- 三个校验源文件都动了：`WireToGateSessionClient.cs`（−68 行，与转交件 §3 列出的 `SslStream`
+  分支／`ValidateServerCertificate`／`IsLoopback` 连带删除规模吻合）、`Configuration.cs`
+  （+66/−…，含 §4 的 scheme 校验与 `Validate(production: true)` 指纹强制两处）、
+  `ControlServerVehicleSafetySignalProvider.cs`；
+- 两个配置文件都动了：`appsettings.json`、`appsettings.Production.example.json`；
+- 三个测试文件都动了：`ConfigurationTests.cs`、`ControlServerVehicleSafetySignalProviderTests.cs`、
+  `WireToGateG2Tests.cs`；
+- **转交件 §5.4 新发现的那处也改了**：`scripts/run-staged-g3-recovery-ack-drop.ps1` 恰好 −1 行，
+  与「删掉 `$settings.wireToGate.useTls = $false` 这一行」相符；
+- §5.5 划为「不要动」的证据快照 `evidence/g3/.../runner.ps1` **不在 diff 里**，保持原样；
+- 他另外还动了 `docs/LOCAL_VALIDATION_RUNBOOK.md`、`docs/WANG_KUN_FIRST_INTEGRATION_WORK_PACKAGE.md`、
+  `scripts/run-local-validation.ps1`、`scripts/run-w2g-g2.ps1`、`src/SQCD.Agv.Wpf/WireToGateBusinessService.cs`
+  五个转交件未点名的文件——**范围略大于转交件**，具体内容待票 06 判读。
+
+### 本票不下的结论（全部归票 06）
+
+上面只看提交元信息与 `--stat`，**没有读一行改动后的代码**。因此以下一概未证，不得当作已通过：
+
+- 四处硬校验的**实际终态**是否与票 01 冻结的形态一致，尤其第四处
+  `WireToGateSettings.Validate(production: true)` 的指纹强制是否真的放开；
+- 两处 `IsForbiddenProductionHost` 是否仍在（票 01 列为「不要动」）；
+- 配置面终态与服务端票 02 实现是否**互相能用**（一端删键、另一端仍要求该键的错配）；
+- 转交件 §4.3 留给他定的「车载端是否对称加过时键拒绝」，他选了哪一边；
+- 他多改的那五个文件是否引入了本轮不想要的东西；
+- 他是否跑过车载端测试、结果如何（`--stat` 判不出，票 06 若无法从远程判断，须据实记为未知）。
+
+`31263b1..238b46e` 是快进关系，故票 06 的 `merge-base --is-ancestor 31263b1 238b46e` 判据预期为真；
+但票 06 仍须按其判据设计要求，在一个已知不含 `31263b1` 的 commit 上验证该判据会返回否定。
