@@ -154,6 +154,17 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   `IsForbiddenProductionHost` 唯一生效的模式，从原理上排除了 loopback 蒙混。金机零写入、
   `CurrentUser\Root` 全程 44 张、生产服务未受影响、车载端仓写入仍为零。
 
+- [`重写发布手册中被证书机制贯穿的章节`](issues/04-rewrite-the-release-manual-certificate-sections.md)
+  — 手册与 `README.md` 已改净并推送（`ControlServer_MVP@56d4b1c`）：不再有任何要求生成／分发／导入／
+  续期证书的步骤，剩余命中只有三个仓库的克隆 URL、§4.5 的历史遗留**清理**步骤与 §10 秘密扫描的密钥
+  材料**拦截**规则。新增四块：§4.4 异机明文部署（两个地址参数、防火墙 58005／58007「放行范围即暴露
+  范围」、判可达只用 body 往返）、§4.5 从证书版本升级（升级器自动做的三件事 ＋ `CurrentUser\Root`
+  旧自签根必须人工删，含两条指纹来源与回读确认，明确 `certificateDirectoryRemoved: true` 不代表根证书
+  没了）、§8.1 双向错配对照表与三步排除顺序、§11.1 三条明文已知限制（不淡化措辞）。清单外新发现三处
+  残留（§9「保留数据根（数据库、证书、日志）」、§9 结果 JSON 的根证书计数、§8 车载端 dev 默认那句），
+  按「重新全量搜、不照抄行号」的要求扫出来一并改掉。全部写法对着改后的脚本与两端配置逐条回读取证，
+  车载端仓只用 `git show 238b46e:<path>` 读，写入仍为零。
+
 ## Not yet specified
 
   （服务端 G2 侧无遗留：票 02 已证 `test-wire-to-gate.ps1` 只是按 `IntegrationSlice` trait 过滤同一套
