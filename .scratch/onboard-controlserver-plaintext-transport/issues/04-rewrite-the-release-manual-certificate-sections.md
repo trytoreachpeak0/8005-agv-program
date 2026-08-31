@@ -26,6 +26,13 @@ Blocked by: 02, 03, 07
 - 第 223 行附近 — 随包默认配置中 `useTls=false` 的说明（语义已变，不再是「开发默认」而是唯一形态）；
 - 第 295～296 行 — 已知限制中的「TLS 身份」条目：现场部署必须换成受控签发的证书并同步指纹；
 - 第 333～334 行 — G3 runner 的 `-InstallTemporaryCurrentUserRoot` 授权说明。
+- **票 03 补入，原清单遗漏**：第 **245** 行的 `-TrustedRootThumbprint <安装结果里的指纹>`（该参数已从
+  `Uninstall-ControlServerLocal.ps1` 删除），以及 `README.md` 第 **92** 行的 `-InstallCurrentUserRoot`
+  （票 02 已把 `README.md` 整体留给本票）。
+
+  **实施时不要照抄本清单的行号**：以上行号以 `e5ee065` 为准，票 02／03 之后须按实际重新定位；且
+  已经出现过一次「照清单走会漏」的情况，请对 `docs/` 与 `README.md` 重新全量搜
+  `certificate|cert|thumbprint|CurrentUserRoot|pfx|pem|https|TLS|ssl` 后逐条判定。
 
 同时必须**新增**而非仅删除的内容：
 

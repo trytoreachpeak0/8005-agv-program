@@ -29,4 +29,20 @@ Blocked by: 08
 - 用户以管理员身份跑服务安装那一段（沿用票 14 做法），生产服务全程不受影响，使用隔离实例与
   独立端口。
 
-Mode 为 HITL：服务安装需要管理员权限，由用户执行。
+Mode 为 HITL：服务安装需要管理员权限，由用户执行。可沿用票 03 的做法——agent 用
+`Start-Process -Verb RunAs` 发起，用户在 UAC 上点确认，agent 再读回报告，无须把整轮交给用户手工跑。
+
+## 票 03 留给本票的两条
+
+1. **是否给 `Update-ControlServerLocal.ps1` 补参数化，由本票决定。** 该脚本把服务名
+   （`8005 AGV ControlServer`）与安装／数据／备份根硬写成生产值，没有对应参数，因此**升级流程无法在
+   隔离实例上排练**：唯一执行对象就是生产服务。票 03 只以红绿对照覆盖了配置迁移逻辑，证书目录删除、
+   机器级 `CONTROL_SERVER_ONBOARD_CERTIFICATE_PASSWORD` 清除、备份／回滚这三段的**真实执行至今零
+   证据**。本票要么补参数化后把升级路径也纳入验收，要么明确记录这三段仍未取证并说明为何可接受。
+2. **本票「安装不生成／不导入／不移除证书」那条新增断言，票 03 已在隔离实例上取过一次**，见
+   `evidence/g2/20260831-plaintext-transport-ticket03/lifecycle-report.json` 与
+   `Invoke-IsolatedLifecycle.ps1`（已参数化为 `-Root` / `-PackagePath`）。本票是在**票 08 的正式候选包**
+   上重跑，取证形态可直接复用那份脚本的四个回读点：`currentUserRootUnchangedAcrossInstall` /
+   `...AcrossUninstall`、`certsDirectoryPresentAfterInstall`、`keyMaterialFilesUnderInstall`、
+   `machineCertificatePasswordUntouched`。注意其 `Get-ProductionSnapshot` 按进程名取端口，隔离探针与
+   生产进程同名会混入探针端口，本票若沿用须按 PID 过滤修掉这个口径伪影。
