@@ -110,13 +110,24 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   逐项对表未发现「一端删字段、另一端仍要求」。**他是否跑过车载端测试仍为未知**（无 CI、无证据、无文字答复），
   据实记录不推定。核验中发现的唯一问题在**服务端仓**：`run-staged-g3-restart.ps1:508` 会在明文车载端上
   硬失败，归票 12。对该仓写入仍为零。
+- [`把 G3 runner 对齐到明文车载端 238b46e`](issues/12-align-g3-runners-to-the-plaintext-onboard-commit.md)
+  — 两处具名改动已提交推送（`ControlServer_MVP@65841df`）：restart runner 第 508 行改成条件式（红侧重现
+  `SetValueInvocationException`、绿侧写回不含该键、对照证明分支进得去），共享 `OnboardCommit` 移到
+  `238b46e` 且三个 runner 各按自身解析链读到同一值、其余三个 commit 逐字未变。`serverCertificateSha256`
+  经回读两侧 dev `appsettings.json` **核实为不需要处理**（两侧都无此键），不加死代码。**新发现的实跑
+  前置**：`ControlServerCommit` 仍锁 TLS 期的 `3d8b00c7`，实跑前必须一并移到含明文改造的服务端提交；
+  本票不改它，因目标值要等票 08 定发布候选身份。实跑建议为**推到票 08 之后**（同机 loopback 证不了异机
+  明文，现在跑要先做一次注定作废的绑定更新），单次成本 20–40 分钟，**待用户拍板**。另记：
+  `StagedG3TlsHarness` 等 TLS 期命名残留不影响行为，改名打击面等于本票杠杆面，另起。对车载端仓写入仍为零。
 
 ## Not yet specified
 
-- G3 runner 的**静态对齐已在票 06 具名并开票 12**（restart runner 第 508 行的无条件赋值、
-  `run-staged-g3.ps1:12` 的默认 `OnboardCommit` 仍锁 `304e6ad`）。剩在雾里的只有一件：**三个 runner
+- G3 runner 的**静态对齐已由票 12 做完并推送**（`65841df`）。剩在雾里的仍是同一件：**三个 runner
   的实际可运行性至今零证据**——票 02 只证服务端单侧，票 03 只证安装链，没有任何一次改后的 staged G3
-  真跑过。是在票 12 就跑、还是并进票 07 的联调、还是推到票 08 之后，等票 12 给出成本后再定。
+  真跑过。票 12 已给出成本（单次 20–40 分钟）与建议（**推到票 08 之后**，选项 A／B／C 见其 Answer 第 3 节），
+  **等用户拍板**。票 12 另暴露一条实跑前置：`run-staged-g3.ps1` 的 `ControlServerCommit` 仍锁 TLS 期的
+  `3d8b00c7`，任何一次实跑前必须一并移到含明文改造的服务端提交，而该目标值要等票 08 定下发布候选身份，
+  所以实跑时机与那个值是同一个决定。
   （服务端 G2 侧无遗留：票 02 已证 `test-wire-to-gate.ps1` 只是按 `IntegrationSlice` trait 过滤同一套
   xunit 测试，零 TLS 字样，`W2G-IS-00` 过滤后 24 条全绿。车载端 `WireToGateG2Tests` 的 4 行改动已由
   票 06 读过，是纯适配。）
@@ -141,3 +152,7 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 - 协议仓的任何变更，含 `protocol-v0.1.1` 之后的新 tag／release。
 - 继承自上一轮且仍然开放：`RESUME_AFTER_REPAIR` 的结果身份收敛；三个 G3 runner 的公共模块抽取。
   均属另起一轮。
+- G3 runner 里的 TLS 期**命名与叙述**残留（合成对端类名 `StagedG3TlsHarness`、讲历史的注释）。票 12
+  具名但未改：不影响行为，Destination 要的是证书**机制**移除而非改名；改名会同时打穿三个 runner 与
+  vectors runner 的 here-string 匹配串，与公共模块抽取同属另起一轮。证据字段 `tls = $false` 等是有意
+  记录本轮无 TLS 的，应保留。
