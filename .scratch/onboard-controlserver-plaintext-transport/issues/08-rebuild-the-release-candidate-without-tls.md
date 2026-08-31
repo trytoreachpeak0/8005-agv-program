@@ -27,6 +27,9 @@ Blocked by: 04, 07
 - 全量文件 SHA-256 校验必须证明会红（副本改一字节应从 OK 变 MISMATCH）；
 - 发布脚本的扫描闸门（票 24 建立的 `Assert-ReleaseScanGate`）必须通过，允许清单仍只有三个具名的
   自建 RIoT SDK 包；**拆证书不得顺手放宽这道闸门**；
-- 两端 Release 构建 0 warning。
+- 两端 Release 构建 0 warning；
+- **W2G-IS-00 覆盖差异须显式说明**（票 01 第 9 节）：删除 `OnboardTlsCertificateLoaderTests.cs` 后本仓
+  再无任何测试触及 Schannel，该切片的 G2 证据与上一轮不可逐条对比。证据里要写明这是形态变更的必然
+  结果，不能让它看起来像覆盖率无声下降。
 
 本票不安装、不启动、不跑旅程——那属票 09／10。旧候选不删。

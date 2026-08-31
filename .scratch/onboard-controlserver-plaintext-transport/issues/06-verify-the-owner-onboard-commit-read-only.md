@@ -13,7 +13,10 @@ Blocked by: 05
 
 核验内容：
 
-- 三处校验在新 commit 上的实际形态，与票 01 冻结的形态逐条比对（不是「他说改了」，而是读到代码）；
+- **四处**校验在新 commit 上的实际形态，与票 01 冻结的形态逐条比对（不是「他说改了」，而是读到代码）。
+  第四处 `WireToGateSettings.Validate(production: true)` 的指纹强制最容易被漏改，必须单独确认；
+- 票 01 列入「不要动」的两处 `IsForbiddenProductionHost` 是否仍在——若被顺手删掉，生产配置忘改样例值
+  的保护就没了，须回报给 owner 而不是默认接受；
 - 配置模板中 `wireToGate.useTls`、`serverCertificateSha256`、`vehicleSafety.endpoint` 的终态与服务端
   票 02 的实现**互相能用**——特别要排除一端删了字段而另一端仍要求该字段的情况；
 - 该 commit 与 `31263b1` 的关系（`merge-base --is-ancestor` 确认它包含票 27 那半可见性修复，

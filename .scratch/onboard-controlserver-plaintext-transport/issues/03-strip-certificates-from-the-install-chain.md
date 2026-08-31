@@ -23,7 +23,20 @@ Blocked by: 01
 - `scripts/New-WireToGateReleaseCandidate.ps1` — 打包时与证书相关的处理和校验。
 
 拆除后健康检查改为直接经 HTTP 请求，不再需要钉扎任何根证书，也不再需要 `--ssl-revoke-best-effort`
-之类的绕行参数。数据根下的 `certs\` 目录是否保留由票 01 的配置面决定。
+之类的绕行参数。
+
+票 01 冻结的三项直接落在本票（详见其 Answer 第 3、5 节）：
+
+- `Install-ControlServerLocal.ps1` 新增 `-ListenAddress` / `-HealthBindAddress` 参数，**默认仍为
+  `127.0.0.1`**。当前脚本把 `listenAddress` 硬写为 `127.0.0.1`（第 288 行）、healthOrigin 硬写为
+  `https://localhost:$HealthPort`（第 39 行），两处都要参数化；异机部署显式传入；
+- 脚本写出的 `appsettings.Production.json` 按票 01 第 2 节的字段终态生成（删三个 `OnboardTransport`
+  证书字段与 `requireHttps`，`Health:url` 值改 http）；
+- **升级路径主动清理遗留物**：`Update-ControlServerLocal.ps1` 删除
+  `%ProgramData%\8005\ControlServer\certs\` 与 machine 级环境变量
+  `CONTROL_SERVER_ONBOARD_CERTIFICATE_PASSWORD`。`CurrentUser\Root` 里的自签根证书**不由脚本删除**
+  （在执行安装的那个用户账户作用域下，服务账户未必够得着），改为票 04 的手册人工步骤——否则会出现
+  「脚本报告清理成功、根证书其实还在」的假绿。
 
 风险与约束：
 
