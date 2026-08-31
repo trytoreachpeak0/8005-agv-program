@@ -70,7 +70,7 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   过时配置键在启动期显式拒绝；新旧两端不做协商，改为票 07 取证的双向错配对照表。校验点实为 9 处而非 5 处，
   协议仓零传输层规定已复核。
 - [`按冻结形态改掉服务端产品代码的 TLS/HTTPS`](issues/02-strip-tls-from-controlserver-product-code.md)
-  — 服务端 TLS/HTTPS 代码路径已删净并本地提交 `ControlServer_MVP@ae4a17d`（未推送）；`0.0.0.0` 明文启动、
+  — 服务端 TLS/HTTPS 代码路径已删净并提交 `ControlServer_MVP@ae4a17d`（2026-08-31 随票 03 一并推送）；`0.0.0.0` 明文启动、
   `/health/live` 200、投影经 HTTP 可达且无凭据仍 401，四个过时键任一存在即拒绝启动，均为回读取证；
   tier 1 249 绿 0 跳过。另删掉票 01 漏列的 `FakeOnboard --tls` 死分支；本仓自此再无测试触及 Schannel。
 
@@ -80,8 +80,10 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   的完成定义需要重新协商，而不只是延后。票 05 拿到回应前无法具名。
 - 明文化之后 G3 runner 的调整范围。**服务端 G2 侧已在票 02 清空**：`test-wire-to-gate.ps1` 就是按
   `IntegrationSlice` trait 过滤同一套 xunit 测试，不存在独立的 G2 向量或 fixture，脚本本身零 TLS 字样，
-  `W2G-IS-00` 过滤后仍选出 24 条且全绿——服务端 G2 无需任何调整。仍未定的是三个 G3 runner（属票 03）
-  与车载端 `WireToGateG2Tests`（归王昆，随票 05 转交件交出，范围等他的回应）。
+  `W2G-IS-00` 过滤后仍选出 24 条且全绿——服务端 G2 无需任何调整。**三个 G3 runner 已在票 03 改完并
+  推送**（`c7874f0`），但它们的实际可运行性仍未证：`run-staged-g3.ps1` 默认锁定的 `OnboardCommit`
+  仍是 TLS 期车载端提交，要等票 06 拿到王昆的新提交后才能重跑。仍未定的是车载端
+  `WireToGateG2Tests`（归王昆，随票 05 转交件交出，范围等他的回应）。
 - 发布版本号与既有 release 的关系（`0.1.2` 还是别的，`0.1.1` 是否保留、是否需要在其说明中回指）。
   等票 08 附近再定。
 - 异机明文联调可能暴露的新问题（例如 `RemoteCertificateNameMismatch` 之外原本被 TLS 层吸收掉的
