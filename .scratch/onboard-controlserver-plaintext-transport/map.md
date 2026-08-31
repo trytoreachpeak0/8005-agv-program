@@ -30,17 +30,23 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 - **agent 已提出并被用户重申否决的替代方案**：把链路 B 从系统信任存储改为指纹钉扎（与链路 A 现有
   做法一致，可做到零证书导入、零信任存储操作，代价只是多填一个 `sha256` 字段）。用户选择直接用
   HTTP。该替代方案不再作为本轮选项，记录于此仅为保留决策依据。
-- **四处硬校验，两端对称，全部是产品代码而非配置开关**：
-  | 链路 | 服务端（可写） | 车载端（只读） |
-  | --- | --- | --- |
-  | A | `OnboardTcpServer.cs:141` 明文仅 loopback | `WireToGateSessionClient.cs:1850` 明文仅 loopback |
-  | B | `OnboardSafetyProjectionOptions.cs:23` `RequireHttps must remain true`（设 false 直接拒绝启动） | `Configuration.cs:152` 与 `ControlServerVehicleSafetySignalProvider.cs:95` 必须 https |
+- **硬校验共九处（服务端 5 ＋ 车载端 4），全部是产品代码而非配置开关**。开票时记的「2 ＋ 3」不全，
+  票 01 已现场核实并列全清单；两端两条链路**共用同一张 PFX**（Kestrel 证书取自
+  `OnboardTransport:serverCertificatePath`）。完整表见
+  [`冻结两端安全校验的放开形态与配置面终态`](issues/01-freeze-the-plaintext-configuration-surface.md)
+  的 Answer 第 0 节。两处最容易踩空的：
+  - 车载端 `WireToGateSettings.Validate(production: true)` 强制 `ServerCertificateSha256` 非空且非全零，
+    **该检查不看 `UseTls`**，漏改则 production 启动直接抛异常，其余改动全部白改；
+  - 车载端 `ControlServerVehicleSafetySignalProvider.cs:95` 漏改不崩溃，而是 fail-closed 到
+    `UnknownSignal("HTTPS_REQUIRED")`——现场症状是安全信号恒 UNKNOWN、永不放行。
 - **`8005-agv-onboard-hmi` 对 agent 只读**（根 `AGENTS.md`），且用户 2026-08-25 已把车载端产品代码
   划归王昆。车载端三处改动由**王昆**执行，agent 只出精确转交件并只读回读核验，全程对该仓零写入。
   本地图必然在此阻塞一次，这是已知且被接受的路线成本。
-- **不动协议仓**。已查实：`8005-agv-protocol` 不规定传输层安全，`manifest/release.json` 中 `transport`
-  仅出现于 `transportDedupKey`（消息去重键），docs 无 TLS 规定。因此本轮不触发协议变更的双人批准
-  门禁，`protocol-v0.1.1` 保持不动。
+- **不动协议仓**。票 01 在 `1531489`（`protocol-v0.1.1` 线）上复核：tracked 文件搜
+  `tls|ssl|certificate|encrypt|证书|加密` 命中数为 0（表面命中全是 JSON Schema 的 `$id` URL 与第三方
+  许可链接），`transport` 仅出现于 `transportDedupKey`／`transportDemandKey`，`58005` 零出现。协议对
+  `credentialProof` 只规定「是 `minLength: 1` 的字符串且必填」，不规定取值与保护方式。因此本轮不触发
+  协议变更的双人批准门禁，`protocol-v0.1.1` 保持不动。
 - **凭据明文过网是本轮知情接受的代价**。`credentialProof` 是协议字段
   （`SessionHello.schema.json:73`，且在 required 内），车载端把静态共享密钥原样放进 payload。明文
   之后抓一次包即可永久冒充车载端。用户明确选择接受（工厂内网风险自担），并否决了改挑战应答／HMAC
@@ -58,12 +64,24 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 
 <!-- 已解决票据才在此保留一行摘要；详细答案只存在票据中。 -->
 
+- [`冻结两端安全校验的放开形态与配置面终态`](issues/01-freeze-the-plaintext-configuration-surface.md)
+  — 彻底删除 TLS/HTTPS 代码路径与全部证书配置字段（不留开关）；Kestrel 单一绑定并把安装脚本的监听地址
+  参数化、默认仍 loopback；不加误配补偿；升级时脚本清 certs 与证书口令环境变量、根证书走手册人工步骤；
+  过时配置键在启动期显式拒绝；新旧两端不做协商，改为票 07 取证的双向错配对照表。校验点实为 9 处而非 5 处，
+  协议仓零传输层规定已复核。
+- [`按冻结形态改掉服务端产品代码的 TLS/HTTPS`](issues/02-strip-tls-from-controlserver-product-code.md)
+  — 服务端 TLS/HTTPS 代码路径已删净并本地提交 `ControlServer_MVP@ae4a17d`（未推送）；`0.0.0.0` 明文启动、
+  `/health/live` 200、投影经 HTTP 可达且无凭据仍 401，四个过时键任一存在即拒绝启动，均为回读取证；
+  tier 1 249 绿 0 跳过。另删掉票 01 漏列的 `FakeOnboard --tls` 死分支；本仓自此再无测试触及 Schannel。
+
 ## Not yet specified
 
 - 王昆对本改动的回应形态。他可能接受、反对、或提出替代（例如坚持链路 B 保留 TLS）。反对会让本地图
   的完成定义需要重新协商，而不只是延后。票 05 拿到回应前无法具名。
-- 明文化之后 G2／G3 测试向量与 fixture 的调整范围。现有 `WireToGateG2Tests` 与服务端边界测试有多少
-  绑在 TLS 形态上，要等票 02 让测试先红一次才能看清。
+- 明文化之后 G3 runner 的调整范围。**服务端 G2 侧已在票 02 清空**：`test-wire-to-gate.ps1` 就是按
+  `IntegrationSlice` trait 过滤同一套 xunit 测试，不存在独立的 G2 向量或 fixture，脚本本身零 TLS 字样，
+  `W2G-IS-00` 过滤后仍选出 24 条且全绿——服务端 G2 无需任何调整。仍未定的是三个 G3 runner（属票 03）
+  与车载端 `WireToGateG2Tests`（归王昆，随票 05 转交件交出，范围等他的回应）。
 - 发布版本号与既有 release 的关系（`0.1.2` 还是别的，`0.1.1` 是否保留、是否需要在其说明中回指）。
   等票 08 附近再定。
 - 异机明文联调可能暴露的新问题（例如 `RemoteCertificateNameMismatch` 之外原本被 TLS 层吸收掉的
@@ -71,8 +89,10 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 
 ## Out of scope
 
-- 把 `credentialProof` 改成挑战应答／HMAC 或任何不使静态密钥过网的认证形态。需要动审批门禁的协议仓
-  与双人批准，规模与本轮「简化部署」的动机相反。用户 2026-08-31 明确否决，作为已知限制接受。
+- 把 `credentialProof` 改成挑战应答／HMAC 或任何不使静态密钥过网的认证形态。用户 2026-08-31 明确否决，
+  作为已知限制接受。**理由更正（票 01）**：这条路并不需要动协议仓——`credentialProof` 是不透明字符串，
+  换成 HMAC 结果同样满足 schema，因此不触发双人批准门禁。真正的成本是两端实现改造与一次协调升级，与
+  本轮「简化部署」的动机相反。
 - 服务端来源 IP 白名单或任何压制明文暴露面的补偿措施。用户判为安慰剂：挡不住能抓包的人，不构成
   真实防护。
 - 把链路 B 改为指纹钉扎而保留 TLS 加密。agent 推荐过，用户重申选择直接用 HTTP。
