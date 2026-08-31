@@ -84,14 +84,17 @@ Label: wayfinder:map
 
 - [在车载端只读仓创建对应的版本 tag](issues/28-create-the-onboard-repository-release-tag.md) — **由用户执行，agent 对该只读仓零写入**：annotated tag `w2g-mvp-rc-0.1.0`（与服务端同名）已建在 `8005-agv-onboard-hmi`，**显式绑 40 位完整 SHA `304e6ad`**——本票唯一真风险是打错目标，owner 当日 20:06 推的 `31263b1` 用 `HEAD` 或分支名就会被错标成本轮版本，`merge-base --is-ancestor` 证实该修复**不在** tag 内。不建 Release：缺的只是该仓自身的不可变引用，二进制已随服务端 release 分发过一次，再建空 Release 只会与刚在票 27 改过的包外说明两头漂移。四条判据全是回读取证——ref 是 tag 对象 `bee6224f…`、peel 出的 commit 与 `release-manifest.json` 的 `components.onboardHmi.commit` 逐字一致、annotation 正文本地与远程同 sha256 `0eb3bba8…`、该仓仍零 release 且两分支与服务端 tag／三资产／协议仓两 tag 全未动；**同一归一化下**把正文 `0.1.0` 翻成 `0.1.9` 即 DIFFERS，红侧成立。具名残留：tag 不携带二进制，托管构建每次新 MVID，复核车载端产物的权威来源仍是包内 868 条 SHA-256 而非从此 tag 重建。未触产品代码故未跑 tier 1。
 
+- [把发布候选更新到车载端 owner 的新代码](issues/29-rebuild-the-release-candidate-on-the-updated-onboard-code.md) — **已发布 `w2g-mvp-rc-0.1.1`**（绑 `e5ee065`，资产建自 `9daeef4` + `31263b1` + `protocol-v0.1.1`），收进票 27 记为「已修但不在资产内」的那半修复。**服务端产品代码是同一 commit，唯一变化是车载端**，协议四字段与 0.1.0 逐字相同。三条判据层层递进：元数据级——`31263b1` 新增的四个符号在出厂字节里 PRESENT、在 0.1.0 产物里 ABSENT，两个既有符号作检测器对照两侧皆 PRESENT，故 ABSENT 是真阴性；界面级——隔离实例上同一 `RecoveryRequired` 状态下跑两份车载端（配置只差各自 commit 与 journal 路径），横幅从「连接中」变为真实的 `DEPARTURE_SAFETY_NOT_READY`、「任务系统」从离线变在线；**行为级**——用户给现场安全 GO 后以 `dispatchGeneration=8`、操作员 `S0020310` 在本候选上重跑真车闭环，`Stage=Completed`、`SessionGeneration` 全程 1、两条真单各建一次十条审计齐全、`Load`／`Unload` 均 `Committed`，四张截图证明操作记录逐节点跟随业务（含「收到重复仓位命令，已保持原结果重放，未再次执行仓门IO」这条可靠重放投影）——**这一条是原本证不到的那一半，用户选择先补它再发**。其余闸门：两端 0 warning、扫描闸门 PASS、868 条哈希全绿且证明会红、隔离安装与卸载双 PASS 且生产服务全程未受影响。发布后四条回读取证：三个资产**下回来重算**哈希全 MATCH、tag peel 到 `e5ee065`、线上正文与规划仓副本 `VERBATIM MATCH`（同一归一化下三处翻字符全 DIFFERS）、0.1.0 的 tag 对象与三资产尺寸一字未动。**判据自身出过一次错并被自己抓住**：首轮正文比对报 DIFFERS，查明是 `gh --jq` 输出被 PowerShell 拆成 204 元素数组而非字符串，改为落盘再整读后才 MATCH——报出去的是修好之后的结果，不是第一版。新发现一条外观级缺陷（操作记录面板混用 UTC 与本地时间，业务行看起来早八小时），归车载端只读仓，仅具名留档未在任何仓写入。本仓对车载端仓**全程零写入**，协议仓未动。未触产品代码故未跑 tier 1。
+
 ## 地图状态
 
-**已走完。** Destination 在票 15 成立（RC 已发布并由用户验收），票 27 收掉发布说明的最后一条尾巴，
-票 28 补齐第三个仓的不可变引用。三个版本绑定仓库现各有一个指向本轮 RC 的不可变引用：
-`8005-agv-control-server@w2g-mvp-rc-0.1.0`（→ `9daeef4`，唯一带资产的 release）、
-`8005-agv-onboard-hmi@w2g-mvp-rc-0.1.0`（→ `304e6ad`，无 release）、
-`8005-agv-protocol@protocol-v0.1.1`（→ `1531489e`）。无开放票据，无未定 fog。
-`RESUME_AFTER_REPAIR` 结果身份收敛与 runner 公共模块抽取见下方 Out of scope，均属 RC 之后另起一轮。
+**已走完，并已随车载端 owner 的新代码更新过一轮。** Destination 在票 15 成立，票 27／28 收尾，
+票 29 把候选更新到 `OnboardHmi_MVP@31263b1` 并发布 `w2g-mvp-rc-0.1.1`。当前不可变引用：
+`8005-agv-control-server@w2g-mvp-rc-0.1.0`（→ `9daeef4`）与 **`@w2g-mvp-rc-0.1.1`（→ `e5ee065`）**，
+两个 release 各带三个资产；`8005-agv-onboard-hmi@w2g-mvp-rc-0.1.0`（→ `304e6ad`，无 release）；
+`8005-agv-protocol@protocol-v0.1.1`（→ `1531489e`）。
+**唯一开放事项**：车载端仓缺一个指向 `31263b1` 的 tag，归该仓 owner，agent 不得代建。
+`RESUME_AFTER_REPAIR` 结果身份收敛与 runner 公共模块抽取见下方 Out of scope，均属另起一轮。
 
 ## Not yet specified
 
