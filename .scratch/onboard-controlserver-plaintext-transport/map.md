@@ -101,6 +101,16 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 - **apphost `.exe` 是唯一一个哈希差异有意义的文件**（票 08）。托管 `.dll` 每次新 MVID，哈希差异是噪声；
   但 `.exe` 不由源码编译，其 Win32 版本资源里嵌着 `InformationalVersion`，本仓两端都带 `+<commit>`。
   两版候选的 apphost 逐字节相同，只差那段 79 字节的 UTF-16 字符串——它反而能证明 commit 绑定。
+- **`@()` 包错位置是同一族的第二个坑**（票 13）。`@(Get-ChildItem -Directory).Name` 在**单元素**结果上
+  经成员枚举退化成一个字符串，`[0]` 于是取到首字符，与目录名的比较永远不等。与
+  `@($hash[$missingKey]).Count -eq 1` 是同一类：`@()` 要包**投影**（`@((...).Name)`）而不是包源，
+  否则 PowerShell 的标量／集合退化会把判断悄悄换成另一件事。同样是靠正反两向并排打印当场暴露的
+  ——`expected` 与 `observed` 字面相同却判 FAIL，一眼就知道是检测器坏了而不是真发现。
+- **`tls = $false` 这类证据字段本身不是证据**（票 13）。三个 G3 runner 里
+  `tls` / `temporaryTrustRootInstalled` / `certificatesGenerated` 都是硬编码字面量，不会因为真装了
+  证书而变。要证「本轮无 TLS」得另取 runner 没有写过的观测：证书存储的**指纹集合摘要**跨运行不变
+  （不是只比数量）、stage 与证据根零密钥材料与零 `certs\`、publish 出来的车载端配置回读无三个 TLS 键、
+  全部日志搜 `Schannel|SslStream|AuthenticationException|X509|certificate` 命中 0。
 - **PowerShell 语义更正（票 06 实测）**：`ConvertFrom-Json` 产出 `PSCustomObject`，给**不存在**的属性
   无条件赋值会抛 `SetValueInvocationException`，**不会**静默新增该属性——只有 `Add-Member` 或
   `-AsHashtable` 才会。票 05 §5.4 按「静默写回错键」推断的机理是错的（结论方向不变，失效形态从静默
@@ -190,6 +200,19 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   版本号与旧 release 关系已定。未安装、未启动、未发布。
   另据实记录：符号探测器第一版因 `@($null).Count -eq 1` 全报 PRESENT，是「不可能的全绿」暴露的假绿，
   已修并归档。
+
+- [`在明文绑定上实跑 staged G3`](issues/13-run-staged-g3-on-the-plaintext-binding.md)
+  — **三个 runner 全跑了，全绿**（票正文记为「视条件」的 vectors runner，其现场库
+  `fullloop-20260829T131549Z\controlserver.db` 仍在，故不记未跑）：staged 19/19、restart 20/20、
+  vectors 20/20，五十九条断言零失败，全部由 runner 自身发射。先决动作把 `$ControlServerCommit` 从
+  TLS 期 `3d8b00c7` 移到候选 `56d4b1c`（单行，`c0f1e84`），`$OnboardCommit` 经自核远端头后不动；
+  三条解析链各自回读一致。**比文件哈希更强的判据是进程自报**：restart 的 `sessionIdentity` 跨三次
+  重启各报一次 `56d4b1c`／`238b46e`，证明握手的确实是候选服务端与王昆那版车载端。红侧十三行、两个
+  检测器各自双向（`useTls` 守卫的 RED／GREEN／**CONTROL**，以及绑定读取器的老 SHA／大写／截断三个
+  变异体）。三个 `tls=$false` 类字段本是硬编码字面量，另用二十四行独立观测佐证（四个证书存储指纹
+  集合摘要不变、六个根零密钥材料、publish 出的车载端配置无三个 TLS 键、全部日志零 TLS 诊断、生产
+  服务 PID 8632 未动、只读仓零写入）。**明确不是候选包验收**：三次 `classification` 均
+  `formalSlicePass: false`，四个正式切片保持 `INCONCLUSIVE`。证据 `ControlServer_MVP@b6524ca`。
 
 ## Not yet specified
 
