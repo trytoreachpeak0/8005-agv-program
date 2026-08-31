@@ -69,6 +69,26 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 - **逐处改写时，「值恰好已经对了」的那一行最容易被跳过**。票 03 把两个 runner 的 `useTls = $true` 改成
   条件式，却漏了 restart runner 里的 `useTls = $false`——后者的值本来就是要的值，肉眼扫过时不像待改项。
   删键类改动的正确判据是**键名出现即处理**，不是「值对不对」。票 06 发现，归票 12。
+- **车载端 production 守卫的真实结构（票 07 现场核实）**：只有 `WireToGateSettings` 与
+  `VehicleSafetySettings` 的 production 分支会跑 `IsForbiddenProductionHost`（**拒绝** loopback）；
+  `RuleGatewaySettings` 与 `IoModuleSettings` 的 production 分支只拒占位值，loopback 是允许的。
+  推论：异机取证应当用 `environment=Production` 而不是 G3 那套 `Development`——那是唯一让守卫真正
+  生效的模式，从原理上排除了 loopback 蒙混；同时 ruleGateway／ioModule 可以留在 `127.0.0.1`，不会
+  因此启动失败。Production 另外强制 `vehicleSafety.enabled=true`、AgvId／OnboardInstanceId 非占位、
+  以及三个环境变量（凭据、投影凭据、操作员 ID）非空。
+- **错配的错误文本会骗人，手册要指向服务端日志**（票 07 取证）。明文车载端连 TLS 服务端时，车载端
+  只说「ControlServer在会话恢复期间关闭了连接」（听起来像业务层恢复问题）、链路 B 只说
+  「An error occurred while sending the request.」；唯一点出真因的是服务端的
+  `AuthenticationException: Cannot determine the frame size or a corrupted frame was received.`。
+  反方向（老车载端连明文服务端）车载端只报 `Received an unexpected EOF or 0 bytes from the
+  transport stream.` 并**无限重连不退出**。两个方向都不含 TLS 字样，现场极易误判成「网络不通」。
+- **PowerShell Direct 会话里启动的进程会随会话关闭被杀**，日志停在正常行、看不出是被杀的。异机取证
+  若要证明「进程不依赖远程会话」，必须用 `Win32_Process.Create` 之类脱离启动，再从**另一个独立
+  会话**采样。票 07 有一轮差点因此把「进程还活着」记错。
+- **票 07 的异机环境保留可复用**：Hyper-V VM `plaintext_onboard_07`（金机父盘的独立副本，金机零写入）
+  `192.168.200.50`，宿主侧 `192.168.200.1`，stage 目录 `F:\w2g-ticket07`（含两个车载端与两个服务端
+  publish 包、一次性 PFX、凭据）。票 08／09 要复现异机形态可直接接上。凭据与 PFX 只在该 stage 的
+  `secrets\` 下，不进 Git、发布包与证据。
 - **PowerShell 语义更正（票 06 实测）**：`ConvertFrom-Json` 产出 `PSCustomObject`，给**不存在**的属性
   无条件赋值会抛 `SetValueInvocationException`，**不会**静默新增该属性——只有 `Add-Member` 或
   `-AsHashtable` 才会。票 05 §5.4 按「静默写回错键」推断的机理是错的（结论方向不变，失效形态从静默
@@ -122,6 +142,17 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   [`在明文绑定上实跑 staged G3`](issues/13-run-staged-g3-on-the-plaintext-binding.md)（blocked by 08）。
   另记：`StagedG3TlsHarness` 等 TLS 期命名残留不影响行为，改名打击面等于本票杠杆面，另起。
   对车载端仓写入仍为零。
+- [`异机明文形态下的跨机联调`](issues/07-run-cross-machine-plaintext-integration.md)
+  — **跨机明文形态成立**。宿主 `192.168.200.1`（服务端 `65841df`）↔ Hyper-V guest `192.168.200.50`
+  （车载端 `238b46e`）在真正的异机上建立 4 次会话，`SessionHello/CapabilitySnapshot/
+  SafetyStateSnapshot/RecoveryStateReport` 各 4、`Heartbeat` 108 全部以明文 NDJSON 过网；投影经明文
+  HTTP 送达且 `vehicleKey` 精确匹配。断连重连代次 1→2→3→4 单调推进，协议层行为未因换传输层而改变。
+  判可达全程只用 body 往返，三条红侧对照都响。**Ready 未达成，原因不在传输层**：三项是 guest 无
+  Modbus IO 硬件（归票 10），`VEHICLE_STATE_UNKNOWN` 已用 RIoT 停/开对照证明可清除、检测器会响。
+  **双向错配文本已取全**，其中方向 B 车载端说「ControlServer在会话恢复期间关闭了连接」极具误导性，
+  只有服务端侧的 `AuthenticationException` 点出真因。环境用 Production 而非 Development，因为那是
+  `IsForbiddenProductionHost` 唯一生效的模式，从原理上排除了 loopback 蒙混。金机零写入、
+  `CurrentUser\Root` 全程 44 张、生产服务未受影响、车载端仓写入仍为零。
 
 ## Not yet specified
 
@@ -133,8 +164,11 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   它是发布候选身份的一部分，不是本轮改造的判据。
 - 发布版本号与既有 release 的关系（`0.1.2` 还是别的，`0.1.1` 是否保留、是否需要在其说明中回指）。
   等票 08 附近再定。
-- 异机明文联调可能暴露的新问题（例如 `RemoteCertificateNameMismatch` 之外原本被 TLS 层吸收掉的
-  连接错误形态、非 loopback 绑定下的防火墙与监听地址）。票 07 之前无法具名。
+  （异机明文联调可能暴露的新问题这一条已由票 07 答完，不再是雾：连接错误形态已具名并写成双向
+  对照表；非 loopback 绑定下宿主防火墙对内部交换机网段未阻挡，监听地址参数化票 03 已做。未派生新票。）
+- 会话真正走到 `Ready` 需要车载端侧真实 Modbus 槽位硬件。票 07 判为不该用 IO 桩糊过去（桩本身要
+  验证正确性，有假绿风险），归入票 10 的真车闭环范围；若票 09/10 之间发现还需要一个中间档位的
+  IO 取证，再另行具名。
 
 ## Out of scope
 
