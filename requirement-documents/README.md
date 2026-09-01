@@ -60,7 +60,7 @@ requirement-documents/
 | Decision Record 决策记录 | `DR-001` | `dr-001-xxx.md` | `dr-001-tech-stack.md` |
 
 - 编号统一 3 位数字，方便未来扩展且排序整齐。
-- 文件名统一小写 + 短横线（kebab-case），不用空格，符合项目已有的 `file-naming-convention/文件命名规范.md`，也避免 Obsidian 按最短路径解析链接时出现重名歧义。
+- 文件名统一小写 + 短横线（kebab-case），不用空格，符合工作区的 `8005-workspace/file-naming-convention/文件命名规范.md`，也避免 Obsidian 按最短路径解析链接时出现重名歧义。
 - 每篇笔记的 frontmatter 里都有 `id` 字段和 `aliases: ["UC-001"]`，所以在别的笔记里直接输入 `[[UC-001` 也能被 Obsidian 搜索到（别名搜索），不需要记住完整文件名。
 
 ## 3. 引用方式：wikilink
