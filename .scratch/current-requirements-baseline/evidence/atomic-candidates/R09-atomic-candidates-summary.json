@@ -1,0 +1,64 @@
+{
+  "approval_upgrades": 0,
+  "by_class": {
+    "business-behavior-relying-on-external-contract-candidate": 11,
+    "downstream-obligation-or-scope-candidate": 6,
+    "embedded-local-technical-design-decision": 24,
+    "external-system-contract-candidate": 11,
+    "mes-dispatch-or-demand-lifecycle-business-rule-candidate": 25,
+    "product-capability-scope-candidate": 8,
+    "security-or-safety-boundary-candidate": 8,
+    "source-status-options-or-implementation-evidence": 71,
+    "unresolved-product-or-contract-question": 2
+  },
+  "by_route": {
+    "evidence-only": 71,
+    "exclude-from-requirement-approval": 24,
+    "needs-bound-external-contract-and-explicit-approval": 11,
+    "needs-business-owner-and-explicit-approval": 25,
+    "needs-business-owner-bound-contract-and-explicit-approval": 11,
+    "needs-product-owner-and-explicit-approval": 8,
+    "needs-question-resolution": 2,
+    "needs-responsible-owner-and-explicit-approval": 6,
+    "needs-security-authority-bound-contract-and-explicit-approval": 8
+  },
+  "by_source": {
+    "R09-01": 10,
+    "R09-02": 13,
+    "R09-03": 10,
+    "R09-04": 7,
+    "R09-05": 9,
+    "R09-06": 29,
+    "R09-07": 22,
+    "R09-08": 14,
+    "R09-11": 8,
+    "R09-13": 25,
+    "R09-17": 9,
+    "R09-18": 10
+  },
+  "exact_duplicate_rows": 11,
+  "excluded_batch_documents_not_extracted": 6,
+  "permanent_requirement_ids": 0,
+  "pointer_counts": {
+    "CF-R01-001": 8,
+    "CF-R01-002": 5,
+    "CF-R09-001": 10,
+    "CF-R09-002": 7,
+    "EVID-R09-001": 29,
+    "Q-R09-001": 9,
+    "RES-R09-001": 8,
+    "RES-R09-002": 29
+  },
+  "pointer_definitions": {
+    "CF-R01-001": "TransportDemandKey / MES 需求业务键的跨批次冲突线索。",
+    "CF-R01-002": "MES 当前阶段只读与回写主张的跨批次冲突线索。",
+    "CF-R09-001": "QueueingStall 清积压策略与 UC-008 队列 0/1 口径须在跨批次去重后复核。",
+    "CF-R09-002": "充电改派选桩策略与 BR-007 的可用、占用、预占及电量条件须在跨批次去重后复核。",
+    "EVID-R09-001": "“补齐 RIoT 目标环境与受控接口快照证据”绑定 8005 环境、build、导出人与 OpenAPI 哈希。",
+    "Q-R09-001": "充电改派 N=2 与 UC-012 的失败阶段/重试次数 TBD 必须分阶段澄清。",
+    "RES-R09-001": "“决定工厂 MES 验证的批准与完整性证据门槛”固定 SQL/运行证据不能替代需求批准。",
+    "RES-R09-002": "“决定 RIoT 项目 API 白名单与调用安全边界”固定项目调用、凭证与结果确认边界。"
+  },
+  "source_documents": 12,
+  "total": 166
+}

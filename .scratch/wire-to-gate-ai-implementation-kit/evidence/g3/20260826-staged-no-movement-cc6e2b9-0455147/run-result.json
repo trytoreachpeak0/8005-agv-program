@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "1.0.0",
+  "runKind": "STAGED_G3_REAL_PEERS_NO_MOVEMENT",
+  "runId": "8005-staged-g3-20260826-162902",
+  "startedScope": [
+    "W2G-IS-00",
+    "W2G-IS-06"
+  ],
+  "status": "PASS_WITH_OFFICIAL_SLICES_REMAINING_INCONCLUSIVE",
+  "protocol": {
+    "tag": "protocol-v0.1.1",
+    "commit": "1531489e42e328f28bfe0c51ed3f8c56e5ce0279",
+    "manifestSha256": "a467c0c4b03cbf54fae985ceade256ff13225581babad7f46d90449b7f16389f"
+  },
+  "commits": {
+    "controlServer": "cc6e2b97e4308fa14b519edf9a0089d0da7d6d14",
+    "onboardHmi": "045514770da9858a8a49196dede276192e4f2a1b",
+    "slotsSimulator": "fb5f7c593742bf98bc3957b8729a38aad5321f28"
+  },
+  "config": {
+    "onboardConfigSha256": "330794430137cbb203cd8fc50995543504267f92a8ae3b3aca92c02b8d2ac9bd",
+    "insecureLoopback": true,
+    "freshControlDatabase": true,
+    "freshOnboardJournal": true,
+    "ports": {
+      "modbus": 1502,
+      "simulatorHttp": 58006,
+      "onboardNdjson": 58105,
+      "controlHealth": 58107
+    }
+  },
+  "observations": [
+    {
+      "phase": "fresh-start",
+      "session": {
+        "agvId": "AGV-8005-STAGED-G3-01",
+        "sessionGeneration": 1,
+        "readiness": "RecoveryRequired",
+        "reasonCode": "HANDSHAKE_INCOMPLETE",
+        "updatedAt": "2026-08-26T16:29:22.1966414+08:00"
+      },
+      "stableAfter12Seconds": {
+        "agvId": "AGV-8005-STAGED-G3-01",
+        "sessionGeneration": 1,
+        "readiness": "RecoveryRequired",
+        "reasonCode": "DEPARTURE_SAFETY_NOT_READY",
+        "updatedAt": "2026-08-26T16:29:22.3996387+08:00"
+      }
+    },
+    {
+      "phase": "onboard-process-restart-same-journal",
+      "session": {
+        "agvId": "AGV-8005-STAGED-G3-01",
+        "sessionGeneration": 2,
+        "readiness": "RecoveryRequired",
+        "reasonCode": "DEPARTURE_SAFETY_NOT_READY",
+        "updatedAt": "2026-08-26T16:29:35.5928688+08:00"
+      },
+      "stableAfter12Seconds": {
+        "agvId": "AGV-8005-STAGED-G3-01",
+        "sessionGeneration": 2,
+        "readiness": "RecoveryRequired",
+        "reasonCode": "DEPARTURE_SAFETY_NOT_READY",
+        "updatedAt": "2026-08-26T16:29:35.5928688+08:00"
+      }
+    },
+    {
+      "phase": "controlserver-process-restart-same-database",
+      "session": {
+        "agvId": "AGV-8005-STAGED-G3-01",
+        "sessionGeneration": 3,
+        "readiness": "RecoveryRequired",
+        "reasonCode": "DEPARTURE_SAFETY_NOT_READY",
+        "updatedAt": "2026-08-26T16:29:53.7716399+08:00"
+      },
+      "stableAfter12Seconds": {
+        "agvId": "AGV-8005-STAGED-G3-01",
+        "sessionGeneration": 3,
+        "readiness": "RecoveryRequired",
+        "reasonCode": "DEPARTURE_SAFETY_NOT_READY",
+        "updatedAt": "2026-08-26T16:29:53.7716399+08:00"
+      }
+    }
+  ],
+  "expectedFailClosed": {
+    "readiness": "RecoveryRequired",
+    "reasonCode": "DEPARTURE_SAFETY_NOT_READY",
+    "healthReadyHttpStatus": 503,
+    "explanation": "Onboard production composition uses UnavailableVehicleSafetySignalProvider; no movement attempted."
+  },
+  "simulatorHealth": {
+    "schemaVersion": "1.0",
+    "instanceId": "agv-slot-simulator-01",
+    "runId": "run-20c181c4d5da4bec81a8f82a60d35318",
+    "revision": 1,
+    "observedAt": "2026-08-26T16:29:19.2827071+08:00",
+    "status": "READY",
+    "modbus": {
+      "listenAddress": "127.0.0.1",
+      "port": 1502,
+      "unitId": 255,
+      "isRunning": true,
+      "clientCount": 0,
+      "faultMode": "NORMAL",
+      "delayMs": 0
+    }
+  },
+  "evidenceFiles": [
+    {
+      "path": "control-1.err.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "length": 0
+    },
+    {
+      "path": "control-1.out.log",
+      "sha256": "60db6c265dd05ad65cfc2993a634e3865e05f47c64e247540d1cc6060ba9ae74",
+      "length": 37813
+    },
+    {
+      "path": "control-2.err.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "length": 0
+    },
+    {
+      "path": "control-2.out.log",
+      "sha256": "1b67d154e93f635ed0e84f8d12179fe407f99e5ee2c782ff248e5a0fb05de6cc",
+      "length": 13791
+    },
+    {
+      "path": "onboard-1.err.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "length": 0
+    },
+    {
+      "path": "onboard-1.out.log",
+      "sha256": "606ad1d6422896d8959a3007ca51ed62d7ea28fb375900ad4d8575dc3ba7c38f",
+      "length": 605
+    },
+    {
+      "path": "onboard-2.err.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "length": 0
+    },
+    {
+      "path": "onboard-2.out.log",
+      "sha256": "156029016409fe17f577f626f56fc2d5a57242ebe19f1109255c8e7c848ae12e",
+      "length": 864
+    },
+    {
+      "path": "simulator.err.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "length": 0
+    },
+    {
+      "path": "simulator.out.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "length": 0
+    },
+    {
+      "path": "onboard-logs/agv-20260826.log",
+      "sha256": "b3f1318196a0705011645d335960974e9ebde05178ac8909648f110eb6f73866",
+      "length": 1586
+    }
+  ]
+}

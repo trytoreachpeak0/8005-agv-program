@@ -1,0 +1,158 @@
+[
+  {
+    "file": "010-default.json",
+    "query": "/api/task/vehicles",
+    "httpStatus": 200,
+    "code": "0",
+    "count": 18,
+    "deviceKeys": [
+      "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+      "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+      "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+      "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+      "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+      "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+      "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+      "BROKERX-aab9786833544b9fb363b968049da7e5",
+      "BROKERX-6134f023aa654abead51ffe7bbbcd091",
+      "BROKERX-6c2b93a073c74072a7ffa74c84c6d78d",
+      "BROKERX-03b0297e22f14df393a31e424dff7a80",
+      "BROKERX-757de62710d84cec9fe9907691672cbc",
+      "BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4",
+      "BROKERX-7cfc7a2757674e56907162cb2f95c746",
+      "BROKERX-3929103234654e7bbceb972979ab02cf",
+      "BROKERX-f2b50ed499924f86b88f56fd4af9ae30",
+      "BROKERX-52501bcbe60f4723bc815f24fc763c1e"
+    ],
+    "topLevelFields": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "elapsedMs": 142,
+    "bytes": 15691
+  },
+  {
+    "file": "011-page-1-size-1.json",
+    "query": "/api/task/vehicles?pageNum=1&pageSize=1",
+    "httpStatus": 200,
+    "code": "0",
+    "count": 1,
+    "deviceKeys": [
+      "BROKERX-49628dfef58b49cb9f528853e489fbc8"
+    ],
+    "topLevelFields": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "elapsedMs": 91,
+    "bytes": 904
+  },
+  {
+    "file": "012-page-2-size-1.json",
+    "query": "/api/task/vehicles?pageNum=2&pageSize=1",
+    "httpStatus": 200,
+    "code": "0",
+    "count": 1,
+    "deviceKeys": [
+      "BROKERX-a9984c6399a442ca987f60ddcb63a90c"
+    ],
+    "topLevelFields": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "elapsedMs": 76,
+    "bytes": 824
+  },
+  {
+    "file": "013-page-1-size-5.json",
+    "query": "/api/task/vehicles?pageNum=1&pageSize=5",
+    "httpStatus": 200,
+    "code": "0",
+    "count": 5,
+    "deviceKeys": [
+      "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+      "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+      "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+      "BROKERX-8ffb2294db594d7480125d379b39cfd6"
+    ],
+    "topLevelFields": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "elapsedMs": 106,
+    "bytes": 4187
+  },
+  {
+    "file": "014-page-2-size-5.json",
+    "query": "/api/task/vehicles?pageNum=2&pageSize=5",
+    "httpStatus": 200,
+    "code": "0",
+    "count": 5,
+    "deviceKeys": [
+      "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+      "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+      "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+      "BROKERX-aab9786833544b9fb363b968049da7e5",
+      "BROKERX-6134f023aa654abead51ffe7bbbcd091"
+    ],
+    "topLevelFields": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "elapsedMs": 135,
+    "bytes": 4281
+  },
+  {
+    "file": "015-page-1-size-100.json",
+    "query": "/api/task/vehicles?pageNum=1&pageSize=100",
+    "httpStatus": 200,
+    "code": "0",
+    "count": 18,
+    "deviceKeys": [
+      "BROKERX-49628dfef58b49cb9f528853e489fbc8",
+      "BROKERX-a9984c6399a442ca987f60ddcb63a90c",
+      "BROKERX-aee2f93d717546cf9510c98c854fe83e",
+      "BROKERX-7c9efecf2d814a09ac5727f62d00d68c",
+      "BROKERX-8ffb2294db594d7480125d379b39cfd6",
+      "BROKERX-b2674def66064f9d9ac403cc85412c6a",
+      "BROKERX-bd3e0de0913f4989be32fd57620a3133",
+      "BROKERX-ef7caf3f8cbb44d8b359b8279690d79a",
+      "BROKERX-aab9786833544b9fb363b968049da7e5",
+      "BROKERX-6134f023aa654abead51ffe7bbbcd091",
+      "BROKERX-6c2b93a073c74072a7ffa74c84c6d78d",
+      "BROKERX-03b0297e22f14df393a31e424dff7a80",
+      "BROKERX-757de62710d84cec9fe9907691672cbc",
+      "BROKERX-4b9a059f1c3a405bb6c6b7a2bdfe36e4",
+      "BROKERX-7cfc7a2757674e56907162cb2f95c746",
+      "BROKERX-3929103234654e7bbceb972979ab02cf",
+      "BROKERX-f2b50ed499924f86b88f56fd4af9ae30",
+      "BROKERX-52501bcbe60f4723bc815f24fc763c1e"
+    ],
+    "topLevelFields": [
+      "code",
+      "message",
+      "msgDetail",
+      "result",
+      "tid"
+    ],
+    "elapsedMs": 120,
+    "bytes": 15691
+  }
+]

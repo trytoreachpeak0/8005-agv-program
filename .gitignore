@@ -362,6 +362,11 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+# Wayfinder tooling scratch output
+outputs/
+*.py[cod]
+node.*.log
+
 # MesIngest local runtime state and visual-test artifacts
 # Local runtime state and logs (may contain factory environment details).
 .runtime/
@@ -370,3 +375,6 @@ FodyWeavers.xsd
 mes/ingest/csharp/TestResults/
 mes/ingest/csharp/**/TestResults/
 .scratch/area-filters/.area-profiles.lock
+
+# Local SDK/toolchain cache; restore it separately on each development machine.
+.scratch/toolchains/

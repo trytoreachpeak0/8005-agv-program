@@ -1,0 +1,101 @@
+{
+    "completedAt":  "2026-08-04T16:40:09.9071654+08:00",
+    "before":  {
+                   "name":  "新基测试300c协作1",
+                   "mapName":  "api测试2",
+                   "station":  0,
+                   "speed":  0.0,
+                   "movementState":  "MT_FINISHED",
+                   "controlState":  "CONTROL_STATE_OK",
+                   "emergencyState":  "OK",
+                   "breakSwitchState":  "MOVABLE",
+                   "locationState":  "LOCATION_STATE_RUNNING",
+                   "procState":  "IDLE",
+                   "processingOrder":  false,
+                   "enable":  true,
+                   "integrationLevel":  "ON_LINE"
+               },
+    "activeOrders":  [
+
+                     ],
+    "routes":  [
+                   {
+                       "stationId":  1,
+                       "costs":  5142,
+                       "message":  "ok"
+                   },
+                   {
+                       "stationId":  2,
+                       "costs":  3802,
+                       "message":  "ok"
+                   },
+                   {
+                       "stationId":  3,
+                       "costs":  5952,
+                       "message":  "ok"
+                   },
+                   {
+                       "stationId":  4,
+                       "costs":  250,
+                       "message":  "ok"
+                   },
+                   {
+                       "stationId":  5,
+                       "costs":  1411,
+                       "message":  "ok"
+                   },
+                   {
+                       "stationId":  6,
+                       "costs":  4031,
+                       "message":  "ok"
+                   }
+               ],
+    "reachableStations":  [
+                              {
+                                  "stationId":  1,
+                                  "costs":  5142,
+                                  "message":  "ok"
+                              },
+                              {
+                                  "stationId":  2,
+                                  "costs":  3802,
+                                  "message":  "ok"
+                              },
+                              {
+                                  "stationId":  3,
+                                  "costs":  5952,
+                                  "message":  "ok"
+                              },
+                              {
+                                  "stationId":  4,
+                                  "costs":  250,
+                                  "message":  "ok"
+                              },
+                              {
+                                  "stationId":  5,
+                                  "costs":  1411,
+                                  "message":  "ok"
+                              },
+                              {
+                                  "stationId":  6,
+                                  "costs":  4031,
+                                  "message":  "ok"
+                              }
+                          ],
+    "after":  {
+                  "name":  "新基测试300c协作1",
+                  "mapName":  "api测试2",
+                  "station":  0,
+                  "speed":  0.0,
+                  "movementState":  "MT_FINISHED",
+                  "controlState":  "CONTROL_STATE_OK",
+                  "emergencyState":  "OK",
+                  "breakSwitchState":  "MOVABLE",
+                  "locationState":  "LOCATION_STATE_RUNNING",
+                  "procState":  "IDLE",
+                  "processingOrder":  false,
+                  "enable":  true,
+                  "integrationLevel":  "ON_LINE"
+              },
+    "restored":  true
+}

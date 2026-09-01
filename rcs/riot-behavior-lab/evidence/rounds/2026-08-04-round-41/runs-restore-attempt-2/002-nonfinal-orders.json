@@ -1,0 +1,81 @@
+{
+    "at":  "2026-08-04T16:40:08.7484898+08:00",
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/order/v1/orderRecord?pageNum=1\u0026pageSize=100\u0026filterByState=1\u0026filterByState=3\u0026filterByState=7\u0026filterByState=9",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "body":  null
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"current\":1,\"optimizeCountSql\":true,\"orders\":[],\"pages\":1,\"records\":[{\"appointExecuteTime\":\"1970-01-01 00:00:00\",\"appointMapId\":0,\"appointStationId\":0,\"appointVehicleGroupId\":0,\"appointVehicleGroupName\":\"0\",\"appointVehicleKey\":\"BROKERX-3929103234654e7bbceb972979ab02cf\",\"arriveTime\":54,\"arriveTimeMsg\":\"预计16:43到达电梯内\",\"changeVehicle\":0,\"changeVehicleReason\":\"\",\"changeVehicleRecord\":\"\",\"createTime\":\"2026-08-04 16:38:03\",\"createdBy\":\"\u003credacted\u003e\",\"distance\":0,\"endStationName\":\"晶圆上料点2\",\"endStationNo\":17,\"eta\":0,\"executeTime\":\"2026-08-04 16:38:07\",\"executeVehicleKey\":\"BROKERX-3929103234654e7bbceb972979ab02cf\",\"executeVehicleName\":\"磨划晶圆AGV2\",\"executingIndex\":16,\"failReason\":\"\",\"finalState\":false,\"id\":497195,\"isAppointEnable\":1,\"isDeleted\":0,\"lockStatus\":-1,\"modifiedBy\":\"internal\",\"orderId\":\"order-2084559476593131520\",\"orderName\":\"2号前往老厂磨划\",\"orderState\":3,\"orderType\":1,\"priority\":0,\"priorityQueue\":0,\"progress\":32,\"source\":\"FMS\",\"startEndStationName\":\"晶圆卸货点2 \u003e 晶圆上料点2\",\"startEndStationNameDetail\":\"华士新厂 晶圆卸货点2 \u003e 华士老厂 晶圆上料点2\",\"startStationName\":\"晶圆卸货点2\",\"startStationNo\":15,\"taskState\":\"正在前往切割车间自动门2\",\"totalCosts\":0,\"updateTime\":\"2026-08-04 16:41:35\",\"upperId\":\"\",\"userId\":2}],\"searchCount\":false,\"size\":100,\"total\":1},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "current":  1,
+                                                   "optimizeCountSql":  true,
+                                                   "orders":  [
+
+                                                              ],
+                                                   "pages":  1,
+                                                   "records":  [
+                                                                   {
+                                                                       "appointExecuteTime":  "1970-01-01 00:00:00",
+                                                                       "appointMapId":  0,
+                                                                       "appointStationId":  0,
+                                                                       "appointVehicleGroupId":  0,
+                                                                       "appointVehicleGroupName":  "0",
+                                                                       "appointVehicleKey":  "BROKERX-3929103234654e7bbceb972979ab02cf",
+                                                                       "arriveTime":  54,
+                                                                       "arriveTimeMsg":  "预计16:43到达电梯内",
+                                                                       "changeVehicle":  0,
+                                                                       "changeVehicleReason":  "",
+                                                                       "changeVehicleRecord":  "",
+                                                                       "createTime":  "2026-08-04 16:38:03",
+                                                                       "createdBy":  "\u003credacted\u003e",
+                                                                       "distance":  0,
+                                                                       "endStationName":  "晶圆上料点2",
+                                                                       "endStationNo":  17,
+                                                                       "eta":  0,
+                                                                       "executeTime":  "2026-08-04 16:38:07",
+                                                                       "executeVehicleKey":  "BROKERX-3929103234654e7bbceb972979ab02cf",
+                                                                       "executeVehicleName":  "磨划晶圆AGV2",
+                                                                       "executingIndex":  16,
+                                                                       "failReason":  "",
+                                                                       "finalState":  false,
+                                                                       "id":  497195,
+                                                                       "isAppointEnable":  1,
+                                                                       "isDeleted":  0,
+                                                                       "lockStatus":  -1,
+                                                                       "modifiedBy":  "internal",
+                                                                       "orderId":  "order-2084559476593131520",
+                                                                       "orderName":  "2号前往老厂磨划",
+                                                                       "orderState":  3,
+                                                                       "orderType":  1,
+                                                                       "priority":  0,
+                                                                       "priorityQueue":  0,
+                                                                       "progress":  32,
+                                                                       "source":  "FMS",
+                                                                       "startEndStationName":  "晶圆卸货点2 \u003e 晶圆上料点2",
+                                                                       "startEndStationNameDetail":  "华士新厂 晶圆卸货点2 \u003e 华士老厂 晶圆上料点2",
+                                                                       "startStationName":  "晶圆卸货点2",
+                                                                       "startStationNo":  15,
+                                                                       "taskState":  "正在前往切割车间自动门2",
+                                                                       "totalCosts":  0,
+                                                                       "updateTime":  "2026-08-04 16:41:35",
+                                                                       "upperId":  "",
+                                                                       "userId":  2
+                                                                   }
+                                                               ],
+                                                   "searchCount":  false,
+                                                   "size":  100,
+                                                   "total":  1
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

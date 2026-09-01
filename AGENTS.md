@@ -21,6 +21,54 @@ rules, or the test-tier and Golden WPF renderer constraints below.
 
 Issues and specs live as markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
 
+### Protected external repositories
+
+Repository routing never grants write permission. The following rules apply to
+the named remotes and every local clone or worktree whose `origin` resolves to
+them:
+
+- `https://github.com/trytoreachpeak0/8005-agv-onboard-hmi` is read-only for
+  agents.
+- `https://github.com/trytoreachpeak0/slots-simulator` is read-only for agents.
+
+For those two repositories, do not edit or generate repository content,
+including source, tests, configuration, scripts, documentation, handoffs, or
+evidence. Do not create branches, commits, tags, releases, issues, pull
+requests, comments, or pushes. Read-only inspection and fetches are allowed.
+Run any requested validation that would generate files from a disposable copy
+or with outputs outside the protected repository, and leave its worktree
+unchanged.
+
+`https://github.com/trytoreachpeak0/8005-agv-protocol` is approval-gated and
+read-only by default. Before any local edit, generated file, branch, commit,
+push, or remote tracker/release action, both Zhengyu Shao (the user) and Kun
+Wang must explicitly approve the same concrete change and destination branch.
+The approvals must be task-specific and present in the current task context or
+an explicitly linked approval record. Do not infer approval from old releases,
+authorship, map Notes, prior tickets, or approval of a different change. One
+approval is insufficient; if either is missing, stop at analysis and report
+what approval is still required. If the requested scope changes, obtain both
+approvals again before continuing.
+
+These restrictions override Wayfinder routing, execution authorization in map
+Notes, and general requests to fix, document, commit, or push. Only a later
+explicit user instruction changing this standing policy may alter the protected
+repository list.
+
+### Wayfinder cross-repository routing
+
+When Wayfinder discovers a defect or required change owned by another project,
+first apply the protected-repository policy above. If writes are allowed, the
+owning project's repository is the source of truth: put the issue, primary
+evidence, fix, tests, and project-specific handoff there, then commit and push
+them to that repository. If the owning repository is read-only or lacks the
+required approvals, do not write there and do not fall back to storing the full
+problem in `8005---AGV`; give the user a concise owner notification and request
+an explicitly writable tracking destination. This repository may retain only a
+minimal routing/blocker pointer. If ownership is ambiguous, or an artifact
+genuinely spans projects, stop and get an explicit destination repository
+before writing it.
+
 ### Triage labels
 
 Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.

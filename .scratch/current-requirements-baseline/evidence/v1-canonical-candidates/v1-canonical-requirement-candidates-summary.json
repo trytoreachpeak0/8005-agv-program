@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "target_version": "v1.0.0",
+  "candidate_status": "awaiting-final-item-approval",
+  "candidate_requirements": 348,
+  "candidate_sources_by_layer": {
+    "L1-base-current-source": 52,
+    "L2-partial-later-layer": 37,
+    "L3-partial-later-layer": 26,
+    "L4-partial-later-layer": 30,
+    "L5-resolved-product-decision": 203
+  },
+  "legacy_source_rows": 12452,
+  "legacy_traceability_dispositions": {
+    "preserved-evidence-only": 3172,
+    "preserved-excluded-or-out-of-scope": 2399,
+    "preserved-unapproved-not-promoted": 6518,
+    "trace-to-current-candidate-source": 363
+  },
+  "legacy_promotion_upgrades": 0,
+  "approved_source_identity_drift": 0,
+  "candidate_ledger_sha256": "9ba7f6132a9c4599fc06f1646370de54254a94de9a1ab5e3ca7b0451162fa646",
+  "source_disposition_ledger_sha256": "f25943a5496c16a98205bc23a45e5b4aa4a64f32e72a8bacb290d2414029fb65",
+  "method": "current-layer extraction + exact text/scope dedupe + explicit source-layer preservation; no semantic auto-merge",
+  "guardrail": "REQ numbers are candidate reservations only until ticket 88 records final approval of exact text, scope, verification method, and batch identity."
+}

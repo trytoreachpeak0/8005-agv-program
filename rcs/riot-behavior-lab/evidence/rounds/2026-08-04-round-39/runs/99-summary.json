@@ -1,0 +1,955 @@
+{
+    "completedAt":  "2026-08-04T15:53:39.0216923+08:00",
+    "readOnlyRequestsOnly":  true,
+    "currentQueueingCountBefore":  0,
+    "currentQueueingCountAfter":  0,
+    "currentQueueingOrderIdsBefore":  [
+
+                                      ],
+    "currentQueueingOrderIdsAfter":  [
+
+                                     ],
+    "queueingIdentitySetUnchanged":  true,
+    "probeSummaries":  [
+                           {
+                               "file":  "10-probe-01-vehicle-not-enabled-orderId.json",
+                               "scenarioLabel":  "vehicle-not-enabled",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079079643343880192",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-02-vehicle-not-enabled-numericId.json",
+                               "scenarioLabel":  "vehicle-not-enabled",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "488065",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-03-vehicle-not-enabled-upperId.json",
+                               "scenarioLabel":  "vehicle-not-enabled",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R13-S1-offcreate-20260720-134127",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-04-route-unreachable-cross-map-orderId.json",
+                               "scenarioLabel":  "route-unreachable-cross-map",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079079662562181120",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-05-route-unreachable-cross-map-numericId.json",
+                               "scenarioLabel":  "route-unreachable-cross-map",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "488066",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-06-route-unreachable-cross-map-upperId.json",
+                               "scenarioLabel":  "route-unreachable-cross-map",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R13-S3-unreachable-20260720-134131",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-07-hardware-emergency-orderId.json",
+                               "scenarioLabel":  "hardware-emergency",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079731047146323968",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-08-hardware-emergency-numericId.json",
+                               "scenarioLabel":  "hardware-emergency",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "489201",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-09-hardware-emergency-upperId.json",
+                               "scenarioLabel":  "hardware-emergency",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R29-A-20260722-084951",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-10-recoverable-software-emergency-orderId.json",
+                               "scenarioLabel":  "recoverable-software-emergency",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079731933704749056",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-11-recoverable-software-emergency-numericId.json",
+                               "scenarioLabel":  "recoverable-software-emergency",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "489202",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-12-recoverable-software-emergency-upperId.json",
+                               "scenarioLabel":  "recoverable-software-emergency",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R29-B-20260722-085323",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-13-vehicle-state-unmovable-orderId.json",
+                               "scenarioLabel":  "vehicle-state-unmovable",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079733117177954304",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-14-vehicle-state-unmovable-numericId.json",
+                               "scenarioLabel":  "vehicle-state-unmovable",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "489203",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-15-vehicle-state-unmovable-upperId.json",
+                               "scenarioLabel":  "vehicle-state-unmovable",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R29-F-20260722-085805",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-16-vehicle-too-far-from-route-orderId.json",
+                               "scenarioLabel":  "vehicle-too-far-from-route",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079738858387406848",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-17-vehicle-too-far-from-route-numericId.json",
+                               "scenarioLabel":  "vehicle-too-far-from-route",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "489214",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-18-vehicle-too-far-from-route-upperId.json",
+                               "scenarioLabel":  "vehicle-too-far-from-route",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R30-D2-20260722-092054",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-19-vehicle-unlocalized-orderId.json",
+                               "scenarioLabel":  "vehicle-unlocalized",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079736076498501632",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-20-vehicle-unlocalized-numericId.json",
+                               "scenarioLabel":  "vehicle-unlocalized",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "489208",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-21-vehicle-unlocalized-upperId.json",
+                               "scenarioLabel":  "vehicle-unlocalized",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R30-L-20260722-090950",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-22-vehicle-powered-off-orderId.json",
+                               "scenarioLabel":  "vehicle-powered-off",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "orderId",
+                               "keyValue":  "order-2079742738877775872",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-23-vehicle-powered-off-numericId.json",
+                               "scenarioLabel":  "vehicle-powered-off",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "numericId",
+                               "keyValue":  "489221",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           },
+                           {
+                               "file":  "10-probe-24-vehicle-powered-off-upperId.json",
+                               "scenarioLabel":  "vehicle-powered-off",
+                               "scenarioLabelWarning":  "Historical label identifies the original round only; it is not evidence that the live diagnostic evaluated that historical state.",
+                               "keyKind":  "upperId",
+                               "keyValue":  "riot-behavior-lab-R30-P-20260722-093619",
+                               "response":  {
+                                                "httpStatus":  200,
+                                                "code":  "0",
+                                                "message":  "成功",
+                                                "msgDetail":  "",
+                                                "tid":  "",
+                                                "hasResult":  true,
+                                                "reason":  "订单不存在",
+                                                "suggestList":  [
+                                                                    "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                    "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                ],
+                                                "topLevelFields":  [
+                                                                       "code",
+                                                                       "message",
+                                                                       "msgDetail",
+                                                                       "result",
+                                                                       "tid"
+                                                                   ],
+                                                "resultFields":  [
+                                                                     "reason",
+                                                                     "suggestList"
+                                                                 ]
+                                            }
+                           }
+                       ],
+    "negativeSummaries":  [
+                              {
+                                  "file":  "50-negative-01-unknown-order.json",
+                                  "case":  "unknown-order",
+                                  "response":  {
+                                                   "httpStatus":  200,
+                                                   "code":  "0",
+                                                   "message":  "成功",
+                                                   "msgDetail":  "",
+                                                   "tid":  "",
+                                                   "hasResult":  true,
+                                                   "reason":  "订单不存在",
+                                                   "suggestList":  [
+                                                                       "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                       "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                   ],
+                                                   "topLevelFields":  [
+                                                                          "code",
+                                                                          "message",
+                                                                          "msgDetail",
+                                                                          "result",
+                                                                          "tid"
+                                                                      ],
+                                                   "resultFields":  [
+                                                                        "reason",
+                                                                        "suggestList"
+                                                                    ]
+                                               }
+                              },
+                              {
+                                  "file":  "50-negative-02-unknown-vehicle.json",
+                                  "case":  "unknown-vehicle",
+                                  "response":  {
+                                                   "httpStatus":  200,
+                                                   "code":  "0",
+                                                   "message":  "成功",
+                                                   "msgDetail":  "",
+                                                   "tid":  "",
+                                                   "hasResult":  true,
+                                                   "reason":  "车辆不存在",
+                                                   "suggestList":  [
+                                                                       "1、车辆在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                       "2、刷新界面，查看机器人信息列表中该车辆是否还存在；或者在设备管理-机器人列表，查看该车辆是否还存在"
+                                                                   ],
+                                                   "topLevelFields":  [
+                                                                          "code",
+                                                                          "message",
+                                                                          "msgDetail",
+                                                                          "result",
+                                                                          "tid"
+                                                                      ],
+                                                   "resultFields":  [
+                                                                        "reason",
+                                                                        "suggestList"
+                                                                    ]
+                                               }
+                              },
+                              {
+                                  "file":  "50-negative-03-no-auth.json",
+                                  "case":  "no-auth",
+                                  "response":  {
+                                                   "httpStatus":  401,
+                                                   "code":  "401",
+                                                   "message":  "暂未登录或token已经过期",
+                                                   "msgDetail":  null,
+                                                   "tid":  null,
+                                                   "hasResult":  false,
+                                                   "reason":  null,
+                                                   "suggestList":  {
+
+                                                                   },
+                                                   "topLevelFields":  [
+                                                                          "code",
+                                                                          "message"
+                                                                      ],
+                                                   "resultFields":  {
+
+                                                                    }
+                                               }
+                              },
+                              {
+                                  "file":  "50-negative-04-invalid-auth.json",
+                                  "case":  "invalid-auth",
+                                  "response":  {
+                                                   "httpStatus":  401,
+                                                   "code":  "401",
+                                                   "message":  "暂未登录或token已经过期",
+                                                   "msgDetail":  null,
+                                                   "tid":  null,
+                                                   "hasResult":  false,
+                                                   "reason":  null,
+                                                   "suggestList":  {
+
+                                                                   },
+                                                   "topLevelFields":  [
+                                                                          "code",
+                                                                          "message"
+                                                                      ],
+                                                   "resultFields":  {
+
+                                                                    }
+                                               }
+                              }
+                          ],
+    "successfulCombinationCount":  24,
+    "repeatSummaries":  [
+                            {
+                                "file":  "60-repeat-1.json",
+                                "index":  1,
+                                "response":  {
+                                                 "httpStatus":  200,
+                                                 "code":  "0",
+                                                 "message":  "成功",
+                                                 "msgDetail":  "",
+                                                 "tid":  "",
+                                                 "hasResult":  true,
+                                                 "reason":  "订单不存在",
+                                                 "suggestList":  [
+                                                                     "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                     "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                 ],
+                                                 "topLevelFields":  [
+                                                                        "code",
+                                                                        "message",
+                                                                        "msgDetail",
+                                                                        "result",
+                                                                        "tid"
+                                                                    ],
+                                                 "resultFields":  [
+                                                                      "reason",
+                                                                      "suggestList"
+                                                                  ]
+                                             }
+                            },
+                            {
+                                "file":  "60-repeat-2.json",
+                                "index":  2,
+                                "response":  {
+                                                 "httpStatus":  200,
+                                                 "code":  "0",
+                                                 "message":  "成功",
+                                                 "msgDetail":  "",
+                                                 "tid":  "",
+                                                 "hasResult":  true,
+                                                 "reason":  "订单不存在",
+                                                 "suggestList":  [
+                                                                     "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                     "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                 ],
+                                                 "topLevelFields":  [
+                                                                        "code",
+                                                                        "message",
+                                                                        "msgDetail",
+                                                                        "result",
+                                                                        "tid"
+                                                                    ],
+                                                 "resultFields":  [
+                                                                      "reason",
+                                                                      "suggestList"
+                                                                  ]
+                                             }
+                            },
+                            {
+                                "file":  "60-repeat-3.json",
+                                "index":  3,
+                                "response":  {
+                                                 "httpStatus":  200,
+                                                 "code":  "0",
+                                                 "message":  "成功",
+                                                 "msgDetail":  "",
+                                                 "tid":  "",
+                                                 "hasResult":  true,
+                                                 "reason":  "订单不存在",
+                                                 "suggestList":  [
+                                                                     "1、订单在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                     "2、刷新界面，看该订单是否还存在；或者在订单列表搜索订单ID/名称，查看该订单是否还存在"
+                                                                 ],
+                                                 "topLevelFields":  [
+                                                                        "code",
+                                                                        "message",
+                                                                        "msgDetail",
+                                                                        "result",
+                                                                        "tid"
+                                                                    ],
+                                                 "resultFields":  [
+                                                                      "reason",
+                                                                      "suggestList"
+                                                                  ]
+                                             }
+                            }
+                        ],
+    "freshnessFieldsDeclaredOrObserved":  [
+                                              "reason",
+                                              "suggestList"
+                                          ],
+    "caveat":  "GET plus unchanged before/after observable state is evidence of no observed business-state mutation, not a proof of internal side-effect freedom."
+}

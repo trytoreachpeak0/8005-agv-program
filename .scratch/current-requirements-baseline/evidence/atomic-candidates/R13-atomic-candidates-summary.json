@@ -1,0 +1,153 @@
+{
+  "approval_upgrades": 0,
+  "by_class": {
+    "controlled-openapi-operation-allowlisted-observation-evidence": 16,
+    "controlled-openapi-operation-allowlisted-safety-critical-state-change-evidence": 1,
+    "controlled-openapi-operation-allowlisted-state-change-evidence": 3,
+    "controlled-openapi-operation-conditional-human-emergency-auth-evidence": 2,
+    "controlled-openapi-operation-not-authorized-evidence": 481,
+    "controlled-openapi-privacy-auth-administration-operation-not-authorized-evidence": 47,
+    "environment-access-or-interface-discovery-note": 6,
+    "external-platform-capability-description-claim": 4,
+    "local-evidence-navigation-index": 4,
+    "local-thing-model-analysis-claim": 1,
+    "local-thing-model-remediation-or-reverse-engineering-suggestion": 4,
+    "project-riot-integration-behavior-candidate": 2,
+    "security-credential-and-access-boundary-candidate": 3,
+    "static-thing-model-enum-content-observation": 47,
+    "static-thing-model-gap-or-inconsistency-observation": 44,
+    "superseded-local-thing-model-handling-decision": 6,
+    "thing-model-analysis-source-pointer": 1
+  },
+  "by_route": {
+    "evidence-for-approved-conditional-auth-backup": 2,
+    "evidence-for-approved-project-integration-behavior": 20,
+    "evidence-only": 5,
+    "evidence-only-needs-authoritative-version-binding": 1,
+    "evidence-only-needs-controlled-environment-binding": 6,
+    "evidence-only-no-project-authorization": 528,
+    "evidence-only-static-content-not-authoritative-semantics": 47,
+    "evidence-only-unresolved-external-semantics": 44,
+    "exclude-from-requirement-approval": 4,
+    "exclude-superseded-by-approved-resolution": 6,
+    "needs-authoritative-vendor-source-if-required": 4,
+    "needs-project-owner-and-explicit-approval": 2,
+    "needs-security-owner-bound-approved-auth-flow": 3
+  },
+  "by_source": {
+    "R13-01": 19,
+    "R13-04": 103,
+    "R13-05": 3,
+    "R13-06": 40,
+    "R13-07": 178,
+    "R13-08": 29,
+    "R13-09": 41,
+    "R13-10": 57,
+    "R13-11": 3,
+    "R13-12": 4,
+    "R13-13": 42,
+    "R13-14": 49,
+    "R13-15": 1,
+    "R13-16": 89,
+    "R13-17": 9,
+    "R13-18": 5
+  },
+  "exact_duplicate_rows": 15,
+  "excluded_batch_documents_not_extracted": 10,
+  "excluded_byte_identical_schema_copies": 4,
+  "excluded_local_sdk_design_or_test_documents": 3,
+  "excluded_normalized_generated_inputs": 1,
+  "excluded_vendor_manuals_ignored": 2,
+  "markdown_atomic_statements": 122,
+  "openapi_by_method": {
+    "DELETE": 55,
+    "GET": 247,
+    "POST": 173,
+    "PUT": 75
+  },
+  "openapi_operations": 550,
+  "openapi_source_documents": 14,
+  "operation_allowlist_disposition": {
+    "approved-controlled-state-change": 3,
+    "approved-observation": 12,
+    "approved-observation-via-post": 4,
+    "approved-safety-critical-state-change": 1,
+    "conditional-human-emergency-auth-backup": 2,
+    "not-authorized": 528
+  },
+  "permanent_requirement_ids": 0,
+  "pointer_counts": {
+    "ALIAS-R13-001": 1,
+    "BOUND-R13-001": 672,
+    "OVERRIDE-R13-001": 13,
+    "RES-R13-API-001": 569,
+    "RES-R13-ENUM-001": 103,
+    "RES-R13-ENV-001": 569,
+    "RES-R13-TSL-001": 103,
+    "SECRET-R13-001": 2
+  },
+  "pointer_definitions": {
+    "ALIAS-R13-001": "受控 schema 的订单命令路径参数名是 orderKey；批准决策使用 orderId 业务称呼，两者不得静默当作不同 API。",
+    "BOUND-R13-001": "R13 只从总账固定的 16 份候选提取；10 份排除材料不从自身生成需求候选。",
+    "DEDUP-R13-001": "四份 SDK specs schema 与受控原始 swagger 字节相同，只保留原始快照 operation 候选。",
+    "OVERRIDE-R13-001": "物模型问题清单中的补枚举、黑盒反推和应用层处置建议不构成权威语义，冲突处由票据 38/39 的答案覆盖。",
+    "RES-R13-API-001": "“决定 RIoT 项目 API 白名单与调用安全边界”形成封闭操作白名单及调用安全规则。",
+    "RES-R13-ENUM-001": "“决定未知物模型枚举值的项目处理规则”固定 UnrecognizedThingModelValue 与最小范围阻断规则。",
+    "RES-R13-ENV-001": "“补齐 RIoT 目标环境与受控接口快照证据”绑定环境、build、快照来源与适用范围。",
+    "RES-R13-TSL-001": "“补齐 standard.oasis.300ul 物模型枚举证据”固定原始 TSL 字节内容及未知证据边界。",
+    "SECRET-R13-001": "项目说明中的 admin/admin 只是不安全示例，不得成为生产凭据或基线配置。"
+  },
+  "schema_copy_deduplication": [
+    {
+      "canonical_path": "rcs/riot_swagger/device.json",
+      "canonical_record_id": "R13-06",
+      "disposition": "not-extracted-byte-identical-copy",
+      "excluded_copy_path": "rcs/riot-sdk/specs/device.json",
+      "excluded_copy_record_id": "R13-23",
+      "sha256": "e35dad335c0d82663159ac5778337ff3aaae3f128bf5686318bf1fe75b8b9217"
+    },
+    {
+      "canonical_path": "rcs/riot_swagger/imap.json",
+      "canonical_record_id": "R13-09",
+      "disposition": "not-extracted-byte-identical-copy",
+      "excluded_copy_path": "rcs/riot-sdk/specs/imap.json",
+      "excluded_copy_record_id": "R13-24",
+      "sha256": "253c5747586b9c7d9ca798c75a74193081e837a01167c6db7a20b78e8dd1a6d6"
+    },
+    {
+      "canonical_path": "rcs/riot_swagger/order.json",
+      "canonical_record_id": "R13-13",
+      "disposition": "not-extracted-byte-identical-copy",
+      "excluded_copy_path": "rcs/riot-sdk/specs/order.json",
+      "excluded_copy_record_id": "R13-25",
+      "sha256": "e364ffac680582f9cbdf3b3b7f4055486bd88bbcb20370bcf55889ca54efd038"
+    },
+    {
+      "canonical_path": "rcs/riot_swagger/task.json",
+      "canonical_record_id": "R13-16",
+      "disposition": "not-extracted-byte-identical-copy",
+      "excluded_copy_path": "rcs/riot-sdk/specs/task.json",
+      "excluded_copy_record_id": "R13-26",
+      "sha256": "050a612e21ebe01b95d6fa35ca54d592bd83e108b69f5eb0703d8b903274d6d1"
+    }
+  ],
+  "snapshot_binding": {
+    "environment": "RIOT-8005-RUNTIME",
+    "schema_info_version": "missing-in-all-14-source-documents",
+    "snapshot_id": "RIOT-OPENAPI-8005-202607-EARLY-01",
+    "source_build": "v2.2.0.14"
+  },
+  "source_documents": 16,
+  "supplemental_tsl_evidence": {
+    "authority_boundary": "static-content-only; source-version-environment-build-firmware-and-8005-applicability-remain-unbound",
+    "bytes": 53458,
+    "events": 8,
+    "path": "rcs/riot_ithing_model/standard.oasis.300ul/standard.oasis.300ul.tsl",
+    "product_key": "standard.oasis.300ul",
+    "profile_version": "1",
+    "properties": 27,
+    "services": 37,
+    "sha256": "3b93756ad18896c278cffc1c13711b289aa8236bc79a35e178180581c9faee36"
+  },
+  "total": 672
+}

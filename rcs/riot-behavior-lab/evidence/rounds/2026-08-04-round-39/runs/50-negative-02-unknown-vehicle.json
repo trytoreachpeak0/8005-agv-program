@@ -1,0 +1,30 @@
+{
+    "at":  "2026-08-04T15:53:28.4191780+08:00",
+    "elapsedMs":  98,
+    "request":  {
+                    "method":  "GET",
+                    "url":  "http://172.10.1.72:8888/api/task/vehicles/queryVehicleNotAssignOrder/riot-lab-round39-vehicle-does-not-exist/order-2079079643343880192",
+                    "headers":  {
+                                    "Authorization":  "\u003credacted\u003e"
+                                },
+                    "authCase":  "valid"
+                },
+    "response":  {
+                     "httpStatus":  200,
+                     "contentType":  "application/json; charset=UTF-8",
+                     "body":  "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":{\"reason\":\"车辆不存在\",\"suggestList\":[\"1、车辆在RIoT系统上不存在：内存数据和页面数据不对等\",\"2、刷新界面，查看机器人信息列表中该车辆是否还存在；或者在设备管理-机器人列表，查看该车辆是否还存在\"]},\"tid\":\"\"}",
+                     "parsed":  {
+                                    "code":  "0",
+                                    "message":  "成功",
+                                    "msgDetail":  "",
+                                    "result":  {
+                                                   "reason":  "车辆不存在",
+                                                   "suggestList":  [
+                                                                       "1、车辆在RIoT系统上不存在：内存数据和页面数据不对等",
+                                                                       "2、刷新界面，查看机器人信息列表中该车辆是否还存在；或者在设备管理-机器人列表，查看该车辆是否还存在"
+                                                                   ]
+                                               },
+                                    "tid":  ""
+                                }
+                 }
+}

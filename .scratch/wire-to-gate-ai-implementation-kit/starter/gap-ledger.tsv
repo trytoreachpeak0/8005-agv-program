@@ -1,0 +1,15 @@
+Class	Item	CurrentFact	RequiredAction	Owner	Deadline	Blocks
+AUTHORITY	MVP 范围/需求/ADR/原型	已固定且有哈希身份	只引用，不重写；开工前验证固定 SHA-256	双方	每次候选冻结	语义一致性
+ENVIRONMENT	远程仓库	三仓已创建；两个产品仅 README	在真实开发分支建立项目、测试、发布入口	szy/王昆	2026-08-25	全部产品实现
+HUMAN	SocialKKKK 权限	两项邀请已发出；用户填写“能”但接受状态未证实	GitHub 回读 accepted	王昆	2026-08-25	Onboard/协议推送
+DECISION	ControlServer 技术栈	已冻结；见 issues/02-research-and-freeze-controlserver-stack.md	按冻结版本建立骨架、首条 SQLite 原子受理失败测试和 W2G-IS-00	Wayfinder/szy	2026-08-25	ControlServer 骨架
+HUMAN	OnboardHmi/IO 技术栈	由王昆决定	冻结语言/UI/数据库和 IO 模拟器协议/地址/初始状态/故障注入	王昆	2026-08-25	Onboard 骨架
+MACHINE_ASSET	共享协议候选	只有规划交接，无机器 release	生成全部 MVP Schema/manifest/errors/examples/vectors/runner 并 G1	协议实现	2026-08-25	两端共同实现
+MACHINE_ASSET	ControlServer 产品	空仓	实现 W2G-IS-00～07、Fake Onboard、G2、安装物	szy	2026-08-27	G3/发布
+MACHINE_ASSET	OnboardHmi 产品	空仓	实现 W2G-IS-00～07、原型 A、IO 模拟器、Fake ControlServer、G2	王昆	2026-08-27	G3/发布
+ENVIRONMENT	MesIngest	已有 V2、同机、有 WIRE_TO_GATE 测试数据	迁移到新开发电脑并回读 contract/HistoryEpoch/BaseUrl	szy	联调前	需求受理闭环
+ENVIRONMENT	RIoT	真实 BaseUrl/车辆显示名/Map/CallApiKey/移动权限已知	安全注入 key；只读解析技术车辆 ID 与两个站点；获准移动验证	szy	2026-08-27	完整移动闭环
+AI_SAFE	测试 TLS/每车密钥	尚未生成	生成自签名测试证书和独立测试密钥，通过安全配置注入	实现者	首次连接前	W2G-IS-00
+HUMAN	协议批准	尚无首个 release 批准	双方本人确认精确 commit/manifest 后创建不可变 release	szy/王昆	G1/G2/G3 候选通过后	G0/生产绑定
+EVIDENCE	联合门禁	尚无真实两端构建	逐切片 G3 并保留绑定身份的红/绿证据	双方	2026-08-28	MVP RC
+HUMAN	软件验收	尚未执行	用户从干净环境安装、运行、恢复并完成端到端闭环	szy	2026-08-28 17:00	最终交付

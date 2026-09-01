@@ -1,0 +1,60 @@
+{
+  "at": "2026-08-04T16:53:17.7610307+08:00",
+  "elapsedMs": 161,
+  "request": {
+    "method": "GET",
+    "url": "http://172.10.1.72:8888/api/version/v1/infos",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "bytes": 1512,
+    "contentType": "application/json; charset=UTF-8",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": [
+        {
+          "componentName": "riot-bootstrap-core",
+          "gitBranch": "master",
+          "gitBuildTime": "20250530143817",
+          "gitBuildUserName": "husijia",
+          "gitBuildVersion": "2.1-SNAPSHOT",
+          "gitClosestTagName": "v2.2.0.30",
+          "gitCommitId": "16703ba277d21694bacce12ff5be016c78408563",
+          "gitCommitIdDescribe": "v2.2.0.30",
+          "gitCommitMessageFull": "Merge branch 'sprint/2.1' into 'master'\n\nV2.2.0.30\n\nSee merge request cybertron/riot-standalone!498",
+          "gitCommitTime": "20250530143239",
+          "gitCommitUserName": "husijia",
+          "gitDirty": false,
+          "gitTags": "v2.2.0.30",
+          "path": "C:/StandardRobotsRiot/lib/riot-bootstrap-core.jar",
+          "timeStamp": 0,
+          "type": "backend"
+        },
+        {
+          "componentName": "frontend-riot",
+          "gitBranch": "master",
+          "gitBuildTime": "20250513032757",
+          "gitBuildUserName": "croatialu",
+          "gitBuildVersion": "2.1.1",
+          "gitClosestTagName": "v2.2.0.26",
+          "gitCommitId": "d75ee388050a7023e5fb50cf32e3a9aa822b2a17",
+          "gitCommitIdDescribe": "v2.2.0.22-6-gd75ee388",
+          "gitCommitMessageFull": "fix: #98556 ãRIOT2.0ããå·¥èº/ä¸åãï¼å·¥ä½ç«ç¹ä¸åæ¶ï¼å·²æ·»å å°å³ä¾§åè¡¨çç«ç¹ï¼æ æ³ç§»é¤ (#12) !184 ",
+          "gitCommitTime": "20250508075345",
+          "gitCommitUserName": "croatialu",
+          "gitDirty": true,
+          "gitTags": "v2.2.0.26",
+          "path": "C:/StandardRobotsRiot/frontend/",
+          "timeStamp": 0,
+          "type": "frontend"
+        }
+      ],
+      "tid": ""
+    }
+  }
+}

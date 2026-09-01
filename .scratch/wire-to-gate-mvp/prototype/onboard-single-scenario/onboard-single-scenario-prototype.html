@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PROTOTYPE — OnboardHmi 單場景操作評審</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #101d2f;
+      --panel-2: #17263b;
+      --panel-3: #21344c;
+      --line: #304763;
+      --text: #eef6ff;
+      --muted: #9eb2ca;
+      --cyan: #45d3ff;
+      --blue: #70a7ff;
+      --green: #48d597;
+      --yellow: #ffd166;
+      --red: #ff667c;
+      --purple: #bf8cff;
+      --shadow: 0 20px 60px rgba(0,0,0,.28);
+      font-family: "Segoe UI", "Microsoft JhengHei UI", "Microsoft YaHei UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 1120px; min-height: 100vh; background: radial-gradient(circle at 12% 0%, #17365a 0, transparent 35%), var(--bg); color: var(--text); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .38; }
+    .prototype-ribbon { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 7px 18px; background: repeating-linear-gradient(135deg,#ffcf4a 0 12px,#172033 12px 24px); color: #08101c; font-size: 12px; font-weight: 900; letter-spacing: .06em; }
+    .prototype-ribbon span { padding: 2px 8px; background: #ffcf4a; }
+    #app { padding-top: 34px; padding-bottom: 112px; }
+    .shell-header { display: grid; grid-template-columns: 1.3fr repeat(4, minmax(150px,.55fr)); gap: 10px; align-items: stretch; padding: 14px 18px 10px; background: rgba(7,17,31,.88); border-bottom: 1px solid var(--line); position: sticky; top: 34px; z-index: 20; backdrop-filter: blur(14px); }
+    .brand { display: flex; gap: 12px; align-items: center; }
+    .vehicle-icon { width: 52px; height: 42px; border: 2px solid var(--cyan); border-radius: 10px; display: grid; place-items: center; color: var(--cyan); font-weight: 900; box-shadow: inset 0 0 20px rgba(69,211,255,.13); }
+    .brand h1 { margin: 0; font-size: 20px; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .status-chip { padding: 9px 12px; border: 1px solid var(--line); background: var(--panel); border-radius: 10px; }
+    .status-chip .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .status-chip .value { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-weight: 800; font-size: 14px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 12px currentColor; }
+    .tone-good .dot, .tone-good { color: var(--green); }
+    .tone-warn .dot, .tone-warn { color: var(--yellow); }
+    .tone-danger .dot, .tone-danger { color: var(--red); }
+    .tone-info .dot, .tone-info { color: var(--cyan); }
+    .stage-toolbar { display: grid; grid-template-columns: auto minmax(360px,1fr) auto auto; gap: 10px; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--line); background: #0b1727; }
+    .stage-toolbar label { color: var(--muted); font-size: 13px; font-weight: 700; }
+    select, input { border: 1px solid #46617f; background: #0b1727; color: var(--text); border-radius: 8px; padding: 9px 12px; }
+    .ghost-button, .solid-button, .danger-button { border-radius: 9px; padding: 10px 16px; font-weight: 800; }
+    .ghost-button { border: 1px solid #4c6683; color: var(--text); background: transparent; }
+    .solid-button { border: 1px solid #68dcff; color: #03131b; background: var(--cyan); box-shadow: 0 8px 24px rgba(69,211,255,.18); }
+    .danger-button { border: 1px solid #ff8797; color: white; background: #8f2538; }
+    .notice { margin: 0 18px 12px; padding: 11px 14px; border-radius: 9px; border-left: 5px solid var(--blue); background: #12233a; font-weight: 700; }
+    .notice.warn { border-color: var(--yellow); background: #302713; color: #ffe6a0; }
+    .notice.danger { border-color: var(--red); background: #351822; color: #ffd9df; }
+    .notice.good { border-color: var(--green); background: #102c27; color: #baffdf; }
+    .page { padding: 0 18px 24px; }
+    .panel { background: linear-gradient(180deg, rgba(23,38,59,.98), rgba(13,27,45,.98)); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+    .panel-title { padding: 13px 15px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title h2, .panel-title h3 { margin: 0; font-size: 15px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 99px; background: #253a54; color: #d7e8fb; font-size: 11px; font-weight: 800; }
+    .badge.good { background: #154337; color: #9effd1; }
+    .badge.warn { background: #4b3b13; color: #ffe29a; }
+    .badge.danger { background: #55202c; color: #ffb3be; }
+    .muted { color: var(--muted); }
+    .tiny { font-size: 11px; }
+    .journey-list { list-style: none; margin: 0; padding: 8px; max-height: 650px; overflow: auto; }
+    .journey-list li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 8px; border-radius: 8px; color: var(--muted); font-size: 12px; }
+    .journey-list li.active { background: #203b59; color: white; }
+    .journey-list li.past { color: #90d9bd; }
+    .step-number { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: #22354c; font-weight: 900; }
+    .journey-list li.active .step-number { color: #03131b; background: var(--cyan); }
+    .layout-a { display: grid; grid-template-columns: 230px minmax(420px,1fr) 430px; gap: 14px; align-items: start; }
+    .work-card { padding: 22px; min-height: 390px; display: flex; flex-direction: column; }
+    .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .work-card h2 { margin: 8px 0 10px; font-size: 30px; line-height: 1.15; }
+    .work-card .instruction { color: #d3e1f0; font-size: 17px; line-height: 1.6; max-width: 740px; }
+    .facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin: 18px 0; }
+    .fact { background: #0a1728; border: 1px solid #2b425d; padding: 10px 12px; border-radius: 9px; }
+    .fact .key { color: var(--muted); font-size: 11px; }
+    .fact .val { margin-top: 3px; font-weight: 800; word-break: break-all; }
+    .action-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: auto; padding-top: 18px; }
+    .entry-box { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 12px; }
+    .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; padding: 12px; }
+    .slot { position: relative; padding: 10px; min-height: 115px; border-radius: 10px; border: 1px solid #38516e; background: #0d1c2f; overflow: hidden; }
+    .slot.target { border-color: var(--cyan); box-shadow: inset 0 0 0 1px rgba(69,211,255,.35); }
+    .slot.active { border-color: var(--yellow); box-shadow: inset 0 0 24px rgba(255,209,102,.12); }
+    .slot.unknown { border-color: var(--red); background: #2a1720; }
+    .slot-head { display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+    .slot-body { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 9px; color: #d4e1f0; font-size: 11px; }
+    .slot-body span:nth-child(odd) { color: var(--muted); }
+    .slot-tag { font-size: 10px; color: var(--cyan); }
+    .state-evidence { margin-top: 14px; }
+    .state-evidence pre { margin: 0; padding: 14px; max-height: 250px; overflow: auto; background: #050c15; color: #b9cee4; font: 11px/1.55 Consolas, monospace; border-radius: 0 0 14px 14px; white-space: pre-wrap; }
+    .safety-banner { margin-bottom: 14px; display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 16px 20px; border-radius: 14px; background: #122f2a; border: 1px solid #2a8068; }
+    .safety-banner.blocked { background: #3a1821; border-color: #a33a50; }
+    .safety-icon { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: rgba(0,0,0,.25); font-size: 25px; font-weight: 900; }
+    .safety-banner h2 { margin: 0 0 3px; font-size: 24px; }
+    .layout-b { display: grid; grid-template-columns: 330px minmax(470px,1fr) 330px; gap: 14px; align-items: start; }
+    .safety-stack, .allowed-stack { padding: 14px; }
+    .safety-item { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid #2b425e; }
+    .safety-item:last-child { border-bottom: 0; }
+    .allowed-action { display: grid; grid-template-columns: 24px 1fr; gap: 8px; margin-bottom: 9px; padding: 10px; border-radius: 8px; background: #0d1c2f; font-size: 12px; }
+    .allowed-action.yes { border-left: 3px solid var(--green); }
+    .allowed-action.no { border-left: 3px solid var(--red); opacity: .7; }
+    .route-rail { display: flex; align-items: center; gap: 0; margin-bottom: 14px; padding: 18px 22px; }
+    .route-stop { min-width: 150px; text-align: center; }
+    .route-stop .circle { width: 34px; height: 34px; margin: 0 auto 6px; display: grid; place-items: center; border-radius: 50%; border: 2px solid #496783; background: #102036; font-weight: 900; }
+    .route-stop.current .circle { border-color: var(--cyan); background: var(--cyan); color: #07111f; }
+    .route-stop.done .circle { border-color: var(--green); color: var(--green); }
+    .route-line { flex: 1; min-width: 80px; height: 3px; background: #38506c; }
+    .route-line.done { background: var(--green); }
+    .overview-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 14px; }
+    .overview-card { padding: 16px; min-height: 110px; }
+    .overview-card .big { margin-top: 10px; font-size: 23px; font-weight: 900; }
+    .layout-c-main { display: grid; grid-template-columns: minmax(560px,1fr) 470px; gap: 14px; align-items: start; }
+    .touch-work { padding: 22px; min-height: 410px; }
+    .touch-work h2 { margin: 5px 0 10px; font-size: 34px; }
+    .touch-primary { width: 100%; min-height: 72px; margin-top: 20px; border-radius: 12px; border: 2px solid #7fe3ff; background: var(--cyan); color: #06131b; font-size: 20px; font-weight: 900; }
+    .review-callout { margin-top: 16px; padding: 12px; border-radius: 8px; background: #3e2812; border: 1px solid #8c6226; color: #ffe3aa; font-size: 12px; }
+    .prototype-switcher { position: fixed; z-index: 40; left: 50%; bottom: 18px; transform: translateX(-50%); display: grid; grid-template-columns: 48px minmax(310px,auto) 48px; align-items: center; gap: 8px; padding: 8px; border-radius: 999px; color: white; background: #02070d; border: 1px solid #84dfff; box-shadow: 0 12px 50px rgba(0,0,0,.6), 0 0 0 4px rgba(69,211,255,.12); }
+    .prototype-switcher button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #516c88; background: #17283d; color: white; font-size: 22px; }
+    .variant-label { text-align: center; }
+    .variant-label strong { display: block; }
+    .variant-label span { color: #9eb2ca; font-size: 11px; }
+    .external-review { position: fixed; z-index: 39; right: 18px; bottom: 22px; max-width: 285px; padding: 9px 12px; border-radius: 9px; background: #541b2b; border: 1px solid #ff7d91; color: #ffe7eb; font-size: 11px; box-shadow: var(--shadow); }
+    @media (max-width: 1300px) {
+      .layout-a { grid-template-columns: 200px minmax(400px,1fr) 370px; }
+      .layout-b { grid-template-columns: 285px minmax(430px,1fr) 285px; }
+      .shell-header { grid-template-columns: 1.2fr repeat(4, .55fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype-ribbon"><span>PROTOTYPE · THROWAWAY · 不得成为生产依赖</span><span>问题：什么信息层级与可用动作能安全覆盖 WIRE_TO_GATE 单场景？</span></div>
+  <main id="app"></main>
+  <div class="external-review">用户已选定 A；本票未取得车载端开发同事批准。分辨率、触控密度、扫码输入、现场可读性与可实现性必须在实施／试运行中验证。</div>
+  <script>
+    const variants = {
+      A: { name: '旅程导引台', summary: '单一主任务 + 逐阶段下一步 + 固定八仓' },
+      B: { name: '安全优先双栏', summary: '安全联锁置顶 + 业务与允许动作分栏' },
+      C: { name: '站点作业板', summary: '四维概览 + 横向路线 + 大尺寸触控区' }
+    };
+
+    const baseDemand = {
+      demandId: 'DMD-8005-20260825-0017',
+      workType: 'WIRE_TO_GATE',
+      sublot: 'WB25A017-03',
+      pickup: 'A1-3 / WB-17',
+      gate: 'A1-GATE-01',
+      expectedBaskets: 3,
+      targetSlots: [1, 2, 3]
+    };
+
+    const stages = [
+      { id:'CONNECTING', phase:'连接', title:'正在建立车载连接', instruction:'正在验证车辆身份与精确 ProtocolVersion。连接成功不代表业务就绪。', connection:'连接中', readiness:'未授予', motion:'停稳', safety:'未知／禁止移动', guard:'无', stop:'—', demand:null, primary:'等待连接', primaryEnabled:false, notice:'只允许会话建立与诊断；不得显示扫码、开仓或发车操作。', noticeKind:'warn', allowed:['查看本车实时 IO'], forbidden:['扫码','开仓','请求移动'] },
+      { id:'HANDSHAKE', phase:'恢复握手', title:'恢复对账 3 / 5', instruction:'能力与完整安全快照已采用；正在核对 OnboardExecutionJournal、未结操作和待确认结果。', connection:'已连接', readiness:'恢复对账中', motion:'停稳', safety:'DepartureSafe = false', guard:'保持既有事实', stop:'—', demand:null, primary:'等待服务端裁决', primaryEnabled:false, notice:'Heartbeat 正常、快照已显示或 ACK 已收到，都不能单独解释成 READY。', noticeKind:'warn', allowed:['查看握手明细','补报原 OperationResult'], forbidden:['扫码','新仓位操作','OrderContinue'] },
+      { id:'READY_WAIT', phase:'待命', title:'车辆业务已就绪', instruction:'服务端已授予 VehicleBusinessReadiness。当前没有正在执行的仓位操作。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'DepartureSafe = true', guard:'无', stop:'等待派发', demand:null, primary:'等待唯一 Demand', primaryEnabled:false, notice:'OnboardHmi 不从 MesIngest 选单，也不显示 backlog 为已接任务。', noticeKind:'good', allowed:['查看车辆概览','查看服务端投影'], forbidden:['自行选单','编辑停靠计划','直接调用 RIoT'] },
+      { id:'TO_PICKUP', phase:'移动', title:'正在前往机台取货', instruction:'当前唯一 Demand 已冻结；RIoT 正在执行 TO_PICKUP，下一业务停靠为 WB-17。', connection:'已连接', readiness:'READY', motion:'移动中', safety:'持续监视', guard:'无', stop:'WB-17（下一站）', demand:baseDemand, primary:'行驶中', primaryEnabled:false, notice:'ArrivalAtStation 只是提示；必须通过完整 StationOperationArrivalGate 才能开放扫码。', noticeKind:'info', allowed:['查看 Demand 摘要','请求本车急停'], forbidden:['提前扫码','改站','开仓'] },
+      { id:'PICKUP_ARRIVED', phase:'机台到站', title:'WB-17 已可信到站', instruction:'订单 SUCCESS、车辆 IDLE、位置/Map/目标一致且停稳证据有效。正在建立 OperationSession 与 StationOperationGuard。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'禁止移动（站点作业）', guard:'已建立', stop:'WB-17（当前站）', demand:baseDemand, primary:'进入 Sublot 核对', primaryEnabled:true, notice:'StationOperationGuard 从允许输入前开始覆盖，不等到仓位清单生成。', noticeKind:'good', allowed:['进入当前 Demand 作业','查看停靠与仓位'], forbidden:['请求移动','选择其它 Demand','修改站点'] },
+      { id:'SUBLOT_ENTRY', phase:'机台作业', title:'扫描或输入子批号 / SUBLOT', instruction:'输入只确认本车、本站、当前 OperationSession 的唯一已受理 Demand。扫码与键盘走同一 SublotSubmitted。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'禁止移动（站点作业）', guard:'有效', stop:'WB-17（当前站）', demand:baseDemand, primary:'提交 Sublot', primaryEnabled:true, input:true, notice:'不允许填写花篮数、选择任务或换仓。服务端最终核验后才冻结 ExpectedBasketCount 与完整仓位集。', noticeKind:'info', allowed:['扫码','键盘输入完整 Sublot','提交最终校验'], forbidden:['改篮数','换绑 Demand','按 STEP/EQP 重判任务'] },
+      { id:'LOADING', phase:'批量装货', title:'将 3 个花篮放入目标仓位', instruction:'目标仓位 1、2、3 已批量开锁。花篮无独立身份，可按任意顺序放入并关门。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'禁止移动（ActiveUnlockSet）', guard:'有效', stop:'WB-17（当前站）', demand:baseDemand, activeUnlock:[1,2,3], primary:'等待全部仓位闭环', primaryEnabled:false, notice:'每仓必须达到 OCCUPIED + 锁闭 + 开锁输出已复位；明确 EMPTY 会自动重新弹锁，UNKNOWN 会暂停并进入恢复。', noticeKind:'warn', allowed:['按任意顺序放入/关门','查看逐仓反馈','请求本车急停'], forbidden:['跳过 UNKNOWN','替换目标仓位','强制标记完成'] },
+      { id:'WAIT_DEPART_PICKUP', phase:'等待发车', title:'装货已提交，等待新的发车核验', instruction:'LoadBatch 与本站结束已形成业务事实；仍须新的 PreDepartureSafetyCheck，服务端才可请求 TO_GATE。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'待 PreDepartureSafetyCheck', guard:'已解除', stop:'WB-17（作业已完成）', demand:baseDemand, primary:'请求实时安全核验', primaryEnabled:true, notice:'作业完成、开始行驶和关卡到站是三个不同事件。历史 OperationResult 不能替代本次发车核验。', noticeKind:'good', allowed:['查看已提交装货证据','请求本车急停'], forbidden:['车载端自行发车','回滚 LoadBatch','复用旧安全结果'] },
+      { id:'TO_GATE', phase:'移动', title:'正在前往关卡卸货', instruction:'RIoT 正在执行严格串行的 TO_GATE；完整目标仓位仍绑定当前 Demand。', connection:'已连接', readiness:'READY', motion:'移动中', safety:'持续监视', guard:'无', stop:'A1-GATE-01（下一站）', demand:baseDemand, primary:'行驶中', primaryEnabled:false, notice:'安全许可撤销或车载断链时，服务端必须 OrderHold 并核验停车；连接恢复不自动 OrderContinue。', noticeKind:'info', allowed:['查看关卡计划','请求本车急停'], forbidden:['提前卸货','修改目标站','车载端自行续行'] },
+      { id:'GATE_ARRIVED', phase:'关卡到站', title:'关卡已可信到站，准备自动卸货', instruction:'系统按当前 Demand、目标站与在车业务状态识别仓位 1、2、3；无需再扫 Sublot、工号或接收确认。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'禁止移动（站点作业）', guard:'有效', stop:'A1-GATE-01（当前站）', demand:baseDemand, primary:'开始批量卸货', primaryEnabled:true, notice:'OnboardHmi 不提供“暂不收货、拒收、稍后接收”或到站取消入口。', noticeKind:'good', allowed:['确认画面信息','开始服务端已授权卸货'], forbidden:['再次扫码','输入卸货工号','等待 PDA/MES'] },
+      { id:'UNLOADING', phase:'批量卸货', title:'取空目标仓位并关门', instruction:'仓位 1、2、3 已批量开锁；人员可任意顺序取货。已证明为空的仓位可独立清除业务绑定。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'禁止移动（ActiveUnlockSet）', guard:'有效', stop:'A1-GATE-01（当前站）', demand:baseDemand, activeUnlock:[1,2,3], primary:'等待全部仓位闭环', primaryEnabled:false, notice:'每仓必须达到 EMPTY + 锁闭 + 开锁输出已复位；其它仓位失败不得回滚已清空仓位。', noticeKind:'warn', allowed:['按任意顺序取出/关门','查看逐仓反馈','请求本车急停'], forbidden:['强制空仓','跳过锁闭反馈','再次扫描 Sublot'] },
+      { id:'COMPLETED', phase:'本地完成', title:'8005 本地运输已完成', instruction:'UnloadBatch、StopClosureCommit、Demand 成功终态与 TransportDemandCompletion 已原子提交。外部 PDA/MES 流程独立。', connection:'已连接', readiness:'READY', motion:'停稳', safety:'待新的 PreDepartureSafetyCheck', guard:'已解除', stop:'A1-GATE-01（作业已完成）', demand:baseDemand, primary:'等待后续调度', primaryEnabled:false, notice:'不等待、不轮询、不读取 PDA/MES；之后的 MES 可见、GONE 或重启都不得重复执行同一 TransportDemandKey。', noticeKind:'good', allowed:['查看本地完成证据','等待后续调度'], forbidden:['回写 MES','重开原任务','把 PDA 未操作显示为 8005 告警'] },
+      { id:'DISCONNECTED_CONTAINMENT', phase:'断联收敛', title:'服务器连接已断开，正在安全收尾', instruction:'断联发生在批量装货中。只允许收尾已经发出或发送结果未知的 ActiveUnlockSet = [1,2]；仓位 3 不得继续开锁。', connection:'已断开', readiness:'不可用', motion:'停稳', safety:'禁止移动', guard:'保持', stop:'WB-17（离线投影）', demand:baseDemand, activeUnlock:[1,2], primary:'等待重连对账', primaryEnabled:false, notice:'离线投影只读且明确过期。当前集合闭环后暂停；无自动取消超时，不清除 Sublot 或 journal。', noticeKind:'danger', allowed:['SafelyFinishActiveUnlockSet','查看本车实时 IO','请求本车急停'], forbidden:['扩大开锁集合','本地取消任务','使用离线投影启动新操作'] },
+      { id:'RESTART_RECOVERY', phase:'重启恢复', title:'从可证明恢复点对账', instruction:'已加载 OnboardExecutionJournal 并重新读取实时 IO。仓位 2 为 UNKNOWN，无法导出唯一安全下一步。', connection:'已连接', readiness:'RECOVERY_REQUIRED', motion:'停稳', safety:'禁止移动', guard:'保持', stop:'WB-17（恢复中）', demand:baseDemand, activeUnlock:[1,2], primary:'进入异常处置', primaryEnabled:true, notice:'不得从头重做或重发开锁。日志、实时 IO 与服务端事实不唯一一致时，必须保持 VehicleRecoveryRequired。', noticeKind:'danger', allowed:['查看 journal/实时 IO 差异','补报原结果','请求异常处置会话'], forbidden:['新 SlotOperationAttemptId','把 UNKNOWN 猜成安全','连接恢复即继续'] },
+      { id:'EXCEPTION_RECOVERY', phase:'异常处置', title:'固定范围异常处置会话', instruction:'维护管理员已以个人账号建立会话，范围固定为本事件、AGV-8005-01、当前 Demand 与仓位 1、2、3。', connection:'已连接', readiness:'RECOVERY_REQUIRED', motion:'已证明停稳', safety:'禁止移动', guard:'保持', stop:'WB-17（隔离处置）', demand:baseDemand, activeUnlock:[1,2], primary:'记录恢复路径选择', primaryEnabled:true, notice:'只允许四条批准路径；人工记录、管理员身份或货物交接都不能替代实时锁、占用、输出复位与现场资质。', noticeKind:'danger', allowed:['修复后续行','整批清空补偿','故障载货交接','强制机械恢复'], forbidden:['临时扩仓','换车继续','人工覆盖 UNKNOWN'] }
+    ];
+
+    let state = {
+      variant: readParam('variant', 'A'),
+      stageIndex: Math.max(0, stages.findIndex(s => s.id === readParam('stage', 'CONNECTING')))
+    };
+    if (!variants[state.variant]) state.variant = 'A';
+
+    function readParam(name, fallback) {
+      try { return new URL(location.href).searchParams.get(name) || fallback; }
+      catch { return fallback; }
+    }
+
+    function setParams() {
+      try {
+        const url = new URL(location.href);
+        url.searchParams.set('variant', state.variant);
+        url.searchParams.set('stage', stages[state.stageIndex].id);
+        history.replaceState({}, '', url);
+      } catch { /* file URL engines without history support still render */ }
+    }
+
+    function tone(value) {
+      const v = String(value);
+      if (/READY|true|已连接|已证明|已解除|已提交|完成/.test(v)) return 'good';
+      if (/断开|UNKNOWN|禁止|RECOVERY_REQUIRED|不可用|危险/.test(v)) return 'danger';
+      if (/等待|恢复|待 |未知|保持|移动中/.test(v)) return 'warn';
+      return 'info';
+    }
+
+    function slotsFor(stage) {
+      const target = stage.demand?.targetSlots || [];
+      const afterLoad = ['WAIT_DEPART_PICKUP','TO_GATE','GATE_ARRIVED'].includes(stage.id);
+      const complete = stage.id === 'COMPLETED';
+      return Array.from({length:8}, (_,i) => {
+        const id = i + 1;
+        let occupancy = target.includes(id) && afterLoad ? 'OCCUPIED' : 'EMPTY';
+        let lock = 'LOCKED';
+        let output = 'RESET';
+        let business = target.includes(id) && (afterLoad || ['UNLOADING','GATE_ARRIVED'].includes(stage.id)) ? baseDemand.sublot : '—';
+        if (stage.id === 'LOADING' && id === 1) { occupancy='OCCUPIED'; lock='LOCKED'; business='待整批提交'; }
+        if (stage.id === 'LOADING' && id === 2) { occupancy='EMPTY'; lock='UNLOCKED'; output='RESET'; business='预留'; }
+        if (stage.id === 'LOADING' && id === 3) { occupancy='EMPTY'; lock='LOCKED'; business='预留'; }
+        if (stage.id === 'UNLOADING' && id === 1) { occupancy='EMPTY'; lock='LOCKED'; business='已清除'; }
+        if (stage.id === 'UNLOADING' && id === 2) { occupancy='OCCUPIED'; lock='UNLOCKED'; business=baseDemand.sublot; }
+        if (stage.id === 'UNLOADING' && id === 3) { occupancy='OCCUPIED'; lock='LOCKED'; business=baseDemand.sublot; }
+        if (complete && target.includes(id)) { occupancy='EMPTY'; lock='LOCKED'; business='已清除'; }
+        if (stage.id === 'DISCONNECTED_CONTAINMENT') {
+          if (id === 1) { occupancy='OCCUPIED'; lock='LOCKED'; business='待对账'; }
+          if (id === 2) { occupancy='UNKNOWN'; lock='UNKNOWN'; output='UNKNOWN'; business='待对账'; }
+          if (id === 3) { occupancy='EMPTY'; lock='LOCKED'; business='预留／未发送'; }
+        }
+        if (['RESTART_RECOVERY','EXCEPTION_RECOVERY'].includes(stage.id)) {
+          if (id === 1) { occupancy='OCCUPIED'; lock='LOCKED'; business='原尝试'; }
+          if (id === 2) { occupancy='UNKNOWN'; lock='UNKNOWN'; output='RESET'; business='原尝试'; }
+          if (id === 3) { occupancy='EMPTY'; lock='LOCKED'; business='预留／未开始'; }
+        }
+        return { id, target:target.includes(id), active:(stage.activeUnlock||[]).includes(id), occupancy, lock, output, business };
+      });
+    }
+
+    function header(stage) {
+      const chips = [
+        ['通信', stage.connection], ['业务就绪', stage.readiness], ['运行', stage.motion], ['安全 / 联锁', stage.safety]
+      ];
+      return `<header class="shell-header">
+        <div class="brand"><div class="vehicle-icon">AGV</div><div><h1>AGV-8005-01 · OnboardHmi</h1><p>WIRE_TO_GATE 单 Demand / 8 仓评审原型</p></div></div>
+        ${chips.map(([label,value]) => `<div class="status-chip tone-${tone(value)}"><div class="label">${label}</div><div class="value"><span class="dot"></span><span>${value}</span></div></div>`).join('')}
+      </header>`;
+    }
+
+    function toolbar() {
+      return `<div class="stage-toolbar"><label for="stageSelect">评审状态</label>
+        <select id="stageSelect">${stages.map((s,i)=>`<option value="${i}" ${i===state.stageIndex?'selected':''}>${String(i+1).padStart(2,'0')} · ${s.phase} · ${s.title}</option>`).join('')}</select>
+        <button class="ghost-button" id="prevStage" ${state.stageIndex===0?'disabled':''}>上一步</button>
+        <button class="ghost-button" id="nextStage" ${state.stageIndex===stages.length-1?'disabled':''}>下一步</button>
+      </div>`;
+    }
+
+    function notice(stage) { return `<div class="notice ${stage.noticeKind||''}">${stage.notice}</div>`; }
+
+    function facts(stage) {
+      const d = stage.demand;
+      return `<div class="facts">
+        <div class="fact"><div class="key">当前唯一 Demand</div><div class="val">${d?.demandId || '无'}</div></div>
+        <div class="fact"><div class="key">WorkType</div><div class="val">${d?.workType || '—'}</div></div>
+        <div class="fact"><div class="key">当前停靠 / 下一停靠</div><div class="val">${stage.stop}</div></div>
+        <div class="fact"><div class="key">StationOperationGuard</div><div class="val">${stage.guard}</div></div>
+        <div class="fact"><div class="key">Sublot</div><div class="val">${d?.sublot || '—'}</div></div>
+        <div class="fact"><div class="key">ExpectedBasketCount / 目标仓</div><div class="val">${d ? `${d.expectedBaskets} / [${d.targetSlots.join(', ')}]` : '—'}</div></div>
+      </div>`;
+    }
+
+    function inputBlock(stage) {
+      if (!stage.input) return '';
+      return `<div class="entry-box"><input id="sublotInput" aria-label="子批号 SUBLOT" value="${baseDemand.sublot}" /><button class="solid-button" data-primary>提交最终核验</button></div>`;
+    }
+
+    function actionRow(stage) {
+      return `<div class="action-row">
+        ${stage.input ? '' : `<button class="solid-button" data-primary ${stage.primaryEnabled?'':'disabled'}>${stage.primary}</button>`}
+        <button class="ghost-button" ${stage.demand?'':'disabled'}>查看权威投影</button>
+        <button class="danger-button">请求本车急停</button>
+      </div>`;
+    }
+
+    function slotGrid(stage) {
+      return `<div class="slot-grid">${slotsFor(stage).map(s => `<div class="slot ${s.target?'target':''} ${s.active?'active':''} ${s.occupancy==='UNKNOWN'?'unknown':''}">
+        <div class="slot-head"><span>仓位 ${s.id}</span><span class="slot-tag">${s.active?'ACTIVE UNLOCK':s.target?'本次目标':'非目标'}</span></div>
+        <div class="slot-body"><span>业务</span><b>${s.business}</b><span>占用</span><b>${s.occupancy}</b><span>锁闭</span><b>${s.lock}</b><span>DO</span><b>${s.output}</b></div>
+      </div>`).join('')}</div>`;
+    }
+
+    function evidence(stage) {
+      const full = {
+        variant: `${state.variant} — ${variants[state.variant].name}`,
+        stage: stage.id,
+        authorities: { business:'ControlServer', physical:'OnboardHmi realtime IO', movement:'ControlServer / RIoT', safetyDecision:'OnboardHmi; permission only' },
+        connection: stage.connection,
+        vehicleBusinessReadiness: stage.readiness,
+        motion: stage.motion,
+        departureSafety: stage.safety,
+        stationOperationGuard: stage.guard,
+        currentOrNextStop: stage.stop,
+        demand: stage.demand,
+        activeUnlockSet: stage.activeUnlock || [],
+        allowedActions: stage.allowed,
+        forbiddenActions: stage.forbidden,
+        slots: slotsFor(stage)
+      };
+      return `<section class="panel state-evidence"><div class="panel-title"><h3>完整评审状态 · 权威与允许动作</h3><span class="badge">状态切换后完整重绘</span></div><pre>${escapeHtml(JSON.stringify(full,null,2))}</pre></section>`;
+    }
+
+    function escapeHtml(value) { return value.replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch])); }
+
+    function variantA(stage) {
+      return `<div class="page"><div class="layout-a">
+        <aside class="panel"><div class="panel-title"><h3>单场景旅程</h3><span class="badge">${state.stageIndex+1}/${stages.length}</span></div><ol class="journey-list">${stages.map((s,i)=>`<li class="${i===state.stageIndex?'active':i<state.stageIndex?'past':''}"><span class="step-number">${i+1}</span><span><b>${s.phase}</b><br>${s.title}</span></li>`).join('')}</ol></aside>
+        <section class="panel work-card"><div class="eyebrow">${stage.phase} · 当前唯一任务</div><h2>${stage.title}</h2><div class="instruction">${stage.instruction}</div>${facts(stage)}${inputBlock(stage)}${actionRow(stage)}</section>
+        <aside><section class="panel"><div class="panel-title"><h3>固定 1–8 号仓位</h3><span class="badge ${stage.activeUnlock?'warn':''}">${stage.activeUnlock?'批量操作中':'实时物理事实'}</span></div>${slotGrid(stage)}</section>${evidence(stage)}</aside>
+      </div></div>`;
+    }
+
+    function variantB(stage) {
+      const blocked = !/true/.test(stage.safety);
+      return `<div class="page">
+        <section class="safety-banner ${blocked?'blocked':''}"><div class="safety-icon">${blocked?'!':'✓'}</div><div><h2>${stage.safety}</h2><div>${blocked?'所有移动入口必须保持阻断；身份或业务完成不能覆盖物理事实。':'这是必要许可，不是发车命令；服务端仍须核对业务与调度门禁。'}</div></div><span class="badge ${blocked?'danger':'good'}">安全权威：本车实时 IO</span></section>
+        <div class="layout-b">
+          <aside class="panel"><div class="panel-title"><h3>安全 / 联锁证据</h3></div><div class="safety-stack">
+            ${[['通信',stage.connection],['业务就绪',stage.readiness],['运行',stage.motion],['StationOperationGuard',stage.guard],['当前开锁集合',`[${(stage.activeUnlock||[]).join(', ')}]`],['发车许可',stage.safety]].map(([k,v])=>`<div class="safety-item"><span class="muted">${k}</span><b class="tone-${tone(v)}">${v}</b></div>`).join('')}
+          </div></aside>
+          <section class="panel work-card"><div class="eyebrow">安全门禁下的业务工作区</div><h2>${stage.title}</h2><div class="instruction">${stage.instruction}</div>${facts(stage)}${inputBlock(stage)}${actionRow(stage)}<div style="margin-top:18px">${slotGrid(stage)}</div></section>
+          <aside class="panel"><div class="panel-title"><h3>此刻允许什么</h3></div><div class="allowed-stack">
+            ${stage.allowed.map(x=>`<div class="allowed-action yes"><b>✓</b><span>${x}</span></div>`).join('')}
+            ${stage.forbidden.map(x=>`<div class="allowed-action no"><b>×</b><span>${x}</span></div>`).join('')}
+            <div class="review-callout">连接在线、管理员身份、ACK 或货物交接均不是“安全覆盖”按钮。</div>
+          </div></aside>
+        </div>${evidence(stage)}
+      </div>`;
+    }
+
+    function routeStatus(stage) {
+      const index = state.stageIndex;
+      const pickupDone = index >= stages.findIndex(s=>s.id==='WAIT_DEPART_PICKUP');
+      const gateCurrent = index >= stages.findIndex(s=>s.id==='GATE_ARRIVED');
+      return `<section class="panel route-rail">
+        <div class="route-stop ${index<4?'current':'done'}"><div class="circle">1</div><b>待命 / 派发</b></div><div class="route-line ${index>=4?'done':''}"></div>
+        <div class="route-stop ${index>=4&&!pickupDone?'current':pickupDone?'done':''}"><div class="circle">2</div><b>WB-17 机台取货</b></div><div class="route-line ${pickupDone?'done':''}"></div>
+        <div class="route-stop ${gateCurrent?'current':index>7?'':'muted'}"><div class="circle">3</div><b>A1-GATE-01 卸货</b></div>
+      </section>`;
+    }
+
+    function variantC(stage) {
+      return `<div class="page">${routeStatus(stage)}
+        <div class="overview-grid">
+          ${[['运行',stage.motion],['通信与业务就绪',`${stage.connection} / ${stage.readiness}`],['当前作业',stage.phase],['安全与联锁',stage.safety]].map(([k,v])=>`<section class="panel overview-card"><span class="muted tiny">${k}</span><div class="big tone-${tone(v)}">${v}</div></section>`).join('')}
+        </div>
+        <div class="layout-c-main">
+          <section class="panel touch-work"><div class="eyebrow">${stage.stop}</div><h2>${stage.title}</h2><div class="instruction">${stage.instruction}</div>${facts(stage)}${inputBlock(stage)}<button class="touch-primary" data-primary ${stage.primaryEnabled?'':'disabled'}>${stage.primary}</button><div class="review-callout">触控评审重点：主动作保持单一；任何禁止动作不以灰色小字偷渡。急停保持独立、醒目且不改变任务绑定。</div></section>
+          <aside><section class="panel"><div class="panel-title"><h3>八仓作业板</h3><span class="badge">业务 + 物理分栏</span></div>${slotGrid(stage)}</section></aside>
+        </div>${evidence(stage)}
+      </div>`;
+    }
+
+    function switcher() {
+      const meta = variants[state.variant];
+      return `<div class="prototype-switcher"><button id="prevVariant" aria-label="上一个布局">←</button><div class="variant-label"><strong>${state.variant} — ${meta.name}</strong><span>${meta.summary} · 使用 ← → 切换</span></div><button id="nextVariant" aria-label="下一个布局">→</button></div>`;
+    }
+
+    function render() {
+      const stage = stages[state.stageIndex];
+      const body = state.variant === 'A' ? variantA(stage) : state.variant === 'B' ? variantB(stage) : variantC(stage);
+      document.getElementById('app').innerHTML = header(stage) + toolbar() + notice(stage) + body + switcher();
+      setParams();
+      wireEvents();
+    }
+
+    function wireEvents() {
+      document.getElementById('stageSelect').addEventListener('change', e => { state.stageIndex = Number(e.target.value); render(); });
+      document.getElementById('prevStage').addEventListener('click', () => { state.stageIndex = Math.max(0,state.stageIndex-1); render(); });
+      document.getElementById('nextStage').addEventListener('click', () => { state.stageIndex = Math.min(stages.length-1,state.stageIndex+1); render(); });
+      document.getElementById('prevVariant').addEventListener('click', () => cycleVariant(-1));
+      document.getElementById('nextVariant').addEventListener('click', () => cycleVariant(1));
+      document.querySelectorAll('[data-primary]').forEach(button => button.addEventListener('click', () => {
+        if (state.stageIndex < stages.length - 1) { state.stageIndex += 1; render(); }
+      }));
+    }
+
+    function cycleVariant(delta) {
+      const keys = Object.keys(variants);
+      const index = keys.indexOf(state.variant);
+      state.variant = keys[(index + delta + keys.length) % keys.length];
+      render();
+    }
+
+    window.addEventListener('keydown', event => {
+      const target = event.target;
+      if (target && (target.matches('input, textarea, select, [contenteditable="true"]') || target.isContentEditable)) return;
+      if (event.key === 'ArrowLeft') { event.preventDefault(); cycleVariant(-1); }
+      if (event.key === 'ArrowRight') { event.preventDefault(); cycleVariant(1); }
+    });
+
+    render();
+  </script>
+</body>
+</html>

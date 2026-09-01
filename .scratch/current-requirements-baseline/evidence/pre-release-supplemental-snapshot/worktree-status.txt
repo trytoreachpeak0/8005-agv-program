@@ -1,0 +1,18 @@
+## codex/continue-wayfinder-map...origin/codex/continue-wayfinder-map [ahead 221]
+ M .scratch/current-requirements-baseline/issues/76-decide-idle-return-parking-point-eligibility-and-arbitration.md
+ M .scratch/current-requirements-baseline/issues/77-decide-map-topology-sync-and-snapshot-product-boundary.md
+ M .scratch/current-requirements-baseline/issues/81-reconcile-mes-ingest-watch-v2-operability-definitions.md
+ M .scratch/current-requirements-baseline/issues/82-validate-riot-overlapping-station-current-position-semantics.md
+ M .scratch/current-requirements-baseline/issues/83-decide-public-station-binding-maintenance-and-effectivity-governance.md
+ M .scratch/current-requirements-baseline/map.md
+ M CONTEXT.md
+?? .scratch/current-requirements-baseline/evidence/mes-ingest-watch-v2-operability-reconciliation-2026-08-24.md
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/approved-source-validation.tsv
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/capture-and-verify.ps1
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/discovery-errors.txt
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/pre-baseline-source-supersession.tsv
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/snapshot.md
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/supplemental-evidence-manifest.tsv
+?? .scratch/current-requirements-baseline/evidence/pre-release-supplemental-snapshot/worktree-status.txt
+?? .scratch/current-requirements-baseline/issues/84-decide-first-baseline-treatment-of-post-snapshot-superseding-requirements.md
+?? .scratch/current-requirements-baseline/issues/85-capture-and-classify-pre-release-supplemental-evidence-snapshot.md

@@ -1,0 +1,50 @@
+{
+  "approval_upgrades": 0,
+  "by_class": {
+    "audit-completeness-fit-criterion-candidate": 1,
+    "audit-query-visibility-fit-criterion-candidate": 1,
+    "audit-retention-fit-criterion-candidate": 1,
+    "service-availability-fit-criterion-candidate": 1,
+    "service-recovery-time-fit-criterion-candidate": 1
+  },
+  "by_nfr": {
+    "NFR-001": 2,
+    "NFR-002": 3
+  },
+  "by_quality_attribute": {
+    "auditability-completeness": 1,
+    "auditability-query-visibility": 1,
+    "auditability-retention": 1,
+    "availability": 1,
+    "recoverability-RTO": 1
+  },
+  "by_route": {
+    "needs-operations-it-sla-and-explicit-approval": 2,
+    "needs-quality-security-it-policy-and-explicit-approval": 3
+  },
+  "by_source": {
+    "R07-03": 3,
+    "R07-04": 2
+  },
+  "exact_duplicate_rows": 0,
+  "excluded_documents_not_extracted": 13,
+  "missing_related_tc_rows": 5,
+  "pointer_counts": {
+    "EX-R07-001": 5,
+    "Q-R07-001": 1,
+    "SC-R07-001": 1,
+    "SC-R07-002": 2,
+    "TBD-R07-001": 2,
+    "TBD-R07-002": 2
+  },
+  "pointer_definitions": {
+    "EX-R07-001": "5 个 FC 均无 related_tc、实际执行结果、构建/环境与附件哈希；建议测量法不是验证证据。",
+    "Q-R07-001": "UC-021 正常流记录操作人/时间/原因是否足以把 FR-029 纳入关键审计目录存在未决范围歧义。",
+    "SC-R07-001": "NFR-002 FC-1 的关键事件目录、最低字段集与 1:1/聚合对应规则未冻结。",
+    "SC-R07-002": "NFR-001 将外部依赖不可用排除或分开统计，但未固定责任归因及部分降级口径。",
+    "TBD-R07-001": "NFR-002 的 180 天留存和 5 分钟可见性是草稿阈值，待客户质量/IT/安全方批准。",
+    "TBD-R07-002": "NFR-001 的 99.5% 可用性和 15 分钟 RTO 是草稿阈值，待客户运维/IT 批准。"
+  },
+  "source_documents": 2,
+  "total": 5
+}

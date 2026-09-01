@@ -1,0 +1,18 @@
+{
+  "runId": "00000000-0000-4000-8000-000000003300",
+  "integrationSliceId": "W2G-IS-00",
+  "runKind": "G3",
+  "protocolManifestSha256": "e878d89e820535fe1eb64b85681b9c2994fb98646309e6ba768219c5c8735f2e",
+  "controlServerCommit": "8fae66f65cde41d1b1c64a328661860ee16a481a",
+  "onboardHmiCommit": "398a957662cacb6c0f49ddd78da12d896a1469be",
+  "fakePeerIdentities": [],
+  "vectorIds": ["CV-SESSION-RECOVERY-HAPPY", "CV-SESSION-RECONNECT-DURING-RECOVERY", "CV-SNAPSHOT-REPLACE-AND-ACK", "CV-SNAPSHOT-SAME-REVISION-CONFLICT"],
+  "vectorsSha256": "25a4e900695f1f0b58e60330d7aeb0d5dc79958a5a8ad8d631c9fad18f13d387",
+  "virtualTimeScriptSha256": "cd66a26ddaa6c629eec0fb82735804fd76b87651884d67c347e58ebed5f1063c",
+  "configurationSha256": "6adb5e67565221a8f13f7f4a55cf4867fe6f2a1e8aa4485da90901ff85421620",
+  "startedAt": "2026-08-25T10:47:36Z",
+  "finishedAt": "2026-08-25T10:50:26Z",
+  "result": "INCONCLUSIVE",
+  "firstDivergence": {"step": 2, "expected": "all IS-00 vectors and candidate Schema validation pass", "actual": "happy recovery and Heartbeat passed, but reconnect/snapshot-conflict vectors were not executed and runtime candidate tag does not satisfy the ProtocolReleaseIdentity tag Schema", "stableErrorCode": "PROTOCOL_SCHEMA_INVALID"},
+  "evidencePointers": ["real ControlServer Host fresh SQLite migration", "real Onboard Conformance five-step recovery and HeartbeatAck", "ControlServer /health/ready=ready and persisted session generation=1", "protocol schemas/common/types.schema.json ProtocolReleaseIdentity.tag pattern"]
+}
