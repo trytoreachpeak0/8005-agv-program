@@ -368,4 +368,5 @@ FodyWeavers.xsd
 .artifacts/
 *.received.*
 mes/ingest/csharp/TestResults/
-
+mes/ingest/csharp/**/TestResults/
+.scratch/area-filters/.area-profiles.lock

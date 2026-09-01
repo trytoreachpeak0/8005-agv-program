@@ -1,4 +1,19 @@
-# Ticket 01 test-generator status
+# Chinese-only Watch UI Tier 2 repair status (2026-08-29)
+
+- [x] User authorized Tier 2 and confirmed the expanded 53-failure repair.
+- [x] Preserved the failed Golden evidence; no baseline was touched.
+- [x] Recorded the 53 failures by test group.
+- [x] Completed selected-prototype mapping for structural failures.
+- [x] Repaired production behavior/layout defects.
+- [x] Updated stale localization/UIA assertions, including localized Inspector automation names.
+- [x] Tier 1 final gate: `939 passed / 0 failed / 137 skipped` in 6 minutes 50 seconds. The named skips require the real SQL Server environment variables documented by the repository.
+- [x] Tier 2 final production preview passed: `ticket-bilingual-ui-chinese-only-final/run-20260829-011332-watch-production-preview`.
+- [x] Inspected the final overview, readability, and Inspector screenshots; normal Chinese UI no longer contains `GONE`, `VISIBLE`, `PASS`, `FAIL`, or `SERIES_LIFECYCLE`.
+- [x] User visually approved the final calibrated screenshots on 2026-08-29 and confirmed the change is publishable. No baseline was touched.
+
+---
+
+# Ticket 01 test-generator status (historical)
 
 ## Implementation green update
 
@@ -73,3 +88,49 @@ The production language feature does not yet compile, so empirical mutation inje
 - Existing Inspector synchronization (Ticket 05), feedback lifecycle (Ticket 09), and copy/UIA closeout (Ticket 10).
 - Golden desktop preview and DPI validation are not authorized in this test-generator pass.
 - A source audit for copied prototype-only patterns remains a review/build gate; the runtime assembly-reference assertion only prevents a direct FluentPrototype dependency.
+
+---
+
+# Watch overview structured activity explanations (2026-08-30)
+
+## Result
+
+- Generated and strengthened tests only; this generator pass did not edit production code, prototypes, baselines, or unrelated dirty files.
+- Final focused VSTest command:
+  `dotnet test MesIngest.Tests --filter "FullyQualifiedName~WatchOverviewPresentationTests|FullyQualifiedName~WatchOverviewSnapshotTests|FullyQualifiedName~WatchV2ProductionShellTests|FullyQualifiedName~WatchV2ApiClientTests" -v minimal`
+- Result: `73 passed / 0 failed / 8 skipped / 81 total` in 5 seconds of test execution, exit code 0.
+- All eight skips are `Ticket01SqlServerFact` tests because a real SQL Server is unavailable in this environment. The new skipped case is `Invalid_area_activity_carries_a_same_snapshot_structured_explanation`; its configured-SQL assertions remain compiled and ready for the SQL gate.
+- `git diff --check` reported no whitespace errors; only the repository's existing LF-to-CRLF warnings were emitted.
+
+## Generated evidence
+
+### `WatchOverviewPresentationTests`
+
+1. `Known_overview_event_types_project_human_conclusions_semantic_severity_and_navigation` — fifteen emitted EventType rows.
+2. `Ended_error_periods_distinguish_recovery_demand_disappearance_and_series_archive` — three end-reason rows.
+3. `Invalid_area_format_explains_observed_and_expected_values_from_the_frozen_snapshot`.
+4. `Chinese_activity_metadata_localizes_known_work_type_and_escalates_unknown_codes`.
+5. `Poll_failure_uses_safe_detail_without_reclassifying_it_as_an_observed_value`.
+6. `Structured_conflict_explanations_use_counts_and_localized_related_work_types`.
+
+### Other seams
+
+7. `WatchOverviewSnapshotTests.Invalid_area_activity_carries_a_same_snapshot_structured_explanation` — SQL/API same-snapshot gate.
+8. `WatchV2ProductionShellTests.Recent_activity_rows_expose_distinct_shape_color_and_visible_severity_text` — four semantic symbols, four distinct colors, visible severity text, and accessible names.
+9. Strengthened `WatchV2ApiClientTests.Overview_normalizes_area_scope_and_decodes_one_atomic_v2_snapshot` — all eight explanation fields survive HTTP JSON decoding.
+
+## Static pseudo-mutation self-review
+
+The task explicitly permits test edits only, so `test-gap-analysis` did not inject temporary production mutations. The conclusions below are static/unverified mutation reasoning; the final focused suite itself is green.
+
+| Hypothetical defect | Test sensitivity |
+| --- | --- |
+| Replace or drop any of the fifteen known EventType conclusions | Killed by the fifteen-row mapping theory's exact Chinese heading assertion. |
+| Collapse semantic Error/Warning/Success/Information or navigation | Killed by per-row severity, severity-text, and navigation-target assertions. |
+| Collapse cleared/gone/archived end reasons | Killed by three distinct heading/explanation rows. |
+| Lose `D7-04`, fail to derive `D7-4`, or expose the error code in visible metadata | Killed by the invalid AREA presenter test. |
+| Leak known raw WorkType codes or drop unknown raw codes from technical detail | Killed by known/unknown WorkType assertions. |
+| Ignore `SafeDetail`, `ObservationCount`, or `RelatedWorkTypes` | Killed by the two structured-explanation tests. |
+| Drop any optional explanation field during Watch HTTP decoding | Originally a gap; closed by strengthening the API-client atomic-snapshot test with all eight fields. |
+| Reuse one icon/color, omit visible severity, or omit severity from the accessible name | Killed by the production-shell accessibility test. |
+| SQL materialization loses the event explanation or mixes projection commits | The configured-SQL test is designed to kill it, but is locally unverified because the required real SQL Server is unavailable. |

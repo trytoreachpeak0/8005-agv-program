@@ -109,3 +109,6 @@ Architecture Decision Records for the whole repo. Cite as `ADR-<category>-<NNNN>
 | [ADR-mes-0028](mes/0028-high-risk-state-recovery-is-local-administration.md) | 高风险状态恢复只允许本地管理 |
 | [ADR-mes-0029](mes/0029-retention-contract-cuts-over-as-one-exact-v2-identity.md) | 有界历史契约作为一个精确 V2 身份整体切换 |
 | [ADR-mes-0030](mes/0030-one-time-cutover-mode-drops-only-the-proven-old-database.md) | 一次性切换模式只自动删除已证明的旧库 |
+| [ADR-mes-0031](mes/0031-watch-complete-bilingual-presentation-defaults-to-chinese.md) | Watch 提供完整中英文呈现并默认中文 |
+| [ADR-mes-0032](mes/0032-watch-simplified-chinese-uses-chinese-for-all-static-ui-text.md) | Watch 简体中文模式的固定界面文字全部使用中文 |
+| [ADR-mes-0033](mes/0033-watch-overview-events-carry-structured-operator-explanations.md) | Watch 概览事件在同一快照携带结构化操作员解释 |
