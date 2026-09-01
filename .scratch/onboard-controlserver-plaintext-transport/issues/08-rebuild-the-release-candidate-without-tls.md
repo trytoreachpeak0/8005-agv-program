@@ -159,3 +159,30 @@ UTF-16 的 `InformationalVersion` 字符串——服务端 `1.0.0+9daeef4…`→
 ### 不在本票范围
 
 未安装、未启动、未跑旅程（票 09／10）；未发布、未建 tag、未改 0.1.1 的 release 说明（票 11）。
+
+## 更正（票 09，2026-09-01）
+
+**本票冻结的候选 `w2g-rc-20260901-238b46e`（`56d4b1cc…`）已作废，勿再用作候选身份。**
+
+票 09 在它上面跑验收时发现：手册 §4.5 让站点用 `.\scripts\Update-ControlServerLocal.ps1` 升级已有
+安装，用的是与 §4.2 安装命令相同的包内相对路径，但 `New-WireToGateReleaseCandidate.ps1:327` 的复制
+清单只有 Install／Uninstall／Publish 三个脚本。**交付包里的升级路径跑不了。** §4.5 是本轮票 04 新写的
+章节，所以缺口是这一轮引入的（历史候选同样不带该脚本，但它们也没有 §4.5）。
+
+修法必然改到被 868 条哈希覆盖的文件（发布脚本改完还要改手册正文），因此候选在 `19ce7db` 重建：
+
+- 新候选根 `C:\Users\szy\Desktop\w2g-rc-20260901b-19ce7db`，`SHA256SUMS.txt` 由 868 条变 869 条，
+  `release-manifest.json` 的 `operatorEntryPoints` 新增 `upgrade` 键。旧候选目录未删，是对照的老侧。
+- 票 11 的 tag 目标改为 `19ce7db70893afea6c6361988c3bc612d77569d0`；版本号仍是 **0.2.0**，本票第 5
+  节定版本号的理由不受影响。
+- 本票第 3 节「发布脚本与造出 0.1.1 的那份逐字节相同」这条判据形态**不再适用**，替代判据是 diff 本身：
+  `git diff 56d4b1c..19ce7db -- scripts/New-WireToGateReleaseCandidate.ps1` 只有两处新增（复制清单加
+  一个文件名、manifest 加一个键），`Invoke-SecretScan` 与 `$scanGate` 逐字未动。重建后扫描闸门仍
+  `PASS`，findings 0、key material 0。
+- 本票第 9 节的 apphost 判据在新旧两版之间**再次成立且更干净**：两个服务端 apphost 各 152064 字节，
+  差异恰好 38 字节且全部落在连续窗口 `0x24D6C–0x24DBB` 内，解码即
+  `ProductVersion 1.0.0+56d4b1cc…` → `1.0.0+19ce7db7…`，窗口之外逐字节相同。
+- 产品源码零差异：`git diff --name-only 56d4b1c..19ce7db -- src tests Directory.Build.props
+  Directory.Packages.props global.json` 列出 **0 个文件**。
+
+逐条证据在 `evidence/g3/20260901-issue09-clean-install-acceptance/SUMMARY.md`（服务端仓 `a0f1b3f`）。
