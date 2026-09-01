@@ -125,6 +125,21 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   上面那个假红。推论：**扫描要指向被测对象的根，不要指向 run root**；**从被测安装目录加载程序集会给
   它上锁**，要从不会被删的发布包里加载；**数据根被卸载删掉之前先把日志复制进证据目录**，否则事后无从
   诊断。
+- **判定链的顺序决定了「拒绝理由」意味着什么（票 10）**。票 09 把
+  `BATTERY_POLICY_NOT_SATISFIED=1` 读成「没有需求满足现场条件」，但它在
+  `JourneyRuntimeEngine.ValidateDynamicFacts` 里排在 area、AREA_EQP 唯一性、站点解析、包装容量
+  **之后**——那一条其实已经通过了全部静态闸门。**看到一个靠后的 ReasonCode，等于同时看到了它
+  前面每一道闸门都放行了**；把它当成「什么都没通过」会得出相反的结论。凡按 ReasonCode 分布下
+  判断的，先把产生它的判定链顺序读一遍。
+- **RIoT 的 `CallApiKey` 走 `Authorization: Bearer`（票 10）**。SDK 的 `RiotOptions.CallApiKey`
+  属性名会让人以为有个同名请求头；`CallApiKey` / `X-Call-Api-Key` / `apiKey` 三种头名都回 401。
+  SDK 程序集里唯一的线索是 `BearerPrefix` 这个字符串。已批准的只读地图查询因此是
+  `GET /api/imap/v1/mapInfo/stations/25` 加 `Authorization: Bearer <key>`，响应体是
+  `{code,message,result[]}`，`result` 里每站带 `id` 与 `name`。
+- **`-f` 写在 hashtable 成员赋值的 `if` 分支里会解析失败（票 10）**。
+  `Station = if ($x) { '{0}/{1}' -f $a, $b } else { '' }` 直接报
+  `Unexpected token ','`——与「`-f` 写进方法调用参数表」是同一族：**`-f` 的右操作数一旦处在别的
+  语法结构的逗号作用域里就会被抢走**。修法一致：先把字符串算进变量，再赋值／再 `Add`。
 - **PowerShell 语义更正（票 06 实测）**：`ConvertFrom-Json` 产出 `PSCustomObject`，给**不存在**的属性
   无条件赋值会抛 `SetValueInvocationException`，**不会**静默新增该属性——只有 `Add-Member` 或
   `-AsHashtable` 才会。票 05 §5.4 按「静默写回错键」推断的机理是错的（结论方向不变，失效形态从静默
@@ -251,6 +266,24 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   安装器按设计写 `JourneyRuntime.enabled=false`，本票在隔离实例上显式翻开并记为偏离，两个建单闸门
   保持 false、车未动。生产服务 PID 8632 全程零漂移，车载端仓写入仍为零。
 
+- [`在明文候选上完成真车闭环现场验收`](issues/10-run-field-closed-loop-acceptance.md)
+  — **闭环走通**：generation 8 在 `w2g-rc-20260901b-19ce7db` 上 `Stage=Completed`、`BlockReasonCode`
+  为空、`SessionGeneration` 全程 1（车载端「上层会话已建立」12 分钟内只出现一次，无重连无代次跳变），
+  全程 11 分 25 秒。两条真单各建一次、各五步审计齐全、`RiotDispatchAuditEvents=10` 无重复建单，
+  `Load`／`Unload` 均 `Committed`。**`DEMAND-ACCEPTED` 本轮第一次绿**，票 09 转来的那条关掉。
+  本票的必须重证项成立：明文形态下安全闸门在两条腿各拦一次、停稳各自动放行一次，未卡死旅程；
+  安全投影 556 次明文 HTTP GET 全部 200。「本轮无 TLS」用运行没写过的观测证：进程自报
+  `transport=plaintext` 与 `http://192.168.200.1:58707`、车载端 `environment=Production` 绑非
+  loopback、四个证书存储指纹集合摘要零变动、零密钥材料文件、27336 行日志搜六个 TLS 词命中 0；
+  红侧四检测器双向 **8/8**（跑同一份 `-DetectorsOnly`，指纹那条特意数量不变只换一张）。生产服务
+  PID 8632 未漂移，车载端仓写入仍为零。证据 `ControlServer_MVP@17aec50`。
+  **开跑前的只读预检把「有没有合格需求」变成可查的**，并更正票 09：那 12 条里的
+  `BATTERY_POLICY_NOT_SATISFIED` 排在全部静态闸门之后，所以当时**其实有一条需求通过了静态闸门**，
+  卡住的是电量策略而非需求池空。
+  **三条据实记录**：`HW-REAL-IO` 仍 INCONCLUSIVE（IO 是八仓模拟器，用户选定）；HMI 截图未采集，
+  业务节点记录改由车载端日志承担，是取证方式偏离而非等价替换；完成之后暴露一个先于本轮存在的
+  受理重放冲突（见 Out of scope）。
+
 ## Not yet specified
 
   （服务端 G2 侧无遗留：票 02 已证 `test-wire-to-gate.ps1` 只是按 `IntegrationSlice` trait 过滤同一套
@@ -264,10 +297,12 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
   即可到 `Ready` 并完成 503→200、重启后 generation 推进，票 07 的 `VEHICLE_STATE_UNKNOWN` 是 guest 上
   连模拟器都没有所致。**真实 IO 模块、接线、锁与光幕的资格仍归票 10**，票 09 把它记为具名
   INCONCLUSIVE `HW-REAL-IO`。未派生新票，也不需要中间档位的 IO 取证。）
-- 票 09 的 `DEMAND-ACCEPTED` 记为 INCONCLUSIVE：运行时刻 MES 里没有一条 `WIRE_TO_GATE` 需求满足现场
-  条件（12 条全部按名拒绝，多为 `OUT_OF_SCOPE_AREA`）。**「候选能受理一条真实需求」这件事至今没有在
-  本轮任何一次运行里发生过**，只证到评估器逐条走到判定。票 10 的真车闭环必然要受理一条，届时一并
-  取证；若票 10 现场同样长期取不到合格需求，那说明现场条件本身要先具名排查，再另开票。
+  （票 09 的 `DEMAND-ACCEPTED` 这条已由票 10 答完，不再是雾：generation 8 真实受理了
+  `Q26084908-12|WIRE_TO_GATE` 并走完闭环。附带更正——票 09 那 12 条里的
+  `BATTERY_POLICY_NOT_SATISFIED` 排在全部静态闸门之后，当时其实有一条需求通过了静态闸门，
+  「MES 里长期取不到合格需求」这个假设不成立。未派生新票。）
+
+  **雾已散尽：票 11 之外没有未具名的待决项。** 票 11 是最后一张，且其前置全部就绪。
 
 ## Out of scope
 
@@ -282,6 +317,17 @@ owner 王昆改完并推送；两端在**异机明文**形态下建立会话并�
 - 协议仓的任何变更，含 `protocol-v0.1.1` 之后的新 tag／release。
 - 继承自上一轮且仍然开放：`RESUME_AFTER_REPAIR` 的结果身份收敛；三个 G3 runner 的公共模块抽取。
   均属另起一轮。
+- **旅程完成后的受理重放冲突**（票 10 现场抓到）。demand 仍留在 MES 目录时，完成后的每次轮询都抛
+  `BusinessIdentityConflictException: Accepted demand replay does not match its original order
+  intent.`（`WireToGateStore.cs:235`），日志记 `Journey runtime iteration failed closed`。
+  fail-closed、不污染已完成的旅程，但会让运行期在完成后无法再受理其他合格需求。**不是本轮改造
+  引入的**——调用链在 `WireToGateStore.AcceptCoreAsync` / `DemandIntakeService.AcceptCoreAsync`，
+  与传输层无关，且 TLS 期的票 14 gen7 完成之后出现同一条 `failed closed`。本 map 的 Destination
+  是传输层安全形态，这属产品行为缺陷，另起一轮。
+- **真实 IO 模块（`HW-REAL-IO`）的资格**。票 10 的 IO 输入由用户选定为八仓模拟器，真实 IO 模块、
+  接线、锁与光幕仍未取证。本轮 Destination 不含 IO 硬件资格，票 09／10 均按具名外部资格保留。
+- **票 29 式 HMI 截图取证**。票 10 现场由用户操作 HMI，未截图，业务节点记录改由车载端日志承担。
+  若发布需要截图，属另行补采的动作，不改变票 10 的闭环结论。
 - G3 runner 里的 TLS 期**命名与叙述**残留（合成对端类名 `StagedG3TlsHarness`、讲历史的注释）。票 12
   具名但未改：不影响行为，Destination 要的是证书**机制**移除而非改名；改名会同时打穿三个 runner 与
   vectors runner 的 here-string 匹配串，与公共模块抽取同属另起一轮。证据字段 `tls = $false` 等是有意
