@@ -87,10 +87,13 @@
 
 ## 语言约定
 
-写进 GitHub 的东西用中文：README、文档正文、issue 标题与正文、PR 标题与正文、
-commit message 正文。
+**agent 指令文件用英文**：各仓 `CLAUDE.md`、`.claude/` 下的规则与 skill、
+`docs/agents/`。它们是写给 agent 读的。
 
-保持英文：
+**人看的东西用中文**：README、文档正文（包括本文）、`docs/defects/` 记录、证据
+`SUMMARY.md`、issue 与 PR 的标题和正文、commit message 正文。
+
+中文里保持英文的：
 
 - commit 的 conventional 前缀（`feat:` `fix:` `docs:` `chore:`）
 - 标识符、路径、命令、环境变量、错误码
@@ -114,3 +117,24 @@ Agent 只会自动加载**当前工作仓库根**的指令文件，不会跟着�
 | `slots-simulator` | 由 Kun Wang 决定 | 建议放一份对应的 |
 
 **改了本文就要同步各仓 `CLAUDE.md` 的协作节**，否则 agent 按旧规则行动。
+
+## 不知道该做什么的时候
+
+工作区装了一个 skill：**`w2g-next`**（`.claude/skills/w2g-next/`）。问它"现在该做
+什么"、"下一步做什么"，它会去读真实状态——工作树、切片看板 issue、
+`integration-slices/index.json`、`docs/defects/`、各仓开放 issue、最新门禁证据——
+然后按固定优先级阶梯给出**唯一一个**下一步，而不是列一堆选项。
+
+阶梯（先匹配先胜）：
+
+1. 有未提交的产品代码改动 → 先收尾，别开新战线
+2. 有指派给自己的开放 issue → 做它
+3. 有阻塞切片的未修 defect → 修它
+4. **最低 `sequence`、前置已满足、`CONTROL_SERVER_G2` 未绿的切片 → 推进它**（常态答案）
+5. 我方 G2 全绿但对方未绿 → 不是我的活；在看板 issue 同步状态，然后做不依赖对方的事
+6. 两边 G2 都绿、G3 没跑 → 提议约 G3
+7. 八个切片四门禁全绿 → 打 RC
+8. 都不匹配 → 报告状态并问人
+
+它有三条诚实规则：`ONBOARD_HMI_G2` 状态通常我们不知道，不许假设；协议发布后旧的绿
+可能已作废；不许自作主张进门禁。

@@ -59,39 +59,52 @@ minimal routing/blocker pointer. If ownership is ambiguous, or an artifact
 genuinely spans projects, stop and get an explicit destination repository
 before writing it.
 
-## 协作工作流
+## Collaboration workflow
 
-项目由两个人推进：Kun Wang（GitHub `SocialKKKK`）负责 `8005-agv-onboard-hmi` 与
-`slots-simulator`；Zhengyu Shao 负责 `8005-agv-control-server`；`8005-agv-protocol`
-共同维护。完整说明见 [`docs/collaboration-workflow.md`](docs/collaboration-workflow.md)。
+Two people drive this project. Kun Wang (GitHub `SocialKKKK`) owns
+`8005-agv-onboard-hmi` and `slots-simulator`; Zhengyu Shao owns
+`8005-agv-control-server`; `8005-agv-protocol` is jointly maintained. The full
+account, written for humans and in Chinese, is
+[`docs/collaboration-workflow.md`](docs/collaboration-workflow.md).
 
-Agent 必须遵守的部分：
+What an agent must follow:
 
-- **协作单位是 integration slice**，不要自己发明推进单位。
-  `8005-agv-protocol/integration-slices/index.json` 定义了 `W2G-IS-00` 到 `W2G-IS-07`，
-  每个带 `sequence` 与 `prerequisites`。每个切片的 `gates` 就是分工：`G1` 双方共用、
-  `CONTROL_SERVER_G2` 我方、`ONBOARD_HMI_G2` 对方、`G3` 两人一起。
-- **跨仓库反馈分三条路**：协议契约的歧义或错误 → `8005-agv-protocol` 的 issue，附
-  触发它的 `vectorId`；对方实现不符合契约 → **对方仓库**的 issue，**必须先跑 G3 拿
-  证据**并附上 evidence 目录；自己仓库的活 → 自己仓库的 issue。
-  **跨仓库指控必须带可复现的门禁证据，不能只是"我这边跑不通"。**
-- **改 protocol 由 Zhengyu Shao 单独决定，不需要事先批准**，但**每次推送都要在
-  `8005-agv-protocol` 开 issue @`SocialKKKK` 通知**，写清改了什么、影响哪些
-  `W2G-IS-*` 切片、他的 `ONBOARD_HMI_G2` 证据是否作废。**通知要和推送在同一个任务里
-  完成，不能拖到以后。**发布（打 tag）仍需双人签名走 `attestations/` 那套机制，
-  **AI 和 CI 不能批准**。
-- **协议改动要攒批次。** 补丁发布会作废两边受影响的 G1/G2/G3 证据
-  （`docs/release-governance.md`），每一次小改都在让对方重跑整套门禁。
+- **The unit of collaboration is the integration slice.** Do not invent another
+  one. `8005-agv-protocol/integration-slices/index.json` defines `W2G-IS-00`
+  through `W2G-IS-07`, each with a `sequence` and `prerequisites`. Each slice's
+  `gates` array *is* the division of labour: `G1` shared, `CONTROL_SERVER_G2`
+  ours, `ONBOARD_HMI_G2` theirs, `G3` together.
+- **Cross-repository feedback takes one of three routes.** A contract ambiguity
+  or error goes to an issue in `8005-agv-protocol` carrying the `vectorId` that
+  triggered it. The other side failing the contract goes to an issue in *their*
+  repository — **run G3 for evidence first** and attach the evidence directory.
+  Work inside a repository stays in that repository's issues.
+  **A cross-repository claim must carry reproducible gate evidence; "it does not
+  work on my side" is not a report.**
+- **`8005-agv-protocol` needs no advance approval** — Zhengyu Shao decides its
+  content alone — **but every push must be announced in an issue that
+  `@SocialKKKK`**, stating what changed, which `W2G-IS-*` slices it touches, and
+  whether their `ONBOARD_HMI_G2` evidence is now void. **Announce in the same
+  task as the push, not later.** Tagging a release still needs the two-owner
+  attestation in `attestations/`; **AI and CI cannot approve.**
+- **Batch protocol changes.** A patch release voids the affected G1/G2/G3
+  evidence on both sides (`docs/release-governance.md`), so every small change
+  costs the other side a full gate re-run.
 
-## 语言约定
+## Language
 
-写进 GitHub 的东西用中文：README、文档正文、issue 标题与正文、PR 标题与正文、
-commit message 正文。
+Agent instruction files — this file, `.claude/rules/`, `docs/agents/` — are
+written in **English**.
 
-保持英文：commit 的 conventional 前缀（`feat:` `fix:` `docs:` `chore:`）、标识符、
-路径、命令、环境变量、错误码、门禁与切片名（`G1`、`W2G-IS-00`）、协议消息名与
-schema 字段与 `vectorId`（它们是契约的一部分，改不得）。引用报错和测试输出时先贴
-英文原文，再用中文解释。不回溯改旧的。
+Everything a human reads is written in **Chinese**: README files, documentation
+prose, issue and pull-request titles and bodies, and commit message bodies.
+
+Stay English inside Chinese text: conventional commit prefixes (`feat:`, `fix:`,
+`docs:`, `chore:`), identifiers, paths, commands, environment variables, error
+codes, gate and slice names (`G1`, `W2G-IS-00`), and protocol message names,
+schema fields and `vectorId` values — those are the contract itself. Quote an
+error or a test result in its original English first, then explain it in
+Chinese. Do not rewrite existing text to match; this governs new writing.
 
 ## Test tiers
 
