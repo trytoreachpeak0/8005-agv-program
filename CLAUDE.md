@@ -1,4 +1,12 @@
-# 8005---AGV
+# 8005-agv-program
+
+The programme's requirements, decisions and archive. **No code lives here** —
+`mes/ingest/csharp/` and `rcs/riot-sdk/` were split out on 2026-09-02 into
+`8005-mes-ingest` and `riot-sdk`, and this repository was renamed from
+`8005---AGV` at the same time. What remains is the versioned requirements
+baseline, the commercial agreements, the cross-subsystem ADRs, `CONTEXT.md`, and
+the `.scratch/` decision archive. The `mes/` and `rcs/` directories still here
+hold domain research material, not buildable projects.
 
 Instructions for this repository. Historical tickets under `.scratch/` refer to
 a root `AGENTS.md`; its content lives here now, and `.claude/rules/` holds the
@@ -6,12 +14,13 @@ parts that load only when Claude reads the files they govern.
 
 ## Repository write authority
 
-The workspace root `CLAUDE.md` is the authority. In short: this repository is
-writable; `8005-agv-onboard-hmi` and `slots-simulator` are read-only for
-agents; `8005-agv-protocol` is writable but every pushed change must be
-announced to Kun Wang in a `@SocialKKKK` issue. If that file is not loaded — a
-clone of this repository on its own, outside the workspace — treat all three as
-read-only and ask.
+The workspace root `CLAUDE.md` is the authority. In short: this repository,
+`8005-agv-control-server`, `8005-mes-ingest` and `riot-sdk` are writable;
+`8005-agv-onboard-hmi` and `slots-simulator` are read-only for agents;
+`8005-agv-protocol` is writable but every pushed change must be announced to Kun
+Wang in a `@SocialKKKK` issue. If that file is not loaded — a clone of this
+repository on its own, outside the workspace — treat all three as read-only and
+ask.
 
 ## Agent skills
 
@@ -106,48 +115,15 @@ schema fields and `vectorId` values — those are the contract itself. Quote an
 error or a test result in its original English first, then explain it in
 Chinese. Do not rewrite existing text to match; this governs new writing.
 
-## Test tiers
+## Tests
 
-"Run the full test suite" means tier 1. It never means the golden renderer.
-Skills that close a run with a full-suite pass (`/implement` and anything it
-calls) stay in tier 1 unless the ticket asks for more.
+There is nothing to build or test here. The test tiers and the golden WPF
+renderer moved to `8005-mes-ingest` along with the code they govern; the
+WIRE_TO_GATE gates (`G1`, `CONTROL_SERVER_G2`, `G3`, `RC`) live in
+`8005-agv-control-server` and `8005-agv-protocol`.
 
-Test authorization is scoped to the current task. A request to inspect, clean,
-organize, commit, or push an already-dirty worktree does **not** authorize or
-trigger tests merely because existing production-code or test-file changes are
-present. Run tests only when the current task changes product code, tests, or
-build inputs, or when the user explicitly asks for validation. Never infer test
-authorization from `git status` alone.
-
-| Tier | Command, from `mes/ingest/csharp` | Cost | Run it |
-| --- | --- | --- | --- |
-| 1 — handoff gate | `dotnet test MesIngest.Tests` | ~50 s of tests, ~2.5 min cold build, no VM | once before handing off a completed production-code change |
-| 2 — UI preview | `.\Invoke-WatchUiTests.ps1 -Configuration Release -Suite <one suite>` | minutes, needs the interactive golden desktop | only when the change touches `MesIngest.Watch` UI |
-| 3 — validation gate | `.\Invoke-GoldenRendererValidation.ps1`, `Test-*Stability.ps1 -Runs 3` | tens of minutes | **only when cutting a release candidate, or when the user explicitly asks to promote a visual baseline** |
-- During implementation, run only the narrowest relevant test selection needed
-  for feedback. Prefer a class or method filter when it covers the changed
-  behavior.
-- Before handing off a production-code change implemented in the current task,
-  run tier 1 once. Do not repeat tier 1 unless production code, tests, or
-  relevant inputs changed after that run.
-- Documentation, agent configuration, and other non-product changes do not
-  require tier 1 unless the user asks for it or the change can affect the build.
-- Do not enter tier 2 or tier 3 on your own initiative. Ask first, and say what
-  it costs.
-- Tier 3 is deliberately narrow: it runs when cutting a release candidate or on
-  an explicit request to promote a baseline, never on an ordinary ticket. Its one
-  irreplaceable job is catching intermittent defects — the Ticket 23 antialiasing
-  flip appeared in ~12% of runs, which 3 runs miss about a third of the time — and
-  that job does not arise in day-to-day work. A ticket that changes Watch UI stops
-  at tier 2 plus the user's preview approval.
-- Tier 1 skips the SQL Server tests unless three environment variables are set:
-  `MES_INGEST_TICKET01_SQLSERVER` (a real instance — LocalDB is rejected on
-  purpose), `MES_INGEST_TICKET01_EXPECTED_PRODUCT_MAJOR`, and
-  `MES_INGEST_TICKET01_EXPECTED_COMPATIBILITY_LEVEL`. Without them the run still
-  reports `Failed: 0` while silently skipping 88 tests, so a change to any SQL
-  in `SqlServerMesIngestProjection.*.cs` is not covered — check the skip count,
-  not just the failure count. That is acceptable in tier 1 only; tier 3 evidence
-  must still name every skip.
+If a task in this repository seems to need a build, it is probably in the wrong
+repository — check the routing rules above.
 
 ## Claude Code
 
