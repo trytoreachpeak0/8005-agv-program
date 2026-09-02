@@ -62,7 +62,7 @@ owning project's repository is the source of truth: put the issue, primary
 evidence, fix, tests, and project-specific handoff there, then commit and push
 them to that repository. If the owning repository is read-only or lacks the
 required approvals, do not write there and do not fall back to storing the full
-problem in `8005---AGV`; give the user a concise owner notification and request
+problem in this repository; give the user a concise owner notification and request
 an explicitly writable tracking destination. This repository may retain only a
 minimal routing/blocker pointer. If ownership is ambiguous, or an artifact
 genuinely spans projects, stop and get an explicit destination repository

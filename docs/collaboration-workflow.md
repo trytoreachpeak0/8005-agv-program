@@ -12,7 +12,9 @@
 | `8005-agv-control-server` | Zhengyu Shao | `trytoreachpeak0` |
 | `8005-agv-protocol` | **共同维护** | 双方 |
 
-其余仓库（`8005---AGV`、`8005-workspace`）是 Zhengyu Shao 的项目治理与工程环境记录。
+另外三个都是 Zhengyu Shao 的：`8005-mes-ingest` 与 `riot-sdk` 是代码，本仓库
+`8005-agv-program` 是需求与决策，`8005-workspace` 是工程环境记录（**Kun Wang 没有
+访问权**，需要对方看到的东西不能只写在那里）。
 
 ## 协作单位：integration slice
 
@@ -110,7 +112,9 @@ Agent 只会自动加载**当前工作仓库根**的指令文件，不会跟着�
 
 | 仓库 | agent 指令文件 | 状态 |
 | --- | --- | --- |
-| `8005---AGV` | `CLAUDE.md` | 已有，含协作节 |
+| `8005-agv-program`（本仓库） | `CLAUDE.md` | 已有，含协作节 |
+| `8005-mes-ingest` | `CLAUDE.md` | 已有，含协作节与金机流程 |
+| `riot-sdk` | `CLAUDE.md` | 已有，含协作节与包消费提醒 |
 | `8005-agv-control-server` | `CLAUDE.md` | 已有，含协作节与门禁定义 |
 | `8005-agv-protocol` | `CLAUDE.md` | 已有，含协作节与发布规则 |
 | `8005-agv-onboard-hmi` | 由 Kun Wang 决定 | 建议放一份对应的 |
