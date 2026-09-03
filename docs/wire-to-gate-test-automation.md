@@ -264,7 +264,7 @@ UNKNOWN"精确卡出来的。
 | 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查。**已实现**：`real-onboard-normal-load`，真 Modbus 闭环——车载端自己写 DO 开锁，脚本只放货关门。这一行下面那些 IO 与光幕故障现在**具备了条件**，尚未实现 |
 | ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**。**已实现**：`load-result-requires-recovery`（合成对端，13/13）。**这条仍然止于 Blocked，但理由已经换了**：两端能力都齐了，是合成对端不会自己发起五步握手，见下一行 |
 | 恢复并继续装载（上一行的出口） | 真车载端点「申请恢复」，服务端授权 `RESUME_AFTER_REPAIR`，车载端提交替换 `OperationResult` | 操作转 `Committed`，旅程离开 `Blocked` 继续。**已实现，当前红**：`real-onboard-resume-after-repair`，4/5，挂在「停摆后 HMI 上出现可用的恢复入口」。服务端那一半已完成（`8005-agv-control-server@1372a89`），红在车载端，已回报 `8005-agv-onboard-hmi#4` |
-| 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。尚未实现 |
+| 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。**已实现**：`load-command-never-answered`（合成对端，11/11，已进 CI）。顺带钉住了未结命令的重放语义——每轮重放且 `messageId` 不变，否则「旅程停着」也可能是服务端把命令丢了造成的 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
 | 锁不上 | `lock-feedback-override FIXED_0` | `LOCK_NOT_CLOSED`，不放行出发 |
 | 假装锁上 | `FIXED_1` 而门实际开着 | 不能被骗过 |
