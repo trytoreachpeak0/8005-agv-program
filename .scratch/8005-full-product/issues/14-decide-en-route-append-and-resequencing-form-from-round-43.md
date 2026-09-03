@@ -1,7 +1,7 @@
 # 依 Round 43 实测定途中追加与换序的形态
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 03
 Blocks: 08, 09
 
