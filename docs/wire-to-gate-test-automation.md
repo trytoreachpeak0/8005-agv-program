@@ -14,21 +14,27 @@
 | 层 | 组成 | 跑在哪 | 管什么 | 现状 |
 | --- | --- | --- | --- | --- |
 | **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 268 项、模拟器 18+14 项、车载端单元测试 |
-| **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **部分建成**，见下 |
+| **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **已建成**，见下 |
 | **L3** 现场 | 真车 + 真 RIoT + 真 MesIngest + 模拟或真 IO | 厂区 | 真实硬件契约、最终确认 | 已跑通一次（2026-09-03，止于装载） |
 
-**L2 这一行的「组成」列写的是目标，不是现状。**已建成的部分是编排器
-（`8005-agv-control-server/scripts/l2/`）加三条场景，跑的是真 ControlServer + 假 RIoT + 假
-MesIngest + **合成协议对端**；真车载端 WPF 与真模拟器都还没接进去，要等落地顺序第 5、7 步。
-差别不是措辞问题——合成对端没有 IO、没有 journal、没有操作员，也没有本地时钟新鲜度判定，所以
-下面那张表里凡是需要真车载端才成立的格子，今天的 L2 都还不能兑现（哪一条见第 4 节末尾）。
+**L2 现在有两套装置**（`8005-agv-control-server/scripts/l2/`，场景在自己的 `.setup.psd1` 里选）：
+
+- **合成装置**：真 ControlServer + 假 RIoT + 假 MesIngest + **合成协议对端**。三条场景。
+- **真装置**：把车载端换成 `8005-agv-onboard-hmi` 出厂的 `SQCD.Agv.Wpf`（条码由 UI Automation
+  驱动），把仓位 IO 换成真 `slots-simulator`（真 Modbus TCP）。一条场景
+  `real-onboard-normal-load`，落地顺序第 5 步的产物。
+
+**两者不是可以互换的。**合成对端没有 IO、没有 journal、没有操作员，也没有本地时钟新鲜度判定；
+下面那张表里凡是需要真车载端才成立的格子，只有真装置能兑现。真装置的两个替身也绑死在一起——
+没有模拟器供 Modbus，车载端握手时八个仓位全报 `UNKNOWN`，`departureSafe` 恒为 false，服务端
+永远不会给出会话就绪。
 
 核心判断：**L2 是投入产出比最高的一层**。它不需要真车、不需要现场授权、不占用生产 AGV，却能
 覆盖绝大多数跨端缺陷。2026-09-03 的三个缺陷全部落在 L2 的能力范围内：
 
 | 缺陷 | L1 能发现吗 | L2 能发现吗 |
 | --- | --- | --- |
-| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **要真车载端**——合成对端没有那段新鲜度判定，见第 4 节末尾 |
+| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **真装置具备条件，但仍未实现**——还差一个把 `observedAt` 推到未来的手段，见第 4 节末尾 |
 | 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **已做**——`session-established-while-moving` |
 | ~~`Blocked` 是终态且永久占用 active 位~~（**这条诊断是错的**，见第 6 节第 1 步） | ~~勉强~~ **能**（见下） | **已做**——`load-result-requires-recovery`，车载端上报一份不完美的 `OperationResult` |
 
@@ -43,7 +49,8 @@ MesIngest + **合成协议对端**；真车载端 WPF 与真模拟器都还没�
 在车载端从不发起五步恢复握手。原文留着划掉，完整说明见第 6 节第 1 步。
 
 **第一行的 L2 列则是高估。**当时以为「把两端时钟拨开 100 ms」就能在 L2 复现，落地后才清楚那需要
-真车载端——合成对端根本没有那段新鲜度判定逻辑。
+真车载端——合成对端根本没有那段新鲜度判定逻辑。真车载端已于第 5 步接进来，但这一条**仍然没做**：
+两端跑在同一台机器上共用一个时钟，偏差不会自己出现，见第 4 节末尾。
 
 教训是：**判断某一层能不能发现某个缺陷之前，先花十分钟真写一条试试。**两个方向都会出错。低估
 L1 会把本该几秒钟的回归推到需要一整套半实物环境；高估 L2 更隐蔽——它会让人以为某条缺陷已经被
@@ -88,13 +95,18 @@ loopback HTTP 控制面 `127.0.0.1:58006/api/v1`，权威文档是该仓库的
 - `tools/ControlServer.FakeMesIngest` — 假 MesIngest，**已建**（`8fcbdbc`）。盘点时没料到需要它：
   没有需求目录，编排器连第一条需求都发不出去
 
-### 车载端：没有任何自动化入口
+### 车载端：~~没有任何自动化入口~~ UIA 已落地（落地顺序第 5 步）
 
 条码输入是纯 UI：`MainWindow.xaml` 的 `ScanTextBox`（绑定 `ScanText`，
 `UpdateSourceTrigger=PropertyChanged`），Enter 触发 `ScannerSubmitCommand`，另有「手动提交」
 按钮绑 `ManualSubmitCommand`，`IsEnabled` 绑 `CanSubmit`。
 
 好消息是控件有 `x:Name`、命令绑定清晰，**UI Automation 可行**，短期不必等对方改代码。
+
+落地后可以确认：可行，而且比预期稳。用 `ValuePattern.SetValue` 写 `ScanTextBox`、用
+`InvokePattern` 点「手动提交」，两者都不需要窗口有焦点——原文担心的「依赖窗口焦点」那一半不成立，
+只有「依赖控件树」那一半还在。pwsh 7 直接 `Add-Type -AssemblyName UIAutomationClient` 就能用，
+不需要 FlaUI。
 
 ---
 
@@ -138,7 +150,7 @@ POST （建单端点，见 HttpRiotMovementGateway 的 CREATE 路径）
 复制到**每一个引用方**的输出目录——于是它盖掉了 `ControlServer.Host` 的同名文件，两条读
 appsettings 的断言当场挂掉。种子值现在只写在 `FakeRiotSeed` 的默认值里，配置走命令行开关。
 
-### 缺口 2：车载端没有自动化入口 —— 两条路并行，外加一条当时没想到的
+### 缺口 2：车载端没有自动化入口 —— ~~两条路并行~~ 短期那条已落地（`8005-agv-control-server@bf506b3`）
 
 **先落地的是第三条：合成协议对端。**`tools/ControlServer.FakeOnboard` 原本只做「握手完就退出」，
 现在是长连接可编排对端——五步握手、两秒心跳、按 `Auto`/`Manual`/`Silent` 策略应答 sublot、装卸
@@ -146,9 +158,21 @@ appsettings 的断言当场挂掉。种子值现在只写在 `FakeRiotSeed` 的�
 所有服务端侧场景今天就能跑，不必等 UIA。下面两条路仍然要走。
 
 
-**短期（我方可做）：UI Automation 驱动。** 用 `System.Windows.Automation` 或
-FlaUI 找到 `ScanTextBox`，设值，发 Enter 或点「手动提交」。控件有具名且命令绑定明确，可行性
-不低。缺点诚实说：依赖控件树和窗口焦点，分辨率或布局一变就可能失效，属于「能用但脆」。
+**短期（我方可做）：UI Automation 驱动 —— 已落地（落地顺序第 5 步）。**`scripts/l2/L2.psm1` 的
+`New-L2OnboardDriver`，pwsh 7 直接用 `System.Windows.Automation`，不需要 FlaUI。按
+`AutomationId=ScanTextBox` 找输入框、按 `Name=手动提交` 找按钮，`ValuePattern.SetValue` 写值，
+`InvokePattern.Invoke` 提交。
+
+当初写的缺点只对了一半。**「依赖窗口焦点」不成立**——Value 和 Invoke 两个 pattern 都不需要窗口
+有焦点，所以驱动不跟操作员抢键盘，别的窗口抢了焦点也不会失败；这也是刻意不走 Enter 那条
+`KeyBinding` 的原因（顺带地，Enter 命中的是 `ScannerSubmitCommand`，按钮命中的是
+`ManualSubmitCommand`，两者都进 `SubmitSublotAsync`，只差记录的 `entryMethod`）。
+**「依赖控件树」仍然成立**：`x:Name` 或按钮文案一改，驱动就找不到东西了。长期那条路仍然要走。
+
+还有一个当时没预料到的坑，与 UIA 无关但同样属于「自动化驱动一个为人设计的界面」：**脚本比人
+快**。开锁到关门只隔 124 ms，而车载端要求锁反馈稳定 300 ms 才认，于是它从来没观测到一个稳定的
+「已开锁」状态，报回一份不完美的 `OperationResult`。解法是等车载端自己发的 `OperationProgress`
+相位 `WAITING_OPERATOR`，而不是等门开。
 
 **长期（提给 Kun Wang）：车载端加一个测试控制面。** 形状完全照抄模拟器那套——loopback
 HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`runId`/`commandId` 幂等。至少需要：
@@ -161,7 +185,7 @@ HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`ru
 出，附本方案链接和场景清单**，让对方判断优先级。若对方希望我方出 PR，按新政策（2026-09-03，
 根 `CLAUDE.md`）可以提，但代码内容仍归对方决定。
 
-### 缺口 3：两个 WPF 需要交互式桌面会话
+### 缺口 3：两个 WPF 需要交互式桌面会话 —— 第 5 步在控制端桌面上跑通，进 CI 仍是第 7 步
 
 计划任务（登录触发、交互式）按序拉起：先模拟器（等 `1502` 监听）再车载端。工作区已有先例——
 `win11-01` 上的 `golden-renderer` runner 就是这么起的，见根 `CLAUDE.md` 的 CI 一节。
@@ -181,10 +205,11 @@ pwsh .\scripts\l2\Invoke-L2Scenario.ps1 -Scenario normal-load -EvidenceRoot <新
 下面是当初的职责清单。**三条照原样落地，两条打了折扣**——折扣都在「有哪些真东西被接进来」，
 不在编排器本身。
 
-1. 起环境，每一步等就绪判据而不是 sleep ——**已落地**，但顺序是假 RIoT → 假 MesIngest →
-   ControlServer → 合成对端。**模拟器没有接进来**
-2. 按场景脚本驱动控制面 ——**已落地**，驱动的是假 RIoT / 假 MesIngest / 合成对端三个控制面。
-   **模拟器与车载端 UIA 都没有**，后者要等第 5 步
+1. 起环境，每一步等就绪判据而不是 sleep ——**已落地**。合成装置的顺序是假 RIoT → 假 MesIngest →
+   ControlServer → 合成对端；真装置是假 RIoT → 假 MesIngest → **模拟器** → ControlServer →
+   **真车载端**（第 5 步补上后两个）
+2. 按场景脚本驱动控制面 ——**已落地**。合成装置驱动假 RIoT / 假 MesIngest / 合成对端三个控制面；
+   真装置驱动假 RIoT / 假 MesIngest / **模拟器**，加上**车载端的 UIA**（第 5 步）
 3. 轮询断言（服务端数据库 + 各控制面 snapshot）——已落地
 4. 产出证据（JSONL 时间线 + 结论 JSON + `SUMMARY.md`）——已落地，在 `evidence/l2/`
 5. 拆环境，保证下一轮从干净状态开始 ——已落地；失败时刻意保留 stage root，那里的
@@ -218,7 +243,7 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常到站 | 假 RIoT 推进订单到 `orderState=5` | 进 `AwaitingSublot`，下发 `SublotEntryRequested`。**已实现**：`normal-load` |
+| 正常到站 | 假 RIoT 推进订单到 `orderState=5` | 进 `AwaitingSublot`，下发 `SublotEntryRequested`。**已实现**：`normal-load`、`real-onboard-normal-load` |
 | 车停在错误站点 | 假 RIoT 报错误 `currentPosition` | 不进入装载 |
 | 订单未到终态 | `orderState` 停在中间态 | 不进入装载 |
 | 车到站但仍在动 | `speed != 0` | 不进入装载 |
@@ -228,7 +253,7 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查。**已实现**：`normal-load`，但**放货那一步是合成对端应答的，不是模拟器 + 真 IO 闭环**——接进模拟器之前，这一行下面那些 IO 与光幕故障一条也跑不了 |
+| 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查。**已实现**：`real-onboard-normal-load`，真 Modbus 闭环——车载端自己写 DO 开锁，脚本只放货关门。这一行下面那些 IO 与光幕故障现在**具备了条件**，尚未实现 |
 | ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。**已实现到 Blocked 为止**：`load-result-requires-recovery` |
 | 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。尚未实现 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
@@ -245,10 +270,10 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常出发到关卡 | 假 RIoT 推进第二段订单 | 进卸载阶段。**已实现**：`normal-load` |
+| 正常出发到关卡 | 假 RIoT 推进第二段订单 | 进卸载阶段。**已实现**：`normal-load`、`real-onboard-normal-load` |
 | 出发前车辆变为运动 | 假 RIoT 报 MOVING | 出发前安全检查拒绝 |
 | 出发前锁被打开 | `lock-feedback-override FIXED_0` | 同上 |
-| 关卡卸载后结单 | 取货（`cargo EMPTY`） | journey `Completed`，需求终态。**已实现**：`normal-load`，同样是合成对端应答 |
+| 关卡卸载后结单 | 取货（`cargo EMPTY`） | journey `Completed`，需求终态。**已实现**：`real-onboard-normal-load`，真 Modbus 闭环 |
 
 ### 恢复
 
@@ -258,16 +283,25 @@ UNKNOWN"精确卡出来的。
 | 装载中途服务端重启 | 重启服务 | 结果不丢，重连后续上 |
 | 未确认结果的重放 | 断开确认链路 | 同一 `slotOperationAttemptId` 不重复执行 |
 
-### 为什么「车载端时钟慢 100 ms」这一条现在做不了
+### 「车载端时钟慢 100 ms」：真装置具备了条件，但仍然没做
 
 缺陷在车载端的 `VehicleSafetySignal.IsFresh`
-（[`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1)），
+（[`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1)）。
 **合成对端里根本没有那段逻辑**——它不做新鲜度判定，也没有一个会因为时钟偏差而拒绝自己观测值的
 本地时钟。用合成对端「复现」出来的只会是自己写进脚本的假象：绿了不说明车载端修好了，红了也不说明
-车载端坏了。
+车载端坏了。第 5 步把真车载端接进来，那段逻辑现在真的在跑了。
 
-这一条要等落地顺序第 5 步（车载端 UIA 驱动）和第 7 步（交互式桌面会话）。**凑齐三条不如说清哪一条
-做不了。**
+**但这一条还是没做，因为还差一个制造偏差的手段。**两端跑在同一台机器上共用同一个时钟，而车载端
+比较的那个 `observedAt` 是 ControlServer 用自己的 `timeProvider` 盖的章
+（`HttpRiotMovementGateway.ReadVehicleSafetyAsync`），所以偏差不会自己出现。
+
+可行的做法是让车载端读到一个落在它自己「未来」的 `observedAt`：车载端的
+`vehicleSafety.endpoint` 是配置项，指向一个把 `observedAt` 往后推 N 毫秒的转发代理即可——从
+`IsFresh` 的角度看，这与「车载机时钟慢 N 毫秒」是同一个输入，而被测的那段判定仍然是车载端自己的
+真代码。**两条不能走的路**：改机器时钟（会影响整台机器上的一切），以及把
+`maximumEvidenceAgeMs` 设成 0（那是另一个原因造成的同一个症状，证明不了 `#1`）。
+
+**说清哪一条还没做，比凑齐三条重要。**
 
 ---
 
@@ -279,7 +313,7 @@ UNKNOWN"精确卡出来的。
    `SessionRecoveries`、`JourneyRuntimes`、`AcceptedDemands`、`JourneyBacklog`、`OrderIntents`、
    `StationOperations`、`ProtocolInbox`/`ProtocolOutbox`。读法：借 ControlServer 自带的
    `Microsoft.Data.Sqlite` + `SQLitePCLRaw`，`Mode=ReadOnly`。
-2. **模拟器 `GET /snapshot`** —— 八仓物理与 DI/DO 原始值。**尚未接入编排器**，见缺口 4。
+2. **模拟器 `GET /snapshot`** —— 八仓物理与 DI/DO 原始值。**已接入**（第 5 步），只在真装置下有。
 3. **HTTP 端点** —— `/health/ready`、`/api/runtime/sessions`、`/version`。
 4. **各替身的 `/control/v1/snapshot`** —— 盘点时漏掉的一处，实际用得最多：合成对端的
    `readiness` / `pending` / wire 日志、假 RIoT 的订单与 `mapStationReads`。
@@ -327,13 +361,25 @@ UNKNOWN"精确卡出来的。
    - **时钟慢 100 ms 这一条没做**，理由见第 4 节末尾。合成对端造不出它，硬造出来的是假象
    - 为此给替身加了两个入口：假 RIoT 的 `mapStationReads`（否定判据不必 sleep）、假车载端的
      `FakeOnboard:Seed:*`（会话可以在车还在动的状态下建立）
-5. **车载端 UIA 驱动**，让条码输入进入自动化 ← **下一步**
-6. **给 Kun Wang 提测试控制面 issue**，附本文档与场景清单
+5. ~~**车载端 UIA 驱动**~~ **已完成**（`8005-agv-control-server@bf506b3`）。范围比它的名字大：UIA
+   只是四件事里的一件，真车载端要跑起来得同时解决另外三件
+   - **UIA 驱动**：`scripts/l2/L2.psm1` 的 `New-L2OnboardDriver`，`ValuePattern` + `InvokePattern`，
+     不注入按键也不需要窗口焦点
+   - **真模拟器接入**：不是可选项。没有 Modbus，车载端八个仓位全报 `UNKNOWN`，`departureSafe`
+     恒为 false，服务端永远不给会话就绪。两个替身绑死在同一套装置里
+   - **两个只读仓怎么构建**：克隆到 `%LOCALAPPDATA%\8005-l2-peers\` 再 `dotnet publish`，按 commit
+     缓存；配置只改 stage 里的副本。两仓工作树全程零改动
+   - **规则网关 `18080`**：查清了，**不需要第五个替身**。`App.xaml.cs` 在
+     `wireToGate.enabled=true` 时构造的是 `DisabledRuleGateway`，那个端口从头到尾没有人连
+   产物是 `real-onboard-normal-load`，一趟约 22 秒，连续三次 PASS
+6. **给 Kun Wang 提测试控制面 issue**，附本文档与场景清单 ← **下一步**
 7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）
-8. 逐步补齐第 4 节其余场景
+8. 逐步补齐第 4 节其余场景。第 5 步之后，装载那一整批 IO 与光幕故障、以及 `#1` 的时钟偏差
+   （还差一个转发代理，见第 4 节末尾）都具备了条件
 
 第 1、2、3 步之后，L2 就能跑第一条自动化链路；第 4 步之后，2026-09-03 那一下午的排查里能自动化的
-部分是三条命令、一分钟。剩下的那部分要等车载端可驱动。
+部分是三条命令、一分钟。第 5 步之后，那条链路里的「车载端」不再是替身——条码、IO 闭环、本地
+journal 和本地新鲜度判定都是真的，四条命令、不到两分钟。
 
 ---
 
