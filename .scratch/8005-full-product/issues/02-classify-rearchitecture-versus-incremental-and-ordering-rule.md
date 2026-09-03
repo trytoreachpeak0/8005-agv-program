@@ -1,8 +1,9 @@
 # 判定重构类与增量类归属，并定两类的排序规则
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 01, 11
+Blocks: 03, 04, 05, 12
 
 ## Question
 
