@@ -63,11 +63,11 @@ loopback HTTP 控制面 `127.0.0.1:58006/api/v1`，权威文档是该仓库的
 **它的边界是刻意的，不要试图绕过**：HTTP 不提供开锁和开门，开锁必须由 HMI 写 Modbus DO 触发。
 这条保证了测试验证的是真实的 HMI→IO 通路，而不是测试脚本自己摆出来的状态。
 
-### ControlServer：有替身，缺一个
+### ControlServer：三个替身
 
 - `tools/ControlServer.FakeOnboard` — 假车载端，用于服务端侧测试
 - `tools/ControlServer.Conformance` — 协议一致性
-- **没有假 RIoT** ← 这是 L2 的关键缺口
+- `tools/ControlServer.FakeRiot` — 假 RIoT，**已建**（`9ec81fa`），见下
 
 ### 车载端：没有任何自动化入口
 
@@ -81,7 +81,10 @@ loopback HTTP 控制面 `127.0.0.1:58006/api/v1`，权威文档是该仓库的
 
 ## 3. 四个缺口和对策
 
-### 缺口 1：没有假 RIoT —— 自己建（ControlServer 可写）
+### 缺口 1：没有假 RIoT —— ~~自己建~~ **已建**（`8005-agv-control-server@9ec81fa`）
+
+`tools/ControlServer.FakeRiot`，用法与契约见该目录的 `README.md` 与 `openapi.json`。下面是当初
+的需求描述，落地时全部满足，只有两处按实际情况收紧了，记在本节末尾。
 
 L2 的成败在这里。需要一个进程，实现 ControlServer 实际调用的那几个 RIoT 端点，并且状态可被
 测试脚本驱动：
@@ -103,6 +106,18 @@ POST （建单端点，见 HttpRiotMovementGateway 的 CREATE 路径）
 **车辆运动状态可控是关键**——三个缺陷里有两个都需要"车动起来再停下"。
 
 放在 `8005-agv-control-server/tools/ControlServer.FakeRiot/`，与既有两个工具并列。
+
+落地时的两点补充：
+
+1. **非 loopback 监听默认拒绝启动。**原需求只说了控制面照抄模拟器，没说监听边界。一个会回答
+   「车在哪、订单到没到」的东西如果厂区网能访问到，那边某个程序就可能把它的回答当成 RIoT 的。
+2. **控制面不提供任何「让车动」「把订单标记完成」的业务指令**，只能说明 RIoT *观测到* 什么。
+   派车仍然只能由 ControlServer 通过 `POST /api/order/v1/add/byDefaultMissions` 发起。这与模拟器
+   那条「HTTP 不提供开锁」是同一条边界。
+
+还有一个坑值得后来者知道：这个项目原来带 `appsettings.json`，而 Web SDK 会把它作为 `Content`
+复制到**每一个引用方**的输出目录——于是它盖掉了 `ControlServer.Host` 的同名文件，两条读
+appsettings 的断言当场挂掉。种子值现在只写在 `FakeRiotSeed` 的默认值里，配置走命令行开关。
 
 ### 缺口 2：车载端没有自动化入口 —— 两条路并行
 
@@ -240,8 +255,10 @@ UNKNOWN"精确卡出来的。
      在仓位物理状态未证实、dispatch lease 仍被持有时把车派去跑别的需求。已加回归测试钉住。
      实际修掉的是另一处：`Blocked` 的 `BlockReasonCode` 被 `ONBOARD_SESSION_NOT_READY` 覆盖，
      车载端一关机，「在等哪一种恢复」这个唯一诊断就没了。
-2. **建假 RIoT**（`tools/ControlServer.FakeRiot`），夹具用 2026-09-03 抓到的真实响应
-3. **建场景编排器**，先跑通「正常装载」一条全链路
+2. ~~**建假 RIoT**~~ **已完成**（`8005-agv-control-server@9ec81fa`）。六个 RIoT 端点 + loopback
+   控制面，12 条黑盒测试起真实 Kestrel、用生产的 `HttpRiotMovementGateway` 去读。全仓
+   255 → 267 通过
+3. **建场景编排器**，先跑通「正常装载」一条全链路 ← **下一步**
 4. **补 ★ 三个场景**。其中两条的服务端回归保护已由 L1 承担（见第 1 步），L2 这一侧要证的是
    真实两端的时序：假 RIoT 报 MOVING → STOPPED 时车载端确实发出 `SafetyStateChanged`、
    服务端确实按它推进。第三条（超时不放货）要等 `8005-agv-onboard-hmi#4` 才跑得完整
