@@ -185,10 +185,18 @@ HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`ru
 出，附本方案链接和场景清单**，让对方判断优先级。若对方希望我方出 PR，按新政策（2026-09-03，
 根 `CLAUDE.md`）可以提，但代码内容仍归对方决定。
 
-### 缺口 3：两个 WPF 需要交互式桌面会话 —— 第 5 步在控制端桌面上跑通，进 CI 仍是第 7 步
+### 缺口 3：两个 WPF 需要交互式桌面会话 —— 第 5 步在控制端桌面上跑通，进 CI 仍然没解
 
 计划任务（登录触发、交互式）按序拉起：先模拟器（等 `1502` 监听）再车载端。工作区已有先例——
 `win11-01` 上的 `golden-renderer` runner 就是这么起的，见根 `CLAUDE.md` 的 CI 一节。
+
+**2026-09-03 更正：上面那段不是真障碍，真障碍在别处。**第 7 步落地时发现，把真装置三条搬到
+`golden-renderer` 那个交互式 runner 上，技术上启动没问题，但会**破坏桌面独占**：GitHub 的
+`concurrency` 只在单个仓库内生效，所以 `8005-agv-control-server` 的桌面作业没有任何办法和
+`8005-mes-ingest` 的桌面测试在同一台机器上排队，而那台机器同时是黄金渲染机。计划任务解决的是
+「怎么把窗口拉起来」，解决不了「同一时刻只许一套桌面测试在跑」。**跨仓库桌面互斥需要一个两边都
+调用的机制**（机器级文件锁，或把 mutex 提到共用的地方），那是个未做的设计决策。合成三条不碰桌面，
+已经在 session 0 的服务 runner 上进了 CI，不受这个问题影响。
 
 同时顺手解决另一个坑：**部署脚本写的 Machine 级环境变量对已登录会话不生效**。2026-09-03 车载端
 启动失败卡了很久，就是因为桌面会话是环境变量写入之前建立的。计划任务重启会话即可覆盖；写进
@@ -254,7 +262,8 @@ UNKNOWN"精确卡出来的。
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
 | 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查。**已实现**：`real-onboard-normal-load`，真 Modbus 闭环——车载端自己写 DO 开锁，脚本只放货关门。这一行下面那些 IO 与光幕故障现在**具备了条件**，尚未实现 |
-| ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。**已实现到 Blocked 为止**：`load-result-requires-recovery` |
+| ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**。**已实现**：`load-result-requires-recovery`（合成对端，13/13）。**这条仍然止于 Blocked，但理由已经换了**：两端能力都齐了，是合成对端不会自己发起五步握手，见下一行 |
+| 恢复并继续装载（上一行的出口） | 真车载端点「申请恢复」，服务端授权 `RESUME_AFTER_REPAIR`，车载端提交替换 `OperationResult` | 操作转 `Committed`，旅程离开 `Blocked` 继续。**已实现，当前红**：`real-onboard-resume-after-repair`，4/5，挂在「停摆后 HMI 上出现可用的恢复入口」。服务端那一半已完成（`8005-agv-control-server@1372a89`），红在车载端，已回报 `8005-agv-onboard-hmi#4` |
 | 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。尚未实现 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
 | 锁不上 | `lock-feedback-override FIXED_0` | `LOCK_NOT_CLOSED`，不放行出发 |
@@ -386,9 +395,29 @@ N 毫秒」是同一个输入，而被测的那段判定仍然是车载端自己
    （[`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3)），
    而且 **Kun Wang 已经实现并推送**（`60a0efd`）：loopback `/api/v1/`，`health` / `snapshot` /
    `sublots/submit` / `openapi`。他同一批还答完了另外三条，见第 7 节
-7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）← **下一步**
-8. 逐步补齐第 4 节其余场景。★ 的三条已经齐了（时钟偏差那条见第 4 节末尾）；下一批的现成靶子是
-   装载那一整批 IO 与光幕故障——真 Modbus 闭环已经在跑，模拟器的故障注入接口是现成的
+7. **把 L2 挂到 CI** —— **合成那三条已落地**（`8005-agv-control-server@dfb9cc5` 起），
+   真装置那三条**明确留在外面**，剩下的是一个尚未解决的设计问题
+   - 落地的是 `.github/workflows/l2.yml`，跑在本仓自己的 `win11-01-control-server`（`headless`）上，
+     每次 push 与 PR，三条合计约 82 秒，证据无论成败都传成 artifact。**不需要计划任务自启动**——
+     那是当初以为要用交互式 runner 才有的前提，合成场景在 session 0 的服务 runner 上跑得很好
+   - **真装置三条进不来，两个各自独立的原因。**一是它们要交互式桌面会话（会弹两个 WPF 窗口），
+     服务模式 runner 根本跑不了；二是改挂到 `golden-renderer` 那个交互式 runner 会破坏桌面独占——
+     GitHub 的 `concurrency` 只在单个仓库内生效，control-server 的作业没办法和 `8005-mes-ingest`
+     的桌面测试在同一台机器上排队，而那台机器同时是黄金渲染机。**跨仓库桌面互斥目前没有解**，
+     这是第 7 步真正剩下的部分，且与对方进度无关
+   - 首跑三条全挂，打出两个自己的 bug，都值得记住。**装置借了开发机环境里的 RIoT API key**：
+     `JourneyRuntimeOptions` 对它是无条件要求的（不像 MesIngest 那把有 loopback 豁免），而 L2 从来
+     没提供过它，一直在继承控制端进程环境里那把真的；CI 的 runner 以 `NetworkService` 运行，没有这个
+     变量，服务端启动即退（`2ccbdef`）。**而且诊断成本本不该这么高**：进程两秒就死了，装置却干等
+     120 秒再报「Last observed: (nothing)」，要下载 artifact 才知道原因；`Wait-L2Condition` 现在接
+     组件句柄，已退出就立刻带着 stderr 失败（`62767f4`）
+   - **这两条都只有干净 checkout 才抓得到**：同样这三条在控制端本地绿了整整一天，六条全量跑也绿过。
+     与 `.gitattributes` 那次是同一类问题
+8. 逐步补齐第 4 节其余场景 ← **下一步**。★ 的三条已经齐了（时钟偏差那条见第 4 节末尾）；第 4 节约
+   29 条里实到 7 条。下一批的现成靶子是**装载那一整批 IO 与光幕故障**（12 条里做了 3 条）——真
+   Modbus 闭环已经在跑，模拟器的 `lock-feedback-override`、`light-curtain-override`、`faults/modbus`
+   都是现成接口。**这批用合成对端就能跑，也就意味着它们可以直接进 CI**，不受第 7 步那个桌面互斥
+   障碍的影响
 
 第 6 步作废是个值得记的教训：**动手前先读一遍对方 issue 的回复，不是只看标题。**那条 issue 的
 答复在本轮开工前一个多小时就发出来了，而这份文档和交接文档都还写着「下一步是提这个 issue」。
@@ -423,12 +452,31 @@ journal 和本地新鲜度判定都是真的，五条命令、两分钟。
    我方 `8005-agv-control-server@4ad840b` 已按这个方向落地并有 L1 回归，但**那是在他实现之前写的**，
    两边的版本回基规则是否真的对齐，需要照着 `60a0efd` 再核一遍。
 2. `#4`：**生产闭环还需要 ControlServer 允许同一原始操作在获得合法 `RESUME_AFTER_REPAIR` 授权后
-   提交一次替换 `OperationResult`**，并校验恢复 action、原始命令哈希、需求与仓位范围。这条是纯服务端
-   工作，尚未开始，也是 `load-result-requires-recovery` 现在「止于 Blocked」的原因。
+   提交一次替换 `OperationResult`**，并校验恢复 action、原始命令哈希、需求与仓位范围。**已完成**
+   （`8005-agv-control-server@1372a89`）。
+
+   缺的不是恢复状态机——下发授权、前置校验、收到结果后推进工作流本来就在。缺的是**回传那一步进不
+   来**：去重键是 `ResultId` 或 (`SlotOperationAttemptId` + `ForcedRecoveryGeneration`)，而
+   `RESUME_AFTER_REPAIR` 不推进代次（只有 `FORCED_MECHANICAL_RECOVERY` 推），所以恢复前后那个键完全
+   一样，第二份结果必然被判成内容不同的重放而拒绝；数据库层面还有一道同名唯一索引挡在后面。
+
+   他要求的四项校验由一次哈希比对同时钉住：把 `SlotOperationResumeCommand` 当初带给车载端的那个哈希，
+   用**回传结果里的** demandId、attemptId 和仓位集合重算再比对。失败的那份结果加 `SupersededByResultId`
+   留在表里当作车载端当时报了什么的记录，唯一索引改为过滤存活行——不覆盖、不删除。
+
+   **一个有意保留的行为**：替换结果本身又失败时，工作流转 `RecoveryRequired`、恢复会话停在
+   `EXECUTING`，`RECOVERY_SESSION_ALREADY_OPEN` 会挡住新会话，恢复实际只有一次机会。这是 fail-closed
+   的停摆而不是放行，按「不给 `Blocked` 加出口」的既定原则不动它。已在 issue 里对 Kun Wang 说明。
 
 `#4` 挡住的是 `CV-EXCEPTION-RESUME`、`CV-EXCEPTION-COMPENSATE`、
 `CV-LOAD-CANCELLATION-ALL-EMPTY`、`CV-FAULT-CARGO-HANDOFF` 四条向量的 `ONBOARD_HMI_G2`，
 即 `W2G-IS-02` 与 `W2G-IS-07`；他这次只做了第一条向量，其余三条仍然挡着。
+
+**`CV-EXCEPTION-RESUME` 这一条现在的位置**：两端都实现了，但端到端**没有跑通**。L2 新场景
+`real-onboard-resume-after-repair` 4/5，挂在最后一条——车辆停摆之后，真车载端 HMI 上那个「申请恢复」
+入口始终不可用，操作员点不到，五步握手无从开始。已带证据回报 `#4`（`8005-agv-control-server` 的
+`evidence/l2/20260903-real-onboard-resume-after-repair-001` 与 `-sweep01`，两次逐条一致，可复现）。
+**服务端这一侧不再是阻塞点**；那条场景一变绿就是 `CV-EXCEPTION-RESUME` 的端到端证据，且不需要约现场。
 
 按根 `CLAUDE.md`（2026-09-03 变更）：那两个仓库**内容只读**，但 issue / PR / comment 是正当渠道。
 诊断要带可复现证据，修复留给 owner。
