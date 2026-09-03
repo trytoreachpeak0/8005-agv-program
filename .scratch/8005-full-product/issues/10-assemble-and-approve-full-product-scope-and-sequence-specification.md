@@ -49,3 +49,32 @@ Blocked by: 08, 09
 若票 15 判甲档或丁档，本票的表述层要接住它，且不得把它表述为需求作废或废弃。
 
 详见 [票 13 决议](13-answer.md) 与 [票 15](15-resolve-req-0298-conflict-with-route-graph-snapshot.md)。
+
+## 来自票 12 的输入（2026-09-03）
+
+**三条须在最终规格中如实表述。**
+
+**一、等待点数量 `n` 不写进规格。**`REQ-0289` 的等待点登记表述为**配置驱动的可空集合**
+（`MapWaitingPointPool`），规格中不假定任何具体数量。理由是现场事实：Round 43 实测 mapId 25
+的 206 个站没有一个是等待点，等待点物理上在厂区但**尚未测绘进 RIoT 地图**。形态与票 13 的
+`FP-C9a` 一致——机制一次建齐，投运待现场测绘，**不得表述为 `证据受限实施`**。
+
+**二、离点确认证据组合没有需求条目载体，作为实施决策加注，不表述为需求。**基线只定了到点
+确认（`REQ-0295`），离点侧只有 `REQ-0293` 一句「确认车辆实际离点后才释放」，未规定证据构成。
+票 12 定的四项组合（`currentMap` 仍是本图 + `currentPosition` 不再精确匹配 + 车辆处于运动态
++ 证据新鲜无冲突）是**实施决策**。这与票 02 发现的「B2 无需求条目载体」是同一类情况，本图
+不改基线，故在规格中加注而不派生新需求。词条 `WaitingPointDepartureConfirmation` 已写入
+`CONTEXT.md`。
+
+**三、`byDefaultMissions` 是 URL 路径段不是请求体字段，基线措辞的正确读法须记录。**请求体
+字段叫 `mission`（单数、数组、必填），响应侧才叫 `missions`。基线 `REQ-0294` 与
+`CONTEXT.md:751` 都写「创建 `byDefaultMissions` 单段 move」，在代码语境下会被读成字段名。
+本图不改基线，此处只记录正确读法。
+
+**另有一条文档治理问题，本票须判怎么处置。**`REQ-0294` 正文引用的「现有白名单」实际是
+`.scratch/current-requirements-baseline/issues/37-decide-riot-api-allowlist-and-call-safety-boundary.md`
+——**另一张已完成地图的工作票据，不是产品文档**。那份 scratch 若被清理，白名单就没有权威
+副本了，而 `REQ-0294` 是唯一把它写进需求文本的条目。这与已知的「基线 tag
+`requirements-baseline-v1.0.0` 不存在」同属身份绑定指向不稳的问题，本票汇编前须有结论。
+
+详见 [票 12 决议](12-answer.md) 的 Q1、Q4、第 1.7 节与第六节第 3 点。

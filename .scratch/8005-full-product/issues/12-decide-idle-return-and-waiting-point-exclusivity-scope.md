@@ -1,7 +1,7 @@
 # 决定空闲返回与等待点的独占语义与范围
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 02
 Blocks: 04, 06
 

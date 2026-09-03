@@ -528,3 +528,28 @@ FP-C2**：「空闲车与在途车共同竞争」在单车下没有竞争对象�
 但各有一处补充，见 [票 13 决议](13-answer.md) 的 Q8。其中对票 09 最要紧的一条：`REQ-0202` 的
 优先级带在票 13 定的**第一批（五类）里没有可观测行为**——最高初始带只有 `STAGING_TO_WIRE`，
 而它被分到第二批，所以第一批的最高带是空的。
+
+---
+
+## 修订说明（票 12，2026-09-03）
+
+**Q7 的「唯一性下移到 `OrderIntents`」在订单层成立，但不覆盖用途层。**用途跨越多个订单：
+一次搬运从接单到卸货有 2 个订单（本票的档 2 之后 2～9 个），车辆在相邻两个订单之间——例如
+刚到取货点、去关卡的单尚未建立——`OrderIntents` 上没有活跃行，此刻每车过滤唯一索引约束不到
+任何东西。现状靠 lease 表那条过滤唯一索引挡住，本票删掉它就出现空窗。
+
+票 12 已定：由 `REQ-0290` 的 `VehiclePurposeClaims`（主键 `VehicleKey`，一车一行）补上这个
+空窗。两条唯一性是不同层次——`DispatchUniquenessGuard` 约束的是**订单**（`CONTEXT.md:898`
+措辞本身就说明了这点），`VehiclePurposeClaim` 约束的是**用途**，二者并存不冗余。
+`CONTEXT.md` 末尾已补一条说明二者层次关系的词条。
+
+**两处代码现状的纠正**（本票的删除与新建都是决策，不是现状）：
+
+1. `IX_VehicleDispatchLeases_VehicleKey ... WHERE ReleasedAt IS NULL` **现在还在**
+   （`ControlServerDbContext.cs:45-48`，模型快照 `ControlServerDbContextModelSnapshot.cs:1565-1567`）。
+2. `OrderIntents` 上**没有任何 `VehicleKey` 索引**（该表主键 `MovementLegId`，三条唯一索引在
+   `UpperId`、`CreateAttemptId`、`ExperimentalCreateAuthorizationId`）。
+
+**Q7 上半「模型甲是唯一性推理的前提」这条依赖减弱但不消失。**票 12 定的唯一约束冲突捕获
+兜住了写冲突，但「读到的快照是否新鲜」仍由单 worker 串行保证，而 `REQ-0292` 明文要求
+「基于**同一份新鲜快照**同时取得」。票 09 排批次时照旧不得把模型甲当作可替换的实现细节。

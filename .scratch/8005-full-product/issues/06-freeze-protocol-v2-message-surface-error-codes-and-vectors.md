@@ -110,3 +110,37 @@ B5 新增：
 本票或实施图择一处置。
 
 详见 [票 13 决议](13-answer.md) 的 Q4。
+
+## 来自票 12 的输入（2026-09-03）
+
+**新增第三个正交维度：停靠目的类别 `StopPurposeCategory`，三值 `BUSINESS`／`WAITING_POINT`／`CHARGER`。**
+
+票 13 已要求把 `stopRole`／`legType` 拆开「取货/卸货」与「站点功能」两个正交概念。等待点两个
+维度都不属于——它既不装卸，也不是五个 `PublicStationFunction` 之一。票 12 据此加第三个维度。
+
+| 项 | 内容 |
+| --- | --- |
+| 新增维度 | `StopPurposeCategory`，三值 `BUSINESS`／`WAITING_POINT`／`CHARGER` |
+| 位置 | `schemas/messages/UpcomingStopPlanSnapshot.schema.json:75-81`（现 `legType`）与 `schemas/messages/CurrentStopWorklistSnapshot.schema.json:92-98`（现 `stopRole`） |
+| 正交性 | 与票 13 要求的两个维度正交：取货/卸货与站点功能**只在 `BUSINESS` 下有意义**，等待点与充电桩停靠两者皆无 |
+| `CHARGER` 值 | **由票 12 定，票 04 不再向本票提第四个值** |
+| 计划上限 | 票 03 定 `legs.maxItems` 9／`sequence.maximum` 9／`items.maxItems` 8。**等待点停靠不叠加上限**——它是行程收敛之后的独立承诺，不与业务停靠同时在计划里 |
+
+**当前 enum 实测值**（本票冻结前的起点）：`legType: ["TO_PICKUP", "TO_GATE"]`、
+`stopRole: ["PICKUP", "GATE"]`、`sequence.maximum: 2`。两处 enum 在整个 `schemas/` 下各只
+出现一次。按 `docs/release-governance.md:11`，enum 变更是 breaking。
+
+**为什么等待点必须进计划而不是另开一条消息**：`REQ-0292` 的原话是「形成承诺后，返回成为
+车辆**当前已承诺下一站**，沿用 `PlannedStopMutationBoundary`」。「已承诺下一站」与
+`PlannedStopMutationBoundary` 两个词都是计划语义，基线已经把空闲返回放进计划里了。
+
+**这条同时是 B1 在协议上的实质表达：计划里可以有不由 `TransportDemand` 引起的停靠。**票 03
+定的 `MultiStopExecutionPlan` 此前每个停靠都对应至少一条 Demand，等待点停靠是第一个反例，
+充电桩停靠是第二个。本票冻结时须确认消息 schema 不再假定「每个停靠必有 Demand 引用」。
+
+**一处措辞纠正，与协议无关但会影响本票读基线**：`byDefaultMissions` 是 **URL 路径段**
+（`POST /api/order/v1/add/byDefaultMissions`），不是请求体字段。请求体字段叫 `mission`
+（单数、数组、必填），响应侧才叫 `missions`。基线 `REQ-0294` 与 `CONTEXT.md:751` 都写
+「创建 `byDefaultMissions` 单段 move」，在代码语境下会被读成字段名。
+
+详见 [票 12 决议](12-answer.md) 的 Q5。
