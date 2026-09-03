@@ -34,7 +34,7 @@
 
 | 缺陷 | L1 能发现吗 | L2 能发现吗 |
 | --- | --- | --- |
-| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **真装置具备条件，但仍未实现**——还差一个把 `observedAt` 推到未来的手段，见第 4 节末尾 |
+| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **已做**——`real-onboard-clock-skew`，靠 `ControlServer.ClockSkewProxy` 制造偏差，见第 4 节末尾 |
 | 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **已做**——`session-established-while-moving` |
 | ~~`Blocked` 是终态且永久占用 active 位~~（**这条诊断是错的**，见第 6 节第 1 步） | ~~勉强~~ **能**（见下） | **已做**——`load-result-requires-recovery`，车载端上报一份不完美的 `OperationResult` |
 
@@ -48,9 +48,9 @@
 **一处是第三行的缺陷描述本身就错了。**`Blocked` 不是终态：服务端的恢复出口完整且有测试，断点
 在车载端从不发起五步恢复握手。原文留着划掉，完整说明见第 6 节第 1 步。
 
-**第一行的 L2 列则是高估。**当时以为「把两端时钟拨开 100 ms」就能在 L2 复现，落地后才清楚那需要
-真车载端——合成对端根本没有那段新鲜度判定逻辑。真车载端已于第 5 步接进来，但这一条**仍然没做**：
-两端跑在同一台机器上共用一个时钟，偏差不会自己出现，见第 4 节末尾。
+**第一行的 L2 列则是高估。**当时以为「把两端时钟拨开 100 ms」就能在 L2 复现，落地后才清楚要两步：
+先接真车载端（第 5 步），再补一个把 `observedAt` 推到未来的转发代理——两端同机共用一个时钟，偏差
+不会自己出现。两步都做完了，见第 4 节末尾。
 
 教训是：**判断某一层能不能发现某个缺陷之前，先花十分钟真写一条试试。**两个方向都会出错。低估
 L1 会把本该几秒钟的回归推到需要一整套半实物环境；高估 L2 更隐蔽——它会让人以为某条缺陷已经被
@@ -283,7 +283,7 @@ UNKNOWN"精确卡出来的。
 | 装载中途服务端重启 | 重启服务 | 结果不丢，重连后续上 |
 | 未确认结果的重放 | 断开确认链路 | 同一 `slotOperationAttemptId` 不重复执行 |
 
-### 「车载端时钟慢 100 ms」：真装置具备了条件，但仍然没做
+### 「车载端时钟慢 100 ms」：已做，而且钉的是修复后的那个界
 
 缺陷在车载端的 `VehicleSafetySignal.IsFresh`
 （[`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1)）。
@@ -291,17 +291,27 @@ UNKNOWN"精确卡出来的。
 本地时钟。用合成对端「复现」出来的只会是自己写进脚本的假象：绿了不说明车载端修好了，红了也不说明
 车载端坏了。第 5 步把真车载端接进来，那段逻辑现在真的在跑了。
 
-**但这一条还是没做，因为还差一个制造偏差的手段。**两端跑在同一台机器上共用同一个时钟，而车载端
-比较的那个 `observedAt` 是 ControlServer 用自己的 `timeProvider` 盖的章
-（`HttpRiotMovementGateway.ReadVehicleSafetyAsync`），所以偏差不会自己出现。
+**接进来之后还差一件事**：两端跑在同一台机器上共用同一个时钟，而车载端比较的那个 `observedAt`
+是 ControlServer 用自己的 `timeProvider` 盖的章（`HttpRiotMovementGateway.ReadVehicleSafetyAsync`），
+偏差不会自己出现。补上 `8005-agv-control-server/tools/ControlServer.ClockSkewProxy` 才凑齐：它挡
+在车载端和服务端之间，**只把响应里的 `observedAt` 挪一个可配置的偏移量**，别的一律原样转发；车载端
+的 `vehicleSafety.endpoint` 本来就是配置项，指过去即可。从 `IsFresh` 的角度看，这与「车载机时钟慢
+N 毫秒」是同一个输入，而被测的那段判定仍然是车载端自己的真代码。
 
-可行的做法是让车载端读到一个落在它自己「未来」的 `observedAt`：车载端的
-`vehicleSafety.endpoint` 是配置项，指向一个把 `observedAt` 往后推 N 毫秒的转发代理即可——从
-`IsFresh` 的角度看，这与「车载机时钟慢 N 毫秒」是同一个输入，而被测的那段判定仍然是车载端自己的
-真代码。**两条不能走的路**：改机器时钟（会影响整台机器上的一切），以及把
+**它不等价于什么也要说清楚**：真的慢时钟会同时挪动车载端自己盖的每一个时间戳（journal、
+`journeySnapshotMaxAgeMs`、协议消息的 `sentAt`）；代理只偏这一处比较。对 `#1` 恰好就是出问题的那一
+处，但证据里不能说得比这更多。**两条刻意不走的路**：改机器时钟（会影响整台机器上的一切），以及把
 `maximumEvidenceAgeMs` 设成 0（那是另一个原因造成的同一个症状，证明不了 `#1`）。
 
-**说清哪一条还没做，比凑齐三条重要。**
+场景是 `real-onboard-clock-skew`。**`#1` 已由 Kun Wang 在 `abb8e73` 修成有界容差**
+（`vehicleSafety.clockSkewToleranceMs`，默认 500 ms、上限 1000 ms），所以它钉的不是缺陷而是那个界
+的两侧加恢复：容差内（100 ms）会话照常建立；容差外（3000 ms）仍然 fail-closed，会话降级为
+`RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`、需求判 `ONBOARD_FACTS_NOT_READY`；回到容差内自行
+恢复，不重启车载端。
+
+**这一条从「做不了」走到「做完了」用了三步，每一步都推翻了上一步的判断**——先是以为拨时钟就行，
+再是以为接了真车载端就行，最后才发现还要造一个偏差源。教训与本文第 1 节那条一样：判断某一层能不能
+发现某个缺陷之前，先花十分钟真写一条试试。
 
 ---
 
@@ -372,31 +382,53 @@ UNKNOWN"精确卡出来的。
    - **规则网关 `18080`**：查清了，**不需要第五个替身**。`App.xaml.cs` 在
      `wireToGate.enabled=true` 时构造的是 `DisabledRuleGateway`，那个端口从头到尾没有人连
    产物是 `real-onboard-normal-load`，一趟约 22 秒，连续三次 PASS
-6. **给 Kun Wang 提测试控制面 issue**，附本文档与场景清单 ← **下一步**
-7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）
-8. 逐步补齐第 4 节其余场景。第 5 步之后，装载那一整批 IO 与光幕故障、以及 `#1` 的时钟偏差
-   （还差一个转发代理，见第 4 节末尾）都具备了条件
+6. ~~**给 Kun Wang 提测试控制面 issue**~~ **不需要做了**——issue 早就提了
+   （[`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3)），
+   而且 **Kun Wang 已经实现并推送**（`60a0efd`）：loopback `/api/v1/`，`health` / `snapshot` /
+   `sublots/submit` / `openapi`。他同一批还答完了另外三条，见第 7 节
+7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）← **下一步**
+8. 逐步补齐第 4 节其余场景。★ 的三条已经齐了（时钟偏差那条见第 4 节末尾）；下一批的现成靶子是
+   装载那一整批 IO 与光幕故障——真 Modbus 闭环已经在跑，模拟器的故障注入接口是现成的
+
+第 6 步作废是个值得记的教训：**动手前先读一遍对方 issue 的回复，不是只看标题。**那条 issue 的
+答复在本轮开工前一个多小时就发出来了，而这份文档和交接文档都还写着「下一步是提这个 issue」。
 
 第 1、2、3 步之后，L2 就能跑第一条自动化链路；第 4 步之后，2026-09-03 那一下午的排查里能自动化的
 部分是三条命令、一分钟。第 5 步之后，那条链路里的「车载端」不再是替身——条码、IO 闭环、本地
-journal 和本地新鲜度判定都是真的，四条命令、不到两分钟。
+journal 和本地新鲜度判定都是真的，五条命令、两分钟。
+
+**它第一次真正派上用场是在建成的当天**：Kun Wang 推了四个修复（`abb8e73` 与 `60a0efd`），把车载端
+镜像快进上去重跑一趟 `real-onboard-normal-load`，25 秒就知道两端跨过那四个修复依然互通。以前这个
+问题只能靠约时间到车前面去回答。
 
 ---
 
 ## 7. 已提出的跨仓库反馈
 
-| 编号 | 内容 | 类型 |
-| --- | --- | --- |
-| [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 缺陷 |
-| [`8005-agv-onboard-hmi#2`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/2) | 安全快照每会话只发一次，车辆停稳后不重报 | 缺陷（附带一个协议语义问题待对方定夺） |
-| [`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3) | 车载端 loopback 测试控制面 | feature request |
-| [`8005-agv-onboard-hmi#4`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/4) | 车载端从不发起五步恢复握手，装载失败后 journey 无出口 | 缺陷 |
+**四条都已由 Kun Wang 实现并推送到 `OnboardHmi_MVP`**（2026-09-03 当天，`abb8e73` 与 `60a0efd`）。
 
-`#2` 里我方承诺的服务端修复（`ReadOnboardFactsAsync` 纳入 `SafetyStateChanged`）已于
-`8005-agv-control-server@4ad840b` 落地，未等对方排期。`#3` 在对方答复前走 UIA 临时方案。
+| 编号 | 内容 | 类型 | 对方的答复 |
+| --- | --- | --- | --- |
+| [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 缺陷 | `abb8e73` 有界容差，默认 500 ms、上限 1000 ms |
+| [`8005-agv-onboard-hmi#2`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/2) | 安全快照每会话只发一次，车辆停稳后不重报 | 缺陷（附带一个协议语义问题待对方定夺） | `60a0efd` 取方向 2：会话一次全量基线 + 运行期增量 |
+| [`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3) | 车载端 loopback 测试控制面 | feature request | `60a0efd` 已实现：`/api/v1/` 的 `health` / `snapshot` / `sublots/submit` / `openapi` |
+| [`8005-agv-onboard-hmi#4`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/4) | 车载端从不发起五步恢复握手，装载失败后 journey 无出口 | 缺陷 | `60a0efd` 实现 `RESUME_AFTER_REPAIR` 车载端路径，其余恢复向量仍 fail-closed |
+
+**L2 已经对着 `60a0efd` 验过一趟**（`real-onboard-normal-load`，25 秒，绿），跨过这四个修复两端
+依然互通；`#1` 的那个界另有 `real-onboard-clock-skew` 专门钉住。
+
+**他的答复里点名了两件服务端的活，都在我方**：
+
+1. `#2`：服务端消费者要按「一次全量基线 + 后续增量、以最新安全版本为准」的语义合并数据源。
+   我方 `8005-agv-control-server@4ad840b` 已按这个方向落地并有 L1 回归，但**那是在他实现之前写的**，
+   两边的版本回基规则是否真的对齐，需要照着 `60a0efd` 再核一遍。
+2. `#4`：**生产闭环还需要 ControlServer 允许同一原始操作在获得合法 `RESUME_AFTER_REPAIR` 授权后
+   提交一次替换 `OperationResult`**，并校验恢复 action、原始命令哈希、需求与仓位范围。这条是纯服务端
+   工作，尚未开始，也是 `load-result-requires-recovery` 现在「止于 Blocked」的原因。
+
 `#4` 挡住的是 `CV-EXCEPTION-RESUME`、`CV-EXCEPTION-COMPENSATE`、
 `CV-LOAD-CANCELLATION-ALL-EMPTY`、`CV-FAULT-CARGO-HANDOFF` 四条向量的 `ONBOARD_HMI_G2`，
-即 `W2G-IS-02` 与 `W2G-IS-07`。
+即 `W2G-IS-02` 与 `W2G-IS-07`；他这次只做了第一条向量，其余三条仍然挡着。
 
 按根 `CLAUDE.md`（2026-09-03 变更）：那两个仓库**内容只读**，但 issue / PR / comment 是正当渠道。
 诊断要带可复现证据，修复留给 owner。
