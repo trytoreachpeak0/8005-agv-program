@@ -1,5 +1,20 @@
 # 票 03 决议：多车并发、车辆占用与 Worklist 执行模型的重做范围
 
+> [!IMPORTANT]
+> **本决议的一条事实前提已于同日复核并推翻（用户提出质疑后）。**
+> 原文「RIoT 查不到站到站的路径成本」**不成立**：`GET /api/imap/v1/mapInfo/edges/{mapId}`
+> 返回全图边表，`Edge` 带 `snode`／`enode`／`cost`(float)，`Station` 带 `edgeId`，
+> 自建图跑最短路即可算站到站；且**用户确认 RIoT 的规划算法就是跑最短路**，所以自算不是
+> 「弱替代值」而是同算法同数据。
+>
+> 据此 **Q12 与 Q13 已补充决议（见下文「复核后追加的决议」一节）**：
+> `REQ-0196`、`REQ-0198`、`REQ-0197` 换序半的形态**改为待实测判定**，
+> 由 `rcs/riot-behavior-lab` 的 **Round 43** 取证，承接票据是**票 14**。
+> **下文「推论一」与 Q1 中关于这三条的 fail-closed 表述已作废**，以本节和「复核后追加的
+> 决议」为准；Q1 的档 2（首次派车可组多 Demand 计划）本身不变。
+>
+> **Q2～Q11 的结论全部维持**——它们不依赖「站到站查不到」这个前提。Q2 的档 β 仍然成立，
+> 但它现在是偏保守的选项而非唯一可行项（说明见「复核后追加的决议」Q12 末段）。
 Status: closed
 Resolved: 2026-09-03
 批准人: 用户（Zhengyu Shao），三轮共 11 问，10 问按推荐值、Q9 改判为档 ii。
@@ -24,17 +39,21 @@ Resolved: 2026-09-03
 | --- | --- | --- |
 | 车当前位置 → 某站的数值成本 | **能**，`costs` 单位 mm，`-1` = 不可达 | `riot-sdk` `csharp/RIoT.Sdk.Facade/TaskClient.cs:52`；`csharp/RIoT.Sdk.Core/RouteCost.cs:3-10` |
 | 一次查多台车到同一站 | **协议支持**（`deviceKeys` 是数组），Facade 硬编码单元素 | `TaskClient.cs:65`（`DeviceKeys = [deviceKey]`）；逃逸口 `TaskClient.cs:244` |
-| **站 A → 站 B 的成本数值** | **不能**。`getRouteCostsBy` 入参只有 `mapId`/`stationId`/`deviceKeys`，**无起点字段**，起点恒为车的当前位置 | `riot-sdk` `specs/task.json` 的「申请车辆列表到达站点代价」 |
+| **站 A → 站 B 的成本数值** | `getRouteCostsBy` **给不了**（入参只有 `mapId`/`stationId`/`deviceKeys`，**无起点字段**；起点是车的当前物理位置——Round 41 实测「离路线过远」返回 `costs:-1` 可证）。**但边表能算**：`GET /api/imap/v1/mapInfo/edges/{mapId}` 返回 `Edge{snode, enode, cost}`，自建图求最短路即可，详见「复核后追加的决议」 | `riot-sdk` `specs/task.json`；`specs/imap.json` 的 `Edge` |
 | 候选站里挑最近的一个 | 能，但**只回 stationId、不回数值**；纯拓扑，与车无关 | `TaskClient.cs:93`（`QueryNearestEndAsync`）、`:131`（`QueryNearestStartAsync`），返回 `Task<int>` |
-| 预计到达**时间** | **不存在**。全量 schema 扫描 `Eta`/`ETA`/`Duration`/「预计时间」零命中 | `riot-sdk` `specs/task.json` |
+| 预计到达**时间** | task 侧不存在；**order 侧有但现场为死字段**——`OrderRecord` 的 `eta`/`distance`/`totalCosts` 在实验室**所有**样本中恒为 `0`（含 progress=42 的执行中订单），只有 `arriveTime`（「预计到达下一站时间(s)」）非零实测（122／477／157／105 秒），但它**建单前拿不到、也不到终点** | `specs/order.json`；`riot-behavior-lab` `evidence/rounds/2026-08-04-round-41/runs/024-E9-final-nonfinal-raw.json` |
 | 成本可加性 | **无任何说明**；且有动态代价因子 `traffic`/`obstacles`/`orderHang`/`doAction`/`emergencyStop` | `specs/task.json` 的 `CostUnit.costFactor` |
 
 由此得到三条推论，它们划出了 B3 的档位：
 
-**推论一 —— 途中追加做不了。**`REQ-0198` 把 `EnRoutePickupDeliveryDelay` 定义为「对任一既有
-Demand **预计到达终点时间**造成的最大增量」。RIoT 连站→站的**距离**都查不到，**时间**更没有。
-而该条原文自带出口：**「任一增量无法可靠计算时不得追加」**。所以 `REQ-0196` 实现出来的运行时
-行为恒为「不追加」——完全合规，零价值。`REQ-0197` 的换序半同理（其前提也是「满足延迟保护」）。
+**~~推论一 —— 途中追加做不了。~~（已作废，2026-09-03 同日复核）**原文的理由是「RIoT 连站→站的
+距离都查不到」，而边表可以算，所以这条推论不成立。**保留原文供追溯，但不得据以操作**——
+`REQ-0196`／`REQ-0198`／`REQ-0197` 换序半的形态改由 Round 43 实测判定，见「复核后追加的决议」。
+
+原文如下：`REQ-0198` 把 `EnRoutePickupDeliveryDelay` 定义为「对任一既有 Demand 预计到达终点时间
+造成的最大增量」。RIoT 连站→站的距离都查不到，时间更没有。而该条原文自带出口：「任一增量无法
+可靠计算时不得追加」。所以 `REQ-0196` 实现出来的运行时行为恒为「不追加」——完全合规，零价值。
+`REQ-0197` 的换序半同理。
 
 **推论二 —— 首次组多 Demand 计划做得了。**站点顺序可用 `queryNearEnd` 贪心最近邻（纯拓扑，
 不需数值）；`REQ-0195` 的分区连续性是纯标签序列检查；`REQ-0197` 的删除半是纯业务规则。而
@@ -50,16 +69,18 @@ WIRE_TO_GATE 的**终点固定是关卡**（`appsettings.json:53` `gateStationId
 
 ### Q1 — 一车同时承载多个 Demand：**档 2**
 
-首次派车时可组多 Demand 计划。`REQ-0189`、`REQ-0195` **完整实现**；`REQ-0196`、`REQ-0197`
-的换序半、`REQ-0198` **以 fail-closed 形态实施**——门禁与代码路径建好，因证据不足恒走拒绝分支，
-RIoT 将来补上站→站成本即自动生效，无需改代码。
+首次派车时可组多 Demand 计划。`REQ-0189`、`REQ-0195` **完整实现**。
+
+**`REQ-0196`、`REQ-0197` 的换序半、`REQ-0198` 的形态在本票内未定案**（原判 fail-closed 的理由
+已被推翻，见「复核后追加的决议」Q12）：改由 Round 43 实测边表可用性后判定，承接票据是**票 14**。
+档 2 本身不受影响——它说的是「首次派车时可组多 Demand 计划」，这一点与途中追加能否实现无关。
 
 不选档 1（不做多 Demand）的原因：worklist 会恒为单元素，B5 随之失去意义，`FP-C3` 6 条一并落空。
 不选档 3（推动 RIoT 补接口）的原因：前置是外部团队的接口，本图不该把批次序列挂在它上面。
 
-**代价必须写进规格**：验收时 `REQ-0196` 与 `REQ-0198` 只能证明「门禁正确拒绝」，无法证明
-「正确追加」。这与票 08 已知的「3 车 3 桩凑不出充电争用」是同类问题，证据形态归票 08 判，
-**不得默认「不触发即通过」**。
+**关于验收**：若 Round 43 判定边表可用，这三条按完整能力验收，票 08 无额外难题；若判定不可用，
+则它们回到「只能证明门禁正确拒绝」的形态，与票 08 已知的「3 车 3 桩凑不出充电争用」同类，
+**不得默认「不触发即通过」**。两种走向都由票 14 定案后转交票 08。
 
 ### Q2 — 多车选车规则：**档 β**
 
@@ -214,6 +235,86 @@ MES 运输任务，`TransportDemandKey` 即 `TASK_TYPE + SUBLOT`；四条在剖�
 `OperationSession`、`DemandId`、完整 SUBLOT 三者并列记录时不会出现「一个 session 对多个
 Demand」的歧义。
 
+## 复核后追加的决议（2026-09-03 同日，用户质疑后）
+
+用户指出边表接口存在，复核证实原「站到站查不到」的前提错误。**错在只查了 `getRouteCostsBy`
+的入参就下结论，没有复核路网这条路。**同时查出第二处错误：原文「全量 schema 扫 `Eta` 零命中」
+只扫了 `task.json`，`order.json` 的 `OrderRecord` 有 `eta`／`distance`／`totalCosts`／`arriveTime`
+（但现场前三个恒为 0，见上表）。第三处是措辞错误：`queryNearEnd` 的请求体本来就有
+`startStationId`，它是站到站的，只是返回 stationId 不返回数值——本文件的推论二用对了这一点，
+口头总结说反了。
+
+### 决定性的新事实
+
+- **`Edge` 带 `snode`／`enode`／`cost`(float)**，`Station` 带 `edgeId`／`posX`／`posY`
+  （`riot-sdk` `specs/imap.json`）。全图边表可经 `GET /api/imap/v1/mapInfo/edges/{mapId}` 取得，
+  `MapClient` 未封装但走 `Raw` 可达——vendored `RIoT.Sdk.Generated.dll` 含
+  `EdgesRequestBuilder` 与 `ResponseMsg_Of_List_Of_Edge`。
+- **用户确认 RIoT 的规划算法就是跑最短路。**因此自建图算出的成本不属于 `CONTEXT.md` 的
+  `RouteCostEvidenceBoundary` 所禁止的「弱替代值」——那条针对的是直线距离一类近似，
+  而这里是同算法同数据。
+- **`getRouteCostsBy` 的起点是车的当前物理位置**，有实测：Round 41 同一台车同一查询，
+  「离路线过远」时 `costs:-1` + `"vehicle route to station unreachable"`，恢复后 `5142`。
+  若起点是订单终点，离没离路线不该影响可达性。
+- **`queryNearEnd` 确实在跑路网而非欧氏距离**：Round 15 在 map28 实测 `1→[2,33]` 选 `33`，
+  而站 2 的坐标更近（`execution-log.md:45`）。
+
+### 三个未验证的障碍
+
+1. **线格式。**站点接口的现场真实返回是 **snake_case**（`edge_id`／`station_offset`／
+   `enter_pos.x`），而 Kiota 的 `Station.cs:122-149` 用 camelCase 键，**除 `id`/`name`/`type`/
+   `desc`/`param` 外全部对不上**。现在不暴露只因 `MapClient.cs:55-58` 只读了 `Id` 和 `Name`。
+   `Edge` 是否同样，无人知道。
+2. **站点定位。**`Edge` 是 `snode`→`enode`，但 `Station` 只有 `edgeId`，**imap 侧无 station→node
+   映射**（`imap.json` 的 36 个 schema 里没有 `Node` 类型），且实测证实**一条边挂多个站点**是
+   常态。定位要靠 `station_offset`，而它 28 个字段全无 description。
+3. **`Edge.cost` 无单位。**`RepDeviceCosts.costs` 明写「单位mm」且是 `int64`；`Edge.cost` 是
+   `float` 且无任何 description。RIoT 其余所有规划代价出口（`Route.cost`、`Step.cost`、
+   `curRemainCost`）都是 `int64`，只有它是 float。
+
+### Q12 — 三条需求的形态怎么定：**甲，先实测再定**
+
+跑实验卡 **C3**（`experiments/catalog.md:21`，风险只读，自 Round 1 起状态一直是「未执行」），
+验证结果出来再定 `REQ-0196`／`REQ-0198`／`REQ-0197` 换序半的形态。
+
+不取「直接判完整实现」：会把一个未验证的引擎写进批次。
+不取「维持 fail-closed 换个理由」：明知道有路没走就先认输，而验证成本是一次只读调用。
+
+**执行安排已落地**：`rcs/riot-behavior-lab/evidence/rounds/2026-09-03-round-43/`
+（`round-plan.md` + `run-round43.ps1`）。两处与初版设计不同，都是用户纠正的：
+
+- **目标是生产 RIoT `http://172.19.206.222:8888` 的 mapId 25**，不是此前各轮的跨项目测试环境
+  `172.10.1.72:8888`。**map28／29 属于另一套 RIoT**，Round 15／16 的 `queryNearEnd` 与
+  `getRouteCostsBy` 观测**不能用作对照**，也不能跨环境比较数值。
+- 因此**对照当轮自造**：同一次执行内先让 RIoT 回答若干组 `queryNearEnd`／`queryNearestStart`，
+  再拉同图边表离线复现它的选择。站点组合由脚本从实采站点表按确定性规则生成并写入证据
+  ——mapId 25 的站点 id 集合本轮之前未知。
+
+实验分两段：**段一完全不涉及车辆**（地图元数据 + 纯拓扑查询），已足够判定线格式、站点定位与
+算法一致性；**段二是机会性的量纲对照**，只在车空闲且停在已知站点时采，否则整段跳过、量纲记为
+「本轮未证明」。生产环境有三台车在跑真实任务，脚本另有 Clash TUN 路由自检
+（命中即拒绝执行，否则采到的证据是虚构的）。
+
+**对 Q2 的影响**：档 β（选车用「各车→取货站」单段批量查询）**仍然成立且不必改**——它要的
+正是 `getRouteCostsBy` 能给的东西。但若 Round 43 判定边表可用，`VehicleMarginalRouteCost`
+就能按需求原文的完整语义实现（在途车相对既有计划的真实增量），届时档 β 成为偏保守的选项
+而非唯一可行项。**是否升级归票 14 一并判**，本票不改 Q2 的结论。
+
+### Q13 — `EnRoutePickupDeliveryDelay` 的量纲：**代价派**
+
+每个 `DispatchZone` 配置的「最大允许值」直接用**路径代价单位**表达，
+`EnRoutePickupDeliveryDelay` 定义为「代价增量」而非「时间增量」。
+
+不取时间派（用 `Edge.limitV`／`limitW` 把 cost 换算成时间）：会凭空造出一个精度假象。
+现场真正的时间大头是人工装卸——`REQ-0203` 的标定要求明说周期「包含空驶、运输和**全部人工
+装卸**」，而那部分路网成本根本不含；`arriveTime` 虽是真实时间估计，但建单前拿不到、也不到终点。
+
+`REQ-0198` 真正要保护的是「既有 Demand 不因追加而被拖太久」，代价增量是这件事的忠实代理，
+且现场标定时可直接测量。
+
+**须在最终规格里如实记一笔**：本图把该条的量纲判为代价单位，与基线文字的「预计到达终点时间」
+有出入，属**实施口径**而非需求变更——基线不改，`REQ-0198` 的 Lifecycle 仍是 `active`。
+
 ## 本票 16 条的逐条归属
 
 沿用票 02 的判据（推翻五条架构不变量之一即为重构类）。**9 条重构、7 条增量**，与票 02 传下来的
@@ -225,9 +326,9 @@ Demand」的歧义。
 | --- | --- | --- | --- |
 | `REQ-0189` 多 Sublot 不合并 Demand | 重构 | B3 | 档 2 **完整实现**；`SublotTaskTypeConflict` 因 Q9=ii 成为活代码 |
 | `REQ-0195` 同图跨区连续性 | 重构 | B3 | 档 2 **完整实现**（纯标签序列检查，不需成本） |
-| `REQ-0196` 执行途中受控追加 | 重构 | B3 | 档 2 **fail-closed**，门禁建好恒拒 |
-| `REQ-0197` 后续停靠删除或换序 | 重构 | B3 | 档 2 **删除半完整实现、换序半 fail-closed** |
-| `REQ-0198` 顺路取货延迟约束 | 重构 | B3 | 档 2 **fail-closed**；它本身就是 0196 与 0197 换序的门禁 |
+| `REQ-0196` 执行途中受控追加 | 重构 | B3 | **待 Round 43 实测**（票 14）；原判 fail-closed 的理由已推翻 |
+| `REQ-0197` 后续停靠删除或换序 | 重构 | B3 | 删除半 **完整实现**；换序半**待 Round 43 实测**（票 14） |
+| `REQ-0198` 顺路取货延迟约束 | 重构 | B3 | **待 Round 43 实测**（票 14）；量纲已定为**代价单位**（Q13） |
 | `REQ-0206` 车辆按新增行程成本比较 | 重构 | B2 | 档 β：成本层 + 零容差 + 确定性裁决；等价带与分区偏好延后 |
 | `REQ-0328` 当前车辆不合格时换车 | 重构 | B2 | 集合 B，仅未取货 Demand |
 | `REQ-0185` 共晶与低温共晶排除 | 增量 | 无 | 复用 `AdmissionPolicy` 版本化，部署期配置 |
@@ -394,8 +495,9 @@ B2 时必须把它们算进去，不能因为两条标着批次 0 就跳过。
    `ListOrdersByStatesAsync`、`GetVehicleExecutionFactsAsync` **在仓库源码里不存在**
    （`git log -S` 全为空），来源 commit `e708f874` 因历史重写已消失。本票的档 β 要走 `Raw`，
    而 `Raw` 的可用性取决于 vendored 包而非仓库源码。**属实施图前置，本票不处理。**
-2. **`REQ-0196`、`REQ-0198` 与 `REQ-0197` 换序半恒 fail-closed**，解除条件是 RIoT 侧新增站→站
-   路径成本查询（或等价的时间估计），属外部团队，不在本工作区控制范围。
+2. **~~`REQ-0196`、`REQ-0198` 与 `REQ-0197` 换序半恒 fail-closed，解除条件属外部团队。~~
+   已作废**——边表早就在，验证它是本工作区自己能做的一轮只读实验（Round 43）。这条原文
+   两处都错：既不是「恒 fail-closed」，也不是「外部团队」。形态由票 14 依实测定案。
 3. **`WIRE_TO_GATE` 在 v1.0.0 基线里出现 0 次。**它是 MVP 阶段的命名（协议 `profileId` 与
    `workType`），不是基线的任务类型名；基线里六类只有 `STAGING_TO_WIRE` 有名字，其余五类的
    名字在工厂 IT 的 `MES_TASK_UNION` SQL 里。**票 13 的第一件事就是把它们查出来。**
