@@ -2,3 +2,6 @@ mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-final-approved/Results/re
 mes/ingest/csharp/.artifacts/golden-renderer/ticket-13-rebuild-20260810/run-20260810-131320-watch-package-release/Results/release-package/MesIngest-win-x64.zip filter=lfs diff=lfs merge=lfs -text
 mes/queries/mes-task-union/query.sql text eol=crlf
 mes/queries/sublot-box-count/query.sql -text -diff
+
+# 本图的证据 TSV 按字节绑定 SHA-256，禁止行尾转换，否则 checkout 后摘要漂移。
+.scratch/8005-full-product/evidence/*.tsv -text
