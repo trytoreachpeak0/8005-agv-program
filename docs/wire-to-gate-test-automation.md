@@ -13,27 +13,43 @@
 
 | 层 | 组成 | 跑在哪 | 管什么 | 现状 |
 | --- | --- | --- | --- | --- |
-| **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 255 项、模拟器 18+14 项、车载端单元测试 |
-| **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **不存在，本方案的主体** |
+| **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 268 项、模拟器 18+14 项、车载端单元测试 |
+| **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **部分建成**，见下 |
 | **L3** 现场 | 真车 + 真 RIoT + 真 MesIngest + 模拟或真 IO | 厂区 | 真实硬件契约、最终确认 | 已跑通一次（2026-09-03，止于装载） |
+
+**L2 这一行的「组成」列写的是目标，不是现状。**已建成的部分是编排器
+（`8005-agv-control-server/scripts/l2/`）加三条场景，跑的是真 ControlServer + 假 RIoT + 假
+MesIngest + **合成协议对端**；真车载端 WPF 与真模拟器都还没接进去，要等落地顺序第 5、7 步。
+差别不是措辞问题——合成对端没有 IO、没有 journal、没有操作员，也没有本地时钟新鲜度判定，所以
+下面那张表里凡是需要真车载端才成立的格子，今天的 L2 都还不能兑现（哪一条见第 4 节末尾）。
 
 核心判断：**L2 是投入产出比最高的一层**。它不需要真车、不需要现场授权、不占用生产 AGV，却能
 覆盖绝大多数跨端缺陷。2026-09-03 的三个缺陷全部落在 L2 的能力范围内：
 
 | 缺陷 | L1 能发现吗 | L2 能发现吗 |
 | --- | --- | --- |
-| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **能**——把两端时钟拨开 100 ms |
-| 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **能**——假 RIoT 报 MOVING 再报 STOPPED |
-| `Blocked` 是终态且永久占用 active 位 | ~~勉强~~ **能**（见下） | **能**——不放货，等装载超时 |
+| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **要真车载端**——合成对端没有那段新鲜度判定，见第 4 节末尾 |
+| 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **已做**——`session-established-while-moving` |
+| ~~`Blocked` 是终态且永久占用 active 位~~（**这条诊断是错的**，见第 6 节第 1 步） | ~~勉强~~ **能**（见下） | **已做**——`load-result-requires-recovery`，车载端上报一份不完美的 `OperationResult` |
 
-**这张表的 L1 列在 2026-09-03 修复时被推翻了两格**，如实记在这里。原来判「单元测试不会让车
-动起来」，实际上不需要让车动——把 `SafetyStateChanged` 直接写进 `ProtocolInbox` 就复现了，
-两条测试各几十行。`Blocked` 那格同理，构造超时只是「结果不完美」的一种，`ApplyOperationResultAsync`
-对任何非完美结果都走 `RecoveryRequired`。
+**这张表后来被改了四处**，如实记在这里。
 
-教训是：**判断某一层「发现不了」之前，先花十分钟真写一条试试。**低估 L1 会把本该几秒钟的
-回归推到需要一整套半实物环境。这不改变 L2 的价值判断——L2 覆盖的是真实两端的时序与恢复路径，
-那是替身做不到的；改变的是「哪些东西应该先在 L1 试一次」。
+**两处在 L1 列，都是低估。**原来判「单元测试不会让车动起来」，实际上不需要让车动——把
+`SafetyStateChanged` 直接写进 `ProtocolInbox` 就复现了，两条测试各几十行。`Blocked` 那格同理，
+构造超时只是「结果不完美」的一种，`ApplyOperationResultAsync` 对任何非完美结果都走
+`RecoveryRequired`。
+
+**一处是第三行的缺陷描述本身就错了。**`Blocked` 不是终态：服务端的恢复出口完整且有测试，断点
+在车载端从不发起五步恢复握手。原文留着划掉，完整说明见第 6 节第 1 步。
+
+**第一行的 L2 列则是高估。**当时以为「把两端时钟拨开 100 ms」就能在 L2 复现，落地后才清楚那需要
+真车载端——合成对端根本没有那段新鲜度判定逻辑。
+
+教训是：**判断某一层能不能发现某个缺陷之前，先花十分钟真写一条试试。**两个方向都会出错。低估
+L1 会把本该几秒钟的回归推到需要一整套半实物环境；高估 L2 更隐蔽——它会让人以为某条缺陷已经被
+自动化守着，而实际上守它的那个替身里根本没有出问题的那段逻辑。这不改变 L2 的价值判断——L2
+覆盖的是真实两端的时序与恢复路径，那是替身做不到的；改变的是「哪些东西应该先在 L1 试一次」，
+以及「L2 里那个替身到底替了什么」。
 
 L3 保留给「真实硬件契约」：车真的会动、RIoT 真的会派单、真实 IO 真的会锁。它应该只跑正常路径
 的确认，**不应该拿来跑异常场景**——今天的教训是，在车前调试的每一分钟成本都极高。
@@ -63,11 +79,14 @@ loopback HTTP 控制面 `127.0.0.1:58006/api/v1`，权威文档是该仓库的
 **它的边界是刻意的，不要试图绕过**：HTTP 不提供开锁和开门，开锁必须由 HMI 写 Modbus DO 触发。
 这条保证了测试验证的是真实的 HMI→IO 通路，而不是测试脚本自己摆出来的状态。
 
-### ControlServer：三个替身
+### ControlServer：四个替身
 
-- `tools/ControlServer.FakeOnboard` — 假车载端，用于服务端侧测试
+- `tools/ControlServer.FakeOnboard` — 合成协议对端。原本只做「握手完就退出」，现在是长连接可
+  编排对端，见缺口 2
 - `tools/ControlServer.Conformance` — 协议一致性
 - `tools/ControlServer.FakeRiot` — 假 RIoT，**已建**（`9ec81fa`），见下
+- `tools/ControlServer.FakeMesIngest` — 假 MesIngest，**已建**（`8fcbdbc`）。盘点时没料到需要它：
+  没有需求目录，编排器连第一条需求都发不出去
 
 ### 车载端：没有任何自动化入口
 
@@ -153,19 +172,27 @@ HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`ru
 
 ### 缺口 4：没有场景编排器 —— ~~本方案的交付物~~ **已建**（`8005-agv-control-server@8fcbdbc`）
 
-`scripts/l2/`，用法见该目录的 `README.md`。一条命令，约 14 秒，无人值守：
+`scripts/l2/`，用法见该目录的 `README.md`。一条命令，14 到 30 秒，无人值守：
 
 ```powershell
 pwsh .\scripts\l2\Invoke-L2Scenario.ps1 -Scenario normal-load -EvidenceRoot <新目录>
 ```
 
-下面是当初的职责清单，五条全部落地。
+下面是当初的职责清单。**三条照原样落地，两条打了折扣**——折扣都在「有哪些真东西被接进来」，
+不在编排器本身。
 
-1. 起环境（假 RIoT → ControlServer → 模拟器 → 车载端），每一步等就绪判据而不是 sleep
-2. 按场景脚本驱动三个控制面（假 RIoT / 模拟器 / 车载端 UIA）
-3. 轮询断言（服务端数据库 + 各控制面 snapshot）
-4. 产出证据（JSONL 时间线 + 结论 JSON + `SUMMARY.md`）
-5. 拆环境，保证下一轮从干净状态开始
+1. 起环境，每一步等就绪判据而不是 sleep ——**已落地**，但顺序是假 RIoT → 假 MesIngest →
+   ControlServer → 合成对端。**模拟器没有接进来**
+2. 按场景脚本驱动控制面 ——**已落地**，驱动的是假 RIoT / 假 MesIngest / 合成对端三个控制面。
+   **模拟器与车载端 UIA 都没有**，后者要等第 5 步
+3. 轮询断言（服务端数据库 + 各控制面 snapshot）——已落地
+4. 产出证据（JSONL 时间线 + 结论 JSON + `SUMMARY.md`）——已落地，在 `evidence/l2/`
+5. 拆环境，保证下一轮从干净状态开始 ——已落地；失败时刻意保留 stage root，那里的
+   `controlserver.db` 通常是唯一写着原因的地方
+
+否定判据（「它**没有**做某件事」）需要一个安定期，而「不用 sleep」是硬规则。解法是给假 RIoT
+加了一个 `mapStationReads` 计数：`ExecuteOnceAsync` 每轮开头都读一次 Map 站点目录，包括 journey
+已经 Blocked 什么都不做的那些轮，所以那是唯一一个「运行时又有机会了」的可观测量。
 
 时间线的形状可以直接复用 `remote-ops/status/Get-WireToGateStatus.ps1` 的 journal：一行一次观测、
 只追加、记录判据翻转。那个脚本今天在定位缺陷时就是靠这个把"12:56:49 STOPPED → 12:57:15
@@ -191,7 +218,7 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常到站 | 假 RIoT 推进订单到 `orderState=5` | 进 `AwaitingSublot`，下发 `SublotEntryRequested` |
+| 正常到站 | 假 RIoT 推进订单到 `orderState=5` | 进 `AwaitingSublot`，下发 `SublotEntryRequested`。**已实现**：`normal-load` |
 | 车停在错误站点 | 假 RIoT 报错误 `currentPosition` | 不进入装载 |
 | 订单未到终态 | `orderState` 停在中间态 | 不进入装载 |
 | 车到站但仍在动 | `speed != 0` | 不进入装载 |
@@ -201,7 +228,7 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查 |
+| 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查。**已实现**：`normal-load`，但**放货那一步是合成对端应答的，不是模拟器 + 真 IO 闭环**——接进模拟器之前，这一行下面那些 IO 与光幕故障一条也跑不了 |
 | ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。**已实现到 Blocked 为止**：`load-result-requires-recovery` |
 | 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。尚未实现 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
@@ -218,10 +245,10 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常出发到关卡 | 假 RIoT 推进第二段订单 | 进卸载阶段 |
+| 正常出发到关卡 | 假 RIoT 推进第二段订单 | 进卸载阶段。**已实现**：`normal-load` |
 | 出发前车辆变为运动 | 假 RIoT 报 MOVING | 出发前安全检查拒绝 |
 | 出发前锁被打开 | `lock-feedback-override FIXED_0` | 同上 |
-| 关卡卸载后结单 | 取货（`cargo EMPTY`） | journey `Completed`，需求终态 |
+| 关卡卸载后结单 | 取货（`cargo EMPTY`） | journey `Completed`，需求终态。**已实现**：`normal-load`，同样是合成对端应答 |
 
 ### 恢复
 
@@ -252,12 +279,16 @@ UNKNOWN"精确卡出来的。
    `SessionRecoveries`、`JourneyRuntimes`、`AcceptedDemands`、`JourneyBacklog`、`OrderIntents`、
    `StationOperations`、`ProtocolInbox`/`ProtocolOutbox`。读法：借 ControlServer 自带的
    `Microsoft.Data.Sqlite` + `SQLitePCLRaw`，`Mode=ReadOnly`。
-2. **模拟器 `GET /snapshot`** —— 八仓物理与 DI/DO 原始值。
+2. **模拟器 `GET /snapshot`** —— 八仓物理与 DI/DO 原始值。**尚未接入编排器**，见缺口 4。
 3. **HTTP 端点** —— `/health/ready`、`/api/runtime/sessions`、`/version`。
+4. **各替身的 `/control/v1/snapshot`** —— 盘点时漏掉的一处，实际用得最多：合成对端的
+   `readiness` / `pending` / wire 日志、假 RIoT 的订单与 `mapStationReads`。
 
 `JourneyBacklog.ReasonCode` 特别有价值：它记录了每条需求被筛掉的原因
 （`OUT_OF_SCOPE_WORK_TYPE`/`OUT_OF_SCOPE_AREA`/`ONBOARD_FACTS_NOT_READY`/
-`AREA_STATION_NOT_FOUND`/`PACKAGE_CAPACITY_NOT_UNIQUE`），是断言准入逻辑的现成钩子。
+`ONBOARD_DEPARTURE_UNSAFE`/`AREA_STATION_NOT_FOUND`/`PACKAGE_CAPACITY_NOT_UNIQUE`），是断言
+准入逻辑的现成钩子。`session-established-while-moving` 断言的就是它从
+`ONBOARD_DEPARTURE_UNSAFE` 翻到 `ACCEPTED`。
 
 证据格式沿用现有 G3 的形状：`assertions.json` + `SUMMARY.md` + 时间线 JSONL，放进
 `8005-agv-control-server/evidence/`。这样 L2 的产出可以直接进门禁体系，而不是另起一套。
