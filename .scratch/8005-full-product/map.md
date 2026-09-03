@@ -23,6 +23,7 @@ Label: wayfinder:map
 - 跨端决策须遵守 `8005-agv-program/CONTEXT.md` 与 `docs/adr/cross/` 中已接受的权威边界，特别是 NDJSON ProtocolEnvelope、精确 ProtocolVersion、消息交付类别、RecoveryHandshake、车载 IO 独占权威、服务端任务/仓位集决策权与车载物理执行权，以及 ADR-0056 的 .NET 工具链基线。
 - `8005-agv-onboard-hmi` 与 `slots-simulator` 对 agent 只读：可读、可开 issue 与 PR，不得改内容。本图不受此限，因为它不产代码。
 - 需要产品判断或最终批准的票据使用 `grilling` 与 `domain-modeling`；任何新领域词一旦定案立即写回 `8005-agv-program/CONTEXT.md`。
+- **本图的全部工作在 worktree 内进行（2026-09-03 用户指示）。**分支 `wayfinder/8005-full-product`，路径 `8005-agv-program/.claude/worktrees/full-product-map`，基于 `main` 的 `10ac49b4`。后续会话先切进去再动手，不在 `main` 的工作树上改地图产物或证据。该目录已进 `8005-agv-program/.gitignore`，`main` 侧看不到它。
 
 ## Decisions so far
 
