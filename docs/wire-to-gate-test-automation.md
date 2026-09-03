@@ -181,10 +181,10 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| ★ 车载端时钟慢于服务端 100 ms | 调车载机时钟 | 当前会**卡死**在 `DEPARTURE_SAFETY_NOT_READY`；修复后应容忍 |
+| ★ 车载端时钟慢于服务端 100 ms | 调车载机时钟 | 当前会**卡死**在 `DEPARTURE_SAFETY_NOT_READY`；修复后应容忍。**L2 这一层做不了**，见下 |
 | 车载端时钟快于服务端 | 同上 | 正常进 `Ready` |
 | 会话断开重连 | 停止/恢复 ControlServer | `sessionGeneration` 递增，journal 增长而非重建 |
-| ★ 车辆运动中建立会话，随后停稳 | 假 RIoT 报 MOVING → STOPPED | ~~当前引擎读到陈旧快照**永久卡住**~~ 已在 L1 修复并回归（`4ad840b`）；L2 这条改为验证真实两端时序 |
+| ★ 车辆运动中建立会话，随后停稳 | 假 RIoT 报 MOVING → STOPPED | ~~当前引擎读到陈旧快照**永久卡住**~~ 已在 L1 修复并回归（`4ad840b`）；L2 这条改为验证真实两端时序。**已实现**：`session-established-while-moving` |
 | 车辆 `UNKNOWN`（急停/失控） | 假 RIoT 注入 `RIOT_EMERGENCY_NOT_OK` | 闸门 fail-closed，恢复后自愈 |
 
 ### 到站
@@ -202,7 +202,8 @@ UNKNOWN"精确卡出来的。
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
 | 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查 |
-| ★ 超时不放货 | 什么都不做，等 120 s | 仍会 `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。这条要等对方补上入口才跑得完 |
+| ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。**已实现到 Blocked 为止**：`load-result-requires-recovery` |
+| 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。尚未实现 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
 | 锁不上 | `lock-feedback-override FIXED_0` | `LOCK_NOT_CLOSED`，不放行出发 |
 | 假装锁上 | `FIXED_1` 而门实际开着 | 不能被骗过 |
@@ -229,6 +230,17 @@ UNKNOWN"精确卡出来的。
 | 装载中途车载端重启 | 杀进程重启 | 按 ADR 0006 可唯一解释恢复，不重复开门 |
 | 装载中途服务端重启 | 重启服务 | 结果不丢，重连后续上 |
 | 未确认结果的重放 | 断开确认链路 | 同一 `slotOperationAttemptId` 不重复执行 |
+
+### 为什么「车载端时钟慢 100 ms」这一条现在做不了
+
+缺陷在车载端的 `VehicleSafetySignal.IsFresh`
+（[`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1)），
+**合成对端里根本没有那段逻辑**——它不做新鲜度判定，也没有一个会因为时钟偏差而拒绝自己观测值的
+本地时钟。用合成对端「复现」出来的只会是自己写进脚本的假象：绿了不说明车载端修好了，红了也不说明
+车载端坏了。
+
+这一条要等落地顺序第 5 步（车载端 UIA 驱动）和第 7 步（交互式桌面会话）。**凑齐三条不如说清哪一条
+做不了。**
 
 ---
 
@@ -273,15 +285,24 @@ UNKNOWN"精确卡出来的。
 3. ~~**建场景编排器**~~ **已完成**（`8005-agv-control-server@8fcbdbc`）。`scripts/l2/` 加
    `tools/ControlServer.FakeMesIngest` 与升级后的 `ControlServer.FakeOnboard`；「正常装载」
    全链路连续三次 PASS，每次约 14 秒，干净 checkout 复跑一致
-4. **补 ★ 三个场景** ← **下一步**。其中两条的服务端回归保护已由 L1 承担（见第 1 步），L2 这一侧要证的是
-   真实两端的时序：假 RIoT 报 MOVING → STOPPED 时车载端确实发出 `SafetyStateChanged`、
-   服务端确实按它推进。第三条（超时不放货）要等 `8005-agv-onboard-hmi#4` 才跑得完整
-5. **车载端 UIA 驱动**，让条码输入进入自动化
+4. ~~**补 ★ 三个场景**~~ **三条里做完两条，第三条如实记为做不了**（`8005-agv-control-server@6a6d6dc`）
+   - `session-established-while-moving`：会话带着 `vehicleStopped=false` 建立 → 需求判
+     `ONBOARD_DEPARTURE_UNSAFE`；车停稳发 `SafetyStateChanged` → 受理并派车；车再动起来时
+     RIoT 摆出一个完整到站 → **不采信**；车停稳 → 采信，进 `AwaitingSublot`。两个方向都走到了
+   - `load-result-requires-recovery`：`Manual` 策略 + 一次 `completed=false` 的 `OperationResult`
+     → `Blocked / LOAD_RESULT_REQUIRES_RECOVERY`；会话离开 `Ready` 后原因不被
+     `ONBOARD_SESSION_NOT_READY` 覆盖；车载端关机后仍在；Blocked 期间新需求连候选评估都不进。
+     **止于 Blocked**，出口要等 `8005-agv-onboard-hmi#4`
+   - **时钟慢 100 ms 这一条没做**，理由见第 4 节末尾。合成对端造不出它，硬造出来的是假象
+   - 为此给替身加了两个入口：假 RIoT 的 `mapStationReads`（否定判据不必 sleep）、假车载端的
+     `FakeOnboard:Seed:*`（会话可以在车还在动的状态下建立）
+5. **车载端 UIA 驱动**，让条码输入进入自动化 ← **下一步**
 6. **给 Kun Wang 提测试控制面 issue**，附本文档与场景清单
 7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）
 8. 逐步补齐第 4 节其余场景
 
-第 1、2、3 步之后，L2 就能跑第一条自动化链路；第 4 步之后，今天那一下午的排查在 CI 里就是几分钟。
+第 1、2、3 步之后，L2 就能跑第一条自动化链路；第 4 步之后，2026-09-03 那一下午的排查里能自动化的
+部分是三条命令、一分钟。剩下的那部分要等车载端可驱动。
 
 ---
 
