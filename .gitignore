@@ -378,3 +378,7 @@ mes/ingest/csharp/**/TestResults/
 
 # Local SDK/toolchain cache; restore it separately on each development machine.
 .scratch/toolchains/
+
+# Git worktrees created for map-scoped work sessions. The worktree lives here
+# so the tooling can switch into it; its content belongs to its own branch.
+/.claude/worktrees/
