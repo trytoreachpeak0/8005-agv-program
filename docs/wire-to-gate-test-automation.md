@@ -119,7 +119,13 @@ POST （建单端点，见 HttpRiotMovementGateway 的 CREATE 路径）
 复制到**每一个引用方**的输出目录——于是它盖掉了 `ControlServer.Host` 的同名文件，两条读
 appsettings 的断言当场挂掉。种子值现在只写在 `FakeRiotSeed` 的默认值里，配置走命令行开关。
 
-### 缺口 2：车载端没有自动化入口 —— 两条路并行
+### 缺口 2：车载端没有自动化入口 —— 两条路并行，外加一条当时没想到的
+
+**先落地的是第三条：合成协议对端。**`tools/ControlServer.FakeOnboard` 原本只做「握手完就退出」，
+现在是长连接可编排对端——五步握手、两秒心跳、按 `Auto`/`Manual`/`Silent` 策略应答 sublot、装卸
+结果与出发前安全检查。它没有 IO、没有 journal、没有操作员，**换不掉真车载端**；但它让编排器和
+所有服务端侧场景今天就能跑，不必等 UIA。下面两条路仍然要走。
+
 
 **短期（我方可做）：UI Automation 驱动。** 用 `System.Windows.Automation` 或
 FlaUI 找到 `ScanTextBox`，设值，发 Enter 或点「手动提交」。控件有具名且命令绑定明确，可行性
@@ -145,9 +151,15 @@ HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`ru
 启动失败卡了很久，就是因为桌面会话是环境变量写入之前建立的。计划任务重启会话即可覆盖；写进
 部署文档的检查清单。
 
-### 缺口 4：没有场景编排器 —— 本方案的交付物
+### 缺口 4：没有场景编排器 —— ~~本方案的交付物~~ **已建**（`8005-agv-control-server@8fcbdbc`）
 
-一个 PowerShell 7 模块或 .NET 工具，职责：
+`scripts/l2/`，用法见该目录的 `README.md`。一条命令，约 14 秒，无人值守：
+
+```powershell
+pwsh .\scripts\l2\Invoke-L2Scenario.ps1 -Scenario normal-load -EvidenceRoot <新目录>
+```
+
+下面是当初的职责清单，五条全部落地。
 
 1. 起环境（假 RIoT → ControlServer → 模拟器 → 车载端），每一步等就绪判据而不是 sleep
 2. 按场景脚本驱动三个控制面（假 RIoT / 模拟器 / 车载端 UIA）
@@ -258,8 +270,10 @@ UNKNOWN"精确卡出来的。
 2. ~~**建假 RIoT**~~ **已完成**（`8005-agv-control-server@9ec81fa`）。六个 RIoT 端点 + loopback
    控制面，12 条黑盒测试起真实 Kestrel、用生产的 `HttpRiotMovementGateway` 去读。全仓
    255 → 267 通过
-3. **建场景编排器**，先跑通「正常装载」一条全链路 ← **下一步**
-4. **补 ★ 三个场景**。其中两条的服务端回归保护已由 L1 承担（见第 1 步），L2 这一侧要证的是
+3. ~~**建场景编排器**~~ **已完成**（`8005-agv-control-server@8fcbdbc`）。`scripts/l2/` 加
+   `tools/ControlServer.FakeMesIngest` 与升级后的 `ControlServer.FakeOnboard`；「正常装载」
+   全链路连续三次 PASS，每次约 14 秒，干净 checkout 复跑一致
+4. **补 ★ 三个场景** ← **下一步**。其中两条的服务端回归保护已由 L1 承担（见第 1 步），L2 这一侧要证的是
    真实两端的时序：假 RIoT 报 MOVING → STOPPED 时车载端确实发出 `SafetyStateChanged`、
    服务端确实按它推进。第三条（超时不放货）要等 `8005-agv-onboard-hmi#4` 才跑得完整
 5. **车载端 UIA 驱动**，让条码输入进入自动化
