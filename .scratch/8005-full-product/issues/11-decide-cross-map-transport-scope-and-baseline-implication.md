@@ -1,7 +1,7 @@
 # 决定跨 Map 运输的去留，以及它对 v1.0.0 基线的影响
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 01
 Blocks: 02
 
