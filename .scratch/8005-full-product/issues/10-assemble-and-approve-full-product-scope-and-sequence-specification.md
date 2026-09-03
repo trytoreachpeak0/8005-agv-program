@@ -78,3 +78,23 @@ Blocked by: 08, 09
 `requirements-baseline-v1.0.0` 不存在」同属身份绑定指向不稳的问题，本票汇编前须有结论。
 
 详见 [票 12 决议](12-answer.md) 的 Q1、Q4、第 1.7 节与第六节第 3 点。
+
+## 来自票 04 的输入（2026-09-04）
+
+**一条，并入已有的「需求文本引用了一个位置不稳的外部身份」问题。**
+
+获准的 RIoT 建单调用**从一种形态变成两种**：普通搬运与空闲返回是**单段 move**；
+**前往充电桩是 `move(目标桩) + act(78, param1=1)`**。理由是 8005 自建充电机制而不使用 RIoT 本体
+充电调度（Round 24／25 的既有边界决定 + `REQ-0294` 对一键停靠与 `parkConfig` 的禁止是同一条边界的
+两半），而 vendored facade 的 `CreateMoveOrderAsync`
+（`riot-sdk/csharp/RIoT.Sdk.Facade/OrderClient.cs:18-43`）内部写死单元素 `Mission` 数组、
+`Type = "move"`，**建不出充电订单**。
+
+因此票 12 记下的第三个同类问题——`REQ-0294` 引用的「现有白名单」实际是
+`.scratch/current-requirements-baseline/issues/37-decide-riot-api-allowlist-and-call-safety-boundary.md`，
+另一张已完成地图的工作票据——**不仅位置不稳，内容也已过时**：它逐条列举的获批调用里没有这第二种
+形态。汇编前须一并有结论。
+
+`CONTEXT.md` 的 `RoutineOrderCreationCall` 词条已由票 04 改为区分两种形态，可作为规格正文的措辞底本。
+
+详见 [票 04 决议](04-answer.md) 的 Q11 与 1.6。

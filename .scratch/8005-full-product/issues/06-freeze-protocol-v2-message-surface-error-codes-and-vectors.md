@@ -144,3 +144,42 @@ B5 新增：
 「创建 `byDefaultMissions` 单段 move」，在代码语境下会被读成字段名。
 
 详见 [票 12 决议](12-answer.md) 的 Q5。
+
+## 来自票 04 的输入（2026-09-04）
+
+**充电簇要求协议承载的能力，确定清单如下（五项）。**
+
+**一、两对新消息（4 条），形状照抄 v1 已有的范式。**票 04 的分端判据是「动作的对象里有没有车」：
+有车说明人在现场、在车旁、要看着那台车那个桩，走车载 HMI；只有桩说明车可能不在，走 ControlServer。
+
+| 动作 | 对象 | 落点 |
+| --- | --- | --- |
+| `UnableToChargeFieldConfirmation`（充不上现场确认，`REQ-0176`） | 车 + 桩 | **车载 HMI，一对请求/结果** |
+| `ManualStationClearanceConfirmation`（人工清桩确认，`REQ-0179`） | 车 + 桩 | **车载 HMI，一对请求/结果** |
+| `ChargingStationAllocationHold`（授权维修触发的暂停，`REQ-0288`） | 只有桩 | ControlServer 侧，**不进协议** |
+| `ChargingStationRecoveryConfirmation`（桩恢复确认，`REQ-0288`） | 只有桩 | ControlServer 侧，**不进协议** |
+
+范式是 `ManualChargingReturnToServiceRequested` 的 payload：`requestId`（幂等）+ `administrator`
+（`OperatorContext`）+ `administratorRole`（enum `MAINTENANCE_ADMINISTRATOR`／`SYSTEM_ADMINISTRATOR`）
++ `reason`，`correlationId: null` 表示发起方向为车载 → 服务端。
+
+**二、`legType` 增 `TO_CHARGING_STATION`**（`schemas/messages/UpcomingStopPlanSnapshot.schema.json:75-81`，
+当前 `["TO_PICKUP","TO_GATE"]`）；**`stopRole` 增充电桩取值**
+（`schemas/messages/CurrentStopWorklistSnapshot.schema.json:92-98`，当前 `["PICKUP","GATE"]`）。
+`StopPurposeCategory` 的 `CHARGER` 值由票 12 定，**本簇不再提第四个值**。
+
+**三、不要改 `manualChargingHold` 的含义。**票 04 的 Q3 把「充电桩名册为空」定为**退化到
+`ManualChargingHold` + `ManualChargingReturnToService`**（即 MVP 现有那条路），因为桩物理上还没
+安装、名册为空是投运第一天的真实状态。该字段因此**保留原义作为那一态的载体**，充电周期状态
+**另立字段**。含义变更在字段名不变时两端都静默编译，是最坏的一种 breaking，本票已避开它——
+票 06 不要把它改回去。
+
+**四、`ManualChargingReturnToServiceRequested`／`Result` 在 v1 的 54 条消息面之内**
+（`manifest/release.json` 的 `denylistedMessageTypes` 11 条里没有它们），**有完整正反向量**，
+而控制服务端 `src/` 与 `tests/` 对它们**零命中**。冻结 v2 时须决定：实现，还是进 denylist。
+按第三点，票 04 的定案要求**保留并实现**。
+
+**五、`batteryState` 当前枚举 `SUFFICIENT`／`LOW`／`UNKNOWN` 三值是否够用**，请连同第三点的
+新增充电周期状态字段一并判。协议无可选字段（`compatibility/report.json:11`），两处都是 breaking。
+
+详见 [票 04 决议](04-answer.md) 的 Q8、Q3 与第三节。
