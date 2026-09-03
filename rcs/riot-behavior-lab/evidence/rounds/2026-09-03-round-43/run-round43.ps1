@@ -15,7 +15,12 @@ server). environment.local.json is bound to the test RIoT and is deliberately no
 param(
   [ValidateRange(1, 400)][int]$MapId = 25,
   [string]$VehicleKey,
-  [switch]$SkipVehicleSection
+  [switch]$SkipVehicleSection,
+  # Stations to build the control set from. Leave empty to spread picks across the id
+  # range. Pass an explicit set once the edge table shows which stations are mutually
+  # reachable: this map is a directed graph and some stations reach nothing at all,
+  # which makes queryNearEnd throw a kernel NPE rather than answer.
+  [int[]]$StationIds = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,13 +36,14 @@ if ([string]::IsNullOrWhiteSpace($callApiKey)) {
   throw 'CONTROL_SERVER_RIOT_CALL_API_KEY is not set. Round 43 reads the production RIoT key from that variable.'
 }
 
-# Clash TUN answers ICMP itself and completes TCP handshakes locally, so a probe through it
-# is fiction. Refuse to run rather than collect evidence that means nothing.
+# Clash TUN answers ICMP itself and completes TCP handshakes locally, so *reachability
+# probes* through it are fiction. Payloads are not: the TUN does not forge HTTP response
+# bodies, and Clash's rule table sends 172.16.0.0/12 back out DIRECT. So instead of
+# refusing on the route alone, prove the channel by content - ask for the map list and
+# require the target map to be in it. A tunnel cannot fabricate that.
 $route = Find-NetRoute -RemoteIPAddress $targetHost -ErrorAction Stop | Select-Object -First 1
-if ($route.InterfaceAlias -match 'Clash') {
-  throw "Route to $targetHost goes through '$($route.InterfaceAlias)'. Install the bypass route first (remote-ops/factory-server/scripts/01-control-host-route.ps1); evidence collected through Clash TUN is fiction."
-}
-Write-Host "[route] $targetHost via $($route.InterfaceAlias)"
+$viaClash = $route.InterfaceAlias -match 'Clash'
+Write-Host "[route] $targetHost via $($route.InterfaceAlias)$(if ($viaClash) { ' (Clash TUN - proving channel by content)' })"
 
 $utf8 = [System.Text.UTF8Encoding]::new($false)
 $client = [System.Net.Http.HttpClient]::new()
@@ -129,6 +135,18 @@ function Invoke-Recorded {
 
 Invoke-Recorded -Name 'build' -Method GET -PathAndQuery '/api/task/v1/system/build' | Out-Null
 
+# Channel proof: the map list must contain the map we are about to study.
+$maps = Invoke-Recorded -Name 'map-list' -Method GET -PathAndQuery '/api/imap/v1/mapInfo/getALLMapInfoExcludeMapJson'
+$mapIds = @()
+if ($maps.response.parsed.result -is [array]) {
+  $mapIds = @($maps.response.parsed.result | ForEach-Object { [int]$_.id })
+}
+if ($mapIds -notcontains $MapId) {
+  throw "Channel not proven: mapId $MapId is not in the map list returned by $baseUrl (got: $($mapIds -join ', ')). Refusing to collect evidence."
+}
+$targetMapName = ($maps.response.parsed.result | Where-Object { [int]$_.id -eq $MapId } | Select-Object -First 1).name
+Write-Host "[proof] mapId $MapId present in map list ('$targetMapName'); channel is real"
+
 $edges = Invoke-Recorded -Name "edges-map-$MapId" -Method GET -PathAndQuery "/api/imap/v1/mapInfo/edges/$MapId"
 $stations = Invoke-Recorded -Name "stations-map-$MapId" -Method GET -PathAndQuery "/api/imap/v1/mapInfo/stations/$MapId"
 
@@ -143,31 +161,46 @@ Invoke-Recorded -Name 'cost-unit' -Method GET -PathAndQuery '/api/task/v1/route/
 # mapId 25's station ids are not known before this round (map28's are on a different
 # RIoT), so the pairs are derived from the station list just fetched, by a deterministic
 # rule, and written into the evidence.
-$stationIds = @()
+$allStationIds = @()
 $picks = @()
-$result = $stations.response.parsed.result
-if ($result -is [array]) {
-  $stationIds = @($result | ForEach-Object { [int]$_.id } | Sort-Object -Unique)
+# Read the station list back from the file just written rather than off the function's
+# return value: member access on a returned [ordered] hashtable can flatten a level and
+# turn .Count into an array, which then breaks arithmetic downstream.
+$stationsFile = Get-ChildItem -Path $outDir -Filter "*-stations-map-$MapId.json" | Select-Object -First 1
+if ($null -ne $stationsFile) {
+  $stationsDoc = Get-Content -LiteralPath $stationsFile.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+  $result = @($stationsDoc.response.parsed.result)
+  $allStationIds = @($result | ForEach-Object { [int]$_.id } | Sort-Object -Unique)
 }
 
-if ($stationIds.Count -lt 4) {
+if ($allStationIds.Count -lt 4) {
   Save-Json '800-control-set-skipped.json' ([ordered]@{
       at     = [DateTimeOffset]::Now.ToString('o')
-      reason = "only $($stationIds.Count) station ids parsed; need at least 4 to build a control set"
+      reason = "only $($allStationIds.Count) station ids parsed; need at least 4 to build a control set"
       note   = 'Station payload may use snake_case keys that ConvertFrom-Json exposes differently; inspect rawBody of the stations request offline.'
     })
-  Write-Host "[skip] control set: only $($stationIds.Count) station ids parsed"
+  Write-Host "[skip] control set: only $($allStationIds.Count) station ids parsed"
 } else {
-  # Spread the picks across the id range rather than taking the first few, so the pairs
-  # are unlikely to all sit on one edge.
-  $n = $stationIds.Count
-  $picks = @(0, [int]($n * 0.2), [int]($n * 0.4), [int]($n * 0.6), [int]($n * 0.8), $n - 1) |
-    ForEach-Object { $stationIds[$_] } | Sort-Object -Unique
+  $n = [int]$allStationIds.Count
+  if ($StationIds.Count -ge 2) {
+    $unknown = @($StationIds | Where-Object { $allStationIds -notcontains $_ })
+    if ($unknown.Count -gt 0) {
+      throw "StationIds contains ids not present on map ${MapId}: $($unknown -join ', ')"
+    }
+    $picks = @($StationIds | Sort-Object -Unique)
+    $rule = 'explicit -StationIds; chosen offline as a mutually-reachable set from the edge table collected earlier this round'
+  } else {
+    # Spread the picks across the id range rather than taking the first few, so the pairs
+    # are unlikely to all sit on one edge.
+    $idx = @(0, [int]($n * 0.2), [int]($n * 0.4), [int]($n * 0.6), [int]($n * 0.8), ($n - 1))
+    $picks = @($idx | ForEach-Object { [int]$allStationIds[$_] } | Sort-Object -Unique)
+    $rule = 'indices 0, 20%, 40%, 60%, 80%, last of the sorted unique station id list'
+  }
   Save-Json '799-control-set-plan.json' ([ordered]@{
       at              = [DateTimeOffset]::Now.ToString('o')
       stationIdCount  = $n
       pickedStationIds = $picks
-      rule            = 'indices 0, 20%, 40%, 60%, 80%, last of the sorted unique station id list'
+      rule            = $rule
     })
 
   $i = 0
@@ -258,7 +291,7 @@ Save-Json '999-summary.json' ([ordered]@{
     mapId          = $MapId
     requests       = $script:step
     edgeCount      = if ($edgeResult -is [array]) { $edgeResult.Count } else { $null }
-    stationIdCount = $stationIds.Count
+    stationIdCount = $allStationIds.Count
     routeCostSkip  = $skipReason
     note           = 'Shortest-path reproduction is offline; see round-plan.md decision thresholds.'
   })

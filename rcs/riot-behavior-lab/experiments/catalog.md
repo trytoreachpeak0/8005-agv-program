@@ -228,6 +228,7 @@ flowchart TB
   1. 传不存在的 `mapId` → 期待：空列表或业务失败码，同 C2。
 - **风险等级**：只读
 - **人工干预**：无
+- **状态**：**已执行 Round 43**（2026-09-03，生产 RIoT `172.19.206.222:8888` map25）。结论见 `knowledge/behavioral-contracts.md` 的 **BC-MAP-003** 与 **BC-ROUTE-002**：边表可支撑站到站代价自算（23/23 复现 RIoT 的择站选择），但线格式是 snake_case 且 `s_node`／`e_node` 与 Kiota 模型对不上，须自定义反序列化；图是有向的。另发现 `queryNearEnd` 遇不可达站点抛 kernel NPE。
 
 ---
 

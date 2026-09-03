@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-03T19:10:26.6995903+08:00",
+  "elapsedMs": 18,
+  "request": {
+    "method": "POST",
+    "url": "http://172.19.206.222:8888/api/task/v1/route/queryNearEnd",
+    "body": "{\"mapId\":25,\"startStationId\":95,\"endStationIds\":[10,25,37,74,119]}",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "bytes": 68,
+    "contentType": "application/json; charset=UTF-8",
+    "rawBody": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":119,\"tid\":\"\"}",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": 119,
+      "tid": ""
+    }
+  }
+}
