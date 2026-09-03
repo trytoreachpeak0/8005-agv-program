@@ -2,7 +2,7 @@
 
 Type: grilling
 Status: open
-Blocked by: 07, 13, 14
+Blocked by: 07, 13, 14, 15
 
 ## Question
 
@@ -90,3 +90,46 @@ Blocked by: 07, 13, 14
 - 本票不实施任何批次。
 - 本票不改 v1.0.0 基线，不动 `requirements/current-baseline.md` 指针，不改 MVP 剖面 TSV 的既有分类。
 - 本票不重排 MesIngest 那 100 条，它们在 Out of scope，只在定稿中占一行指针。
+
+## 来自票 13 的输入（2026-09-03）
+
+**一、待排期条目由 62 条增至 81 条。**票 13 从 186 条批次 0 里移出 19 条，批次 0 降至 **167**：
+
+| 簇 | 条数 | 内容 |
+| --- | --- | --- |
+| `FP-C9a` 六类任务执行与公共站点绑定（新建） | 8 | `REQ-0184`、`REQ-0187`、`REQ-0324`、`REQ-0334`、`REQ-0335`、`REQ-0338`、`REQ-0343`、`REQ-0344` |
+| `FP-C9b` 公共站点绑定运维治理（新建） | 9 | `REQ-0304`、`REQ-0336`、`REQ-0337`、`REQ-0340`、`REQ-0341`、`REQ-0342`、`REQ-0345`、`REQ-0347`、`REQ-0348` |
+| `FP-C2` 多车与多任务调度 | 10 → 11 | +`REQ-0205` |
+| `FP-C4` 空闲返回与等待点 | 8 → 9 | +`REQ-0204` |
+
+剖面 `evidence/full-product-implementation-profile-draft.tsv` **新增第 11 列 `Batch0FormNote`**，
+记录「批次 0 判定在什么形态下成立、完整产品差什么」。348 行不变，新 SHA-256
+`09cb9c912cff4aa9cc3f01d2f07206453449576f8dd6450b2164e213dae9e765`。
+
+**二、新增第六条架构不变量 I6，它是排序输入。**`CONTEXT.md` 的 `LoadLegAdmissionBinding` 词条。
+`STAGING_TO_WIRE` 的方向反转推翻 I6，因此**它是重构类而非增量类**，必须排在准入归属重做之后。
+不认 I6 的话，票 02 的排序规则（「每条增量不早于它所依赖的那条不变量的推翻」）会把它当成无依赖的
+普通增量排到很前面。
+
+**三、票 13 定的六类分两批**：第一批 `WIRE_TO_GATE` + 四类同方向（`DIE_TO_WIRE_STAGING`、
+`DIE_TO_OVEN`、`WIRE_TO_OPTICAL`、`WIRE_TO_NITROGEN`）；第二批 `STAGING_TO_WIRE`。
+
+**四、顺序约束（本票直接可用的三条）：**
+
+1. **`FP-C9a` 与 B2（多车）正交，可并行**——它不依赖多车，多车也不依赖它。
+2. **`FP-C9a` 必须先于 `STAGING_TO_WIRE` 那一批。**
+3. **`REQ-0204` 归 B4 后，B4 的落地依赖 `FP-C9a` 先提供 `FixedTaskStation` 绑定抽象**——公共业务点
+   独占的单位是 `FixedTaskStation`，而它零实现。票 12 的等待点那一半没有这个依赖。
+
+**五、四条留在批次 0 但带了形态注记**，本票复核时须读 `Batch0FormNote` 列：`REQ-0190`（同时依赖
+六类）、`REQ-0191`（AREA 白名单退化为 `Area.StartsWith('N')` 硬编码，是否要移出取决于一个未证明的
+现场事实——装片机台的 AREA 前缀）、`REQ-0193`（票 11 的跨图判定不受影响，但「按 `TASK_TYPE` + `mapId`
+配 `FixedTaskStation`」这一半零实现）、`REQ-0199`（范围边界声明，归属正确）。
+
+**六、「第五次退化」的线索已经在手。**六个标识符在控制服务端 `src/` 零命中且全部指向批次 0 条目
+引用的配置与告警面：`TransportDemandSuppression`、`LoadPreparationAlert`、`UnassignedDemandBacklog`、
+`AreaEqpUniquenessMonitor`、`DispatchZoneAreaAssignment`、`EnRoutePickupDeliveryDelay`。
+**零命中不等于未实现**（可能换了命名，票 03 的教训），但六个全中提示批次 0 在这一片可能整体偏松。
+票 13 未改判它们——它们与任务类型无关，不在票 13 的范围内。
+
+详见 [票 13 决议](13-answer.md)。

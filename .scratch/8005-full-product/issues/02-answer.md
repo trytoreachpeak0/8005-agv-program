@@ -293,3 +293,29 @@ C5 6 + C6 8 + C7 6 + C8 1）；合计 62，与票 01 底稿的 `FP-C*` 行数一
 
 本票不新增、不修改、不废弃任何需求条目。五条不变量是对**现行实现与契约**的描述，不是
 需求；B1～B5 是判据，不是需求。
+
+---
+
+## 2026-09-03 修订：票 13 补充识别第六条架构不变量 I6
+
+本票当时识别了五条不变量（I1～I5），对应判据 B1～B5。**票 13 在判定 `STAGING_TO_WIRE`
+方向反转时补充识别了第六条**：
+
+**I6 — 站点任务类型准入必在装货腿检查并冻结。**代码强制点：`WireToGateStore.cs:795-800` 明文
+`"Only LOAD may carry a complete station/task admission identity."`；准入决策快照只在 LOAD 路径
+按 `SlotOperationAttemptId` 冻结（`WireToGateStore.cs:852-871`）；UNLOAD 发布不传准入参数
+（`JourneyRuntimeEngine.cs:751-765`）。而 `StationTaskTypeAdmission` 的键是「站点 × 任务类型」，
+站点侧取 MES AREA 机台站——`STAGING_TO_WIRE` 下 AREA 机台站是**卸货端**，准入该检查的那一腿
+恰好是被禁止携带准入身份的那一腿。
+
+**这不推翻本票的任何定案。**62 条的 16 重构 / 46 增量划分不变，排序规则不变，重构内部顺序
+`B2 → (B1+B4) → B3 → B5` 不变。I6 影响的是票 13 新移出批次 0 的条目：`STAGING_TO_WIRE` 相关的
+实施是**重构类**而非增量类，票 09 的排序须据此把它排在准入归属重做之后。
+
+**方法论上值得记的一点**：`CONTEXT.md` 里 `AllocationArchitectureInvariant` 的原措辞是
+「完整产品语境下**已识别**五条」，不是穷举封闭的表述，因此这是补充识别而非推翻。**这是本图第二次
+发现本票的判据集不完整**——第一次是本票自己查出 B2（多车）在 348 条里没有需求条目载体。
+后续票据遇到「某条新能力似乎要重做既有实现」时，应先检查它是否推翻了一条尚未列出的不变量，
+而不是默认它是增量。`CONTEXT.md` 的词条已相应改为六条并加了这条提醒。
+
+详见 [票 13 决议](13-answer.md) 的 Q6 与 `CONTEXT.md` 的 `LoadLegAdmissionBinding` 词条。

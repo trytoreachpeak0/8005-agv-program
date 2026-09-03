@@ -80,3 +80,33 @@ B5 新增：
 - 本票不代 Kun Wang 批准跨端契约。单人批准的是本图的设计决定；正式 release 的双人签名门禁不变。
 - 本票不决定批次归属与顺序，那是票 09；不决定切片编号，那是票 07。
 - 冻结范围以票 03～05 的业务决定为准。若发现某项业务能力在票 03～05 中未决定而协议无法冻结，应回到对应票补齐，不在本票替它做业务决定。
+
+## 来自票 13 的输入（2026-09-03）
+
+六类任务执行放开后，协议有**四处焊死**必须解除，全部是 breaking。票 13 只输出清单与建议取值，
+不改 schema。
+
+| 位置 | 现状 | 票 13 的建议取值 |
+| --- | --- | --- |
+| `envelope.schema.json:14` 等 **56 个文件、58 处** | `profileId` `const "WIRE_TO_GATE_MVP"` | **改名**——解除单类型后名不副实，趁一次性 breaking 改完 |
+| `messages/CurrentStopWorklistSnapshot.schema.json:87-91` | `workType` `const "WIRE_TO_GATE"` | 解除为六值 enum，**用 MES 原始字面值** |
+| `messages/CurrentStopWorklistSnapshot.schema.json:92-98` | `stopRole` enum `["PICKUP","GATE"]` | **拆开**：`["PICKUP","DROPOFF"]` + 独立的站点功能字段取五值 |
+| `messages/UpcomingStopPlanSnapshot.schema.json:75-81` | `legType` enum `["TO_PICKUP","TO_GATE"]` | 同理改 `["TO_PICKUP","TO_DROPOFF"]` |
+
+**六个 MES 原始字面值**：`DIE_TO_WIRE_STAGING`、`DIE_TO_OVEN`、`WIRE_TO_GATE`、`WIRE_TO_OPTICAL`、
+`STAGING_TO_WIRE`、`WIRE_TO_NITROGEN`。用原值而非自造命名的理由是 `REQ-0003`——正式 SQL 是六类任务
+的唯一查询原稿，自造一层映射就要同步维护。
+
+**五个站点功能值**（`REQ-0324`）：派工待送、烘箱、关卡、三光、氮气柜。
+
+**`stopRole` 必须拆的理由**：它现在混了两个正交概念——停靠的业务角色（取货/卸货）与站点的功能身份
+（机台/关卡）。`STAGING_TO_WIRE` 方向反转后 `GATE` 既不是它的终点也不是它的角色，不拆就会让枚举
+退化成六类端点组合的笛卡尔积。**这与票 03 说的「`legType` 与 `stopRole` 的 enum 不因 B3 而改」
+不冲突**——理由不同，是六类端点功能多样化，不是 B3。
+
+**另记一处代码事实**：`8005-agv-control-server` 的 `appsettings.json:9` 有
+`ProtocolCandidate.profileId`，但 `src/` 内**查不到任何绑定或读取**（无 `GetSection("ProtocolCandidate")`、
+无 options 类），代码一律用 `ProtocolCandidateIdentity.cs:6` 的编译期常量——**这两份值可能静默漂移**。
+本票或实施图择一处置。
+
+详见 [票 13 决议](13-answer.md) 的 Q4。

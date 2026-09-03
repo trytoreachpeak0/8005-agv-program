@@ -28,3 +28,24 @@ Blocked by: 08, 09
 - 批准人是用户一人。本票不代 Kun Wang 批准任何内容，不得把单人批准表述为双方同意。
 - 规格落在 `.scratch/8005-full-product/`；是否提升到 `docs/` 由用户在批准时一并决定。
 - 本票结束后，若涉及 `8005-agv-protocol` 的推送，按 notify-after-change 规则在同一任务内开 issue @`SocialKKKK`。
+
+## 来自票 13 的输入（2026-09-03）
+
+**一、剖面结构变了。**新增第 11 列 `Batch0FormNote`；新增簇编号 `FP-C9a`、`FP-C9b`；批次 0 由 186
+降至 167，待排期条目由 62 增至 81。348 行逐条一行的零遗漏口径不变。汇编时新列的内容要进最终规格
+——它记的是「MVP 剖面当时的判定没错，是形态变了」，**这是本图已踩到四次的坑，规格里应当留痕**，
+而不是只留一个改后的批次号。
+
+**二、`REQ-0157` 的身份绑定断裂，与 tag 缺失同类，一并处置。**该条绑定的 commit
+`420c96c2f961aaffa42a5443fa42e6585b1c993f` 在 `8005-mes-ingest` 对象库中**不存在**（2026-09-02
+拆仓时历史被重写），且基线记的路径 `mes/queries/mes-task-union/` 与实际路径
+`queries/mes-task-union/` 不一致（该仓 README 里还有第三个路径 `service/queries/mes-task-union/`）。
+**query.sql 的 SHA-256 仍完全吻合**（`54a140ad…39ae`），所以内容身份未断，断的是 commit 指针与路径。
+这与本票已悬的 `requirements-baseline-v1.0.0` tag 缺失是同一类问题：**基线里的身份绑定引用了会被
+历史重写抹掉的东西**。汇编前须一并有结论。
+
+**三、可能出现第三种「不做」形态。**map Notes 现在只认「延后」与「本图范围外」两种。票 13 撞见的
+`REQ-0298` 与票 14 `RouteGraphSnapshot` 的正面冲突（已开票 15）**可能产生第三种：需要需求变更**。
+若票 15 判甲档或丁档，本票的表述层要接住它，且不得把它表述为需求作废或废弃。
+
+详见 [票 13 决议](13-answer.md) 与 [票 15](15-resolve-req-0298-conflict-with-route-graph-snapshot.md)。

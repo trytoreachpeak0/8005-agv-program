@@ -1,7 +1,7 @@
 # 决定六类 MES 运输任务的执行范围，及其对 348 行剖面的影响
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 03
 Blocks: 06, 09
 
