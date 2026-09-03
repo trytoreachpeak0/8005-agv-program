@@ -60,6 +60,23 @@ MVP 的边界是：低电量只进入具名管理员重新投运的人工充电�
 5. `ProjectExclusiveChargingStationRegistry` 的落地形态：名册的登记、批准与变更记录需要配置 UI 吗，还是像 MVP 那样接受受控预置配置？若需要 UI，它属票 05 的治理面增量还是本票。
 6. `REQ-0175`（一般充电异常不得误触发暂停）与 `REQ-0176`（系统事实不完整时只有 R-11 可补充现场确认）对现场角色与权限的要求，同票 05 的账号权限治理面的交接点在哪。
 
+### 票 03 传下来的一条纠正
+
+票 02 曾把「`legType` enum」列进 B3（计划形状）要动的协议硬约束，[票 03 决议](03-answer.md)
+查实后**纠正了这一判断**：多 Demand 计划下每一段仍是「去某个取货点」或「去关卡」，
+`["TO_PICKUP", "TO_GATE"]` 两个值够用。**真正要给它加值的是本票（去充电桩）与票 12（去等待点）。**
+`stopRole` 的 enum 同理。**本票不要假设票 06 已经从 B3 那里收到了这个改动**，须自己把充电相关
+的 leg 类型与停靠角色算给票 06。
+
+位置：`schemas/messages/UpcomingStopPlanSnapshot.schema.json:75-81`（`legType`）与
+`schemas/messages/CurrentStopWorklistSnapshot.schema.json:92-98`（`stopRole`）；两处 enum 在
+整个 `schemas/` 下**各只出现一次**。按 `docs/release-governance.md:11`，enum 变更是 breaking。
+
+另：票 03 已把计划形状改成多停靠计划（`legs.maxItems` 9、`sequence.maximum` 9、
+`items.maxItems` 8），并删除了 `IX_VehicleDispatchLeases_VehicleKey` 那条过滤唯一索引、
+把唯一性下移到 `OrderIntents`。本票设计充电桩预占的持久化形态时，**不要再假设 lease 表上有
+那条索引**，也不要假设计划仍是「单 Demand 两段固定行程」。
+
 ### 已知边界
 
 - 本票不改协议消息面，充电带来的消息面变化由票 06 一次冻结；本票只输出「哪些充电业务能力必须由协议承载」。

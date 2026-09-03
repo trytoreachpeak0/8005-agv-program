@@ -66,6 +66,27 @@ MVP 的边界是：行程终点硬编码为 `TO_PICKUP` → `TO_GATE` 两段，�
    客户端不构成授权，现有白名单也明确禁止这些调用」。这是一条否定性约束，证据形态
    （静态检查白名单？运行期断言？）本票给意见，最终归票 08。
 
+### 票 03 定下的、与本票相关的两件事
+
+**第一，`legType` enum 的扩值是本票与票 04 的责任，不是 B3 的。**票 02 曾把
+「`legType` enum」列进 B3 要动的五处协议硬约束，[票 03 决议](03-answer.md)查实后**纠正了这一判断**：
+档 2 下每一段仍是「去某个取货点」或「去关卡」，`["TO_PICKUP", "TO_GATE"]` 两个值够用。
+真正要给它加值的是**空闲返回去等待点**（本票）与**去充电桩**（票 04）。`stopRole` 的 enum
+同理。**本票不要假设票 06 已经从 B3 那里收到了这个改动。**
+
+位置：`schemas/messages/UpcomingStopPlanSnapshot.schema.json:75-81`（`legType`）与
+`schemas/messages/CurrentStopWorklistSnapshot.schema.json:92-98`（`stopRole`）；两处 enum
+在整个 `schemas/` 下**各只出现一次**。按 `docs/release-governance.md:11`，enum 变更是 breaking。
+
+**第二，B3 已把计划形状从「单 Demand 两段固定行程」改成多停靠计划。**票 03 定的上限是
+`legs.maxItems` 9（8 个取货停靠 + 1 个关卡停靠）、`sequence.maximum` 9、`items.maxItems` 8。
+本票若要在计划里插入等待点停靠，**是在这个新形状里插，不是在原来的两段里插**，上限数值要
+连同本票的需求一并算给票 06。
+
+另：票 03 已删除 `IX_VehicleDispatchLeases_VehicleKey ... WHERE ReleasedAt IS NULL` 并把
+唯一性下移到 `OrderIntents` 的按 `VehicleKey` 过滤唯一索引。**本票在设计站点独占（B4）的
+持久化形态时，不要再假设 lease 表上有那条索引。**
+
 ### 已知边界
 
 - 本票不改协议消息面。等待点带来的消息面变化由票 06 一次冻结。

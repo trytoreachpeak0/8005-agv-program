@@ -891,8 +891,8 @@ _Avoid_: 重试耗尽仍长期占车、自动换车冲击外部故障、换 uppe
 _Avoid_: 每次重试换 upperId、终态后复用旧 upperId、不可追溯的重新派发
 
 **WireToGateMovementLeg（关卡运输移动段）**:
-一个 WIRE_TO_GATE Demand 中严格串行的 `TO_PICKUP` 或 `TO_GATE` 单段移动；每段拥有独立的 MovementLegId、DispatchGeneration、OrderIntent、稳定 `upperId` 和冻结目标，同一时刻最多一段未收敛。
-_Avoid_: 多站 RIoT 订单、两段共用 upperId、同时建两段订单、MovementLegId 代替 DemandId
+一次执行计划中严格串行的 `TO_PICKUP` 或 `TO_GATE` 单段移动；每段拥有独立的 MovementLegId、DispatchGeneration、OrderIntent、稳定 `upperId` 和冻结目标，同一时刻最多一段未收敛。段属于计划而不属于某一条 TransportDemand——一段可以同时服务多条 Demand（多条共用同一取货站，或共用关卡终点），因此段与 Demand 是多对多而非从属关系。
+_Avoid_: 多站 RIoT 订单、两段共用 upperId、同时建两段订单、MovementLegId 代替 DemandId、一段只服务一条 Demand
 
 **派发唯一性门禁（DispatchUniquenessGuard）**:
 每个 DemandId 同时只能有一个未闭合 DispatchGeneration，每辆 AGV 同时只能被一个未确认或未终结的本项目订单占用；并发竞争失败者不得覆盖已有绑定，只能重新读取当前事实。
@@ -1727,3 +1727,25 @@ _Avoid_: 大改造、新功能、重做（三者都把「全新」误当作「�
 可独立求值的谓词，或在分配核心之外新增表、审计、界面与配置版本。增量类条目仍可能硬依赖某条
 不变量已被推翻，也仍可能强制改变协议消息面——两者与本分类正交。
 _Avoid_: 小改动、锦上添花、纯配置（三者都暗示工作量小或可省，本词不含此义）
+
+**多停靠执行计划（MultiStopExecutionPlan）**:
+一辆车在一次派发中承载的、按站点排定的多条 TransportDemand 的完整停靠序列；计划而非单条 Demand
+才是行程段、停靠顺序与运行阶段的归属主体。它取代「一次承诺等于一条 Demand 加固定两段行程」这一
+前提，因此同一站点可有多条待装或待卸 Demand，而车辆的运行阶段必须按停靠或按 Demand 而不是按车
+表达。
+_Avoid_: 复合任务、任务批、订单合并（三者都暗示多条 Demand 被合并成一条，而本词要求每条
+Demand 保留自身任务类型、起终点、状态、取消、仓位和审计边界）
+
+**证据受限实施（EvidenceLimitedImplementation）**:
+需求要求的门禁与代码路径已完整实现，但其判据依赖的外部证据当前不可得，故运行时恒走该需求自身
+规定的保守分支。它是一种**已实施**形态而非未完成形态：条目要排进批次、要写代码、要有验收证据，
+只是证据形态只能证明「门禁正确拒绝」而非「正确放行」。外部证据具备后无需改代码即自动生效。
+_Avoid_: 延后、未实现、降级实现、占位实现（四者都暗示需求没做完，而本词恰恰相反——门禁是完整
+的，缺的是外部输入）
+
+**确认页回显（ConfirmationEcho）**:
+车载端在提交作业清单选任务时一并回传的、它实际展示给操作员的业务字段副本（完整 SUBLOT、任务
+类型、起点、终点及应装花篮数），供服务端逐字段比对以证明展示内容与权威清单一致。它把「完整
+展示」从不可验证的界面实现要求变成可验证的跨端契约，且不规定车载端如何呈现。
+_Avoid_: 界面截图、渲染哈希、录像留证（三者被基线明确排除，结构化事实足以复核）、仅回传
+DemandId（无法区分系统展示错误与操作员放货错误）

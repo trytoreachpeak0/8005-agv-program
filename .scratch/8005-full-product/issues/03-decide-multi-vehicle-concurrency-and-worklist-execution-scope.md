@@ -1,8 +1,11 @@
 # 决定多车并发、车辆占用与 Worklist 执行模型的重做范围
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 02
+Blocks: 06
+
+**已解决 2026-09-03，决议见 [票 03 决议](03-answer.md)。**
 
 ## Question
 

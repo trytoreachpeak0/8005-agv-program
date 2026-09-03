@@ -2,7 +2,7 @@
 
 Type: grilling
 Status: open
-Blocked by: 07
+Blocked by: 07, 13
 
 ## Question
 
@@ -40,6 +40,46 @@ Blocked by: 07
 4. **348 行定稿**：在票 01 的底稿上填 `Batch` 列，覆盖全部 348 条，零遗漏。核验：各批次计数相加等于 348，批次 0 恰 186，Out of scope 的 MesIngest 恰 100，其余 62 条分布在批次 1～N。定稿记录自身 SHA-256。
 5. **切片绑定**：每个批次绑定票 07 定下的哪些切片，以及切片与批次是一对一还是一对多。
 6. **延后与永久排除的区分**：若本票判定某些条目在完整产品里仍不实施，须明确它是延后（有条件将来做）还是本图判定的范围外，并且不得表述为需求作废——v1.0.0 的 348 条 Lifecycle 全部 `active`，本图不改基线。
+
+### 票 03 定下的工程内容（本票排批次时的输入）
+
+[票 03 决议](03-answer.md)把选择与分配核心定为 **B2 全开 + B3 档 2 + B5 幅度 1**，
+并输出了三条本票必须照单收下的账。
+
+**第一，B2 的工程内容比票 02 列的三条多得多，且其中两项会被剖面误导。**
+
+票 02 列了三条（options 改 N 车、拆 `active.Length > 1`、排序键加车辆维度）并判「持久化层
+不必动」。票 03 查实后补齐到 13 项，完整清单见决议，这里只点名最容易漏的五项：
+
+| 工程项 | 位置 |
+| --- | --- |
+| `OnboardPeer.Attach` 硬拒第二条车载连接 → N 会话 | `ControlServer.Host/Transport/OnboardPeer.cs:11-22` |
+| **RIoT 交管等待识别**：`MT_WAIT_FOR_CHECKPOINT` 当前未识别 | `HttpRiotMovementGateway.cs:246`、`:266` |
+| 推进模型：单 worker 按车串行 + 每车超时预算 | `JourneyRuntimeWorker.cs` 全文 |
+| `REQ-0190` 的 `agvId × taskType` 表 | 当前只有 `StationTaskTypeAdmission`，**站点维度、无车辆维度** |
+| `REQ-0194` 的区→车硬集合 | 当前 `allowedDispatchZones` 是**车→区**，方向相反；软偏好完全不存在 |
+
+最后两项在剖面里标 `FP-B0 批次 0（MVP 已覆盖）`，`map.md` 的 Notes 也写着「已覆盖，不派生
+新需求」。**两句话都没错，但合起来会被读成「已实施、无需排期」。**事实是需求层面确实已覆盖
+（不派生新需求成立），实现层面是**单车退化形态**——`VehicleTaskTypeAdmission`、
+`DispatchZoneVehicleAdmission`、`DispatchZoneVehiclePreference` 三个标识符在
+`8005-agv-control-server` **全仓零命中**。**B2 在 348 行剖面里仍不产生新行**（票 02 已定），
+但本票单列 B2 时必须把这两项算进工时。
+
+**第二，推进模型不是可选的实现细节。**票 03 选定「单 worker 按车串行」是**唯一性推理的前提**：
+最终目录重读在事务外（`WireToGateOrchestration.cs:53`），事务到 `WireToGateStore.cs:255` 才开，
+中间的 lease 前置检查是事务内纯读、非 `SELECT ... FOR UPDATE`。改成并发 worker 就必须先补
+一整批 SQLite 并发工程（连接串没有 `busy_timeout`、没有 `Mode=`，全仓 `IsolationLevel`
+零命中，源码里没有任何 PRAGMA）。**本票不得把它当作可替换选项排进任意批次。**
+
+**第三，三条条目恒 fail-closed，批次里要如实表达。**`REQ-0196`、`REQ-0198` 与 `REQ-0197` 的
+换序半因 RIoT 无站到站成本而恒走拒绝分支。它们**不是延后**——代码要写、门禁要建、批次里要排，
+只是运行时行为受外部能力限制。按 `map.md` 的三种合法「不做」形态，这三条**一种都不属于**，
+是「已实施但当前不激活」，本票须为这个形态在剖面里找到准确表述。
+
+**第四，本票的 `Blocked by` 加了票 13。**六类任务执行范围（用户 2026-09-03 定为全部六类）会让
+348 行的批次列大改——186 条「批次 0 已覆盖」里有一批其实只覆盖了六分之一。**在票 13 出结论前
+不要给 348 行定稿。**
 
 ### 已知边界
 

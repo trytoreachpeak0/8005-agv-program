@@ -17,6 +17,30 @@ Blocked by: 06
 5. **与协议 v2 的绑定**：每个新切片绑定的 `ProtocolReleaseIdentity`、向量集合与双端 Fake 版本的表达方式。票 06 已冻结向量范围与 `vectorId` 规则，本票定切片如何引用它们。
 6. **`index.json` 的变更方式**：新家族写进既有 `index.json` 还是另立文件；无论哪种，改动 `8005-agv-protocol` 都须按 notify-after-change 规则开 issue @`SocialKKKK`。本票只决定形态，不执行改动。
 
+### 票 03 定下的 `W2G-IS-01` 改动面（本票的输入）
+
+[票 03 决议](03-answer.md)把 B5 定为**幅度 1：只推翻 select，保留「不发现、不绑定」**。
+后果落在 `W2G-IS-01` 上，且**四处联动、改一个字符 G1 就红**：
+
+| 位置 | 内容 |
+| --- | --- |
+| `integration-slices/index.json:65` | `ownerResponsibilities.onboardHmi` 里的 `NEVER_DISCOVER_SELECT_OR_BIND_DEMAND` |
+| `vectors/CV-DEMAND-ACCEPT-TO-PICKUP/expected.json:36` | 同名 token 出现在 `productAssertions.onboardHmi` |
+| `tools/g1-validate.mjs:22-23` | 逐字断言上述两处**完全相等** |
+| `vectors/CV-DEMAND-ACCEPT-TO-PICKUP/expected.json:17-25` | `forbiddenSideEffects` 里的 `onboard-demand-selection`、`onboard-demand-binding` |
+
+**`onboardMode` 的 `READ_ONLY_COMMITTED_PROJECTION` 语义仍成立，token 可不改**：投影依然
+只读，新增的是一条车载到服务端的请求，与既有 `SublotSubmitted` 结构同构。但注意它被
+`schemas/governance/integration-slice-index.schema.json:108` 用 `const` 锁死为唯一合法取值，
+若最终决定改它，schema 也要一起动。
+
+还须知道：`W2G-IS-01` 是 8 个切片中**唯一带 `definition` 块**的，其余 7 个只有
+id、sequence、prerequisites、vectorIds、gates、`forbidUnclosedFailOrInconclusive`。
+`definition` 的 `required` 被 schema 锁为四项且 `additionalProperties: false`
+（`integration-slice-index.schema.json:79-85`），**里面不可能再加别的字段**。
+slice 级没有 forbidden side effects 字段，那是**向量级**的
+（`runner/runner-contract.schema.json:89-95`）。
+
 ### 已知边界
 
 - 本票不产出逐切片的验收证据清单。那是实施图的事，地图 Notes 已把顺序粒度限定在批次与切片编号层。
