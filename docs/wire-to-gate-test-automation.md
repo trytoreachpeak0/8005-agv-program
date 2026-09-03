@@ -13,7 +13,7 @@
 
 | 层 | 组成 | 跑在哪 | 管什么 | 现状 |
 | --- | --- | --- | --- | --- |
-| **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 251 项、模拟器 18+14 项、车载端单元测试 |
+| **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 255 项、模拟器 18+14 项、车载端单元测试 |
 | **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **不存在，本方案的主体** |
 | **L3** 现场 | 真车 + 真 RIoT + 真 MesIngest + 模拟或真 IO | 厂区 | 真实硬件契约、最终确认 | 已跑通一次（2026-09-03，止于装载） |
 
@@ -23,8 +23,17 @@
 | 缺陷 | L1 能发现吗 | L2 能发现吗 |
 | --- | --- | --- |
 | `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **能**——把两端时钟拨开 100 ms |
-| 安全快照只在会话建立时发一次，引擎读到陈旧值 | 不能（单元测试不会让车"动起来" ） | **能**——假 RIoT 报 MOVING 再报 STOPPED |
-| `Blocked` 是终态且永久占用 active 位 | 勉强（需要构造超时） | **能**——不放货，等装载超时 |
+| 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **能**——假 RIoT 报 MOVING 再报 STOPPED |
+| `Blocked` 是终态且永久占用 active 位 | ~~勉强~~ **能**（见下） | **能**——不放货，等装载超时 |
+
+**这张表的 L1 列在 2026-09-03 修复时被推翻了两格**，如实记在这里。原来判「单元测试不会让车
+动起来」，实际上不需要让车动——把 `SafetyStateChanged` 直接写进 `ProtocolInbox` 就复现了，
+两条测试各几十行。`Blocked` 那格同理，构造超时只是「结果不完美」的一种，`ApplyOperationResultAsync`
+对任何非完美结果都走 `RecoveryRequired`。
+
+教训是：**判断某一层「发现不了」之前，先花十分钟真写一条试试。**低估 L1 会把本该几秒钟的
+回归推到需要一整套半实物环境。这不改变 L2 的价值判断——L2 覆盖的是真实两端的时序与恢复路径，
+那是替身做不到的；改变的是「哪些东西应该先在 L1 试一次」。
 
 L3 保留给「真实硬件契约」：车真的会动、RIoT 真的会派单、真实 IO 真的会锁。它应该只跑正常路径
 的确认，**不应该拿来跑异常场景**——今天的教训是，在车前调试的每一分钟成本都极高。
@@ -148,7 +157,7 @@ UNKNOWN"精确卡出来的。
 | ★ 车载端时钟慢于服务端 100 ms | 调车载机时钟 | 当前会**卡死**在 `DEPARTURE_SAFETY_NOT_READY`；修复后应容忍 |
 | 车载端时钟快于服务端 | 同上 | 正常进 `Ready` |
 | 会话断开重连 | 停止/恢复 ControlServer | `sessionGeneration` 递增，journal 增长而非重建 |
-| ★ 车辆运动中建立会话，随后停稳 | 假 RIoT 报 MOVING → STOPPED | 当前引擎读到陈旧快照**永久卡住**；修复后应自愈 |
+| ★ 车辆运动中建立会话，随后停稳 | 假 RIoT 报 MOVING → STOPPED | ~~当前引擎读到陈旧快照**永久卡住**~~ 已在 L1 修复并回归（`4ad840b`）；L2 这条改为验证真实两端时序 |
 | 车辆 `UNKNOWN`（急停/失控） | 假 RIoT 注入 `RIOT_EMERGENCY_NOT_OK` | 闸门 fail-closed，恢复后自愈 |
 
 ### 到站
@@ -166,7 +175,7 @@ UNKNOWN"精确卡出来的。
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
 | 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查 |
-| ★ 超时不放货 | 什么都不做，等 120 s | 当前 `LOAD_RESULT_REQUIRES_RECOVERY` 且**整台车停摆**；修复后应可恢复 |
+| ★ 超时不放货 | 什么都不做，等 120 s | 仍会 `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。这条要等对方补上入口才跑得完 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
 | 锁不上 | `lock-feedback-override FIXED_0` | `LOCK_NOT_CLOSED`，不放行出发 |
 | 假装锁上 | `FIXED_1` 而门实际开着 | 不能被骗过 |
@@ -218,12 +227,24 @@ UNKNOWN"精确卡出来的。
 
 ## 6. 落地顺序
 
-1. **修 ControlServer 的两个缺陷**（可写，最高优先）
-   - `ReadOnboardFactsAsync` 纳入 `SafetyStateChanged`，不只认会话建立时的快照
-   - `Blocked` 加出口，一次装载失败不应让整台车运行时永久停摆
+1. ~~**修 ControlServer 的两个缺陷**~~ **已完成**（`8005-agv-control-server@4ad840b`，
+   复盘见该仓 `docs/defects/20260903-onboard-safety-facts-frozen-at-session-start.md`）
+   - `ReadOnboardFactsAsync` 改为从「携带会话当前 `safetyStateVersion` 的那条消息」读安全摘要，
+     `SafetyStateSnapshot` 与 `SafetyStateChanged` 一并纳入。仓位可用性刻意仍取自快照的
+     `slotStates`——`SafetyStateChanged` 只给 `affectedSlots` 不给新状态，当作可用性丢失会让
+     第一趟用过的仓位在会话余下时间里全部搁浅。
+   - `Blocked` **没有**加出口，也**没有**改成不算 active。查证后结论不同于原判断：服务端的
+     出口本来就是完整且有测试的，断点在车载端从不发起五步恢复握手，已开
+     [`8005-agv-onboard-hmi#4`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/4)。
+     让 `Blocked` 不算 active 是不安全的——`ExecuteOnceAsync` 会转而走 `DiscoverAndAcceptAsync`，
+     在仓位物理状态未证实、dispatch lease 仍被持有时把车派去跑别的需求。已加回归测试钉住。
+     实际修掉的是另一处：`Blocked` 的 `BlockReasonCode` 被 `ONBOARD_SESSION_NOT_READY` 覆盖，
+     车载端一关机，「在等哪一种恢复」这个唯一诊断就没了。
 2. **建假 RIoT**（`tools/ControlServer.FakeRiot`），夹具用 2026-09-03 抓到的真实响应
 3. **建场景编排器**，先跑通「正常装载」一条全链路
-4. **补 ★ 三个场景**，确认它们在修复前失败、修复后通过——这是对第 1 步的回归保护
+4. **补 ★ 三个场景**。其中两条的服务端回归保护已由 L1 承担（见第 1 步），L2 这一侧要证的是
+   真实两端的时序：假 RIoT 报 MOVING → STOPPED 时车载端确实发出 `SafetyStateChanged`、
+   服务端确实按它推进。第三条（超时不放货）要等 `8005-agv-onboard-hmi#4` 才跑得完整
 5. **车载端 UIA 驱动**，让条码输入进入自动化
 6. **给 Kun Wang 提测试控制面 issue**，附本文档与场景清单
 7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）
@@ -240,9 +261,13 @@ UNKNOWN"精确卡出来的。
 | [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 缺陷 |
 | [`8005-agv-onboard-hmi#2`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/2) | 安全快照每会话只发一次，车辆停稳后不重报 | 缺陷（附带一个协议语义问题待对方定夺） |
 | [`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3) | 车载端 loopback 测试控制面 | feature request |
+| [`8005-agv-onboard-hmi#4`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/4) | 车载端从不发起五步恢复握手，装载失败后 journey 无出口 | 缺陷 |
 
-`#2` 里我方承诺的服务端修复（`ReadOnboardFactsAsync` 纳入 `SafetyStateChanged`）是落地顺序第 1
-步的一部分，不依赖对方排期。`#3` 在对方答复前走 UIA 临时方案。
+`#2` 里我方承诺的服务端修复（`ReadOnboardFactsAsync` 纳入 `SafetyStateChanged`）已于
+`8005-agv-control-server@4ad840b` 落地，未等对方排期。`#3` 在对方答复前走 UIA 临时方案。
+`#4` 挡住的是 `CV-EXCEPTION-RESUME`、`CV-EXCEPTION-COMPENSATE`、
+`CV-LOAD-CANCELLATION-ALL-EMPTY`、`CV-FAULT-CARGO-HANDOFF` 四条向量的 `ONBOARD_HMI_G2`，
+即 `W2G-IS-02` 与 `W2G-IS-07`。
 
 按根 `CLAUDE.md`（2026-09-03 变更）：那两个仓库**内容只读**，但 issue / PR / comment 是正当渠道。
 诊断要带可复现证据，修复留给 owner。
