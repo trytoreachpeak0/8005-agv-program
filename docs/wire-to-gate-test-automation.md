@@ -235,11 +235,14 @@ UNKNOWN"精确卡出来的。
 
 ## 7. 已提出的跨仓库反馈
 
-| 编号 | 内容 | 状态 |
+| 编号 | 内容 | 类型 |
 | --- | --- | --- |
-| [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 已开 |
-| 待开 | 安全快照只在会话建立时上报一次，车辆状态恢复后不重报 | 见第 6 步 |
-| 待开 | 车载端测试控制面（feature request） | 见第 6 步 |
+| [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 缺陷 |
+| [`8005-agv-onboard-hmi#2`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/2) | 安全快照每会话只发一次，车辆停稳后不重报 | 缺陷（附带一个协议语义问题待对方定夺） |
+| [`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3) | 车载端 loopback 测试控制面 | feature request |
+
+`#2` 里我方承诺的服务端修复（`ReadOnboardFactsAsync` 纳入 `SafetyStateChanged`）是落地顺序第 1
+步的一部分，不依赖对方排期。`#3` 在对方答复前走 UIA 临时方案。
 
 按根 `CLAUDE.md`（2026-09-03 变更）：那两个仓库**内容只读**，但 issue / PR / comment 是正当渠道。
 诊断要带可复现证据，修复留给 owner。
