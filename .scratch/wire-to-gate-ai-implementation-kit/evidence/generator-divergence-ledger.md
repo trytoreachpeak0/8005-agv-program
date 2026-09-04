@@ -76,9 +76,9 @@ diff -rq <repo-tree> <generator-out>
 | 16 | `package.json` | **覆盖** | `version` 0.1.0 vs 0.1.1。生成器已改为引用 `candidateVersion`，#4 把常量升到 `1.0.0` 后自然正确；中间的 0.1.1 不需要保留 |
 | 17 | `compatibility/report.json` | **回灌 → #4** | 协议仓多出 `baseRelease`／`wireCompatibility`／`changeSummary` 三个字段，`status` 与 `classification` 也改过。字段结构要回灌，取值由 #4 按 v2 重定（v2 是新 major，`INITIAL_CANDIDATE_NO_BASE_RELEASE` 不再成立） |
 | 18 | `compatibility/implementation-version-matrix.json` | **回灌 → #4** | 协议仓 `pinnedPackages` 多一条 `xunit.runner.visualstudio 3.1.5`。与工具链基线 ADR 一致，生成器漏了 |
-| 19 | `docs/README.md` | **回灌 → #4** | 协议仓改写为「approval-neutral content snapshot」，并把 `pnpm manifest:finalize` 写进步骤 |
-| 20 | `docs/release-governance.md` | **回灌 → #4** | 协议仓多出六条：content snapshot 定义、attestation 外置、G1 双产物校验、attestation 不含自身哈希、发布顺序、补丁发布的适用条件 |
-| 21 | `docs/candidate-limitations.md` | **回灌 → #4** | 协议仓已把「manifest／approval 循环依赖」从未解决改写为已解决 |
+| 19 | `docs/README.md` | **回灌 → #6** | 协议仓改写为「approval-neutral content snapshot」，并把 `pnpm manifest:finalize` 写进步骤 |
+| 20 | `docs/release-governance.md` | **回灌 → #6** | 协议仓多出六条：content snapshot 定义、attestation 外置、G1 双产物校验、attestation 不含自身哈希、发布顺序、补丁发布的适用条件 |
+| 21 | `docs/candidate-limitations.md` | **回灌 → #6** | 协议仓已把「manifest／approval 循环依赖」从未解决改写为已解决 |
 | 22 | `integration-slices/index.json` | **回灌 → #9** | `schemaVersion` 1.0.0 vs 1.1.0；`W2G-IS-01` 的 `vectorIds` 改为单条 `CV-DEMAND-ACCEPT-TO-PICKUP`；新增 `definition` 块。#9 把家族整体换成 `FP-IS-00`～`15` 并让 `definition` 全部必填，这一处一并落地 |
 | 23 | `manifest/release.json` | 手工步骤 | 生成器写的是种子（`CANDIDATE_UNFINALIZED`，只有 `messages` 与 `denylistedMessageTypes`），协议仓里的是 `pnpm manifest:finalize` 跑完的结果（`CONTENT_SNAPSHOT` ＋ 六个哈希 ＋ `files` 表）。**这是设计如此**，不是分叉 |
 | 24 | `tools/finalize-manifest.mjs` | **回灌 → #6** | 见 4.1 |

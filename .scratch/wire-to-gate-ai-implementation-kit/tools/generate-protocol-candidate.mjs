@@ -54,11 +54,12 @@ const SCHEMA = "https://json-schema.org/draft/2020-12/schema";
 // Candidate identity. Everything written below derives from these constants, so moving the
 // candidate to another protocol version, profile or release version is an edit of this block
 // alone. Never reintroduce these values as literals in the write-out region.
-const BASE_ID = "https://schemas.8005-agv.local/wire-to-gate/v1";
-const candidateVersion = "0.1.0";
-const profileId = "WIRE_TO_GATE_MVP";
-const profileDisplayName = "WIRE_TO_GATE MVP";
-const protocolVersion = 1;
+const BASE_ID = "https://schemas.8005-agv.local/agv-full-product/v2";
+const candidateVersion = "1.0.0";
+const profileId = "AGV_FULL_PRODUCT";
+const profileDisplayName = "AGV_FULL_PRODUCT";
+const protocolVersion = 2;
+const baseReleaseTag = "protocol-v0.1.1";
 
 const writeJson = (relative, value) => {
   const file = path.join(root, relative);
@@ -591,8 +592,11 @@ writeJson("compatibility/report.json", {
   candidateVersion,
   protocolVersion,
   profileId,
-  status: "INITIAL_CANDIDATE_NO_BASE_RELEASE",
-  classification: "BREAKING_INITIAL_BASELINE",
+  status: "SUPERSEDING_CANDIDATE",
+  baseRelease: baseReleaseTag,
+  classification: "BREAKING_PROTOCOL_VERSION_INCREASE",
+  wireCompatibility: "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED",
+  changeSummary: `Freeze the ${profileDisplayName} protocol surface: ProtocolVersion ${protocolVersion}, profile ${profileId}, release ${candidateVersion}. Payload, delivery-class, error-registry and conformance-index changes against ${baseReleaseTag} are breaking; no negotiation and no downgrade path exist.`,
   runtimeRule: "Exact ProtocolVersion and exact materialized ProtocolReleaseIdentity required; no negotiation.",
   optionalFieldPolicy: "No optional payload fields exist in this candidate. Future optional fields require proof that omission and ignore preserve safety and business conclusions.",
   historyPolicy: "Published tags, commits, manifests, schemas, vectors and approvals are immutable; defects require a superseding release.",
@@ -617,6 +621,7 @@ writeJson("compatibility/implementation-version-matrix.json", {
     { name: "Microsoft.EntityFrameworkCore.Sqlite", version: "8.0.30", consumers: ["ControlServer", "OnboardHmi journal"] },
     { name: "Microsoft.Extensions.Http.Resilience", version: "8.10.0", consumers: ["ControlServer"] },
     { name: "xunit.v3", version: "3.2.2", consumers: ["ControlServer", "OnboardHmi"] },
+    { name: "xunit.runner.visualstudio", version: "3.1.5", consumers: ["ControlServer test projects", "OnboardHmi test projects"] },
     { name: "Corvus.Json.Validator", version: "4.6.7", consumers: ["isolated .NET conformance process"] },
     { name: "ajv", version: "8.20.0", consumers: ["protocol G1"] },
     { name: "ajv-formats", version: "3.0.1", consumers: ["protocol G1"] },
