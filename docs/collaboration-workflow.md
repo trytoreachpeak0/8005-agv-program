@@ -5,12 +5,29 @@
 
 ## 谁做什么
 
-| 仓库 | 负责人 | GitHub |
-| --- | --- | --- |
-| `8005-agv-onboard-hmi` | Kun Wang | `SocialKKKK` |
-| `slots-simulator` | Kun Wang | `SocialKKKK` |
-| `8005-agv-control-server` | Zhengyu Shao | `trytoreachpeak0` |
-| `8005-agv-protocol` | **共同维护** | 双方 |
+| 仓库 | 归属 | 开发工作 | GitHub |
+| --- | --- | --- | --- |
+| `8005-agv-onboard-hmi` | Kun Wang | **Zhengyu Shao**（2026-09-04 起） | `SocialKKKK` |
+| `slots-simulator` | Kun Wang | **Zhengyu Shao**（2026-09-04 起） | `SocialKKKK` |
+| `8005-agv-control-server` | Zhengyu Shao | Zhengyu Shao | `trytoreachpeak0` |
+| `8005-agv-protocol` | **共同维护** | 共同维护 | 双方 |
+
+### 2026-09-04：前两个仓的开发工作转到 Zhengyu Shao
+
+原本这两个仓由 Kun Wang 全权负责，我方只读，发现问题走 issue。现在改为：**不再期待他
+承担这两个仓的开发**，工作由我方推进。
+
+具体怎么做，三条：
+
+- 我方在这两个仓开自己的 `w2g/*` 分支提交、推送，**绝不推它们的工作分支**
+  （`OnboardHmi_MVP` 与 `main`），也不强推、不删改不属于我方的分支、不打 tag 不发布。
+- 改动**以 pull request 的形式交给 Kun Wang**，由他决定合不合。**我方不自行合并**——
+  仓库归属没有变，合入是他的决定而不是我方的交付动作。
+- 那两个仓的 `CLAUDE.md` 与 `docs/` 仍然是他的文档。改「仓库如何描述自己」与「修它的
+  代码」是两件事，前者要他明确要求才做。
+
+**归属没有变，变的是谁干活。**这一条与门禁分工是两回事：下面 `ONBOARD_HMI_G2` 仍然记在
+Kun Wang 名下，接手开发**不自动**把那道门禁移过来，要移得单独说。
 
 另外三个都是 Zhengyu Shao 的：`8005-mes-ingest` 与 `riot-sdk` 是代码，本仓库
 `8005-agv-program` 是需求与决策，`8005-workspace` 是工程环境记录（**Kun Wang 没有

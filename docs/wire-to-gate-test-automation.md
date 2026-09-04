@@ -13,27 +13,50 @@
 
 | 层 | 组成 | 跑在哪 | 管什么 | 现状 |
 | --- | --- | --- | --- | --- |
-| **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 255 项、模拟器 18+14 项、车载端单元测试 |
-| **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **不存在，本方案的主体** |
+| **L1** 进程内 | 全替身 | CI（self-hosted runner） | 状态机、协议编解码、边界条件 | **已有**：ControlServer 268 项、模拟器 18+14 项、车载端单元测试 |
+| **L2** 半实物 | 真 ControlServer + 真车载端 WPF + 真模拟器 + **假 RIoT** | 一台带桌面会话的机器 | **跨端时序、异常注入、恢复路径** | **已建成**，见下 |
 | **L3** 现场 | 真车 + 真 RIoT + 真 MesIngest + 模拟或真 IO | 厂区 | 真实硬件契约、最终确认 | 已跑通一次（2026-09-03，止于装载） |
+
+**L2 现在有两套装置**（`8005-agv-control-server/scripts/l2/`，场景在自己的 `.setup.psd1` 里选）：
+
+- **合成装置**：真 ControlServer + 假 RIoT + 假 MesIngest + **合成协议对端**。三条场景。
+- **真装置**：把车载端换成 `8005-agv-onboard-hmi` 出厂的 `SQCD.Agv.Wpf`（条码由 UI Automation
+  驱动），把仓位 IO 换成真 `slots-simulator`（真 Modbus TCP）。一条场景
+  `real-onboard-normal-load`，落地顺序第 5 步的产物。
+
+**两者不是可以互换的。**合成对端没有 IO、没有 journal、没有操作员，也没有本地时钟新鲜度判定；
+下面那张表里凡是需要真车载端才成立的格子，只有真装置能兑现。真装置的两个替身也绑死在一起——
+没有模拟器供 Modbus，车载端握手时八个仓位全报 `UNKNOWN`，`departureSafe` 恒为 false，服务端
+永远不会给出会话就绪。
 
 核心判断：**L2 是投入产出比最高的一层**。它不需要真车、不需要现场授权、不占用生产 AGV，却能
 覆盖绝大多数跨端缺陷。2026-09-03 的三个缺陷全部落在 L2 的能力范围内：
 
 | 缺陷 | L1 能发现吗 | L2 能发现吗 |
 | --- | --- | --- |
-| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **能**——把两端时钟拨开 100 ms |
-| 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **能**——假 RIoT 报 MOVING 再报 STOPPED |
-| `Blocked` 是终态且永久占用 active 位 | ~~勉强~~ **能**（见下） | **能**——不放货，等装载超时 |
+| `IsFresh` 对时钟偏差零容差 | 不能（替身共用一个时钟） | **已做**——`real-onboard-clock-skew`，靠 `ControlServer.ClockSkewProxy` 制造偏差，见第 4 节末尾 |
+| 安全快照只在会话建立时发一次，引擎读到陈旧值 | ~~不能~~ **能**（见下） | **已做**——`session-established-while-moving` |
+| ~~`Blocked` 是终态且永久占用 active 位~~（**这条诊断是错的**，见第 6 节第 1 步） | ~~勉强~~ **能**（见下） | **已做**——`load-result-requires-recovery`，车载端上报一份不完美的 `OperationResult` |
 
-**这张表的 L1 列在 2026-09-03 修复时被推翻了两格**，如实记在这里。原来判「单元测试不会让车
-动起来」，实际上不需要让车动——把 `SafetyStateChanged` 直接写进 `ProtocolInbox` 就复现了，
-两条测试各几十行。`Blocked` 那格同理，构造超时只是「结果不完美」的一种，`ApplyOperationResultAsync`
-对任何非完美结果都走 `RecoveryRequired`。
+**这张表后来被改了四处**，如实记在这里。
 
-教训是：**判断某一层「发现不了」之前，先花十分钟真写一条试试。**低估 L1 会把本该几秒钟的
-回归推到需要一整套半实物环境。这不改变 L2 的价值判断——L2 覆盖的是真实两端的时序与恢复路径，
-那是替身做不到的；改变的是「哪些东西应该先在 L1 试一次」。
+**两处在 L1 列，都是低估。**原来判「单元测试不会让车动起来」，实际上不需要让车动——把
+`SafetyStateChanged` 直接写进 `ProtocolInbox` 就复现了，两条测试各几十行。`Blocked` 那格同理，
+构造超时只是「结果不完美」的一种，`ApplyOperationResultAsync` 对任何非完美结果都走
+`RecoveryRequired`。
+
+**一处是第三行的缺陷描述本身就错了。**`Blocked` 不是终态：服务端的恢复出口完整且有测试，断点
+在车载端从不发起五步恢复握手。原文留着划掉，完整说明见第 6 节第 1 步。
+
+**第一行的 L2 列则是高估。**当时以为「把两端时钟拨开 100 ms」就能在 L2 复现，落地后才清楚要两步：
+先接真车载端（第 5 步），再补一个把 `observedAt` 推到未来的转发代理——两端同机共用一个时钟，偏差
+不会自己出现。两步都做完了，见第 4 节末尾。
+
+教训是：**判断某一层能不能发现某个缺陷之前，先花十分钟真写一条试试。**两个方向都会出错。低估
+L1 会把本该几秒钟的回归推到需要一整套半实物环境；高估 L2 更隐蔽——它会让人以为某条缺陷已经被
+自动化守着，而实际上守它的那个替身里根本没有出问题的那段逻辑。这不改变 L2 的价值判断——L2
+覆盖的是真实两端的时序与恢复路径，那是替身做不到的；改变的是「哪些东西应该先在 L1 试一次」，
+以及「L2 里那个替身到底替了什么」。
 
 L3 保留给「真实硬件契约」：车真的会动、RIoT 真的会派单、真实 IO 真的会锁。它应该只跑正常路径
 的确认，**不应该拿来跑异常场景**——今天的教训是，在车前调试的每一分钟成本都极高。
@@ -63,19 +86,27 @@ loopback HTTP 控制面 `127.0.0.1:58006/api/v1`，权威文档是该仓库的
 **它的边界是刻意的，不要试图绕过**：HTTP 不提供开锁和开门，开锁必须由 HMI 写 Modbus DO 触发。
 这条保证了测试验证的是真实的 HMI→IO 通路，而不是测试脚本自己摆出来的状态。
 
-### ControlServer：三个替身
+### ControlServer：四个替身
 
-- `tools/ControlServer.FakeOnboard` — 假车载端，用于服务端侧测试
+- `tools/ControlServer.FakeOnboard` — 合成协议对端。原本只做「握手完就退出」，现在是长连接可
+  编排对端，见缺口 2
 - `tools/ControlServer.Conformance` — 协议一致性
 - `tools/ControlServer.FakeRiot` — 假 RIoT，**已建**（`9ec81fa`），见下
+- `tools/ControlServer.FakeMesIngest` — 假 MesIngest，**已建**（`8fcbdbc`）。盘点时没料到需要它：
+  没有需求目录，编排器连第一条需求都发不出去
 
-### 车载端：没有任何自动化入口
+### 车载端：~~没有任何自动化入口~~ UIA 已落地（落地顺序第 5 步）
 
 条码输入是纯 UI：`MainWindow.xaml` 的 `ScanTextBox`（绑定 `ScanText`，
 `UpdateSourceTrigger=PropertyChanged`），Enter 触发 `ScannerSubmitCommand`，另有「手动提交」
 按钮绑 `ManualSubmitCommand`，`IsEnabled` 绑 `CanSubmit`。
 
 好消息是控件有 `x:Name`、命令绑定清晰，**UI Automation 可行**，短期不必等对方改代码。
+
+落地后可以确认：可行，而且比预期稳。用 `ValuePattern.SetValue` 写 `ScanTextBox`、用
+`InvokePattern` 点「手动提交」，两者都不需要窗口有焦点——原文担心的「依赖窗口焦点」那一半不成立，
+只有「依赖控件树」那一半还在。pwsh 7 直接 `Add-Type -AssemblyName UIAutomationClient` 就能用，
+不需要 FlaUI。
 
 ---
 
@@ -119,7 +150,7 @@ POST （建单端点，见 HttpRiotMovementGateway 的 CREATE 路径）
 复制到**每一个引用方**的输出目录——于是它盖掉了 `ControlServer.Host` 的同名文件，两条读
 appsettings 的断言当场挂掉。种子值现在只写在 `FakeRiotSeed` 的默认值里，配置走命令行开关。
 
-### 缺口 2：车载端没有自动化入口 —— 两条路并行，外加一条当时没想到的
+### 缺口 2：车载端没有自动化入口 —— ~~两条路并行~~ 短期那条已落地（`8005-agv-control-server@bf506b3`）
 
 **先落地的是第三条：合成协议对端。**`tools/ControlServer.FakeOnboard` 原本只做「握手完就退出」，
 现在是长连接可编排对端——五步握手、两秒心跳、按 `Auto`/`Manual`/`Silent` 策略应答 sublot、装卸
@@ -127,9 +158,21 @@ appsettings 的断言当场挂掉。种子值现在只写在 `FakeRiotSeed` 的�
 所有服务端侧场景今天就能跑，不必等 UIA。下面两条路仍然要走。
 
 
-**短期（我方可做）：UI Automation 驱动。** 用 `System.Windows.Automation` 或
-FlaUI 找到 `ScanTextBox`，设值，发 Enter 或点「手动提交」。控件有具名且命令绑定明确，可行性
-不低。缺点诚实说：依赖控件树和窗口焦点，分辨率或布局一变就可能失效，属于「能用但脆」。
+**短期（我方可做）：UI Automation 驱动 —— 已落地（落地顺序第 5 步）。**`scripts/l2/L2.psm1` 的
+`New-L2OnboardDriver`，pwsh 7 直接用 `System.Windows.Automation`，不需要 FlaUI。按
+`AutomationId=ScanTextBox` 找输入框、按 `Name=手动提交` 找按钮，`ValuePattern.SetValue` 写值，
+`InvokePattern.Invoke` 提交。
+
+当初写的缺点只对了一半。**「依赖窗口焦点」不成立**——Value 和 Invoke 两个 pattern 都不需要窗口
+有焦点，所以驱动不跟操作员抢键盘，别的窗口抢了焦点也不会失败；这也是刻意不走 Enter 那条
+`KeyBinding` 的原因（顺带地，Enter 命中的是 `ScannerSubmitCommand`，按钮命中的是
+`ManualSubmitCommand`，两者都进 `SubmitSublotAsync`，只差记录的 `entryMethod`）。
+**「依赖控件树」仍然成立**：`x:Name` 或按钮文案一改，驱动就找不到东西了。长期那条路仍然要走。
+
+还有一个当时没预料到的坑，与 UIA 无关但同样属于「自动化驱动一个为人设计的界面」：**脚本比人
+快**。开锁到关门只隔 124 ms，而车载端要求锁反馈稳定 300 ms 才认，于是它从来没观测到一个稳定的
+「已开锁」状态，报回一份不完美的 `OperationResult`。解法是等车载端自己发的 `OperationProgress`
+相位 `WAITING_OPERATOR`，而不是等门开。
 
 **长期（提给 Kun Wang）：车载端加一个测试控制面。** 形状完全照抄模拟器那套——loopback
 HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`runId`/`commandId` 幂等。至少需要：
@@ -142,10 +185,18 @@ HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`ru
 出，附本方案链接和场景清单**，让对方判断优先级。若对方希望我方出 PR，按新政策（2026-09-03，
 根 `CLAUDE.md`）可以提，但代码内容仍归对方决定。
 
-### 缺口 3：两个 WPF 需要交互式桌面会话
+### 缺口 3：两个 WPF 需要交互式桌面会话 —— 第 5 步在控制端桌面上跑通，进 CI 仍然没解
 
 计划任务（登录触发、交互式）按序拉起：先模拟器（等 `1502` 监听）再车载端。工作区已有先例——
 `win11-01` 上的 `golden-renderer` runner 就是这么起的，见根 `CLAUDE.md` 的 CI 一节。
+
+**2026-09-03 更正：上面那段不是真障碍，真障碍在别处。**第 7 步落地时发现，把真装置三条搬到
+`golden-renderer` 那个交互式 runner 上，技术上启动没问题，但会**破坏桌面独占**：GitHub 的
+`concurrency` 只在单个仓库内生效，所以 `8005-agv-control-server` 的桌面作业没有任何办法和
+`8005-mes-ingest` 的桌面测试在同一台机器上排队，而那台机器同时是黄金渲染机。计划任务解决的是
+「怎么把窗口拉起来」，解决不了「同一时刻只许一套桌面测试在跑」。**跨仓库桌面互斥需要一个两边都
+调用的机制**（机器级文件锁，或把 mutex 提到共用的地方），那是个未做的设计决策。合成三条不碰桌面，
+已经在 session 0 的服务 runner 上进了 CI，不受这个问题影响。
 
 同时顺手解决另一个坑：**部署脚本写的 Machine 级环境变量对已登录会话不生效**。2026-09-03 车载端
 启动失败卡了很久，就是因为桌面会话是环境变量写入之前建立的。计划任务重启会话即可覆盖；写进
@@ -153,19 +204,28 @@ HTTP、非生产环境才启用、只驱动 UI 意图不绕过业务逻辑、`ru
 
 ### 缺口 4：没有场景编排器 —— ~~本方案的交付物~~ **已建**（`8005-agv-control-server@8fcbdbc`）
 
-`scripts/l2/`，用法见该目录的 `README.md`。一条命令，约 14 秒，无人值守：
+`scripts/l2/`，用法见该目录的 `README.md`。一条命令，14 到 30 秒，无人值守：
 
 ```powershell
 pwsh .\scripts\l2\Invoke-L2Scenario.ps1 -Scenario normal-load -EvidenceRoot <新目录>
 ```
 
-下面是当初的职责清单，五条全部落地。
+下面是当初的职责清单。**三条照原样落地，两条打了折扣**——折扣都在「有哪些真东西被接进来」，
+不在编排器本身。
 
-1. 起环境（假 RIoT → ControlServer → 模拟器 → 车载端），每一步等就绪判据而不是 sleep
-2. 按场景脚本驱动三个控制面（假 RIoT / 模拟器 / 车载端 UIA）
-3. 轮询断言（服务端数据库 + 各控制面 snapshot）
-4. 产出证据（JSONL 时间线 + 结论 JSON + `SUMMARY.md`）
-5. 拆环境，保证下一轮从干净状态开始
+1. 起环境，每一步等就绪判据而不是 sleep ——**已落地**。合成装置的顺序是假 RIoT → 假 MesIngest →
+   ControlServer → 合成对端；真装置是假 RIoT → 假 MesIngest → **模拟器** → ControlServer →
+   **真车载端**（第 5 步补上后两个）
+2. 按场景脚本驱动控制面 ——**已落地**。合成装置驱动假 RIoT / 假 MesIngest / 合成对端三个控制面；
+   真装置驱动假 RIoT / 假 MesIngest / **模拟器**，加上**车载端的 UIA**（第 5 步）
+3. 轮询断言（服务端数据库 + 各控制面 snapshot）——已落地
+4. 产出证据（JSONL 时间线 + 结论 JSON + `SUMMARY.md`）——已落地，在 `evidence/l2/`
+5. 拆环境，保证下一轮从干净状态开始 ——已落地；失败时刻意保留 stage root，那里的
+   `controlserver.db` 通常是唯一写着原因的地方
+
+否定判据（「它**没有**做某件事」）需要一个安定期，而「不用 sleep」是硬规则。解法是给假 RIoT
+加了一个 `mapStationReads` 计数：`ExecuteOnceAsync` 每轮开头都读一次 Map 站点目录，包括 journey
+已经 Blocked 什么都不做的那些轮，所以那是唯一一个「运行时又有机会了」的可观测量。
 
 时间线的形状可以直接复用 `remote-ops/status/Get-WireToGateStatus.ps1` 的 journal：一行一次观测、
 只追加、记录判据翻转。那个脚本今天在定位缺陷时就是靠这个把"12:56:49 STOPPED → 12:57:15
@@ -181,17 +241,17 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| ★ 车载端时钟慢于服务端 100 ms | 调车载机时钟 | 当前会**卡死**在 `DEPARTURE_SAFETY_NOT_READY`；修复后应容忍 |
+| ★ 车载端时钟慢于服务端 100 ms | 调车载机时钟 | 当前会**卡死**在 `DEPARTURE_SAFETY_NOT_READY`；修复后应容忍。**L2 这一层做不了**，见下 |
 | 车载端时钟快于服务端 | 同上 | 正常进 `Ready` |
 | 会话断开重连 | 停止/恢复 ControlServer | `sessionGeneration` 递增，journal 增长而非重建 |
-| ★ 车辆运动中建立会话，随后停稳 | 假 RIoT 报 MOVING → STOPPED | ~~当前引擎读到陈旧快照**永久卡住**~~ 已在 L1 修复并回归（`4ad840b`）；L2 这条改为验证真实两端时序 |
+| ★ 车辆运动中建立会话，随后停稳 | 假 RIoT 报 MOVING → STOPPED | ~~当前引擎读到陈旧快照**永久卡住**~~ 已在 L1 修复并回归（`4ad840b`）；L2 这条改为验证真实两端时序。**已实现**：`session-established-while-moving` |
 | 车辆 `UNKNOWN`（急停/失控） | 假 RIoT 注入 `RIOT_EMERGENCY_NOT_OK` | 闸门 fail-closed，恢复后自愈 |
 
 ### 到站
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常到站 | 假 RIoT 推进订单到 `orderState=5` | 进 `AwaitingSublot`，下发 `SublotEntryRequested` |
+| 正常到站 | 假 RIoT 推进订单到 `orderState=5` | 进 `AwaitingSublot`，下发 `SublotEntryRequested`。**已实现**：`normal-load`、`real-onboard-normal-load` |
 | 车停在错误站点 | 假 RIoT 报错误 `currentPosition` | 不进入装载 |
 | 订单未到终态 | `orderState` 停在中间态 | 不进入装载 |
 | 车到站但仍在动 | `speed != 0` | 不进入装载 |
@@ -201,8 +261,10 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查 |
-| ★ 超时不放货 | 什么都不做，等 120 s | 仍会 `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**——出口在车载端的五步恢复握手（`8005-agv-onboard-hmi#4`）。这条要等对方补上入口才跑得完 |
+| 正常装载 | 模拟器放货 + 关门 | 逐仓 `Committed`，进出发前安全检查。**已实现**：`real-onboard-normal-load`，真 Modbus 闭环——车载端自己写 DO 开锁，脚本只放货关门。这一行下面那些 IO 与光幕故障现在**具备了条件**，尚未实现 |
+| ★ 超时不放货 | 车载端跑掉自己的操作员超时，上报一份 `completed=false` 的 `OperationResult` | `LOAD_RESULT_REQUIRES_RECOVERY` 且整台车停摆，且**这是对的**。**已实现**：`load-result-requires-recovery`（合成对端，13/13）。**这条仍然止于 Blocked，但理由已经换了**：两端能力都齐了，是合成对端不会自己发起五步握手，见下一行 |
+| 恢复并继续装载（上一行的出口） | 真车载端点「申请恢复」，服务端授权 `RESUME_AFTER_REPAIR`，车载端提交替换 `OperationResult` | 操作转 `Committed`，旅程离开 `Blocked` 继续。**已实现，当前红**：`real-onboard-resume-after-repair`，4/5，挂在「停摆后 HMI 上出现可用的恢复入口」。服务端那一半已完成（`8005-agv-control-server@1372a89`），红在车载端，已回报 `8005-agv-onboard-hmi#4` |
+| 装载指令根本不被应答 | 车载端 `Silent` 策略 | 与上一条**不是同一件事**：`StationOperations` 停在 `Prepared`，`AdvanceAsync` 的 `AwaitingLoadResult` 分支走 `else { return; }`，旅程停在 `AwaitingLoadResult` 而**不进 `Blocked`**。**已实现**：`load-command-never-answered`（合成对端，11/11，已进 CI）。顺带钉住了未结命令的重放语义——每轮重放且 `messageId` 不变，否则「旅程停着」也可能是服务端把命令丢了造成的 |
 | 放货后又取走 | `cargo` `OCCUPIED`→`EMPTY` | 结果与物理事实一致 |
 | 锁不上 | `lock-feedback-override FIXED_0` | `LOCK_NOT_CLOSED`，不放行出发 |
 | 假装锁上 | `FIXED_1` 而门实际开着 | 不能被骗过 |
@@ -217,10 +279,10 @@ UNKNOWN"精确卡出来的。
 
 | 场景 | 注入手段 | 期望 |
 | --- | --- | --- |
-| 正常出发到关卡 | 假 RIoT 推进第二段订单 | 进卸载阶段 |
+| 正常出发到关卡 | 假 RIoT 推进第二段订单 | 进卸载阶段。**已实现**：`normal-load`、`real-onboard-normal-load` |
 | 出发前车辆变为运动 | 假 RIoT 报 MOVING | 出发前安全检查拒绝 |
 | 出发前锁被打开 | `lock-feedback-override FIXED_0` | 同上 |
-| 关卡卸载后结单 | 取货（`cargo EMPTY`） | journey `Completed`，需求终态 |
+| 关卡卸载后结单 | 取货（`cargo EMPTY`） | journey `Completed`，需求终态。**已实现**：`real-onboard-normal-load`，真 Modbus 闭环 |
 
 ### 恢复
 
@@ -229,6 +291,36 @@ UNKNOWN"精确卡出来的。
 | 装载中途车载端重启 | 杀进程重启 | 按 ADR 0006 可唯一解释恢复，不重复开门 |
 | 装载中途服务端重启 | 重启服务 | 结果不丢，重连后续上 |
 | 未确认结果的重放 | 断开确认链路 | 同一 `slotOperationAttemptId` 不重复执行 |
+
+### 「车载端时钟慢 100 ms」：已做，而且钉的是修复后的那个界
+
+缺陷在车载端的 `VehicleSafetySignal.IsFresh`
+（[`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1)）。
+**合成对端里根本没有那段逻辑**——它不做新鲜度判定，也没有一个会因为时钟偏差而拒绝自己观测值的
+本地时钟。用合成对端「复现」出来的只会是自己写进脚本的假象：绿了不说明车载端修好了，红了也不说明
+车载端坏了。第 5 步把真车载端接进来，那段逻辑现在真的在跑了。
+
+**接进来之后还差一件事**：两端跑在同一台机器上共用同一个时钟，而车载端比较的那个 `observedAt`
+是 ControlServer 用自己的 `timeProvider` 盖的章（`HttpRiotMovementGateway.ReadVehicleSafetyAsync`），
+偏差不会自己出现。补上 `8005-agv-control-server/tools/ControlServer.ClockSkewProxy` 才凑齐：它挡
+在车载端和服务端之间，**只把响应里的 `observedAt` 挪一个可配置的偏移量**，别的一律原样转发；车载端
+的 `vehicleSafety.endpoint` 本来就是配置项，指过去即可。从 `IsFresh` 的角度看，这与「车载机时钟慢
+N 毫秒」是同一个输入，而被测的那段判定仍然是车载端自己的真代码。
+
+**它不等价于什么也要说清楚**：真的慢时钟会同时挪动车载端自己盖的每一个时间戳（journal、
+`journeySnapshotMaxAgeMs`、协议消息的 `sentAt`）；代理只偏这一处比较。对 `#1` 恰好就是出问题的那一
+处，但证据里不能说得比这更多。**两条刻意不走的路**：改机器时钟（会影响整台机器上的一切），以及把
+`maximumEvidenceAgeMs` 设成 0（那是另一个原因造成的同一个症状，证明不了 `#1`）。
+
+场景是 `real-onboard-clock-skew`。**`#1` 已由 Kun Wang 在 `abb8e73` 修成有界容差**
+（`vehicleSafety.clockSkewToleranceMs`，默认 500 ms、上限 1000 ms），所以它钉的不是缺陷而是那个界
+的两侧加恢复：容差内（100 ms）会话照常建立；容差外（3000 ms）仍然 fail-closed，会话降级为
+`RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`、需求判 `ONBOARD_FACTS_NOT_READY`；回到容差内自行
+恢复，不重启车载端。
+
+**这一条从「做不了」走到「做完了」用了三步，每一步都推翻了上一步的判断**——先是以为拨时钟就行，
+再是以为接了真车载端就行，最后才发现还要造一个偏差源。教训与本文第 1 节那条一样：判断某一层能不能
+发现某个缺陷之前，先花十分钟真写一条试试。
 
 ---
 
@@ -240,12 +332,16 @@ UNKNOWN"精确卡出来的。
    `SessionRecoveries`、`JourneyRuntimes`、`AcceptedDemands`、`JourneyBacklog`、`OrderIntents`、
    `StationOperations`、`ProtocolInbox`/`ProtocolOutbox`。读法：借 ControlServer 自带的
    `Microsoft.Data.Sqlite` + `SQLitePCLRaw`，`Mode=ReadOnly`。
-2. **模拟器 `GET /snapshot`** —— 八仓物理与 DI/DO 原始值。
+2. **模拟器 `GET /snapshot`** —— 八仓物理与 DI/DO 原始值。**已接入**（第 5 步），只在真装置下有。
 3. **HTTP 端点** —— `/health/ready`、`/api/runtime/sessions`、`/version`。
+4. **各替身的 `/control/v1/snapshot`** —— 盘点时漏掉的一处，实际用得最多：合成对端的
+   `readiness` / `pending` / wire 日志、假 RIoT 的订单与 `mapStationReads`。
 
 `JourneyBacklog.ReasonCode` 特别有价值：它记录了每条需求被筛掉的原因
 （`OUT_OF_SCOPE_WORK_TYPE`/`OUT_OF_SCOPE_AREA`/`ONBOARD_FACTS_NOT_READY`/
-`AREA_STATION_NOT_FOUND`/`PACKAGE_CAPACITY_NOT_UNIQUE`），是断言准入逻辑的现成钩子。
+`ONBOARD_DEPARTURE_UNSAFE`/`AREA_STATION_NOT_FOUND`/`PACKAGE_CAPACITY_NOT_UNIQUE`），是断言
+准入逻辑的现成钩子。`session-established-while-moving` 断言的就是它从
+`ONBOARD_DEPARTURE_UNSAFE` 翻到 `ACCEPTED`。
 
 证据格式沿用现有 G3 的形状：`assertions.json` + `SUMMARY.md` + 时间线 JSONL，放进
 `8005-agv-control-server/evidence/`。这样 L2 的产出可以直接进门禁体系，而不是另起一套。
@@ -273,32 +369,123 @@ UNKNOWN"精确卡出来的。
 3. ~~**建场景编排器**~~ **已完成**（`8005-agv-control-server@8fcbdbc`）。`scripts/l2/` 加
    `tools/ControlServer.FakeMesIngest` 与升级后的 `ControlServer.FakeOnboard`；「正常装载」
    全链路连续三次 PASS，每次约 14 秒，干净 checkout 复跑一致
-4. **补 ★ 三个场景** ← **下一步**。其中两条的服务端回归保护已由 L1 承担（见第 1 步），L2 这一侧要证的是
-   真实两端的时序：假 RIoT 报 MOVING → STOPPED 时车载端确实发出 `SafetyStateChanged`、
-   服务端确实按它推进。第三条（超时不放货）要等 `8005-agv-onboard-hmi#4` 才跑得完整
-5. **车载端 UIA 驱动**，让条码输入进入自动化
-6. **给 Kun Wang 提测试控制面 issue**，附本文档与场景清单
-7. **计划任务自启动**，把 L2 挂到 CI（`win11-01` 的 `golden-renderer` 交互式 runner）
-8. 逐步补齐第 4 节其余场景
+4. ~~**补 ★ 三个场景**~~ **三条里做完两条，第三条如实记为做不了**（`8005-agv-control-server@6a6d6dc`）
+   - `session-established-while-moving`：会话带着 `vehicleStopped=false` 建立 → 需求判
+     `ONBOARD_DEPARTURE_UNSAFE`；车停稳发 `SafetyStateChanged` → 受理并派车；车再动起来时
+     RIoT 摆出一个完整到站 → **不采信**；车停稳 → 采信，进 `AwaitingSublot`。两个方向都走到了
+   - `load-result-requires-recovery`：`Manual` 策略 + 一次 `completed=false` 的 `OperationResult`
+     → `Blocked / LOAD_RESULT_REQUIRES_RECOVERY`；会话离开 `Ready` 后原因不被
+     `ONBOARD_SESSION_NOT_READY` 覆盖；车载端关机后仍在；Blocked 期间新需求连候选评估都不进。
+     **止于 Blocked**，出口要等 `8005-agv-onboard-hmi#4`
+   - **时钟慢 100 ms 这一条没做**，理由见第 4 节末尾。合成对端造不出它，硬造出来的是假象
+   - 为此给替身加了两个入口：假 RIoT 的 `mapStationReads`（否定判据不必 sleep）、假车载端的
+     `FakeOnboard:Seed:*`（会话可以在车还在动的状态下建立）
+5. ~~**车载端 UIA 驱动**~~ **已完成**（`8005-agv-control-server@bf506b3`）。范围比它的名字大：UIA
+   只是四件事里的一件，真车载端要跑起来得同时解决另外三件
+   - **UIA 驱动**：`scripts/l2/L2.psm1` 的 `New-L2OnboardDriver`，`ValuePattern` + `InvokePattern`，
+     不注入按键也不需要窗口焦点
+   - **真模拟器接入**：不是可选项。没有 Modbus，车载端八个仓位全报 `UNKNOWN`，`departureSafe`
+     恒为 false，服务端永远不给会话就绪。两个替身绑死在同一套装置里
+   - **两个只读仓怎么构建**：克隆到 `%LOCALAPPDATA%\8005-l2-peers\` 再 `dotnet publish`，按 commit
+     缓存；配置只改 stage 里的副本。两仓工作树全程零改动
+   - **规则网关 `18080`**：查清了，**不需要第五个替身**。`App.xaml.cs` 在
+     `wireToGate.enabled=true` 时构造的是 `DisabledRuleGateway`，那个端口从头到尾没有人连
+   产物是 `real-onboard-normal-load`，一趟约 22 秒，连续三次 PASS
+6. ~~**给 Kun Wang 提测试控制面 issue**~~ **不需要做了**——issue 早就提了
+   （[`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3)），
+   而且 **Kun Wang 已经实现并推送**（`60a0efd`）：loopback `/api/v1/`，`health` / `snapshot` /
+   `sublots/submit` / `openapi`。他同一批还答完了另外三条，见第 7 节
+7. **把 L2 挂到 CI** —— **合成那三条已落地**（`8005-agv-control-server@dfb9cc5` 起），
+   真装置那三条**明确留在外面**，剩下的是一个尚未解决的设计问题
+   - 落地的是 `.github/workflows/l2.yml`，跑在本仓自己的 `win11-01-control-server`（`headless`）上，
+     每次 push 与 PR，三条合计约 82 秒，证据无论成败都传成 artifact。**不需要计划任务自启动**——
+     那是当初以为要用交互式 runner 才有的前提，合成场景在 session 0 的服务 runner 上跑得很好
+   - **真装置三条进不来，两个各自独立的原因。**一是它们要交互式桌面会话（会弹两个 WPF 窗口），
+     服务模式 runner 根本跑不了；二是改挂到 `golden-renderer` 那个交互式 runner 会破坏桌面独占——
+     GitHub 的 `concurrency` 只在单个仓库内生效，control-server 的作业没办法和 `8005-mes-ingest`
+     的桌面测试在同一台机器上排队，而那台机器同时是黄金渲染机。**跨仓库桌面互斥目前没有解**，
+     这是第 7 步真正剩下的部分，且与对方进度无关
+   - 首跑三条全挂，打出两个自己的 bug，都值得记住。**装置借了开发机环境里的 RIoT API key**：
+     `JourneyRuntimeOptions` 对它是无条件要求的（不像 MesIngest 那把有 loopback 豁免），而 L2 从来
+     没提供过它，一直在继承控制端进程环境里那把真的；CI 的 runner 以 `NetworkService` 运行，没有这个
+     变量，服务端启动即退（`2ccbdef`）。**而且诊断成本本不该这么高**：进程两秒就死了，装置却干等
+     120 秒再报「Last observed: (nothing)」，要下载 artifact 才知道原因；`Wait-L2Condition` 现在接
+     组件句柄，已退出就立刻带着 stderr 失败（`62767f4`）
+   - **这两条都只有干净 checkout 才抓得到**：同样这三条在控制端本地绿了整整一天，六条全量跑也绿过。
+     与 `.gitattributes` 那次是同一类问题
+8. 逐步补齐第 4 节其余场景 ← **下一步**。★ 的三条已经齐了（时钟偏差那条见第 4 节末尾）；第 4 节约
+   29 条里实到 7 条。下一批的现成靶子是**装载那一整批 IO 与光幕故障**（12 条里做了 3 条）——真
+   Modbus 闭环已经在跑，模拟器的 `lock-feedback-override`、`light-curtain-override`、`faults/modbus`
+   都是现成接口。
 
-第 1、2、3 步之后，L2 就能跑第一条自动化链路；第 4 步之后，今天那一下午的排查在 CI 里就是几分钟。
+   **但这一批里只有一条能进 CI，别搞错。**故障注入端点全在模拟器上，而模拟器只在场景
+   `Onboard = 'Real'` 时才启动——所以「锁不上」「假装锁上」「光幕假装空/有货」「放错仓位」
+   「放货后又取走」「IO 断链/变慢/无响应」这八条**都是真装置场景**，一样卡在第 7 步那个跨仓库桌面
+   互斥后面。装载表剩下的九条里唯一用合成对端就能跑的是**「装载指令根本不被应答」**（合成对端的
+   `Silent` 策略，`AnswerMode.Silent`：记录请求但永不应答），它能立刻进 CI。
+
+   （这一段是更正。同一份文档先前写着「这批用合成对端就能跑，也就意味着它们可以直接进 CI」，那是
+   在没有查模拟器归属的情况下推断出来的，错的。教训与第 1 节那条一样：判断某一层能不能跑某个场景
+   之前，先去看那一层到底启动了哪些进程。）
+
+第 6 步作废是个值得记的教训：**动手前先读一遍对方 issue 的回复，不是只看标题。**那条 issue 的
+答复在本轮开工前一个多小时就发出来了，而这份文档和交接文档都还写着「下一步是提这个 issue」。
+
+第 1、2、3 步之后，L2 就能跑第一条自动化链路；第 4 步之后，2026-09-03 那一下午的排查里能自动化的
+部分是三条命令、一分钟。第 5 步之后，那条链路里的「车载端」不再是替身——条码、IO 闭环、本地
+journal 和本地新鲜度判定都是真的，五条命令、两分钟。
+
+**它第一次真正派上用场是在建成的当天**：Kun Wang 推了四个修复（`abb8e73` 与 `60a0efd`），把车载端
+镜像快进上去重跑一趟 `real-onboard-normal-load`，25 秒就知道两端跨过那四个修复依然互通。以前这个
+问题只能靠约时间到车前面去回答。
 
 ---
 
 ## 7. 已提出的跨仓库反馈
 
-| 编号 | 内容 | 类型 |
-| --- | --- | --- |
-| [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 缺陷 |
-| [`8005-agv-onboard-hmi#2`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/2) | 安全快照每会话只发一次，车辆停稳后不重报 | 缺陷（附带一个协议语义问题待对方定夺） |
-| [`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3) | 车载端 loopback 测试控制面 | feature request |
-| [`8005-agv-onboard-hmi#4`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/4) | 车载端从不发起五步恢复握手，装载失败后 journey 无出口 | 缺陷 |
+**四条都已由 Kun Wang 实现并推送到 `OnboardHmi_MVP`**（2026-09-03 当天，`abb8e73` 与 `60a0efd`）。
 
-`#2` 里我方承诺的服务端修复（`ReadOnboardFactsAsync` 纳入 `SafetyStateChanged`）已于
-`8005-agv-control-server@4ad840b` 落地，未等对方排期。`#3` 在对方答复前走 UIA 临时方案。
+| 编号 | 内容 | 类型 | 对方的答复 |
+| --- | --- | --- | --- |
+| [`8005-agv-onboard-hmi#1`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/1) | `VehicleSafetySignal.IsFresh` 对时钟偏差零容差 | 缺陷 | `abb8e73` 有界容差，默认 500 ms、上限 1000 ms |
+| [`8005-agv-onboard-hmi#2`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/2) | 安全快照每会话只发一次，车辆停稳后不重报 | 缺陷（附带一个协议语义问题待对方定夺） | `60a0efd` 取方向 2：会话一次全量基线 + 运行期增量 |
+| [`8005-agv-onboard-hmi#3`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/3) | 车载端 loopback 测试控制面 | feature request | `60a0efd` 已实现：`/api/v1/` 的 `health` / `snapshot` / `sublots/submit` / `openapi` |
+| [`8005-agv-onboard-hmi#4`](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/4) | 车载端从不发起五步恢复握手，装载失败后 journey 无出口 | 缺陷 | `60a0efd` 实现 `RESUME_AFTER_REPAIR` 车载端路径，其余恢复向量仍 fail-closed |
+
+**L2 已经对着 `60a0efd` 验过一趟**（`real-onboard-normal-load`，25 秒，绿），跨过这四个修复两端
+依然互通；`#1` 的那个界另有 `real-onboard-clock-skew` 专门钉住。
+
+**他的答复里点名了两件服务端的活，都在我方**：
+
+1. `#2`：服务端消费者要按「一次全量基线 + 后续增量、以最新安全版本为准」的语义合并数据源。
+   我方 `8005-agv-control-server@4ad840b` 已按这个方向落地并有 L1 回归，但**那是在他实现之前写的**，
+   两边的版本回基规则是否真的对齐，需要照着 `60a0efd` 再核一遍。
+2. `#4`：**生产闭环还需要 ControlServer 允许同一原始操作在获得合法 `RESUME_AFTER_REPAIR` 授权后
+   提交一次替换 `OperationResult`**，并校验恢复 action、原始命令哈希、需求与仓位范围。**已完成**
+   （`8005-agv-control-server@1372a89`）。
+
+   缺的不是恢复状态机——下发授权、前置校验、收到结果后推进工作流本来就在。缺的是**回传那一步进不
+   来**：去重键是 `ResultId` 或 (`SlotOperationAttemptId` + `ForcedRecoveryGeneration`)，而
+   `RESUME_AFTER_REPAIR` 不推进代次（只有 `FORCED_MECHANICAL_RECOVERY` 推），所以恢复前后那个键完全
+   一样，第二份结果必然被判成内容不同的重放而拒绝；数据库层面还有一道同名唯一索引挡在后面。
+
+   他要求的四项校验由一次哈希比对同时钉住：把 `SlotOperationResumeCommand` 当初带给车载端的那个哈希，
+   用**回传结果里的** demandId、attemptId 和仓位集合重算再比对。失败的那份结果加 `SupersededByResultId`
+   留在表里当作车载端当时报了什么的记录，唯一索引改为过滤存活行——不覆盖、不删除。
+
+   **一个有意保留的行为**：替换结果本身又失败时，工作流转 `RecoveryRequired`、恢复会话停在
+   `EXECUTING`，`RECOVERY_SESSION_ALREADY_OPEN` 会挡住新会话，恢复实际只有一次机会。这是 fail-closed
+   的停摆而不是放行，按「不给 `Blocked` 加出口」的既定原则不动它。已在 issue 里对 Kun Wang 说明。
+
 `#4` 挡住的是 `CV-EXCEPTION-RESUME`、`CV-EXCEPTION-COMPENSATE`、
 `CV-LOAD-CANCELLATION-ALL-EMPTY`、`CV-FAULT-CARGO-HANDOFF` 四条向量的 `ONBOARD_HMI_G2`，
-即 `W2G-IS-02` 与 `W2G-IS-07`。
+即 `W2G-IS-02` 与 `W2G-IS-07`；他这次只做了第一条向量，其余三条仍然挡着。
+
+**`CV-EXCEPTION-RESUME` 这一条现在的位置**：两端都实现了，但端到端**没有跑通**。L2 新场景
+`real-onboard-resume-after-repair` 4/5，挂在最后一条——车辆停摆之后，真车载端 HMI 上那个「申请恢复」
+入口始终不可用，操作员点不到，五步握手无从开始。已带证据回报 `#4`（`8005-agv-control-server` 的
+`evidence/l2/20260903-real-onboard-resume-after-repair-001` 与 `-sweep01`，两次逐条一致，可复现）。
+**服务端这一侧不再是阻塞点**；那条场景一变绿就是 `CV-EXCEPTION-RESUME` 的端到端证据，且不需要约现场。
 
 按根 `CLAUDE.md`（2026-09-03 变更）：那两个仓库**内容只读**，但 issue / PR / comment 是正当渠道。
 诊断要带可复现证据，修复留给 owner。
