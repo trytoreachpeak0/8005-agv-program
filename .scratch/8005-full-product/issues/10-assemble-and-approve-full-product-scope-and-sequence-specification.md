@@ -123,3 +123,30 @@ Blocked by: 08, 09
 版本化审计**。这是本图迄今唯一一处「现状即结论」的待判项，规格里可以直接引用现状而不必另立条款。
 
 详见 [票 05 决议](05-answer.md) 的第三节与 Q7。
+
+## 来自票 06 的输入（2026-09-04）
+
+**一、v2 的冻结面进最终规格**：身份三元组（`ProtocolVersion` 2 ＋ `profileId`
+`AGV_FULL_PRODUCT` ＋ release `1.0.0`）、63 条消息面、45 条错误码、31 条向量、
+以及不引入版本协商的切换规则。逐条见 [票 06 决议](06-answer.md) 第三节。
+
+**二、规格须如实记录：车载端开发同事未评审、未批准 v2 设计面。**
+notify-after-change 规则要求的 `@SocialKKKK` issue 是**通知不是批准**；正式 release 的双人
+签名门禁不变，**且「第二名产品负责人是谁」在交接之后是一个未决问题**（交票 08）。
+不得把本图的单人批准表述为已获两端同意。
+
+**三、新增一类「汇编前须有结论」的项，与票 01／12 的那三条不同源。**
+票 01／12 查出的是**需求文本引用了一个位置不稳的外部身份**（基线 tag 不存在、
+`REQ-0157` 绑定的 commit 不存在、`REQ-0294` 引用另一张地图的工作票据）——那是身份缺失。
+票 06 查出的是**治理文档滞后于已经发生的事实**：`protocol-v0.1.1` 的 annotated tag 已经打了
+（记着四个 SHA-256），而 `docs/candidate-limitations.md` 仍写着「两人批准之后
+`protocol-v0.1.1` 才能被创建」；`compatibility/report.json` 的 `status` 是
+`SUPERSEDING_CANDIDATE`，`ProtocolCandidateIdentity.ApprovalStatus` 是 `APPROVED_RELEASE`，
+`manifest.status` 是 `CONTENT_SNAPSHOT`，三处口径不一。**发布身份本身是健全的**，
+陈旧的只是叙述性文档。规格里两类要分开表述，不要混成一句「治理有问题」。
+
+**四、一处未证项要记进规格的证据边界**：`protocol-v0.1.1` 的 attestation 是外部 GitHub
+Release Asset，**本图未核验其内容**——tag message 里记着它的 SHA-256（`89f67c82…`），
+结构上流程走过了，但两名批准人是谁、签名是否真实存在，本图未证。
+
+详见 [票 06 决议](06-answer.md) 的 1.11、第 6 问与第六节。

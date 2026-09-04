@@ -178,3 +178,35 @@ map30（api测试2）」，**不是 `RIOT-8005-RUNTIME`**。两个 SDK 仓库都
 不要去验界面上不存在的放开动作。
 
 详见 [票 05 决议](05-answer.md) 的第三节。
+
+## 来自票 06 的输入（2026-09-04）
+
+**本票的「两人分工」前提被交接改写，且多了一个 v2 打 tag 的硬前提。**
+
+**一、`8005-agv-onboard-hmi` 与 `slots-simulator` 今后由我方负责开发**（用户 2026-09-04 告知）。
+这是**将来**的开发归属变更，**不是现在的写权限变更**——工作区 `CLAUDE.md` 的写权限表照旧，
+那两个仓对 agent 仍然只读。**交接的是那两个仓的开发，不是 `8005-agv-protocol` 的所有权**，
+Kun Wang 仍是协议共同维护者。本票要判的是：分工与排期在交接前后各是什么形态，以及交接的
+时间点是不是排期的一个约束。
+
+**二、v2 打 tag 需要两名不同产品负责人，「第二人是谁」是本票必须回答的。**
+`docs/release-governance.md` 要两名不同产品负责人签外部 attestation，
+`g1-validate.mjs` 第 27 行实打实校验 `new Set(approvals.map(a=>a.ownerId)).size===2`，
+**AI 与 CI 不能批准**。两端都归一边写之后这条不会自动失效——票 06 的判断是**交接完成前
+Kun Wang 就是那个人**，且**双人签名的价值在完整产品阶段变大而不是变小**（它从此是唯一一个
+外部评审点）。票 06 明确不改 `release-governance.md`。本票若认为要改，须单独论证。
+
+**三、G2 证据的可信度有一个结构性缺口，本票的验收出口要处置。**票 06 查实：
+两个实现仓的依赖清单里**没有任何 JSON Schema 校验库**；
+`8005-agv-control-server/tools/ControlServer.Conformance/Program.cs` 共 55 行，做的全部事情是
+算 manifest 哈希、比编译期常量、打印 `PREFLIGHT_PASS`，**不跑任何向量、不校验任何 schema**；
+G2 证据（`artifacts/g2/*/gate-result.json`）记着 `vectorIds` 数组与 `testExitCode: 0`，
+而那个 exit code 来自本仓自己的 xunit 套件——**向量的 `input.ndjson` 与 `expected.json`
+从未被机械执行过**，绑定靠人的断言。
+
+票 06 已补了一半：`productAssertions` 由 IS-01 的特例推广为全部向量必填，
+使「某条向量在某端算通过」第一次有了可机械检查的定义。**另一半——谁来跑向量、用什么跑——
+是本票的验收出口要回答的。**注意这与「双 Fake 联调」不是一回事：Fake 是对端的替身，
+向量执行器是判据的执行者，目前后者根本不存在。
+
+详见 [票 06 决议](06-answer.md) 的 1.3、第 6 问与第四节。

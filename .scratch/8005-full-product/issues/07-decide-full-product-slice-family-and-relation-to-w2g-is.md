@@ -47,3 +47,36 @@ slice 级没有 forbidden side effects 字段，那是**向量级**的
 - 本票不改 `8005-agv-protocol` 仓库内容，不写 `index.json`。
 - 本票不决定批次划分本身，那是票 09；本票定的是批次将要绑定的切片体系。
 - 本票不代 Kun Wang 分配工作量。分工与排期是票 08。
+
+## 来自票 06 的输入（2026-09-04）
+
+**票 06 已冻结 v2 设计面，本票现在解锁。**三条硬约束，全部是本票定编号时会撞上的。
+
+**一、`^W2G-IS-0[0-7]$` 这个 pattern 有两份副本，分属两个仓库。**
+`8005-agv-protocol/runner/runner-contract.schema.json` 的 `integrationSliceId` 与
+`8005-agv-control-server/tools/ControlServer.Conformance/Program.cs:11` 各写了一遍。
+**本票定新编号后两处必须一起改**，漏一处的表现是一致性 runner 拒绝新切片 id。
+
+**二、`g1-validate.mjs` 里还有六处与切片强耦合的硬编码。**第 21 行
+`check(index.slices.length===8)` 加切片 id 全表 `W2G-IS-00..07`；第 22–24 行是
+**W2G-IS-01 的专属断言五处**（`vectorIds` 必须恰为 `["CV-DEMAND-ACCEPT-TO-PICKUP"]`、
+`requiredOutcomes` 五项精确数组、`demandRepresentation` 三字段、
+`ownerResponsibilities.onboardHmi` 与向量 `productAssertions` 必须逐字相等、
+adapter 轨迹三步精确数组）。切片家族一动，这六处一起动。
+
+**注意 `ownerResponsibilities.onboardHmi` 里的 `NEVER_DISCOVER_SELECT_OR_BIND_DEMAND` 字面
+必须改**（票 03 已提），而 G1 第 23 行要求它与 `CV-DEMAND-ACCEPT-TO-PICKUP` 的
+`productAssertions.onboardHmi` **逐字相等**——两处一起改，否则 G1 红。
+
+**三、向量可跨切片共享，编号体系不要假定一对一。**v1 已有三例：
+`CV-OPERATION-RESULT-UNKNOWN-RECONCILE` 同属 IS-03／06／07，
+`CV-SESSION-RECONNECT-DURING-RECOVERY` 同属 IS-00／05。票 06 定的 31 条向量与切片的绑定
+**由本票决定**，票 06 只定了命名规则（`CV-<场景名>`，不带编号）与新增判据
+（每个新增业务闭环一条，enum 扩值不单独立向量）。
+
+**另注一处结构性事实**：`integration-slices/index.json` 里**只有 W2G-IS-01 有 `definition`
+块**，其余七个切片只有 `vectorIds` ＋ `gates`。那是 0.1.1 那次修正加的。本票要判新家族是否
+全部切片都带 `definition`——票 06 已把 `productAssertions` 由 IS-01 的特例推广为全部向量必填，
+`definition` 是否同理推广，由本票定。
+
+详见 [票 06 决议](06-answer.md) 的 3.6 与第四节。

@@ -266,3 +266,40 @@ Blocked by: 07, 13, 14, 15
 工号，实际是环境变量 `CONTROL_SERVER_OPERATOR_ID`），所以所有按操作员归属的业务审计
 （`OperationSession`、`StopClosure` 等）同样不可归属自然人。票 05 只在 `FP-C10` 内处置了管理员侧，
 **操作员侧的审计归属没有任何票据覆盖**。
+
+## 来自票 06 的输入（2026-09-04）
+
+**一、协议 v2 是第二个横切大件，与票 14 的 `RouteGraphSnapshot` 引擎并列，别漏它的提前量。**
+它跨全部簇，且**必须先于任何跨端能力上线**，但内部可与服务端侧的单端工作并行。
+真实提前量有两项，票 06 已量化：
+
+- **重生成 examples 树：63 个 valid ＋ 约 1500 个 invalid。**invalid 是机械派生的
+  （`required` 887、`type` 293、`enum-or-const` 41、`uniqueItems` 33、`x-sorted` 19……），
+  **但仓库里没有生成器**——`tools/` 只有 `finalize-manifest.mjs` 与 `g1-validate.mjs`。
+  要么重建生成器，要么手写。**这是 v2 落地的最大单项，票 06 未估工时。**
+- **两端实现 ＋ `CONTROL_SERVER_G2` ＋ `ONBOARD_HMI_G2` ＋ `G3`**，八个切片各一遍。
+
+**二、三条实现缺陷交本票排期。**
+
+1. **控制服务端发出 3 个不在错误码注册表里的码**：`PROTOCOL_RELEASE_MISMATCH`
+   （`OnboardMessageProcessor.cs:82`，进 `SessionRejected`）、`RECOVERY_AUTHENTICATION_REQUIRED`
+   与 `RECOVERY_SESSION_ALREADY_OPEN`（`OnboardRecoveryCoordinator.cs:257`／`:278`，进
+   `ExceptionRecoverySessionRejected`）。`ErrorCode` 是封闭 enum，这三个码上线即违约。
+   票 06 判为实现缺陷不为它们开口，处置是改代码（`PROTOCOL_RELEASE_IDENTITY_MISMATCH`／
+   `RECOVERY_AUTHENTICATION_FAILED`／`ACTION_NOT_ALLOWED_IN_STATE`）。
+2. **`ManualChargingReturnToServiceRequested`／`Result` 两端零实现**（票 04 已定要求实现）。
+3. **`appsettings.json:9` 的 `ProtocolCandidate.profileId` 是死配置**，`src/` 内零读取，
+   票 06 判**删除该键**（编译期常量才是对的设计，配置键是会静默漂移的第二份真相）。
+
+**三、两条新的架构测试，两端各一条**：源码里所有 reasonCode 字面量必须属于注册表 enum。
+票 06 查实**「协议仓的 enum」与「实现真正发出的字节」之间目前一条校验都没有**——
+两端都不做运行期 schema 校验，一致性工程只有 55 行且不跑向量。这条测试极便宜且正好抓住
+上面第 1 条的三个缺陷。**机制票 06 未定**（控制端读注册表 JSON 需要一份副本或一条构建期拷贝）。
+
+**四、票 06 复用了票 04 的影响串分组手段的另一面，本票逐条复核 146 条时可以用。**
+票 06 不是按影响串搜的，是**读需求原文里的具体名词**搜的——`REQ-0264`／`REQ-0266` 各有一个
+名词「指纹」，指向一个协议上零命中的字段（54 个 schema 里 `fingerprint` 零命中）。
+这与票 05 方法论第三条「需求原文里的动词会暴露前置能力」同源，但**名词指向的是数据面**，
+动词指向的是动作面。两个面都要扫。
+
+详见 [票 06 决议](06-answer.md) 的 1.3、1.4、1.9、3.6 与第四节。

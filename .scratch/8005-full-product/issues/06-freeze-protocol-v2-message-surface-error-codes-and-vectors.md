@@ -1,8 +1,9 @@
 # 一次冻结协议 v2 消息面、错误码与向量范围
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 03, 04, 05, 12, 13
+Blocks: 07, 09
 
 ## Question
 
