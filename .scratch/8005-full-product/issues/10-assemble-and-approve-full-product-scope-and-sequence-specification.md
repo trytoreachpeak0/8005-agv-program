@@ -1,7 +1,8 @@
 # 汇编《8005 完整产品实施范围与顺序规格》并最终批准
 
 Type: grilling
-Status: open
+Status: closed
+Assignee: Zhengyu Shao
 Blocked by: 08, 09
 
 ## Question
