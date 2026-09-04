@@ -1,15 +1,63 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const target = process.argv[2];
-if (!target) throw new Error("Usage: node generate-protocol-candidate.mjs <protocol-repository>");
+const selfPath = fileURLToPath(import.meta.url);
+const argv = process.argv.slice(2);
+const verifyDeterminism = argv.includes("--verify-determinism");
+const target = argv.find((value) => !value.startsWith("--"));
+if (!target && !verifyDeterminism) throw new Error("Usage: node generate-protocol-candidate.mjs <protocol-repository> [--verify-determinism]");
+
+const digestTree = (directory) => {
+  const walkTree = (current) => fs.readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
+    const child = path.join(current, entry.name);
+    return entry.isDirectory() ? walkTree(child) : [child];
+  });
+  return new Map(walkTree(directory).map((file) => [
+    path.relative(directory, file).replaceAll("\\", "/"),
+    crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+  ]));
+};
+
+// Same input, two generations, byte-identical output. Each generation runs in its own process:
+// the generator carries module-level counters that a second in-process run would continue rather
+// than restart, so an in-process repeat would report a false divergence.
+if (verifyDeterminism) {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "protocol-candidate-determinism-"));
+  try {
+    const [first, second] = ["run-a", "run-b"].map((label) => {
+      const directory = path.join(scratch, label);
+      const run = spawnSync(process.execPath, [selfPath, directory], { encoding: "utf8" });
+      if (run.status !== 0) throw new Error(`determinism ${label} exited ${run.status}: ${run.stderr}`);
+      return digestTree(directory);
+    });
+    const paths = [...new Set([...first.keys(), ...second.keys()])].sort();
+    const divergent = paths.filter((relative) => first.get(relative) !== second.get(relative));
+    console.log(JSON.stringify({
+      deterministic: divergent.length === 0,
+      fileCount: first.size,
+      divergentFileCount: divergent.length,
+      divergent: divergent.slice(0, 20),
+    }, null, 2));
+    process.exit(divergent.length ? 1 : 0);
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+}
 
 const root = path.resolve(target);
 const SCHEMA = "https://json-schema.org/draft/2020-12/schema";
+
+// Candidate identity. Everything written below derives from these constants, so moving the
+// candidate to another protocol version, profile or release version is an edit of this block
+// alone. Never reintroduce these values as literals in the write-out region.
 const BASE_ID = "https://schemas.8005-agv.local/wire-to-gate/v1";
 const candidateVersion = "0.1.0";
 const profileId = "WIRE_TO_GATE_MVP";
+const profileDisplayName = "WIRE_TO_GATE MVP";
 const protocolVersion = 1;
 
 const writeJson = (relative, value) => {
@@ -21,6 +69,24 @@ const writeText = (relative, value) => {
   const file = path.join(root, relative);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, value.replace(/\r\n/g, "\n"), "utf8");
+};
+const templateDirectory = path.join(path.dirname(selfPath), "templates");
+// The two candidate tools live as real .mjs files under tools/templates/. Lines opening with the
+// template marker are stripped on write; double-underscore placeholders take the constants above.
+const renderTemplate = (name) => {
+  const raw = fs.readFileSync(path.join(templateDirectory, name), "utf8").replace(/\r\n/g, "\n");
+  const rendered = raw
+    .split("\n")
+    .filter((line) => !line.startsWith("//!"))
+    .join("\n")
+    .replaceAll("__BASE_ID__", BASE_ID)
+    .replaceAll("__PROFILE_ID__", profileId)
+    .replaceAll("__PROFILE_DISPLAY_NAME__", profileDisplayName)
+    .replaceAll("__CANDIDATE_VERSION__", candidateVersion)
+    .replaceAll("__PROTOCOL_VERSION__", String(protocolVersion));
+  const unresolved = rendered.match(/__[A-Z0-9_]+__/);
+  if (unresolved) throw new Error(`${name}: unresolved template placeholder ${unresolved[0]}`);
+  return rendered;
 };
 const clone = (value) => structuredClone(value);
 const sha256 = (value) => crypto.createHash("sha256").update(value).digest("hex");
@@ -96,7 +162,7 @@ const requiredErrorCodes = [
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition]) => ({
   code,
   category,
-  meaning: `${code} is the stable ${category.toLowerCase()} failure defined by the accepted WIRE_TO_GATE MVP governance decision.`,
+  meaning: `${code} is the stable ${category.toLowerCase()} failure defined by the accepted ${profileDisplayName} governance decision.`,
   allowedMessageTypes: category === "PROTOCOL" ? ["ProtocolProblem", "SessionRejected"] : ["*"],
   retryDisposition,
   introducedInRelease: candidateVersion,
@@ -189,9 +255,9 @@ const add = (name, fields, options = {}) => {
   specs[name] = { name, fields, direction: directions[name], deliveryClass, businessDedupKeys: options.businessDedupKeys ?? [], recoveryRole: options.recoveryRole ?? "NONE", crossRules: options.crossRules ?? [] };
 };
 
-add("SessionHello", { onboardInstanceId: R("Id"), onboardBuildCommit: S(), supportedProtocolVersion: I({ const: 1 }), profileId: S({ const: profileId }), protocolReleaseIdentity: R("ProtocolReleaseIdentity"), credentialProof: S({ examples: ["INVALID-PLACEHOLDER-NOT-A-SECRET"] }) }, { recoveryRole: "HANDSHAKE_START" });
+add("SessionHello", { onboardInstanceId: R("Id"), onboardBuildCommit: S(), supportedProtocolVersion: I({ const: protocolVersion }), profileId: S({ const: profileId }), protocolReleaseIdentity: R("ProtocolReleaseIdentity"), credentialProof: S({ examples: ["INVALID-PLACEHOLDER-NOT-A-SECRET"] }) }, { recoveryRole: "HANDSHAKE_START" });
 add("SessionAccepted", { sessionGeneration: R("Generation"), serverInstanceId: R("Id"), serverBuildCommit: S(), acceptedProtocolReleaseIdentity: R("ProtocolReleaseIdentity"), acceptedAt: R("Instant") }, { recoveryRole: "SESSION_FENCE" });
-add("SessionRejected", { problem: R("Problem"), expectedProtocolVersion: I({ const: 1 }), expectedProtocolReleaseIdentity: Nullable(R("ProtocolReleaseIdentity")) });
+add("SessionRejected", { problem: R("Problem"), expectedProtocolVersion: I({ const: protocolVersion }), expectedProtocolReleaseIdentity: Nullable(R("ProtocolReleaseIdentity")) });
 add("Heartbeat", { capabilityVersion: R("Revision"), safetyStateVersion: R("Revision") });
 add("HeartbeatAck", { receivedHeartbeatMessageId: R("Id"), serverTime: R("Instant") });
 add("CapabilitySnapshotRequested", { requestedCapabilityVersion: Nullable(R("Revision")), reason: E("HANDSHAKE", "VERSION_GAP", "EXPLICIT_RECONCILIATION") }, { recoveryRole: "CAPABILITY_RECONCILIATION" });
@@ -242,15 +308,15 @@ add("ForcedMechanicalRecoveryCommand", { exceptionRecoverySessionId: R("Id"), re
 add("ForcedMechanicalRecoveryResult", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), forcedRecoveryGeneration: R("Generation"), outcome: E("MECHANICALLY_ISOLATED", "FAILED", "UNKNOWN"), slots: Slots(), operator: R("OperatorContext"), observedAt: R("Instant"), electronicEmptyProven: B({ const: false }), vehicleReadyProven: B({ const: false }) }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "forcedRecoveryGeneration"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("DurableAck", { acceptedMessageId: R("Id"), acceptedMessageType: S(), acceptedContentSha256: R("Sha256"), durablyAcceptedAt: R("Instant") }, { businessDedupKeys: ["acceptedMessageId"], recoveryRole: "DURABLE_ACCEPTANCE" });
 add("SnapshotAppliedAck", { snapshotMessageId: R("Id"), snapshotKind: E("CAPABILITY", "SAFETY_STATE", "VEHICLE_BUSINESS_STATE", "CURRENT_STOP_WORKLIST", "UPCOMING_STOP_PLAN", "EXCEPTION_RECOVERY_SESSION"), appliedRevision: R("Revision"), appliedContentSha256: R("Sha256") }, { businessDedupKeys: ["snapshotMessageId"], recoveryRole: "SNAPSHOT_ADOPTION" });
-add("ProtocolProblem", { rejectedMessageId: R("Id"), rejectedMessageType: Nullable(S()), problem: R("Problem"), expectedProtocolVersion: I({ const: 1 }), expectedProfileId: S({ const: profileId }), expectedProtocolReleaseManifestSha256: R("Sha256") });
+add("ProtocolProblem", { rejectedMessageId: R("Id"), rejectedMessageType: Nullable(S()), problem: R("Problem"), expectedProtocolVersion: I({ const: protocolVersion }), expectedProfileId: S({ const: profileId }), expectedProtocolReleaseManifestSha256: R("Sha256") });
 
 const denylist = ["OperationCancelCommand", "LoadCancellationCommand", "LoadFinalConfirmation", "UnloadCommand", "SublotAccepted", "OperationCommandAck", "OperationResultAck", "LoadCompensationCommandAck", "WireToGateExecutionSnapshot", "DepartureSafetyRevoked", "OnboardCapabilitySnapshot"];
 
-const commonSchema = { $schema: SCHEMA, $id: `${BASE_ID}/common/types.schema.json`, title: "WIRE_TO_GATE MVP common types", $defs: defs };
+const commonSchema = { $schema: SCHEMA, $id: `${BASE_ID}/common/types.schema.json`, title: `${profileDisplayName} common types`, $defs: defs };
 writeJson("schemas/common/types.schema.json", commonSchema);
 
 const envelopeBase = {
-  protocolVersion: I({ const: 1 }),
+  protocolVersion: I({ const: protocolVersion }),
   profileId: S({ const: profileId }),
   protocolReleaseVersion: S({ pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$", examples: [candidateVersion] }),
   protocolReleaseManifestSha256: R("Sha256"),
@@ -292,7 +358,7 @@ for (const spec of Object.values(specs)) {
 writeJson("schemas/bundle/protocol.schema.json", {
   $schema: SCHEMA,
   $id: `${BASE_ID}/bundle/protocol.schema.json`,
-  title: "WIRE_TO_GATE MVP protocol bundle",
+  title: `${profileDisplayName} protocol bundle`,
   oneOf: Object.keys(specs).map((name) => ({ $ref: `${BASE_ID}/messages/${name}.schema.json` })),
 });
 
@@ -558,13 +624,13 @@ writeJson("compatibility/implementation-version-matrix.json", {
   requiredAction: "Install or pin SDK 8.0.424 before reproducible product builds; do not treat the observed 8.0.29 runtime as equivalent evidence.",
 });
 
-writeText("docs/README.md", `# WIRE_TO_GATE MVP protocol candidate\n\nThis repository contains a **candidate**, not an approved ProtocolRelease. Machine-readable JSON Schema, manifests, errors, examples, vectors, runner/result contracts and the integration-slice index are authoritative. Markdown is explanatory only.\n\nRun \`pnpm install --frozen-lockfile\` and \`pnpm g1\`. A PASS proves only candidate-internal consistency. It does not prove human G0 approval, either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
-writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly 1 for this candidate; runtime negotiation is forbidden.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, manifest hash, schema bundle hash and vectors hash.\n- Both real product owners must approve the exact commit and manifest before an immutable tag/release is created. AI and CI cannot approve.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- Historical red evidence and released identities are immutable.\n`);
+writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis repository contains a **candidate**, not an approved ProtocolRelease. Machine-readable JSON Schema, manifests, errors, examples, vectors, runner/result contracts and the integration-slice index are authoritative. Markdown is explanatory only.\n\nRun \`pnpm install --frozen-lockfile\` and \`pnpm g1\`. A PASS proves only candidate-internal consistency. It does not prove human G0 approval, either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
+writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, manifest hash, schema bundle hash and vectors hash.\n- Both real product owners must approve the exact commit and manifest before an immutable tag/release is created. AI and CI cannot approve.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- Historical red evidence and released identities are immutable.\n`);
 writeText("docs/candidate-limitations.md", `# Candidate limitations and release-finalization blocker\n\nThe candidate intentionally uses structurally valid synthetic zero hashes inside envelope examples. Examples are schema fixtures, not evidence of a materialized release identity.\n\nThe accepted governance currently creates a circular finalization dependency: the manifest is required to hash every file except itself, while the approval record is required to contain manifestSha256 and is itself included in the manifest file table. Filling the approval changes the manifest, which changes manifestSha256 again. Formal release must resolve this by an explicit human-approved governance amendment (for example, exclude the external approval attestation from the content manifest while binding it to the immutable candidate commit and manifest hash). G1 may pass the unapproved candidate; no tag/release may be created until the circularity is resolved.\n`);
 
 writeJson("package.json", {
   name: "8005-agv-protocol",
-  version: "0.1.0",
+  version: candidateVersion,
   private: true,
   type: "module",
   scripts: { g1: "node tools/g1-validate.mjs", "manifest:finalize": "node tools/finalize-manifest.mjs" },
@@ -573,23 +639,9 @@ writeJson("package.json", {
   license: "UNLICENSED",
 });
 
-writeText("tools/finalize-manifest.mjs", `import fs from "node:fs";\nimport path from "node:path";\nimport crypto from "node:crypto";\nconst root=path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\\/([A-Za-z]:)/,"$1")),"..");\nconst sha=b=>crypto.createHash("sha256").update(b).digest("hex");\nconst canon=v=>v===null||typeof v!=="object"?JSON.stringify(v):Array.isArray(v)?"["+v.map(canon).join(",")+"]":"{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+canon(v[k])).join(",")+"}";\nconst excluded=p=>p==="manifest/release.json"||p.startsWith(".git/")||p.startsWith("node_modules/")||p.startsWith("evidence/");\nconst walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name);return e.isDirectory()?walk(p):[p]});\nconst files=walk(root).map(p=>path.relative(root,p).replaceAll("\\\\","/")).filter(p=>!excluded(p)).sort().map(p=>{const b=fs.readFileSync(path.join(root,p));return{path:p,role:p.split("/")[0],bytes:b.length,sha256:sha(b)}});\nconst combine=prefix=>sha(Buffer.from(files.filter(f=>f.path.startsWith(prefix)).map(f=>f.path+":"+f.sha256).join("\\n")+"\\n"));\nconst manifest={status:"CANDIDATE_UNAPPROVED",releaseVersion:"0.1.0",protocolVersion:1,profileId:"WIRE_TO_GATE_MVP",repository:"8005-agv-protocol",generatedAt:"2026-08-25T09:00:00Z",hashAlgorithm:"SHA-256",jsonCanonicalization:"RFC8785-compatible sorted-key JCS for semantic collections; raw bytes for file entries",fileTableSha256:sha(Buffer.from(canon(files))),schemaBundleSha256:combine("schemas/"),examplesSha256:combine("examples/"),vectorsSha256:combine("vectors/"),errorRegistrySha256:combine("errors/"),runnerContractsSha256:combine("runner/"),approvalStatus:"PENDING",files};\nfs.mkdirSync(path.join(root,"manifest"),{recursive:true});fs.writeFileSync(path.join(root,"manifest/release.json"),JSON.stringify(manifest,null,2)+"\\n");console.log(JSON.stringify({manifestSha256:sha(fs.readFileSync(path.join(root,"manifest/release.json"))),files:files.length,...manifest},null,2));\n`);
+writeText("tools/finalize-manifest.mjs", renderTemplate("finalize-manifest.mjs"));
 
-writeText("tools/g1-validate.mjs", `import fs from "node:fs";\nimport path from "node:path";\nimport crypto from "node:crypto";\nimport Ajv2020 from "ajv/dist/2020.js";\nimport addFormats from "ajv-formats";\nconst root=path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\\/([A-Za-z]:)/,"$1")),"..");\nconst read=p=>JSON.parse(fs.readFileSync(path.join(root,p),"utf8"));\nconst sha=b=>crypto.createHash("sha256").update(b).digest("hex");\nconst walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name);return e.isDirectory()?walk(p):[p]});\nconst fail=[];const check=(ok,msg)=>{if(!ok)fail.push(msg)};\nconst ajv=new Ajv2020({allErrors:true,strict:false,validateFormats:true});addFormats(ajv);\nconst schemaFiles=walk(path.join(root,"schemas")).filter(p=>p.endsWith(".json"));const schemas=schemaFiles.map(p=>JSON.parse(fs.readFileSync(p,"utf8")));for(const s of schemas){check(ajv.validateSchema(s),"invalid schema "+s.$id+" "+ajv.errorsText());ajv.addSchema(s)}\nconst messageSchemas=schemas.filter(s=>s.$id?.includes("/messages/"));const names=messageSchemas.map(s=>s.title).sort();const validators=new Map(messageSchemas.map(s=>[s.title,ajv.getSchema(s.$id)]));\nfor(const name of names){const dir=path.join(root,"examples/valid",name);check(fs.existsSync(dir),"missing valid directory "+name);if(!fs.existsSync(dir))continue;const files=walk(dir).filter(p=>p.endsWith(".json"));check(files.length>0,"missing valid example "+name);for(const f of files){const data=JSON.parse(fs.readFileSync(f,"utf8"));const v=validators.get(name);check(v(data),"valid example failed "+path.relative(root,f)+" "+ajv.errorsText(v.errors))}}\nconst semanticRules=new Set(["semantic-correlation","profile-denylist","unknown-message-type","semantic-protocol-version","semantic-release-identity","semantic-session-generation"]);const invalidFiles=walk(path.join(root,"examples/invalid")).filter(p=>p.endsWith(".json"));for(const f of invalidFiles){const x=JSON.parse(fs.readFileSync(f,"utf8"));check(x.vectorId&&x.message&&x.expected?.code&&x.expected?.fieldPath,"invalid wrapper incomplete "+path.relative(root,f));const v=validators.get(x.message.messageType);if(semanticRules.has(x.expected.rule)){if(x.expected.rule==="profile-denylist")check(!names.includes(x.message.messageType),"denylisted name in allowlist "+x.message.messageType);continue}check(v&&!v(x.message),"schema-invalid example unexpectedly valid "+path.relative(root,f))}\nconst manifest=read("manifest/release.json");check(manifest.status==="CANDIDATE_UNAPPROVED","manifest status");check(manifest.approvalStatus==="PENDING","approval status");check(JSON.stringify(names)===JSON.stringify(Object.keys(manifest.messages??{}).sort())||manifest.messages===undefined,"manifest message mismatch");\nconst excluded=p=>p==="manifest/release.json"||p.startsWith(".git/")||p.startsWith("node_modules/")||p.startsWith("evidence/");const actual=walk(root).map(p=>path.relative(root,p).replaceAll("\\\\","/")).filter(p=>!excluded(p)).sort();check(actual.length===manifest.files.length,"manifest file count");const table=new Map(manifest.files.map(f=>[f.path,f]));for(const p of actual){const b=fs.readFileSync(path.join(root,p));const f=table.get(p);check(!!f,"manifest missing "+p);if(f){check(f.bytes===b.length,"byte mismatch "+p);check(f.sha256===sha(b),"hash mismatch "+p)}}\nconst errors=read("errors/error-codes.json").codes;check(new Set(errors.map(e=>e.code)).size===errors.length,"duplicate error codes");for(const e of errors)check(e.category&&e.meaning&&e.allowedMessageTypes?.length&&e.retryDisposition&&e.introducedInRelease,"incomplete error "+e.code);\nconst deny=["OperationCancelCommand","LoadCancellationCommand","LoadFinalConfirmation","UnloadCommand","SublotAccepted","OperationCommandAck","OperationResultAck","LoadCompensationCommandAck","WireToGateExecutionSnapshot","DepartureSafetyRevoked","OnboardCapabilitySnapshot"];for(const n of deny){check(!names.includes(n),"denylisted schema "+n);check(invalidFiles.some(f=>path.basename(f).includes(n)),"missing deny vector "+n)}\nconst requiredVectors=${JSON.stringify(Object.keys(trajectories))};for(const id of requiredVectors){check(fs.existsSync(path.join(root,"vectors",id,"input.ndjson")),"missing vector input "+id);const exp=read("vectors/"+id+"/expected.json");check(exp.orderedExpectedMessages?.length&&exp.persistenceCheckpoints?.length&&exp.forbiddenSideEffects?.length&&exp.finalState,"incomplete vector "+id)}\nconst index=read("integration-slices/index.json");check(index.slices.length===8,"slice count");check(index.slices.map(s=>s.integrationSliceId).join(",")===[0,1,2,3,4,5,6,7].map(i=>"W2G-IS-"+String(i).padStart(2,"0")).join(","),"slice ids");for(const s of index.slices)for(const id of s.vectorIds)check(requiredVectors.includes(id),"unknown slice vector "+id);\nfor(const p of ["runner/runner-contract.schema.json","runner/result.schema.json"]){const s=read(p);check(ajv.validateSchema(s),"invalid runner schema "+p);check(!!ajv.compile(s),"runner compile "+p)}\nconst approval=read("approvals/release-approval.json");check(approval.status==="PENDING"&&approval.approvals.length===0,"candidate must have blank approvals");const matrix=read("compatibility/implementation-version-matrix.json");check(matrix.sharedDevelopmentBaseline.dotnetSdk==="8.0.424"&&matrix.sharedDevelopmentBaseline.dotnetRuntime==="8.0.30","version matrix mismatch");\nconst secretPatterns=[/ghp_[A-Za-z0-9]{20,}/,/github_pat_[A-Za-z0-9_]{20,}/,/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/];for(const p of actual){const text=fs.readFileSync(path.join(root,p),"utf8");for(const re of secretPatterns)check(!re.test(text),"secret-like content "+p)}\nconst result={gate:"G1",status:fail.length?"FAIL":"PASS",candidateManifestSha256:sha(fs.readFileSync(path.join(root,"manifest/release.json"))),schemaCount:schemas.length,messageTypeCount:names.length,validExampleCount:walk(path.join(root,"examples/valid")).filter(p=>p.endsWith(".json")).length,invalidExampleCount:invalidFiles.length,trajectoryCount:requiredVectors.length,integrationSliceCount:index.slices.length,checkedAt:"2026-08-25T09:00:00Z",failures:fail};fs.mkdirSync(path.join(root,"evidence"),{recursive:true});fs.writeFileSync(path.join(root,"evidence/g1-result.json"),JSON.stringify(result,null,2)+"\\n");console.log(JSON.stringify(result,null,2));if(fail.length)process.exit(1);\n`);
+writeText("tools/g1-validate.mjs", renderTemplate("g1-validate.mjs"));
 
 writeJson("manifest/release.json", { status: "CANDIDATE_UNFINALIZED", releaseVersion: candidateVersion, protocolVersion, profileId, repository: "8005-agv-protocol", denylistedMessageTypes: denylist, messages: Object.fromEntries(Object.values(specs).map((spec) => [spec.name, { sender: senderFor(spec.direction), receiver: receiverFor(spec.direction), direction: spec.direction, deliveryClass: spec.deliveryClass, correlationRule: correlationRuleFor(spec), transportDedupKey: "messageId", businessDedupKeys: spec.businessDedupKeys, durableBeforeSend: spec.deliveryClass === "RELIABLE", durableBeforeAck: spec.deliveryClass === "RELIABLE", recoveryRole: spec.recoveryRole, schema: `schemas/messages/${spec.name}.schema.json` }])) });
-writeText("tools/finalize-manifest.mjs", `import fs from "node:fs";
-import path from "node:path";
-import crypto from "node:crypto";
-const root=path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\\/([A-Za-z]:)/,"$1")),"..");
-const sha=b=>crypto.createHash("sha256").update(b).digest("hex");
-const canon=v=>v===null||typeof v!=="object"?JSON.stringify(v):Array.isArray(v)?"["+v.map(canon).join(",")+"]":"{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+canon(v[k])).join(",")+"}";
-const excluded=p=>p==="manifest/release.json"||p.startsWith(".git/")||p.startsWith("node_modules/")||p.startsWith("evidence/");
-const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name);return e.isDirectory()?walk(p):[p]});
-const files=walk(root).map(p=>path.relative(root,p).replaceAll("\\\\","/")).filter(p=>!excluded(p)).sort().map(p=>{const b=fs.readFileSync(path.join(root,p));return{path:p,role:p.split("/")[0],bytes:b.length,sha256:sha(b)}});
-const combine=prefix=>sha(Buffer.from(files.filter(f=>f.path.startsWith(prefix)).map(f=>f.path+":"+f.sha256).join("\\n")+"\\n"));
-const seed=JSON.parse(fs.readFileSync(path.join(root,"manifest/release.json"),"utf8"));
-const manifest={status:"CANDIDATE_UNAPPROVED",releaseVersion:"0.1.0",protocolVersion:1,profileId:"WIRE_TO_GATE_MVP",repository:"8005-agv-protocol",generatedAt:"2026-08-25T09:00:00Z",hashAlgorithm:"SHA-256",jsonCanonicalization:"RFC8785-compatible sorted-key JCS for semantic collections; raw bytes for file entries",fileTableSha256:sha(Buffer.from(canon(files))),schemaBundleSha256:combine("schemas/"),examplesSha256:combine("examples/"),vectorsSha256:combine("vectors/"),errorRegistrySha256:combine("errors/"),runnerContractsSha256:combine("runner/"),approvalStatus:"PENDING",messages:seed.messages,denylistedMessageTypes:seed.denylistedMessageTypes,files};
-fs.mkdirSync(path.join(root,"manifest"),{recursive:true});fs.writeFileSync(path.join(root,"manifest/release.json"),JSON.stringify(manifest,null,2)+"\\n");console.log(JSON.stringify({manifestSha256:sha(fs.readFileSync(path.join(root,"manifest/release.json"))),files:files.length,messageTypeCount:Object.keys(manifest.messages).length,status:manifest.status},null,2));
-`);
 console.log(JSON.stringify({ generated: true, target: root, messageTypeCount: Object.keys(specs).length, invalidExamplePolicy: "required/type/enum/unique/sort/correlation plus profile and envelope semantics", trajectoryCount: Object.keys(trajectories).length, sliceCount: slices.length }, null, 2));
