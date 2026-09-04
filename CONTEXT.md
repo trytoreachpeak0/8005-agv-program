@@ -236,6 +236,10 @@ _Avoid_: 团队任务编号、仓库开发阶段、一次“大联调”、只�
 某一个 ProtocolRelease 之下全部 IntegrationSlice 的完整编号集合，由 id 前缀、编号规则、切片总数、顺序与前置关系共同确定；家族随协议大版本整体换代而不是逐个增补，旧家族随其不可变 tag 原地冻结，其门禁证据此后只能被引用为“前一代的对应切片”，不能被复用为新家族的通过结论。
 _Avoid_: 跨版本沿用编号、两套编号并存于同一 index、把批次或业务分簇编进 IntegrationSliceId、以家族更名代替证据重跑
 
+**ImplementationBatch（实施批次）**:
+完整产品实施顺序的单位，由该批次内的需求条目集合、无需求条目载体的工程项清单，以及它对其它批次的依赖边共同确定；每条依赖边必须能归约为一条已推翻的架构不变量、一条协议冻结面前置、一条切片 prerequisites，或一条现场前置。它与 IntegrationSliceFamily 正交——切片是联调证据的单位，批次是实施顺序的单位，一个批次含零到多个切片，一个切片只属一个批次；也因此批次编号不进 IntegrationSliceId。一个批次可以完全没有需求条目载体：协议冻结面落地与多车化都是真实工程量，却都不在需求条目上产生新行。
+_Avoid_: 按体量均衡切批次、以“先做这个更稳妥”作依赖理由、把批次等同于切片、只按需求条目排期而漏掉无载体工程、把批次编号写进切片 id 或证据目录
+
 **FakePeerIdentity（模拟对端身份）**:
 一次一致性运行所使用 Fake Onboard 或 Fake ControlServer 的可复现复合身份，由其所在实现仓库、完整 commit、构建产物哈希、ProtocolReleaseIdentity、测试 harness contract 版本及支持的 IntegrationSliceId 集合共同确定；Fake 只模拟协议可观察行为，不声称证明真实 IO、RIoT 或生产持久化能力。
 _Avoid_: 仅软件版本字符串、latest Fake、共享协议仓库中的第三套生产实现、用 Fake 结果代替真实对真实联调

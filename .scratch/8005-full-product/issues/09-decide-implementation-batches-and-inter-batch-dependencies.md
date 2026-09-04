@@ -1,7 +1,7 @@
 # 决定实施批次划分与批次间依赖，348 行剖面定稿
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 07, 13, 14, 15
 
 ## Question
