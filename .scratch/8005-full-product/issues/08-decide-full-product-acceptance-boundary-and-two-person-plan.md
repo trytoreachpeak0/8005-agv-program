@@ -1,8 +1,10 @@
 # 决定完整产品验收边界、证据要求与双人分工排期
 
 Type: grilling
-Status: open
+Status: closed
+Assignee: Zhengyu Shao
 Blocked by: 07, 14
+Answer: [08-answer.md](08-answer.md)
 
 ## Question
 
