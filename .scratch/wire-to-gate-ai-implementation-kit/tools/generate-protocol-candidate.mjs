@@ -159,6 +159,10 @@ const requiredErrorCodes = [
   ["RECOVERY_CHECKPOINT_NOT_UNIQUE", "SAFETY_RECOVERY", "MANUAL_REVIEW"],
   ["RECOVERY_AUTHENTICATION_FAILED", "SAFETY_RECOVERY", "MANUAL_REVIEW"],
   ["FORCED_RECOVERY_GENERATION_STALE", "SAFETY_RECOVERY", "AFTER_STATE_CHANGE"],
+  // Appended for the v2 candidate. The registry is appendOnly, so new codes go at the end rather
+  // than beside their category peers.
+  ["SLOT_CONFIGURATION_VERIFICATION_FAILED", "BUSINESS", "AFTER_STATE_CHANGE"],
+  ["SLOT_CONFIGURATION_FINGERPRINT_MISMATCH", "BUSINESS", "MANUAL_REVIEW"],
 ];
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition]) => ({
   code,
@@ -216,6 +220,26 @@ defs.OperatorContext = O({ operatorId: S(), verificationMethod: E("BADGE", "SESS
 defs.PendingResultRef = O({ messageType: S(), messageId: R("Id"), businessId: S(), contentSha256: R("Sha256") });
 defs.BlockingFact = O({ reasonCode: R("ErrorCode"), subjectType: S(), subjectId: Nullable(S()) });
 defs.SlotNoArray = Slots();
+// A stop's third orthogonal dimension: what the vehicle is there for. Business stops load or
+// unload, waiting points and chargers do neither.
+defs.StopPurposeCategory = E("BUSINESS", "WAITING_POINT", "CHARGER");
+// The five fixed public station functions. The segment names line up with TransportTaskType, so
+// DIE_TO_OVEN visibly ends at OVEN and STAGING_TO_WIRE visibly starts at WIRE_STAGING.
+defs.PublicStationFunction = E("WIRE_STAGING", "OVEN", "GATE", "OPTICAL", "NITROGEN");
+// MES TASK_TYPE, verbatim: these six strings are the hardcoded literals of the six UNION ALL
+// branches in the factory IT query. WIRE_TO_GATE is one of them, not a phase name.
+defs.TransportTaskType = E("DIE_TO_WIRE_STAGING", "DIE_TO_OVEN", "WIRE_TO_GATE", "WIRE_TO_OPTICAL", "STAGING_TO_WIRE", "WIRE_TO_NITROGEN");
+// Alarm codes are an open set and deliberately not ErrorCode: folding an open set into a closed
+// enum would make every new fault code a breaking protocol change.
+defs.AlarmEntry = O({
+  alarmId: R("Id"),
+  code: S(),
+  severity: E("INFO", "WARNING", "CRITICAL"),
+  raisedAt: R("Instant"),
+  subjectType: S(),
+  subjectId: Nullable(S()),
+  displayMessage: Nullable(S()),
+});
 
 const responseNames = new Set([
   "SessionAccepted", "SessionRejected", "HeartbeatAck", "PreDepartureSafetyCheckResult", "SublotRejected", "SlotOperationCommandRejected", "ManualChargingReturnToServiceResult",
@@ -447,7 +471,17 @@ const invalidTypeValue = (schema) => {
   return undefined;
 };
 
-const invalidWrapper = (vectorId, message, code, fieldPath, rule) => ({ vectorId, message, expected: { code, fieldPath, rule } });
+// Coverage is judged against what the implementations can emit, not against the registry: a
+// vector per registry entry would manufacture assets for codes nobody sends. This counter reports
+// which codes the generated tree actually backs, so the gap is a number rather than a guess.
+const errorCodeAssets = new Map(errorCodeNames.map((code) => [code, 0]));
+const noteErrorCodeAsset = (code) => {
+  if (errorCodeAssets.has(code)) errorCodeAssets.set(code, errorCodeAssets.get(code) + 1);
+};
+const invalidWrapper = (vectorId, message, code, fieldPath, rule) => {
+  noteErrorCodeAsset(code);
+  return { vectorId, message, expected: { code, fieldPath, rule } };
+};
 for (const spec of Object.values(specs)) {
   const valid = envelopeFor(spec);
   writeJson(`examples/valid/${spec.name}/V-${spec.name}-MIN-001.json`, valid);
@@ -534,6 +568,7 @@ for (const [vectorId, messageTypes] of Object.entries(trajectories)) {
   const lines = messageTypes.map((messageType, index) => ({ step: index + 1, atMs: index * 100, action: index === 0 ? "send" : "expect", messageType, virtualTimeOnly: true }));
   writeText(`vectors/${vectorId}/input.ndjson`, `${lines.map(canonical).join("\n")}\n`);
   const stableErrorCode = vectorId.includes("DIFFERENT-CONTENT") ? "MESSAGE_ID_CONTENT_CONFLICT" : vectorId.includes("SAME-REVISION-CONFLICT") ? "SNAPSHOT_REVISION_CONTENT_CONFLICT" : vectorId.includes("EXPIRES") ? "PREDEPARTURE_CHECK_EXPIRED" : null;
+  if (stableErrorCode) noteErrorCodeAsset(stableErrorCode);
   writeJson(`vectors/${vectorId}/expected.json`, {
     vectorId,
     orderedExpectedMessages: messageTypes,
@@ -649,4 +684,4 @@ writeText("tools/finalize-manifest.mjs", renderTemplate("finalize-manifest.mjs")
 writeText("tools/g1-validate.mjs", renderTemplate("g1-validate.mjs"));
 
 writeJson("manifest/release.json", { status: "CANDIDATE_UNFINALIZED", releaseVersion: candidateVersion, protocolVersion, profileId, repository: "8005-agv-protocol", denylistedMessageTypes: denylist, messages: Object.fromEntries(Object.values(specs).map((spec) => [spec.name, { sender: senderFor(spec.direction), receiver: receiverFor(spec.direction), direction: spec.direction, deliveryClass: spec.deliveryClass, correlationRule: correlationRuleFor(spec), transportDedupKey: "messageId", businessDedupKeys: spec.businessDedupKeys, durableBeforeSend: spec.deliveryClass === "RELIABLE", durableBeforeAck: spec.deliveryClass === "RELIABLE", recoveryRole: spec.recoveryRole, schema: `schemas/messages/${spec.name}.schema.json` }])) });
-console.log(JSON.stringify({ generated: true, target: root, messageTypeCount: Object.keys(specs).length, invalidExamplePolicy: "required/type/enum/unique/sort/correlation plus profile and envelope semantics", trajectoryCount: Object.keys(trajectories).length, sliceCount: slices.length }, null, 2));
+console.log(JSON.stringify({ generated: true, target: root, messageTypeCount: Object.keys(specs).length, invalidExamplePolicy: "required/type/enum/unique/sort/correlation plus profile and envelope semantics", trajectoryCount: Object.keys(trajectories).length, sliceCount: slices.length, errorCodeCount: errorCodeNames.length, errorCodesWithAsset: [...errorCodeAssets.values()].filter((count) => count > 0).length, errorCodesWithoutAsset: [...errorCodeAssets].filter(([, count]) => count === 0).map(([code]) => code) }, null, 2));
