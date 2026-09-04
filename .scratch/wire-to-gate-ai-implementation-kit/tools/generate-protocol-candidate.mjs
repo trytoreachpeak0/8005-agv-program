@@ -171,12 +171,54 @@ const requiredErrorCodes = [
   // than beside their category peers.
   ["SLOT_CONFIGURATION_VERIFICATION_FAILED", "BUSINESS", "AFTER_STATE_CHANGE"],
   ["SLOT_CONFIGURATION_FINGERPRINT_MISMATCH", "BUSINESS", "MANUAL_REVIEW"],
+  // The nine distinctions the ControlServer already emits and the v1 registry never had a code
+  // for. Each carries its own allowedMessageTypes, narrowed to the message the implementation
+  // actually puts it in: "*" would claim these are legal anywhere a Problem can travel.
+  ["RECOVERY_DEMAND_NOT_BLOCKED", "SAFETY_RECOVERY", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["ExceptionRecoverySessionRejected"],
+    meaning: "The demand named by the recovery scope is not blocked, so no exception recovery session may be opened against it.",
+  }],
+  ["RECOVERY_EVENT_MISMATCH", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["RecoveryActionRejected"],
+    meaning: "The eventId carried by the recovery action is not the event the exception recovery session was opened for.",
+  }],
+  ["RECOVERY_DEMAND_MISMATCH", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["RecoveryActionRejected"],
+    meaning: "The demandId carried by the recovery action is not the demand the exception recovery session was opened for.",
+  }],
+  ["RECOVERY_OPERATOR_MISMATCH", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["RecoveryActionRejected"],
+    meaning: "The operator submitting the recovery action is not the administrator who opened the exception recovery session.",
+  }],
+  ["RECOVERY_ACTION_ALREADY_SELECTED", "SAFETY_RECOVERY", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["RecoveryActionRejected"],
+    meaning: "The exception recovery session has already selected a different recovery action.",
+  }],
+  ["RECOVERY_OPERATION_NOT_FOUND", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["RecoveryActionRejected"],
+    meaning: "The exception recovery session is scoped to a demand, but no station operation exists for that demand.",
+  }],
+  ["PROVEN_RECOVERY_CHECKPOINT_REQUIRED", "SAFETY_RECOVERY", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["RecoveryActionRejected"],
+    meaning: "RESUME_AFTER_REPAIR requires the vehicle to hold a proven recovery checkpoint for the unsettled slot operation attempt.",
+  }],
+  // The last two are blocking facts rather than rejections. They state why the session is waiting,
+  // so they travel in ExceptionRecoverySessionSnapshot.blockingFacts and never in a Problem.
+  ["RECOVERY_ACTION_REQUIRED", "SAFETY_RECOVERY", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["ExceptionRecoverySessionSnapshot"],
+    meaning: "The exception recovery session is open and stays blocked until the operator selects a recovery action.",
+  }],
+  ["RECOVERY_RESULT_REQUIRED", "SAFETY_RECOVERY", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["ExceptionRecoverySessionSnapshot"],
+    meaning: "A recovery action has been selected and the exception recovery session stays blocked until its result arrives.",
+  }],
 ];
-const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition]) => ({
+const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
   category,
-  meaning: `${code} is the stable ${category.toLowerCase()} failure defined by the accepted ${profileDisplayName} governance decision.`,
-  allowedMessageTypes: category === "PROTOCOL" ? ["ProtocolProblem", "SessionRejected"] : ["*"],
+  meaning: overrides.meaning ?? `${code} is the stable ${category.toLowerCase()} failure defined by the accepted ${profileDisplayName} governance decision.`,
+  allowedMessageTypes: overrides.allowedMessageTypes ??
+    (category === "PROTOCOL" ? ["ProtocolProblem", "SessionRejected"] : ["*"]),
   retryDisposition,
   introducedInRelease: candidateVersion,
 }));
