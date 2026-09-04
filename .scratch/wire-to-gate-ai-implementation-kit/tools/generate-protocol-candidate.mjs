@@ -87,7 +87,12 @@ const renderTemplate = (name) => {
     .replaceAll("__PROFILE_DISPLAY_NAME__", profileDisplayName)
     .replaceAll("__CANDIDATE_VERSION__", candidateVersion)
     .replaceAll("__PROTOCOL_VERSION__", String(protocolVersion))
-    .replaceAll("__CANDIDATE_TIMESTAMP__", candidateTimestamp);
+    .replaceAll("__CANDIDATE_TIMESTAMP__", candidateTimestamp)
+    // The gate used to keep its own copy of the vector list and its own slice-count and id-pattern
+    // literals. Injecting them removes three chances for the gate and the tree to disagree.
+    .replaceAll("__REQUIRED_VECTORS_JSON__", JSON.stringify(Object.keys(trajectories)))
+    .replaceAll("__SLICE_COUNT__", String(slices.length))
+    .replaceAll("__SLICE_ID_PREFIX__", sliceIdPrefix);
   const unresolved = rendered.match(/__[A-Z0-9_]+__/);
   if (unresolved) throw new Error(`${name}: unresolved template placeholder ${unresolved[0]}`);
   return rendered;
@@ -583,29 +588,91 @@ writeJson("examples/invalid/profile/I-PROFILE-UNKNOWN-001.json", invalidWrapper(
 
 writeJson("errors/error-codes.json", { registryVersion: "1.0.0", appendOnly: true, displayMessageAuthoritative: false, codes: errorCodes });
 
+// Every vector carries productAssertions: what each side must be able to prove when the wire
+// trace matches. That was FP-IS-01's special case in v1; here it is mandatory for all 31, because
+// a trace alone never distinguishes "did the right thing" from "emitted the right bytes".
+const wire = (...messages) => messages;
 const trajectories = {
-  "CV-SESSION-RECOVERY-HAPPY": ["SessionHello", "SessionAccepted", "CapabilitySnapshot", "SafetyStateSnapshot", "RecoveryStateReport", "SessionReadiness"],
-  "CV-SESSION-RECONNECT-DURING-RECOVERY": ["SessionHello", "SessionAccepted", "RecoveryStateReport", "SessionHello", "SessionAccepted", "RecoveryStateReport", "SessionReadiness"],
-  "CV-RELIABLE-RETRY-SAME-CONTENT": ["SlotOperationCommand", "SlotOperationCommand", "DurableAck"],
-  "CV-RELIABLE-RETRY-DIFFERENT-CONTENT": ["SlotOperationCommand", "SlotOperationCommand", "ProtocolProblem"],
-  "CV-REQUEST-FIRST-RESULT-REPLAY": ["SublotSubmitted", "SlotOperationCommand", "SublotSubmitted", "SlotOperationCommand"],
-  "CV-SNAPSHOT-REPLACE-AND-ACK": ["VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"],
-  "CV-SNAPSHOT-SAME-REVISION-CONFLICT": ["SafetyStateSnapshot", "SnapshotAppliedAck", "SafetyStateSnapshot", "ProtocolProblem"],
-  "CV-PICKUP-SUBLOT-LOAD": ["SublotEntryRequested", "SublotSubmitted", "SlotOperationCommand", "OperationResult", "DurableAck"],
-  "CV-LOAD-CORRECTION": ["LoadCorrectionRequested", "LoadCorrectionCommand", "LoadCorrectionResult", "DurableAck"],
-  "CV-LOAD-CANCELLATION-ALL-EMPTY": ["LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"],
-  "CV-PREDEPARTURE-SAFETY-EXPIRES": ["PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "SafetyStateChanged", "ProtocolProblem"],
-  "CV-GATE-UNLOAD-ALL-EMPTY": ["SlotOperationCommand", "OperationResult", "DurableAck"],
-  "CV-CONNECTION-LOSS-SAFE-FINISH": ["SlotOperationCommand", "OperationProgress", "RecoveryStateReport", "SessionReadiness"],
-  "CV-OPERATION-RESULT-UNKNOWN-RECONCILE": ["OperationResult", "DurableAck", "RecoveryStateReport", "OperationResult", "DurableAck"],
-  "CV-EXCEPTION-RESUME": ["ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "SlotOperationResumeCommand", "OperationResult"],
-  "CV-EXCEPTION-COMPENSATE": ["ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "LoadCompensationRequested", "LoadCompensationCommand", "LoadCompensationResult"],
-  "CV-FAULT-CARGO-HANDOFF": ["RecoveryActionSubmitted", "RecoveryActionAccepted", "FaultCargoRecoveryCommand", "FaultCargoRecoveryResult"],
-  "CV-FORCED-MECHANICAL-RECOVERY": ["RecoveryActionSubmitted", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult"],
-  "CV-MANUAL-CHARGING-RETURN": ["ManualChargingReturnToServiceRequested", "ManualChargingReturnToServiceResult"],
-  // A trajectory may also be spelled out in full when its steps are not a plain send/expect chain
-  // or when it carries product assertions. FP-IS-01's demand acceptance is the first such vector:
-  // its adapter results are what the slice is about, and they are not wire messages.
+  "CV-SESSION-RECOVERY-HAPPY": {
+    messages: wire("SessionHello", "SessionAccepted", "CapabilitySnapshot", "SafetyStateSnapshot", "RecoveryStateReport", "SessionReadiness"),
+    productAssertions: { controlServer: ["SESSION_ACCEPTED_ONCE", "CAPABILITY_AND_SAFETY_ADOPTED", "READINESS_DECIDED_FROM_REPORTED_STATE"], onboardHmi: ["REPORT_UNSETTLED_STATE_BEFORE_READY", "ADOPT_SERVER_READINESS_DECISION"] },
+  },
+  "CV-SESSION-RECONNECT-DURING-RECOVERY": {
+    messages: wire("SessionHello", "SessionAccepted", "RecoveryStateReport", "SessionHello", "SessionAccepted", "RecoveryStateReport", "SessionReadiness"),
+    productAssertions: { controlServer: ["SUPERSEDE_STALE_SESSION_GENERATION", "NEVER_TWO_ACTIVE_SESSIONS"], onboardHmi: ["RESUBMIT_RECOVERY_STATE_AFTER_RECONNECT", "NEVER_ASSUME_PREVIOUS_SESSION_SURVIVED"] },
+  },
+  "CV-RELIABLE-RETRY-SAME-CONTENT": {
+    messages: wire("SlotOperationCommand", "SlotOperationCommand", "DurableAck"),
+    productAssertions: { controlServer: ["ACK_RETRY_WITHOUT_DUPLICATE_EFFECT", "IDEMPOTENT_ON_BUSINESS_KEY"], onboardHmi: ["RETRY_WITH_IDENTICAL_CONTENT", "NEVER_MUTATE_MESSAGE_ID_CONTENT_PAIR"] },
+  },
+  "CV-RELIABLE-RETRY-DIFFERENT-CONTENT": {
+    messages: wire("SlotOperationCommand", "SlotOperationCommand", "ProtocolProblem"),
+    productAssertions: { controlServer: ["REJECT_MESSAGE_ID_CONTENT_CONFLICT", "NEVER_APPLY_CONFLICTING_RETRY"], onboardHmi: ["SURFACE_PROTOCOL_PROBLEM", "NEVER_SILENTLY_REPLACE_CONTENT"] },
+  },
+  "CV-REQUEST-FIRST-RESULT-REPLAY": {
+    messages: wire("SublotSubmitted", "SlotOperationCommand", "SublotSubmitted", "SlotOperationCommand", "OperationResult"),
+    productAssertions: { controlServer: ["REPLAY_PENDING_RESULT_ON_REQUEST", "NEVER_RECOMPUTE_SETTLED_RESULT"], onboardHmi: ["REQUEST_BEFORE_ASSUMING_LOSS", "ADOPT_REPLAYED_RESULT"] },
+  },
+  "CV-SNAPSHOT-REPLACE-AND-ACK": {
+    messages: wire("VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["ADVANCE_REVISION_MONOTONICALLY"], onboardHmi: ["REPLACE_NOT_MERGE_SNAPSHOT", "ACK_APPLIED_REVISION"] },
+  },
+  "CV-SNAPSHOT-SAME-REVISION-CONFLICT": {
+    messages: wire("SafetyStateSnapshot", "SnapshotAppliedAck", "SafetyStateSnapshot", "ProtocolProblem"),
+    productAssertions: { controlServer: ["REJECT_SAME_REVISION_DIFFERENT_CONTENT"], onboardHmi: ["NEVER_APPLY_CONFLICTING_SAME_REVISION"] },
+  },
+  "CV-PICKUP-SUBLOT-LOAD": {
+    messages: wire("SublotEntryRequested", "SublotSubmitted", "SlotOperationCommand", "OperationResult", "DurableAck"),
+    productAssertions: { controlServer: ["BIND_SUBLOT_TO_OPERATION_SESSION", "AUTHORIZE_SLOT_SET_ONCE"], onboardHmi: ["SUBMIT_SCANNED_SUBLOT", "LOAD_ONLY_AUTHORIZED_SLOTS"] },
+  },
+  "CV-LOAD-CORRECTION": {
+    messages: wire("LoadCorrectionRequested", "LoadCorrectionCommand", "LoadCorrectionResult", "DurableAck"),
+    productAssertions: { controlServer: ["AUTHORIZE_CORRECTION_AGAINST_COMMITTED_SET"], onboardHmi: ["REPORT_CORRECTED_SLOT_OUTCOME", "NEVER_CORRECT_WITHOUT_AUTHORIZATION"] },
+  },
+  "CV-LOAD-CANCELLATION-ALL-EMPTY": {
+    messages: wire("LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"),
+    productAssertions: { controlServer: ["AUTHORIZE_CANCELLATION_EXPLICITLY", "RECONCILE_EMPTY_FINAL_STATE"], onboardHmi: ["PROVE_ALL_SLOTS_EMPTY", "NEVER_CANCEL_UNILATERALLY"] },
+  },
+  "CV-PREDEPARTURE-SAFETY-EXPIRES": {
+    messages: wire("PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "SafetyStateChanged", "ProtocolProblem"),
+    productAssertions: { controlServer: ["EXPIRE_CHECK_ON_SAFETY_STATE_CHANGE", "NEVER_DEPART_ON_EXPIRED_CHECK"], onboardHmi: ["REPORT_SAFETY_STATE_CHANGE_PROMPTLY", "REREQUEST_CHECK_AFTER_EXPIRY"] },
+  },
+  // Renamed from CV-GATE-UNLOAD-ALL-EMPTY: the gate is one of five public station functions, not
+  // the destination of every task. Same correction as stopRole's GATE -> DROPOFF.
+  "CV-DESTINATION-UNLOAD-ALL-EMPTY": {
+    messages: wire("SlotOperationCommand", "OperationResult", "DurableAck"),
+    productAssertions: { controlServer: ["COMMIT_UNLOAD_ONCE", "RECONCILE_EMPTY_FINAL_STATE"], onboardHmi: ["UNLOAD_AUTHORIZED_SLOTS_ONLY", "REPORT_FINAL_PHYSICAL_STATE"] },
+  },
+  "CV-CONNECTION-LOSS-SAFE-FINISH": {
+    messages: wire("SlotOperationCommand", "OperationProgress", "RecoveryStateReport", "SessionReadiness"),
+    productAssertions: { controlServer: ["NEVER_READY_BEFORE_RECONCILIATION"], onboardHmi: ["FINISH_IN_PROGRESS_OPERATION_SAFELY", "JOURNAL_BEFORE_IRREVERSIBLE_IO"] },
+  },
+  "CV-OPERATION-RESULT-UNKNOWN-RECONCILE": {
+    messages: wire("OperationResult", "DurableAck", "RecoveryStateReport", "OperationResult", "DurableAck"),
+    productAssertions: { controlServer: ["NEVER_TREAT_UNKNOWN_AS_SUCCESS", "RECONCILE_FROM_REPORTED_JOURNAL"], onboardHmi: ["REPORT_UNKNOWN_AS_UNKNOWN", "REPLAY_RESULT_ON_RECONNECT"] },
+  },
+  "CV-EXCEPTION-RESUME": {
+    messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "SlotOperationResumeCommand", "OperationResult"),
+    productAssertions: { controlServer: ["OPEN_RECOVERY_SESSION_FOR_VERIFIED_ADMINISTRATOR", "AUTHORIZE_RESUME_SCOPE"], onboardHmi: ["RESUME_ONLY_AUTHORIZED_SCOPE", "REPORT_RESUMED_OUTCOME"] },
+  },
+  "CV-EXCEPTION-COMPENSATE": {
+    messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "LoadCompensationRequested", "LoadCompensationCommand", "LoadCompensationResult"),
+    productAssertions: { controlServer: ["AUTHORIZE_COMPENSATION_AGAINST_RECOVERY_SESSION"], onboardHmi: ["EXECUTE_COMPENSATION_ONCE", "REPORT_COMPENSATED_SLOT_STATE"] },
+  },
+  "CV-FAULT-CARGO-HANDOFF": {
+    messages: wire("RecoveryActionSubmitted", "RecoveryActionAccepted", "FaultCargoRecoveryCommand", "FaultCargoRecoveryResult"),
+    productAssertions: { controlServer: ["RECORD_FAULT_CARGO_HANDOFF"], onboardHmi: ["HANDOFF_ONLY_ON_AUTHORIZED_COMMAND", "REPORT_HANDOFF_OUTCOME"] },
+  },
+  "CV-FORCED-MECHANICAL-RECOVERY": {
+    messages: wire("RecoveryActionSubmitted", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult"),
+    productAssertions: { controlServer: ["FENCE_FORCED_RECOVERY_BY_GENERATION"], onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME"] },
+  },
+  "CV-MANUAL-CHARGING-RETURN": {
+    messages: wire("ManualChargingReturnToServiceRequested", "ManualChargingReturnToServiceResult"),
+    productAssertions: { controlServer: ["REEVALUATE_ELIGIBILITY_AFTER_RETURN", "REQUIRE_VERIFIED_ADMINISTRATOR"], onboardHmi: ["REQUEST_RETURN_WITH_OPERATOR_CONTEXT", "NEVER_CLEAR_HOLD_LOCALLY"] },
+  },
+  // A trajectory may also spell its steps out in full when they are not a plain send/expect chain.
+  // FP-IS-01's adapter results are what that slice is about, and they are not wire messages.
   "CV-DEMAND-ACCEPT-TO-PICKUP": {
     steps: [
       { step: 1, atMs: 0, action: "adapter-result", adapter: "MES_INGEST", result: "FINAL_REREAD_ONE_EXTERNALLY_READABLE_DEMAND", virtualTimeOnly: true },
@@ -626,14 +693,62 @@ const trajectories = {
     },
     finalState: { readiness: "READY", business: "ONE_ACCEPTED_DEMAND_ONE_TO_PICKUP_ORDER_AT_PICKUP", physical: "NO_SLOT_OPERATION_STARTED" },
   },
+
+  // --- v2 additions ---
+  "CV-MULTI-STOP-PLAN-NINE-LEGS": {
+    messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "CurrentStopWorklistSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["PLAN_UP_TO_NINE_LEGS", "ORDER_LEGS_BY_SEQUENCE", "CATEGORISE_EVERY_STOP_PURPOSE"], onboardHmi: ["DISPLAY_FULL_JOURNEY_PLAN", "NEVER_REORDER_LEGS_LOCALLY"] },
+  },
+  "CV-WORKLIST-SELECTION-ACCEPTED": {
+    messages: wire("CurrentStopWorklistSnapshot", "SnapshotAppliedAck", "DemandSelectionRequested", "DemandSelectionResult"),
+    productAssertions: { controlServer: ["SELECT_ONLY_FROM_COMMITTED_WORKLIST", "OPEN_OPERATION_SESSION_FOR_SELECTED_DEMAND"], onboardHmi: ["SELECT_FROM_COMMITTED_WORKLIST_ONLY", "CARRY_WORKLIST_REVISION_IN_REQUEST"] },
+  },
+  "CV-WORKLIST-SELECTION-STALE-REVISION": {
+    messages: wire("DemandSelectionRequested", "DemandSelectionResult", "CurrentStopWorklistSnapshot", "SnapshotAppliedAck"),
+    stableErrorCode: "WORKLIST_REVISION_STALE",
+    productAssertions: { controlServer: ["REJECT_STALE_WORKLIST_REVISION", "RETURN_CURRENT_WORKLIST_REVISION"], onboardHmi: ["ADOPT_RETURNED_WORKLIST_REVISION", "NEVER_PROCEED_ON_REJECTED_SELECTION"] },
+  },
+  "CV-TASK-TYPE-ADMISSION-FAIL-CLOSED": {
+    messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
+    stableErrorCode: "ACTION_NOT_ALLOWED_IN_STATE",
+    productAssertions: { controlServer: ["ADMIT_ONLY_BOUND_TASK_TYPES", "FAIL_CLOSED_ON_MISSING_BINDING"], onboardHmi: ["NEVER_INFER_UNBOUND_TASK_TYPE", "DISPLAY_ADMISSION_BLOCK_REASON"] },
+  },
+  "CV-REVERSED-DIRECTION-JOURNEY": {
+    messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "CurrentStopWorklistSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["DERIVE_DIRECTION_FROM_TASK_TYPE_RULE", "NEVER_SWAP_ORIGIN_AND_DESTINATION"], onboardHmi: ["DISPLAY_DIRECTION_AS_PLANNED"] },
+  },
+  "CV-WAITING-POINT-IDLE-RETURN": {
+    messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["CLAIM_WAITING_POINT_EXCLUSIVELY", "RELEASE_ON_DEPARTURE_EVIDENCE"], onboardHmi: ["TREAT_WAITING_POINT_AS_NON_BUSINESS_STOP", "NEVER_LOAD_AT_WAITING_POINT"] },
+  },
+  "CV-AUTOMATIC-CHARGING-CYCLE": {
+    messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["CLAIM_VEHICLE_FOR_CHARGING_PURPOSE", "NEVER_DISPATCH_DURING_CHARGING"], onboardHmi: ["DISPLAY_CHARGING_PURPOSE", "NEVER_LOAD_AT_CHARGER"] },
+  },
+  "CV-UNABLE-TO-CHARGE-FIELD-CONFIRMATION": {
+    messages: wire("UnableToChargeFieldConfirmationRequested", "UnableToChargeFieldConfirmationResult", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["DECIDE_CHARGING_POLICY_CENTRALLY", "RECORD_FIELD_OBSERVATION"], onboardHmi: ["REPORT_OBSERVED_CONDITION_WITH_OPERATOR", "NEVER_DECIDE_CHARGING_POLICY_LOCALLY"] },
+  },
+  "CV-MANUAL-STATION-CLEARANCE": {
+    messages: wire("ManualStationClearanceConfirmationRequested", "ManualStationClearanceConfirmationResult"),
+    productAssertions: { controlServer: ["RELEASE_STATION_ONLY_ON_CONFIRMED_CLEARANCE"], onboardHmi: ["CONFIRM_CLEARANCE_WITH_OPERATOR", "NEVER_RELEASE_STATION_LOCALLY"] },
+  },
+  "CV-SLOT-CONFIGURATION-ACTIVATION": {
+    messages: wire("SlotConfigurationActivationCommand", "SlotConfigurationActivationResult", "CapabilitySnapshot", "SnapshotAppliedAck"),
+    stableErrorCode: "SLOT_CONFIGURATION_FINGERPRINT_MISMATCH",
+    productAssertions: { controlServer: ["VERIFY_FINGERPRINT_BEFORE_ACTIVATION", "NEVER_GUESS_ACTIVATION_SUCCESS"], onboardHmi: ["REPORT_ACTIVATION_OUTCOME_INCLUDING_UNKNOWN", "REPLAY_PENDING_ACTIVATION_RESULT"] },
+  },
+  "CV-ONBOARD-ALARM-SNAPSHOT": {
+    messages: wire("OnboardAlarmSnapshot", "SnapshotAppliedAck", "OnboardAlarmSnapshot", "SnapshotAppliedAck"),
+    productAssertions: { controlServer: ["ADOPT_ALARM_SNAPSHOT_BY_REVISION"], onboardHmi: ["PUBLISH_COMPLETE_ALARM_SET", "NEVER_PUBLISH_STALE_ALARM_STATE"] },
+  },
 };
 for (const [vectorId, trajectory] of Object.entries(trajectories)) {
-  const explicit = !Array.isArray(trajectory);
-  const steps = explicit
-    ? trajectory.steps
-    : trajectory.map((messageType, index) => ({ step: index + 1, atMs: index * 100, action: index === 0 ? "send" : "expect", messageType, virtualTimeOnly: true }));
+  const steps = trajectory.steps
+    ?? trajectory.messages.map((messageType, index) => ({ step: index + 1, atMs: index * 100, action: index === 0 ? "send" : "expect", messageType, virtualTimeOnly: true }));
+  if (!trajectory.productAssertions?.controlServer?.length || !trajectory.productAssertions?.onboardHmi?.length) throw new Error(`${vectorId}: productAssertions are mandatory for every vector`);
   writeText(`vectors/${vectorId}/input.ndjson`, `${steps.map(canonical).join("\n")}\n`);
-  const stableErrorCode = vectorId.includes("DIFFERENT-CONTENT") ? "MESSAGE_ID_CONTENT_CONFLICT" : vectorId.includes("SAME-REVISION-CONFLICT") ? "SNAPSHOT_REVISION_CONTENT_CONFLICT" : vectorId.includes("EXPIRES") ? "PREDEPARTURE_CHECK_EXPIRED" : null;
+  const stableErrorCode = trajectory.stableErrorCode ?? (vectorId.includes("DIFFERENT-CONTENT") ? "MESSAGE_ID_CONTENT_CONFLICT" : vectorId.includes("SAME-REVISION-CONFLICT") ? "SNAPSHOT_REVISION_CONTENT_CONFLICT" : vectorId.includes("EXPIRES") ? "PREDEPARTURE_CHECK_EXPIRED" : null);
   if (stableErrorCode) noteErrorCodeAsset(stableErrorCode);
   const expected = {
     vectorId,
@@ -641,41 +756,126 @@ for (const [vectorId, trajectory] of Object.entries(trajectories)) {
     persistenceCheckpoints: trajectory.persistenceCheckpoints ?? ["durable-before-send", "durable-before-ack", "journal-before-irreversible-io", "result-before-replay"],
     forbiddenSideEffects: trajectory.forbiddenSideEffects ?? ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"],
   };
-  if (trajectory.productAssertions) expected.productAssertions = trajectory.productAssertions;
+  expected.productAssertions = trajectory.productAssertions;
   expected.finalState = trajectory.finalState ?? { readiness: vectorId.includes("RECOVERY") || vectorId.includes("CONNECTION-LOSS") ? "RECOVERY_REQUIRED_OR_UNIQUELY_RECONCILED" : "UNCHANGED_OR_SPECIFIED_BY_VECTOR", business: "NO_DUPLICATE_COMMIT", physical: "NO_UNPROVEN_STATE" };
   expected.stableErrorCode = stableErrorCode;
   writeJson(`vectors/${vectorId}/expected.json`, expected);
 }
 
 // The slice family's shape lives here once: the index, its governance schema and the gate read
-// these rather than repeating 8 / ^W2G-IS-0[0-7]$ / the gate list in three places.
-const sliceIndexSchemaVersion = "1.1.0";
+// these rather than repeating the count / the id pattern / the gate list in three places.
+// Four onboard authority modes. The single const of v1 could only say "read-only projection",
+// which is false for a slice where the vehicle is the physical authority or the operator's voice.
+const onboardModes = ["READ_ONLY_COMMITTED_PROJECTION", "SELECTION_WITHIN_COMMITTED_SET", "OPERATOR_CONFIRMATION_SOURCE", "PHYSICAL_EXECUTION_AUTHORITY"];
+const sliceIndexSchemaVersion = "2.0.0";
 const attestationSchemaVersion = "1.0.0";
-const sliceIdPattern = "^W2G-IS-0[0-7]$";
+const sliceIdPrefix = "FP-IS-";
+const sliceIdPattern = `^${sliceIdPrefix}[0-9]{2}$`;
 const gateModel = ["G1", "CONTROL_SERVER_G2", "ONBOARD_HMI_G2", "G3"];
+// Neither the batch nor the business cluster goes into the id. The batch is a circular dependency
+// (it is decided by a later decision that this one blocks) and cluster membership has been
+// rejudged five times, while an id lives in 161 test traits and in immutable evidence directories.
+// The business face is carried by definition.scope instead. Batch and face stay in the
+// specification: writing "FP-IS-13 belongs to batch 8" into the protocol repository would turn a
+// re-plan into a protocol change, and a protocol change voids both sides' gate evidence.
 const slices = [
-  ["W2G-IS-00", ["CV-SESSION-RECOVERY-HAPPY", "CV-SESSION-RECONNECT-DURING-RECOVERY", "CV-SNAPSHOT-REPLACE-AND-ACK", "CV-SNAPSHOT-SAME-REVISION-CONFLICT"]],
-  ["W2G-IS-01", ["CV-DEMAND-ACCEPT-TO-PICKUP"], {
+  ["FP-IS-00", 0, [], ["CV-SESSION-RECOVERY-HAPPY", "CV-SESSION-RECONNECT-DURING-RECOVERY", "CV-SNAPSHOT-REPLACE-AND-ACK", "CV-SNAPSHOT-SAME-REVISION-CONFLICT"], {
+    scope: "SESSION_HANDSHAKE_RECOVERY_AND_SNAPSHOT",
+    requiredOutcomes: ["EXACTLY_ONE_ACTIVE_SESSION", "READINESS_DECIDED_BY_CONTROL_SERVER", "SNAPSHOTS_REPLACED_NOT_MERGED"],
+    authorityModel: { controlServerFact: "SessionGeneration", wireMessages: ["SessionHello", "SessionAccepted", "SessionReadiness"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION", "PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["FENCE_STALE_GENERATIONS", "DECIDE_READINESS"], onboardHmi: ["REPORT_UNSETTLED_STATE", "ADOPT_READINESS_DECISION"] },
+  }],
+  ["FP-IS-01", 1, ["FP-IS-00"], ["CV-DEMAND-ACCEPT-TO-PICKUP"], {
     scope: "DEMAND_ACCEPTANCE_AND_TO_PICKUP",
     requiredOutcomes: ["EXACTLY_ONE_ACCEPTED_DEMAND_SNAPSHOT", "EXACTLY_ONE_TO_PICKUP_INTENT", "EXACTLY_ONE_RIOT_ORDER", "TRUSTED_PICKUP_ARRIVAL", "COMMITTED_DEMAND_JOURNEY_PROJECTED"],
-    demandRepresentation: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: "READ_ONLY_COMMITTED_PROJECTION" },
-    ownerResponsibilities: {
-      controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"],
-      onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"],
-    },
+    authorityModel: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"], onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"] },
   }],
-  ["W2G-IS-02", ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY"]],
-  ["W2G-IS-03", ["CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"]],
-  ["W2G-IS-04", ["CV-GATE-UNLOAD-ALL-EMPTY"]],
-  ["W2G-IS-05", ["CV-CONNECTION-LOSS-SAFE-FINISH", "CV-SESSION-RECONNECT-DURING-RECOVERY"]],
-  ["W2G-IS-06", ["CV-RELIABLE-RETRY-SAME-CONTENT", "CV-RELIABLE-RETRY-DIFFERENT-CONTENT", "CV-REQUEST-FIRST-RESULT-REPLAY", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"]],
-  ["W2G-IS-07", ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN"]],
-].map(([integrationSliceId, vectorIds, definition], index) => {
-  const slice = { integrationSliceId, sequence: index, prerequisites: index === 0 ? [] : index <= 4 ? [`W2G-IS-${String(index - 1).padStart(2, "0")}`] : ["W2G-IS-00"], vectorIds, gates: gateModel };
-  if (definition) slice.definition = definition;
-  slice.forbidUnclosedFailOrInconclusive = true;
-  return slice;
-});
+  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY"], {
+    scope: "STATION_PICKUP_AND_MULTI_SLOT_LOAD",
+    requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED"],
+    authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SublotEntryRequested", "SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_SLOT_SET", "RECONCILE_LOAD_OUTCOME"], onboardHmi: ["SUBMIT_SCANNED_SUBLOT", "LOAD_ONLY_AUTHORIZED_SLOTS"] },
+  }],
+  ["FP-IS-03", 3, ["FP-IS-02"], ["CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"], {
+    scope: "PREDEPARTURE_SAFETY_AND_RESULT_RECONCILE",
+    requiredOutcomes: ["NEVER_DEPART_ON_EXPIRED_CHECK", "UNKNOWN_NEVER_TREATED_AS_SUCCESS"],
+    authorityModel: { controlServerFact: "PreDepartureSafetyCheck", wireMessages: ["PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "SafetyStateChanged"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["EXPIRE_CHECK_ON_STATE_CHANGE", "RECONCILE_FROM_REPORTED_JOURNAL"], onboardHmi: ["REPORT_SAFETY_STATE_PROMPTLY", "REPORT_UNKNOWN_AS_UNKNOWN"] },
+  }],
+  ["FP-IS-04", 4, ["FP-IS-03"], ["CV-DESTINATION-UNLOAD-ALL-EMPTY"], {
+    scope: "DESTINATION_BATCH_UNLOAD",
+    requiredOutcomes: ["UNLOAD_COMMITTED_ONCE", "FINAL_PHYSICAL_STATE_PROVEN_EMPTY"],
+    authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["COMMIT_UNLOAD_ONCE"], onboardHmi: ["UNLOAD_AUTHORIZED_SLOTS_ONLY", "REPORT_FINAL_PHYSICAL_STATE"] },
+  }],
+  ["FP-IS-05", 5, ["FP-IS-00"], ["CV-CONNECTION-LOSS-SAFE-FINISH", "CV-SESSION-RECONNECT-DURING-RECOVERY"], {
+    scope: "CONNECTION_LOSS_SAFE_FINISH",
+    requiredOutcomes: ["IN_PROGRESS_OPERATION_FINISHED_SAFELY", "NEVER_READY_BEFORE_RECONCILIATION"],
+    authorityModel: { controlServerFact: "SessionGeneration", wireMessages: ["RecoveryStateReport", "SessionReadiness"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["WITHHOLD_READINESS_UNTIL_RECONCILED"], onboardHmi: ["FINISH_SAFELY_OFFLINE", "JOURNAL_BEFORE_IRREVERSIBLE_IO"] },
+  }],
+  ["FP-IS-06", 6, ["FP-IS-00"], ["CV-RELIABLE-RETRY-SAME-CONTENT", "CV-RELIABLE-RETRY-DIFFERENT-CONTENT", "CV-REQUEST-FIRST-RESULT-REPLAY"], {
+    scope: "RELIABLE_DELIVERY_AND_RESULT_REPLAY",
+    requiredOutcomes: ["RETRY_IS_IDEMPOTENT", "CONFLICTING_RETRY_REJECTED", "PENDING_RESULT_REPLAYED"],
+    authorityModel: { controlServerFact: "DurableAcceptance", wireMessages: ["DurableAck", "ProtocolProblem"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["ACK_WITHOUT_DUPLICATE_EFFECT", "REPLAY_NOT_RECOMPUTE"], onboardHmi: ["RETRY_WITH_IDENTICAL_CONTENT", "ADOPT_REPLAYED_RESULT"] },
+  }],
+  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN"], {
+    scope: "EXCEPTION_RECOVERY_AND_MANUAL_RETURN",
+    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION"],
+    authorityModel: { controlServerFact: "ExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME"] },
+  }],
+  ["FP-IS-08", 8, ["FP-IS-04"], ["CV-MULTI-STOP-PLAN-NINE-LEGS"], {
+    scope: "MULTI_STOP_JOURNEY_PLAN",
+    requiredOutcomes: ["UP_TO_NINE_LEGS_PLANNED", "EVERY_STOP_HAS_PURPOSE_CATEGORY", "LEGS_ORDERED_BY_SEQUENCE"],
+    authorityModel: { controlServerFact: "JourneyPlan", wireMessages: ["UpcomingStopPlanSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["PLAN_AND_REVISE_JOURNEY"], onboardHmi: ["DISPLAY_FULL_JOURNEY_PLAN", "NEVER_REORDER_LEGS_LOCALLY"] },
+  }],
+  ["FP-IS-09", 9, ["FP-IS-08"], ["CV-WORKLIST-SELECTION-ACCEPTED", "CV-WORKLIST-SELECTION-STALE-REVISION"], {
+    scope: "ONBOARD_WORKLIST_SELECTION",
+    requiredOutcomes: ["SELECTION_CONFINED_TO_COMMITTED_WORKLIST", "STALE_REVISION_REJECTED"],
+    authorityModel: { controlServerFact: "CommittedWorklist", wireMessages: ["CurrentStopWorklistSnapshot", "DemandSelectionRequested", "DemandSelectionResult"], onboardMode: ["SELECTION_WITHIN_COMMITTED_SET", "READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["COMMIT_THE_WORKLIST", "REJECT_STALE_SELECTION"], onboardHmi: ["SELECT_WITHIN_COMMITTED_SET", "CARRY_WORKLIST_REVISION"] },
+  }],
+  ["FP-IS-10", 10, ["FP-IS-01"], ["CV-TASK-TYPE-ADMISSION-FAIL-CLOSED"], {
+    scope: "TASK_TYPE_ADMISSION_FAIL_CLOSED",
+    requiredOutcomes: ["ONLY_BOUND_TASK_TYPES_ADMITTED", "MISSING_BINDING_FAILS_CLOSED"],
+    authorityModel: { controlServerFact: "TaskTypePublicStationRuleVersion", wireMessages: ["VehicleBusinessStateSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["ADMIT_ON_BINDING_ONLY", "BLOCK_ON_MISSING_BINDING"], onboardHmi: ["DISPLAY_ADMISSION_BLOCK_REASON", "NEVER_INFER_UNBOUND_TASK_TYPE"] },
+  }],
+  ["FP-IS-11", 11, ["FP-IS-10"], ["CV-REVERSED-DIRECTION-JOURNEY"], {
+    scope: "REVERSED_DIRECTION_JOURNEY",
+    requiredOutcomes: ["DIRECTION_DERIVED_FROM_RULE", "ORIGIN_AND_DESTINATION_NEVER_SWAPPED"],
+    authorityModel: { controlServerFact: "TaskTypePublicStationRuleVersion", wireMessages: ["UpcomingStopPlanSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["DERIVE_DIRECTION_FROM_RULE"], onboardHmi: ["DISPLAY_DIRECTION_AS_PLANNED"] },
+  }],
+  ["FP-IS-12", 12, ["FP-IS-04"], ["CV-WAITING-POINT-IDLE-RETURN"], {
+    scope: "WAITING_POINT_IDLE_RETURN",
+    requiredOutcomes: ["WAITING_POINT_CLAIMED_EXCLUSIVELY", "RELEASED_ON_DEPARTURE_EVIDENCE"],
+    authorityModel: { controlServerFact: "VehiclePurposeClaim", wireMessages: ["UpcomingStopPlanSnapshot", "VehicleBusinessStateSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["CLAIM_AND_RELEASE_WAITING_POINT"], onboardHmi: ["TREAT_WAITING_POINT_AS_NON_BUSINESS_STOP"] },
+  }],
+  ["FP-IS-13", 13, ["FP-IS-12"], ["CV-AUTOMATIC-CHARGING-CYCLE", "CV-UNABLE-TO-CHARGE-FIELD-CONFIRMATION", "CV-MANUAL-STATION-CLEARANCE", "CV-MANUAL-CHARGING-RETURN"], {
+    scope: "AUTOMATIC_CHARGING_CYCLE_AND_CLEARANCE",
+    requiredOutcomes: ["CHARGING_CLAIMS_THE_VEHICLE", "CHARGING_POLICY_DECIDED_CENTRALLY", "STATION_RELEASED_ONLY_ON_CONFIRMED_CLEARANCE"],
+    authorityModel: { controlServerFact: "VehiclePurposeClaim", wireMessages: ["UnableToChargeFieldConfirmationRequested", "ManualStationClearanceConfirmationRequested", "VehicleBusinessStateSnapshot"], onboardMode: ["OPERATOR_CONFIRMATION_SOURCE", "READ_ONLY_COMMITTED_PROJECTION"] },
+    ownerResponsibilities: { controlServer: ["DECIDE_CHARGING_POLICY", "RELEASE_STATION_ON_CONFIRMATION"], onboardHmi: ["REPORT_FIELD_OBSERVATION_WITH_OPERATOR", "NEVER_DECIDE_POLICY_LOCALLY"] },
+  }],
+  ["FP-IS-14", 14, ["FP-IS-00"], ["CV-SLOT-CONFIGURATION-ACTIVATION"], {
+    scope: "SLOT_CONFIGURATION_ACTIVATION",
+    requiredOutcomes: ["FINGERPRINT_VERIFIED_BEFORE_ACTIVATION", "ACTIVATION_NEVER_GUESSED_SUCCESSFUL"],
+    authorityModel: { controlServerFact: "SlotConfigurationVersion", wireMessages: ["SlotConfigurationActivationCommand", "SlotConfigurationActivationResult", "CapabilitySnapshot"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["ISSUE_AND_VERIFY_ACTIVATION"], onboardHmi: ["REPORT_ACTIVATION_OUTCOME_INCLUDING_UNKNOWN", "REPLAY_PENDING_RESULT"] },
+  }],
+  ["FP-IS-15", 15, ["FP-IS-00"], ["CV-ONBOARD-ALARM-SNAPSHOT"], {
+    scope: "ONBOARD_ALARM_SNAPSHOT",
+    requiredOutcomes: ["ALARM_SET_PUBLISHED_COMPLETE", "STALE_ALARM_STATE_NEVER_DISPLAYED"],
+    authorityModel: { controlServerFact: "AlarmSnapshotRevision", wireMessages: ["OnboardAlarmSnapshot", "SnapshotAppliedAck"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
+    ownerResponsibilities: { controlServer: ["ADOPT_ALARM_SNAPSHOT_BY_REVISION"], onboardHmi: ["PUBLISH_COMPLETE_ALARM_SET", "NEVER_PUBLISH_STALE_ALARM_STATE"] },
+  }],
+].map(([integrationSliceId, sequence, prerequisites, vectorIds, definition]) => ({ integrationSliceId, sequence, prerequisites, vectorIds, gates: gateModel, definition, forbidUnclosedFailOrInconclusive: true }));
 writeJson("integration-slices/index.json", { schemaVersion: sliceIndexSchemaVersion, slices });
 
 // Governance schemas. They are not part of the three frozen surfaces — they govern the manifest,
@@ -739,7 +939,7 @@ writeJson("schemas/governance/integration-slice-index.schema.json", {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["integrationSliceId", "sequence", "prerequisites", "vectorIds", "gates", "forbidUnclosedFailOrInconclusive"],
+        required: ["integrationSliceId", "sequence", "prerequisites", "vectorIds", "gates", "definition", "forbidUnclosedFailOrInconclusive"],
         properties: {
           integrationSliceId: { type: "string", pattern: sliceIdPattern },
           sequence: { type: "integer", minimum: 0, maximum: slices.length - 1 },
@@ -757,18 +957,20 @@ writeJson("schemas/governance/integration-slice-index.schema.json", {
     definition: {
       type: "object",
       additionalProperties: false,
-      required: ["scope", "requiredOutcomes", "demandRepresentation", "ownerResponsibilities"],
+      required: ["scope", "requiredOutcomes", "authorityModel", "ownerResponsibilities"],
       properties: {
         scope: { type: "string", pattern: "^[A-Z][A-Z0-9_]+$" },
         requiredOutcomes: { $ref: "#/$defs/tokenArray" },
-        demandRepresentation: {
+        // Replaces demandRepresentation, whose three fields were all const and therefore fit
+        // exactly one slice: charging, activation and alarms could not fill in any of them.
+        authorityModel: {
           type: "object",
           additionalProperties: false,
           required: ["controlServerFact", "wireMessages", "onboardMode"],
           properties: {
-            controlServerFact: { const: "AcceptedDemandSnapshot" },
-            wireMessages: { type: "array", const: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"] },
-            onboardMode: { const: "READ_ONLY_COMMITTED_PROJECTION" },
+            controlServerFact: { type: "string", pattern: "^[A-Za-z][A-Za-z0-9]+$" },
+            wireMessages: { type: "array", minItems: 1, items: { type: "string", pattern: "^[A-Z][A-Za-z0-9]+$" }, uniqueItems: true },
+            onboardMode: { type: "array", minItems: 1, items: { enum: onboardModes }, uniqueItems: true },
           },
         },
         ownerResponsibilities: {
