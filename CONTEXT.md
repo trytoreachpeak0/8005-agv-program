@@ -530,7 +530,7 @@ _Avoid_: 公共点车辆永久归属、公共点在点硬门禁、以在点覆�
 _Avoid_: 车辆到最近任务的直线距离、空闲车固定优先、在途车固定优先、覆盖 EnRoutePickupDeliveryDelay、以车辆物理位置为锚计算增量、以直线距离补齐锚不到站点的车辆
 
 **RouteCostEvidenceBoundary（路径成本证据边界）**:
-可达性由 StationReachability 判定，判为不可达的车辆退出本轮候选且属常态；可达性已经确认但 VehicleMarginalRouteCost 缺失、过期或不可比较时，保留该车并跳过路径成本排序层、记录原因后继续比较后续层。RouteGraphSnapshot 整体陈旧时可达性同样无法确认，本轮不派车。任何直线距离或弱替代值都不得冒充路径成本；快照陈旧导致的证据缺失才是少见异常边界，图上不可达不是。
+可达性由 StationReachability 判定，判为不可达的车辆退出本轮候选且属常态；可达性已经确认但 VehicleMarginalRouteCost 缺失、过期或不可比较时，保留该车并跳过路径成本排序层、记录原因后继续比较后续层。RouteGraphSnapshot 整体陈旧时可达性同样无法确认，本轮不派车。任何直线距离或弱替代值都不得冒充路径成本；快照陈旧导致的证据缺失才是少见异常边界，图上不可达不是。本边界只管选车阶段的排序与候选筛选，不含建单前置可达确认——后者仍由实时 RIoT RouteCost 承担，见 ResolvedTransportStation。
 _Avoid_: 可达性未知仍派车、直线距离证明可达、图上不可达即告警、个别车排序成本缺失即整轮停派、以陈旧快照的成本继续排序、弱替代冒充路径成本
 
 **RouteCostEquivalenceBand（路径成本等价带）**:
@@ -832,7 +832,7 @@ _Avoid_: 路网拓扑快照、Edge 快照、实时 RIoT 查询结果
 _Avoid_: 只按内容修订创建时间判断、刷新失败即删除旧快照、超时仍按最新目录、超时自动取消在途订单
 
 **ResolvedTransportStation（已解析运输站点）**:
-TransportDemand 从当时新鲜的 MapStationCatalogSnapshot 取得并冻结的 `mapId + stationId` Station 身份，连同当时名称、目录修订及所依赖的 TaskTypePublicStationRuleVersion/PublicStationBindingSetVersion 用于历史解释；后续目录、规则或绑定变化不得自动重映射。创建每个新的 RIoT move 订单前，该身份仍须存在于当前新鲜目录、未被 PublicStationBindingHold 阻断并通过 RouteCost，已经存在的订单不因目录或配置变化被自动取消。
+TransportDemand 从当时新鲜的 MapStationCatalogSnapshot 取得并冻结的 `mapId + stationId` Station 身份，连同当时名称、目录修订及所依赖的 TaskTypePublicStationRuleVersion/PublicStationBindingSetVersion 用于历史解释；后续目录、规则或绑定变化不得自动重映射。创建每个新的 RIoT move 订单前，该身份仍须存在于当前新鲜目录、未被 PublicStationBindingHold 阻断并通过 RouteCost，已经存在的订单不因目录或配置变化被自动取消。此处的 RouteCost 是**建单前置可达确认**——问的是「这台车此刻能不能到这个站」，起点恒为车当前位置，与 StationReachability 的站到站图判定是两个阶段的两件事，两者都要通过；两者分歧时阻断建单并告警。
 _Avoid_: 动态 Station 引用、按新名称自动换站、目录或绑定变化重写既有任务、暂停中仍创建新 move、用历史快照直接建新单
 
 **AREA 命名机台站点（AreaNamedMachineStation）**:
@@ -1766,7 +1766,8 @@ DemandId（无法区分系统展示错误与操作员放货错误）
 控制服务端自 RIoT 取得并持有的、某一时刻某张 Map 的完整有向站点图，是全部站到站路径代价与
 StationReachability 判定的唯一依据。它由设计态部分（边、站点及其到节点的定位）与运行态部分
 （当前被移除的边与站点）合成，两部分各自刷新；任一部分取不到、或取证条件已变时快照**整体**
-进入陈旧态，此时既不产出任何路径代价，也不产出任何可达性结论。
+进入陈旧态，此时既不产出任何路径代价，也不产出任何可达性结论。它不承载建单前置可达确认，
+那一道门禁仍由实时 RIoT RouteCost 承担。
 _Avoid_: 地图缓存、路网缓存（二者不含「陈旧即整体失效」这一层）、以陈旧快照继续计算、
 设计态与运行态同周期刷新、局部陈旧仍产出部分结论
 
@@ -1775,8 +1776,9 @@ _Avoid_: 地图缓存、路网缓存（二者不含「陈旧即整体失效」�
 作业图的**常态而非异常**——现场实测每个站点平均只能到达其余站点的九成，且存在与任何站点互不可达
 的孤立站点——因此判为不可达的车辆或候选静默退出本轮比较，不告警，不计入异常。它与
 RouteCostEvidenceBoundary 所述的成本证据缺失是两件事：前者是图给出的确定结论，后者是图本身不可用。
+它也不同于建单前置可达确认：那是下单动作前的独立门禁，由实时 RIoT RouteCost 承担，两者都要通过。
 _Avoid_: 直线距离可达、把图上不可达当作异常告警、可达性与成本证据缺失合并处置、
-以 RIoT 的单次查询结果替代图判定
+以 RIoT 的单次查询结果替代图判定、以本判定顶替建单前置可达确认
 
 
 **装货腿准入绑定（LoadLegAdmissionBinding）**:

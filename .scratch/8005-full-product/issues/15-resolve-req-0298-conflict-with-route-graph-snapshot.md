@@ -1,7 +1,7 @@
 # 处置 `REQ-0298` 与票 14 `RouteGraphSnapshot` 的正面冲突
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 14
 Blocks: 09
 
