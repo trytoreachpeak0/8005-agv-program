@@ -249,8 +249,11 @@ PR 而不是直接推 `main`，因为「地图产物并入主线」该由用户�
 1. **`protocol-v0.1.1` 的 attestation 内容未核验**（票 06 交来，本票未新增证据）。tag
    message 里记着它的 SHA-256（`89f67c82…`），结构上流程走过了，但两名批准人是谁、签名是否
    真实存在，本图未证。已写进规格 6.7。
-2. **规格的哈希只对 LF 版本成立**。已加 `.gitattributes` 保护，但该规则的实际效果要到下一次
-   在别的 clone 上 checkout 时才能验证——本票只验证了 `git check-attr` 的返回值。
+2. **规格的哈希只对 LF 版本成立**，靠 `.gitattributes` 的 `-text` 保护。已验证三层：
+   `git check-attr` 返回 `text: unset`；`git add` 对其余 `.md` 逐个报
+   `LF will be replaced by CRLF` 而**独独不报规格**；`git show HEAD:<规格>` 的 SHA-256
+   与工作区**完全一致**（`f31395c3…c19d7`）。**仍未验证的只剩一件**：在另一台机器上
+   clone 后 checkout 出来的字节——那要等实际发生。
 3. **补打的 tag 是否推送到远端，取决于 Q4 的 PR 是否合入**。本票在本地打 tag；`git push
    --tags` 与 PR 合并是同一次收尾动作的两半，若 PR 未合入，远端仍无 tag。
 4. **`CP-0001` 本身未获批准**。规格第 12.2 节把它列为节点 2，与本规格的批准（节点 1）是两次
