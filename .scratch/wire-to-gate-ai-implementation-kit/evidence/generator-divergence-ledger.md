@@ -106,14 +106,15 @@ diff -rq <repo-tree> <generator-out>
 | 5 | 排除列表新增 `attestations/` 与 `.github/` | #6（`7b41f75`） |
 | 6 | `requiredVectors` 新增 `CV-DEMAND-ACCEPT-TO-PICKUP`；新增 vectorId 一致、步骤连续、消息序列一致三项 | #6，向量集合本身由 #9 扩到 31 |
 | 7 | 新增 governance `integration-slice-index` schema 校验 | #6 |
-| 8 | `W2G-IS-01` 专项断言（`vectorIds`、`requiredOutcomes`、`demandRepresentation` 四项） | #9（`definition` 改 `authorityModel` 后这一段要重写） |
-| 9 | `CV-DEMAND-ACCEPT-TO-PICKUP` 的 `productAssertions` 与 adapter 轨迹断言 | #9（`productAssertions` 由特例推广为全量必填） |
-| 10 | **`worklistItems.maxItems === 1` 与 `UpcomingStopPlanSnapshot.demandId` 必须支持 null** | **#7**（票 #7 明写要改的两处 v1 形状硬编码） |
+| 8 | `W2G-IS-01` 专项断言（`vectorIds`、`requiredOutcomes`、`demandRepresentation` 四项） | 回灌 #6，修改 #9（`definition` 改 `authorityModel` 后这一段要重写） |
+| 9 | `CV-DEMAND-ACCEPT-TO-PICKUP` 的 `productAssertions` 与 adapter 轨迹断言 | 回灌 #6，修改 #9（`productAssertions` 由特例推广为全量必填） |
+| 10 | **`worklistItems.maxItems === 1` 与 `UpcomingStopPlanSnapshot.demandId` 必须支持 null** | 回灌 #6，修改 **#7**（票 #7 明写要改的两处 v1 形状硬编码） |
 | 11 | 批准检查从 `approvals/release-approval.json` 空批准，改为 `attestations/` 模板 ＋ `PROTOCOL_APPROVAL_ATTESTATION` 环境变量 ＋ attestation schema ＋ 两名不同 owner；结果里多三个 `approvalAttestation*` 字段 | #6 |
 
-**这里有一条顺序约束，不是建议：#6 必须在 #7 之前完成。**第 10 项那两处断言只存在于协议仓
-版本里，生成器当前写出的版本没有它们——#6 回灌之前，#7 无处可改。批次 1 的既定顺序
-（#3 → #4／#5／#6 → #7／#8 → #9）已经满足这一条。
+**回灌与修改是两件事，都在这张表里。**#6 把模板整体对齐到协议仓 HEAD——十一处全部回灌，
+包括 #7 与 #9 后续要改的那几处；#7 与 #9 再在真实文件上做行级修改。**顺序约束因此是硬的：
+#6 必须在 #7 之前。**第 10 项那两处断言只存在于协议仓版本里，回灌之前 #7 无处可改。批次 1
+的既定顺序（#3 → #4／#5／#6 → #7／#8 → #9）已经满足这一条。
 
 ---
 
@@ -156,8 +157,24 @@ diff -rq <repo-tree> <generator-out>
 
 ---
 
-## 7. 本次基座改造对本台账的影响
+## 7. 消化进度
 
-票 #3 只做基座，**不做任何回灌**：改造前后生成器输出逐字节相同（1504 个文件全等），
-`--verify-determinism` 双跑 0 差异。所以上表第 9～14、15、17～22、24、25 项在票 #3 完成时
-仍然全部有效，由指派到的票据逐张消化。
+| 票 | 消化的条目 | 状态 |
+| --- | --- | --- |
+| #3 基座 | 无（**不做任何回灌**：改造前后输出逐字节相同，1504 个文件全等） | 完成 |
+| #4 身份 | 16、17、18 | 完成 |
+| #5 类型层 | 无（不碰本表任何条目） | 完成 |
+| #6 治理面 | 9～15、19～21、24、25 | 完成 |
+| #7 payload | 25 的第 10 项（在 #6 回灌后的真实文件上改） | 待做 |
+| #9 向量与切片 | 22、25 的第 8／9 项 | 待做 |
+| 手工步骤 | 1～8、23 | 每次重跑生成器后执行第 6 节 |
+
+**表里没有剩余的未指派条目。**
+
+#6 之后的实测：生成器产出 **1507** 个文件（1504 − 3 ＋ 6），`runner/` 与 `approvals/` 不再
+产出，`schemas/governance/` 三个、`attestations/release-approval.template.json` 与
+`vectors/CV-DEMAND-ACCEPT-TO-PICKUP/` 两个已由生成器机械产出。三个 governance schema 与
+协议仓 HEAD 做过结构化深比较：两个语义完全相同（只有排版差异，生成器统一用
+`JSON.stringify(value, null, 2)`），`content-manifest.schema.json` 的唯一差异是**有意删掉的**
+`runnerContractsSha256`（`properties` 与 `required` 各一处）。attestation 模板与那个向量的两个
+文件与 HEAD **逐字节相同**。

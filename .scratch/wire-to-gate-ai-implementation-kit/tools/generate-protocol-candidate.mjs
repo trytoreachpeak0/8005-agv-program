@@ -60,6 +60,8 @@ const profileId = "AGV_FULL_PRODUCT";
 const profileDisplayName = "AGV_FULL_PRODUCT";
 const protocolVersion = 2;
 const baseReleaseTag = "protocol-v0.1.1";
+// Fixed so the candidate tools stay byte-reproducible; it is a candidate stamp, not a build clock.
+const candidateTimestamp = "2026-09-04T00:00:00Z";
 
 const writeJson = (relative, value) => {
   const file = path.join(root, relative);
@@ -84,7 +86,8 @@ const renderTemplate = (name) => {
     .replaceAll("__PROFILE_ID__", profileId)
     .replaceAll("__PROFILE_DISPLAY_NAME__", profileDisplayName)
     .replaceAll("__CANDIDATE_VERSION__", candidateVersion)
-    .replaceAll("__PROTOCOL_VERSION__", String(protocolVersion));
+    .replaceAll("__PROTOCOL_VERSION__", String(protocolVersion))
+    .replaceAll("__CANDIDATE_TIMESTAMP__", candidateTimestamp);
   const unresolved = rendered.match(/__[A-Z0-9_]+__/);
   if (unresolved) throw new Error(`${name}: unresolved template placeholder ${unresolved[0]}`);
   return rendered;
@@ -563,64 +566,235 @@ const trajectories = {
   "CV-FAULT-CARGO-HANDOFF": ["RecoveryActionSubmitted", "RecoveryActionAccepted", "FaultCargoRecoveryCommand", "FaultCargoRecoveryResult"],
   "CV-FORCED-MECHANICAL-RECOVERY": ["RecoveryActionSubmitted", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult"],
   "CV-MANUAL-CHARGING-RETURN": ["ManualChargingReturnToServiceRequested", "ManualChargingReturnToServiceResult"],
+  // A trajectory may also be spelled out in full when its steps are not a plain send/expect chain
+  // or when it carries product assertions. FP-IS-01's demand acceptance is the first such vector:
+  // its adapter results are what the slice is about, and they are not wire messages.
+  "CV-DEMAND-ACCEPT-TO-PICKUP": {
+    steps: [
+      { step: 1, atMs: 0, action: "adapter-result", adapter: "MES_INGEST", result: "FINAL_REREAD_ONE_EXTERNALLY_READABLE_DEMAND", virtualTimeOnly: true },
+      { step: 2, atMs: 100, action: "adapter-result", adapter: "RIOT", result: "TO_PICKUP_ORDER_CREATED", virtualTimeOnly: true },
+      { step: 3, atMs: 200, action: "expect", messageType: "UpcomingStopPlanSnapshot", virtualTimeOnly: true },
+      { step: 4, atMs: 300, action: "expect", messageType: "SnapshotAppliedAck", virtualTimeOnly: true },
+      { step: 5, atMs: 400, action: "adapter-result", adapter: "RIOT", result: "PICKUP_ARRIVED", virtualTimeOnly: true },
+      { step: 6, atMs: 500, action: "expect", messageType: "CurrentStopWorklistSnapshot", virtualTimeOnly: true },
+      { step: 7, atMs: 600, action: "expect", messageType: "SnapshotAppliedAck", virtualTimeOnly: true },
+      { step: 8, atMs: 700, action: "expect", messageType: "UpcomingStopPlanSnapshot", virtualTimeOnly: true },
+      { step: 9, atMs: 800, action: "expect", messageType: "SnapshotAppliedAck", virtualTimeOnly: true },
+    ],
+    persistenceCheckpoints: ["accepted-demand-snapshot-before-to-pickup-intent", "to-pickup-intent-before-riot-call", "projection-revision-before-send", "snapshot-before-ack"],
+    forbiddenSideEffects: ["duplicate-demand-acceptance", "duplicate-riot-order", "onboard-mesingest-read", "onboard-demand-selection", "onboard-demand-binding", "uncommitted-demand-projection", "slot-operation-before-pickup-arrival"],
+    productAssertions: {
+      controlServer: ["EXACTLY_ONE_ACCEPTED_DEMAND_SNAPSHOT", "EXACTLY_ONE_TO_PICKUP_INTENT", "EXACTLY_ONE_RIOT_ORDER", "TRUSTED_PICKUP_ARRIVAL"],
+      onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"],
+    },
+    finalState: { readiness: "READY", business: "ONE_ACCEPTED_DEMAND_ONE_TO_PICKUP_ORDER_AT_PICKUP", physical: "NO_SLOT_OPERATION_STARTED" },
+  },
 };
-for (const [vectorId, messageTypes] of Object.entries(trajectories)) {
-  const lines = messageTypes.map((messageType, index) => ({ step: index + 1, atMs: index * 100, action: index === 0 ? "send" : "expect", messageType, virtualTimeOnly: true }));
-  writeText(`vectors/${vectorId}/input.ndjson`, `${lines.map(canonical).join("\n")}\n`);
+for (const [vectorId, trajectory] of Object.entries(trajectories)) {
+  const explicit = !Array.isArray(trajectory);
+  const steps = explicit
+    ? trajectory.steps
+    : trajectory.map((messageType, index) => ({ step: index + 1, atMs: index * 100, action: index === 0 ? "send" : "expect", messageType, virtualTimeOnly: true }));
+  writeText(`vectors/${vectorId}/input.ndjson`, `${steps.map(canonical).join("\n")}\n`);
   const stableErrorCode = vectorId.includes("DIFFERENT-CONTENT") ? "MESSAGE_ID_CONTENT_CONFLICT" : vectorId.includes("SAME-REVISION-CONFLICT") ? "SNAPSHOT_REVISION_CONTENT_CONFLICT" : vectorId.includes("EXPIRES") ? "PREDEPARTURE_CHECK_EXPIRED" : null;
   if (stableErrorCode) noteErrorCodeAsset(stableErrorCode);
-  writeJson(`vectors/${vectorId}/expected.json`, {
+  const expected = {
     vectorId,
-    orderedExpectedMessages: messageTypes,
-    persistenceCheckpoints: ["durable-before-send", "durable-before-ack", "journal-before-irreversible-io", "result-before-replay"],
-    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"],
-    finalState: { readiness: vectorId.includes("RECOVERY") || vectorId.includes("CONNECTION-LOSS") ? "RECOVERY_REQUIRED_OR_UNIQUELY_RECONCILED" : "UNCHANGED_OR_SPECIFIED_BY_VECTOR", business: "NO_DUPLICATE_COMMIT", physical: "NO_UNPROVEN_STATE" },
-    stableErrorCode,
-  });
+    orderedExpectedMessages: steps.filter((step) => step.messageType).map((step) => step.messageType),
+    persistenceCheckpoints: trajectory.persistenceCheckpoints ?? ["durable-before-send", "durable-before-ack", "journal-before-irreversible-io", "result-before-replay"],
+    forbiddenSideEffects: trajectory.forbiddenSideEffects ?? ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"],
+  };
+  if (trajectory.productAssertions) expected.productAssertions = trajectory.productAssertions;
+  expected.finalState = trajectory.finalState ?? { readiness: vectorId.includes("RECOVERY") || vectorId.includes("CONNECTION-LOSS") ? "RECOVERY_REQUIRED_OR_UNIQUELY_RECONCILED" : "UNCHANGED_OR_SPECIFIED_BY_VECTOR", business: "NO_DUPLICATE_COMMIT", physical: "NO_UNPROVEN_STATE" };
+  expected.stableErrorCode = stableErrorCode;
+  writeJson(`vectors/${vectorId}/expected.json`, expected);
 }
 
+// The slice family's shape lives here once: the index, its governance schema and the gate read
+// these rather than repeating 8 / ^W2G-IS-0[0-7]$ / the gate list in three places.
+const sliceIndexSchemaVersion = "1.1.0";
+const attestationSchemaVersion = "1.0.0";
+const sliceIdPattern = "^W2G-IS-0[0-7]$";
+const gateModel = ["G1", "CONTROL_SERVER_G2", "ONBOARD_HMI_G2", "G3"];
 const slices = [
   ["W2G-IS-00", ["CV-SESSION-RECOVERY-HAPPY", "CV-SESSION-RECONNECT-DURING-RECOVERY", "CV-SNAPSHOT-REPLACE-AND-ACK", "CV-SNAPSHOT-SAME-REVISION-CONFLICT"]],
-  ["W2G-IS-01", ["CV-RELIABLE-RETRY-SAME-CONTENT", "CV-REQUEST-FIRST-RESULT-REPLAY"]],
+  ["W2G-IS-01", ["CV-DEMAND-ACCEPT-TO-PICKUP"], {
+    scope: "DEMAND_ACCEPTANCE_AND_TO_PICKUP",
+    requiredOutcomes: ["EXACTLY_ONE_ACCEPTED_DEMAND_SNAPSHOT", "EXACTLY_ONE_TO_PICKUP_INTENT", "EXACTLY_ONE_RIOT_ORDER", "TRUSTED_PICKUP_ARRIVAL", "COMMITTED_DEMAND_JOURNEY_PROJECTED"],
+    demandRepresentation: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: "READ_ONLY_COMMITTED_PROJECTION" },
+    ownerResponsibilities: {
+      controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"],
+      onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"],
+    },
+  }],
   ["W2G-IS-02", ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY"]],
   ["W2G-IS-03", ["CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"]],
   ["W2G-IS-04", ["CV-GATE-UNLOAD-ALL-EMPTY"]],
   ["W2G-IS-05", ["CV-CONNECTION-LOSS-SAFE-FINISH", "CV-SESSION-RECONNECT-DURING-RECOVERY"]],
   ["W2G-IS-06", ["CV-RELIABLE-RETRY-SAME-CONTENT", "CV-RELIABLE-RETRY-DIFFERENT-CONTENT", "CV-REQUEST-FIRST-RESULT-REPLAY", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"]],
   ["W2G-IS-07", ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN"]],
-].map(([integrationSliceId, vectorIds], index) => ({ integrationSliceId, sequence: index, prerequisites: index === 0 ? [] : index <= 4 ? [`W2G-IS-${String(index - 1).padStart(2, "0")}`] : ["W2G-IS-00"], vectorIds, gates: ["G1", "CONTROL_SERVER_G2", "ONBOARD_HMI_G2", "G3"], forbidUnclosedFailOrInconclusive: true }));
-writeJson("integration-slices/index.json", { schemaVersion: "1.0.0", slices });
-
-writeJson("runner/runner-contract.schema.json", {
-  $schema: SCHEMA, $id: `${BASE_ID}/runner/runner-contract.schema.json`, title: "Language-neutral conformance runner input",
-  ...O({ vectorId: S(), integrationSliceId: S({ pattern: "^W2G-IS-0[0-7]$" }), virtualClockStart: I({ minimum: 0 }), steps: A(O({ step: I({ minimum: 1 }), atMs: I({ minimum: 0 }), action: E("send", "expect", "advance", "drop", "delay", "duplicate", "disconnect", "reconnect", "crash", "restart", "adapter-result"), messageType: Nullable(S()), payloadRef: Nullable(S()) }), { minItems: 1 }), initialPersistentFacts: O({}), forbiddenSideEffects: StringArray({ minItems: 1 }) }),
+].map(([integrationSliceId, vectorIds, definition], index) => {
+  const slice = { integrationSliceId, sequence: index, prerequisites: index === 0 ? [] : index <= 4 ? [`W2G-IS-${String(index - 1).padStart(2, "0")}`] : ["W2G-IS-00"], vectorIds, gates: gateModel };
+  if (definition) slice.definition = definition;
+  slice.forbidUnclosedFailOrInconclusive = true;
+  return slice;
 });
-writeJson("runner/result.schema.json", {
-  $schema: SCHEMA, $id: `${BASE_ID}/runner/result.schema.json`, title: "Conformance result",
-  ...O({
-    runId: R("Id"),
-    integrationSliceId: S({ pattern: "^W2G-IS-0[0-7]$" }),
-    runKind: E("G1", "CONTROL_SERVER_G2", "ONBOARD_HMI_G2", "G3"),
-    protocolManifestSha256: R("Sha256"),
-    controlServerCommit: Nullable(R("CommitSha")),
-    onboardHmiCommit: Nullable(R("CommitSha")),
-    fakePeerIdentities: A(O({
-      repository: S(),
-      commit: R("CommitSha"),
-      artifactSha256: R("Sha256"),
-      harnessContractVersion: S(),
-      supportedIntegrationSliceIds: A(S({ pattern: "^W2G-IS-0[0-7]$" }), { minItems: 1, uniqueItems: true }),
-    }), { uniqueItems: true }),
-    vectorIds: A(S(), { minItems: 1, uniqueItems: true }),
-    vectorsSha256: R("Sha256"),
-    virtualTimeScriptSha256: R("Sha256"),
-    configurationSha256: R("Sha256"),
-    startedAt: R("Instant"),
-    finishedAt: R("Instant"),
-    result: E("PASS", "FAIL", "INCONCLUSIVE"),
-    firstDivergence: Nullable(O({ step: I({ minimum: 1 }), expected: S(), actual: S(), stableErrorCode: Nullable(R("ErrorCode")) })),
-    evidencePointers: A(S(), { uniqueItems: true }),
-  }),
+writeJson("integration-slices/index.json", { schemaVersion: sliceIndexSchemaVersion, slices });
+
+// Governance schemas. They are not part of the three frozen surfaces — they govern the manifest,
+// the slice index and the external approval attestation — but G1 compiles and applies all three,
+// so the generator owns them rather than leaving them as files nobody can regenerate.
+const sha256Pattern = "^[0-9a-f]{64}$";
+writeJson("schemas/governance/content-manifest.schema.json", {
+  $schema: SCHEMA,
+  $id: `${BASE_ID}/governance/content-manifest.schema.json`,
+  title: "ProtocolContentManifest",
+  type: "object",
+  additionalProperties: false,
+  required: ["status", "releaseVersion", "protocolVersion", "profileId", "repository", "generatedAt", "hashAlgorithm", "jsonCanonicalization", "fileTableSha256", "schemaBundleSha256", "examplesSha256", "vectorsSha256", "errorRegistrySha256", "messages", "denylistedMessageTypes", "files"],
+  properties: {
+    status: { const: "CONTENT_SNAPSHOT" },
+    releaseVersion: { type: "string", pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    protocolVersion: { type: "integer", minimum: 1 },
+    profileId: { type: "string", minLength: 1 },
+    repository: { const: "8005-agv-protocol" },
+    generatedAt: { type: "string", format: "date-time" },
+    hashAlgorithm: { const: "SHA-256" },
+    jsonCanonicalization: { type: "string", minLength: 1 },
+    fileTableSha256: { $ref: "#/$defs/sha256" },
+    schemaBundleSha256: { $ref: "#/$defs/sha256" },
+    examplesSha256: { $ref: "#/$defs/sha256" },
+    vectorsSha256: { $ref: "#/$defs/sha256" },
+    errorRegistrySha256: { $ref: "#/$defs/sha256" },
+    messages: { type: "object", minProperties: 1 },
+    denylistedMessageTypes: { type: "array", items: { type: "string" }, uniqueItems: true },
+    files: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["path", "role", "bytes", "sha256"],
+        properties: {
+          path: { type: "string", minLength: 1 },
+          role: { type: "string", minLength: 1 },
+          bytes: { type: "integer", minimum: 0 },
+          sha256: { $ref: "#/$defs/sha256" },
+        },
+      },
+    },
+  },
+  $defs: { sha256: { type: "string", pattern: sha256Pattern } },
+});
+writeJson("schemas/governance/integration-slice-index.schema.json", {
+  $schema: SCHEMA,
+  $id: `${BASE_ID}/governance/integration-slice-index.schema.json`,
+  title: "IntegrationSliceIndex",
+  type: "object",
+  additionalProperties: false,
+  required: ["schemaVersion", "slices"],
+  properties: {
+    schemaVersion: { const: sliceIndexSchemaVersion },
+    slices: {
+      type: "array",
+      minItems: slices.length,
+      maxItems: slices.length,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["integrationSliceId", "sequence", "prerequisites", "vectorIds", "gates", "forbidUnclosedFailOrInconclusive"],
+        properties: {
+          integrationSliceId: { type: "string", pattern: sliceIdPattern },
+          sequence: { type: "integer", minimum: 0, maximum: slices.length - 1 },
+          prerequisites: { type: "array", items: { type: "string", pattern: sliceIdPattern }, uniqueItems: true },
+          vectorIds: { type: "array", minItems: 1, items: { type: "string", pattern: "^CV-[A-Z0-9-]+$" }, uniqueItems: true },
+          gates: { type: "array", const: gateModel },
+          forbidUnclosedFailOrInconclusive: { const: true },
+          definition: { $ref: "#/$defs/definition" },
+        },
+      },
+    },
+  },
+  $defs: {
+    tokenArray: { type: "array", minItems: 1, items: { type: "string", pattern: "^[A-Z][A-Z0-9_]+$" }, uniqueItems: true },
+    definition: {
+      type: "object",
+      additionalProperties: false,
+      required: ["scope", "requiredOutcomes", "demandRepresentation", "ownerResponsibilities"],
+      properties: {
+        scope: { type: "string", pattern: "^[A-Z][A-Z0-9_]+$" },
+        requiredOutcomes: { $ref: "#/$defs/tokenArray" },
+        demandRepresentation: {
+          type: "object",
+          additionalProperties: false,
+          required: ["controlServerFact", "wireMessages", "onboardMode"],
+          properties: {
+            controlServerFact: { const: "AcceptedDemandSnapshot" },
+            wireMessages: { type: "array", const: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"] },
+            onboardMode: { const: "READ_ONLY_COMMITTED_PROJECTION" },
+          },
+        },
+        ownerResponsibilities: {
+          type: "object",
+          additionalProperties: false,
+          required: ["controlServer", "onboardHmi"],
+          properties: { controlServer: { $ref: "#/$defs/tokenArray" }, onboardHmi: { $ref: "#/$defs/tokenArray" } },
+        },
+      },
+    },
+  },
+});
+writeJson("schemas/governance/release-approval-attestation.schema.json", {
+  $schema: SCHEMA,
+  $id: `${BASE_ID}/governance/release-approval-attestation.schema.json`,
+  title: "ProtocolReleaseApprovalAttestation",
+  type: "object",
+  additionalProperties: false,
+  required: ["schemaVersion", "candidateVersion", "status", "protocolCommit", "contentManifestSha256", "approvals", "statement"],
+  properties: {
+    schemaVersion: { const: attestationSchemaVersion },
+    candidateVersion: { type: "string", pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    status: { enum: ["PENDING", "APPROVED"] },
+    protocolCommit: { type: ["string", "null"], pattern: "^[0-9a-f]{40}$" },
+    contentManifestSha256: { type: ["string", "null"], pattern: sha256Pattern },
+    approvals: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["ownerId", "decidedAt", "decision", "statement"],
+        properties: {
+          ownerId: { type: "string", minLength: 1 },
+          decidedAt: { type: "string", format: "date-time" },
+          decision: { const: "APPROVED" },
+          statement: { type: "string", minLength: 1 },
+        },
+      },
+    },
+    statement: { type: "string", minLength: 1 },
+  },
+  allOf: [
+    {
+      if: { properties: { status: { const: "PENDING" } }, required: ["status"] },
+      then: { properties: { protocolCommit: { type: "null" }, contentManifestSha256: { type: "null" }, approvals: { maxItems: 0 } } },
+    },
+    {
+      if: { properties: { status: { const: "APPROVED" } }, required: ["status"] },
+      then: { properties: { protocolCommit: { type: "string", pattern: "^[0-9a-f]{40}$" }, contentManifestSha256: { type: "string", pattern: sha256Pattern }, approvals: { minItems: 2, maxItems: 2 } } },
+    },
+  ],
+});
+// The tracked template is blank by construction and excluded from the content manifest, so filling
+// in an approval cannot change the manifest hash that the approval is about. The completed copy
+// stays outside Git as a GitHub Release Asset.
+writeJson("attestations/release-approval.template.json", {
+  schemaVersion: attestationSchemaVersion,
+  candidateVersion,
+  status: "PENDING",
+  protocolCommit: null,
+  contentManifestSha256: null,
+  approvals: [],
+  statement: "This tracked approval template is excluded from the content manifest. PENDING is not a ProtocolRelease approval. A completed copy must remain external and be uploaded as a GitHub Release Asset.",
 });
 
 writeJson("compatibility/report.json", {
@@ -635,12 +809,6 @@ writeJson("compatibility/report.json", {
   runtimeRule: "Exact ProtocolVersion and exact materialized ProtocolReleaseIdentity required; no negotiation.",
   optionalFieldPolicy: "No optional payload fields exist in this candidate. Future optional fields require proof that omission and ignore preserve safety and business conclusions.",
   historyPolicy: "Published tags, commits, manifests, schemas, vectors and approvals are immutable; defects require a superseding release.",
-});
-writeJson("approvals/release-approval.json", {
-  candidateVersion,
-  status: "PENDING",
-  approvals: [],
-  statement: "This blank record is not approval. AI generated the candidate and must not sign for either human owner.",
 });
 writeJson("compatibility/implementation-version-matrix.json", {
   status: "CANDIDATE",
@@ -664,9 +832,9 @@ writeJson("compatibility/implementation-version-matrix.json", {
   requiredAction: "Install or pin SDK 8.0.424 before reproducible product builds; do not treat the observed 8.0.29 runtime as equivalent evidence.",
 });
 
-writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis repository contains a **candidate**, not an approved ProtocolRelease. Machine-readable JSON Schema, manifests, errors, examples, vectors, runner/result contracts and the integration-slice index are authoritative. Markdown is explanatory only.\n\nRun \`pnpm install --frozen-lockfile\` and \`pnpm g1\`. A PASS proves only candidate-internal consistency. It does not prove human G0 approval, either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
-writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, manifest hash, schema bundle hash and vectors hash.\n- Both real product owners must approve the exact commit and manifest before an immutable tag/release is created. AI and CI cannot approve.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- Historical red evidence and released identities are immutable.\n`);
-writeText("docs/candidate-limitations.md", `# Candidate limitations and release-finalization blocker\n\nThe candidate intentionally uses structurally valid synthetic zero hashes inside envelope examples. Examples are schema fixtures, not evidence of a materialized release identity.\n\nThe accepted governance currently creates a circular finalization dependency: the manifest is required to hash every file except itself, while the approval record is required to contain manifestSha256 and is itself included in the manifest file table. Filling the approval changes the manifest, which changes manifestSha256 again. Formal release must resolve this by an explicit human-approved governance amendment (for example, exclude the external approval attestation from the content manifest while binding it to the immutable candidate commit and manifest hash). G1 may pass the unapproved candidate; no tag/release may be created until the circularity is resolved.\n`);
+writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis repository contains an approval-neutral **content snapshot**, not an approved ProtocolRelease. Machine-readable JSON Schema, the content manifest, the external approval attestation, errors, examples, vectors, the governance schemas and the integration-slice index are authoritative. Markdown is explanatory only.\n\nRun \`pnpm install --frozen-lockfile\`, \`pnpm manifest:finalize\` and \`pnpm g1\`. A PASS proves content and attestation consistency and reports their independent hashes. It does not turn a \`PENDING\` attestation into human G0 approval or prove either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
+writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- \`manifest/release.json\` is an approval-neutral content snapshot. It hashes all governed protocol content except itself, \`attestations/\`, \`.git/\`, \`node_modules/\`, generated \`evidence/\` and \`.github/\`.\n- \`attestations/release-approval.template.json\` is a tracked, blank template governed by its JSON Schema and excluded from the content manifest. A completed \`release-approval.json\` must remain external to Git and be uploaded as a GitHub Release Asset. This prevents the approval record from changing either the manifest hash or the commit it approves.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, content manifest hash, approval-attestation hash, schema bundle hash and vectors hash.\n- Both real product owners must approve the exact commit and content manifest hash in the attestation before an immutable tag/release is created. AI and CI cannot approve.\n- G1 validates the content manifest and attestation independently, verifies an approved attestation points at the current content manifest, requires two distinct owners, and reports both hashes. Candidate G1 uses the tracked blank template. Release G1 sets \`PROTOCOL_APPROVAL_ATTESTATION\` to the external completed asset. The annotated tag message and GitHub release metadata must record both reported hashes.\n- The attestation never contains its own hash. Its SHA-256 is computed from its final bytes and bound externally by the annotated tag and release metadata, avoiding another self-reference.\n- Release order is fixed: freeze and push the content commit; generate the external attestation against that commit and manifest; run G1 with \`PROTOCOL_APPROVAL_ATTESTATION\`; create annotated \`protocol-v<SemVer>\` tag pointing at the frozen content commit with both hashes in its message; then publish the same attestation as a release asset.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- A conformance-index or trajectory correction may use a patch release only when it restores an already approved responsibility boundary, changes no message Schema or wire semantics, and both product owners approve that compatibility classification. It still changes the manifest/vector identity and invalidates affected G1/G2/G3 evidence.\n- Historical red evidence and released identities are immutable.\n`);
+writeText("docs/candidate-limitations.md", `# Candidate limitations and release finalization\n\nThe candidate intentionally uses structurally valid synthetic zero hashes inside envelope examples. Examples are schema fixtures, not evidence of a materialized release identity.\n\nThe manifest/approval circularity is resolved by the owner-approved governance separation recorded on 2026-08-25. \`manifest/release.json\` is an approval-neutral content snapshot and excludes \`attestations/\`; a completed external \`release-approval.json\` GitHub Release Asset binds the final immutable candidate commit and content manifest hash. The repository tracks only its blank Schema-governed template. G1 validates both artifacts and reports both hashes for the annotated tag and GitHub release metadata.\n\n**Conformance vectors are a weak binding, and this candidate makes that explicit.** No assertion executor has ever read \`input.ndjson\` or \`expected.json\`: all five were searched and every \`vectorId\` reference is a label written by a human. This candidate therefore drops the \`runner/\` contracts rather than keeping a promise of an executor that does not exist. What replaces them is an architecture test in each implementation repository asserting that every \`vectorId\` has an identically named test. G2's "the vector is the criterion" is consequently a permanent weak binding: what is mechanically guaranteed is that a vector has a corresponding test, not that its bytes were executed.\n\n\`${baseReleaseTag}\` remains immutable. The current \`${candidateVersion}\` candidate is a breaking ProtocolVersion increase to ${protocolVersion} under profile \`${profileId}\`: message payloads, the error registry and the conformance index all change, and no negotiation or downgrade path exists. Its attestation remains \`PENDING\`; both product owners must approve the new exact commit, content manifest hash, vectors hash and breaking classification before \`protocol-v${candidateVersion}\` can be created.\n`);
 
 writeJson("package.json", {
   name: "8005-agv-protocol",
