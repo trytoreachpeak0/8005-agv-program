@@ -1,0 +1,23 @@
+{
+  "at": "2026-09-03T19:11:40.5237290+08:00",
+  "note": "single-variable control for the queryNearEnd NPE: station 170 is unreachable from/to every other station per the edge table",
+  "request": {
+    "method": "POST",
+    "url": "http://172.19.206.222:8888/api/task/v1/route/queryNearEnd",
+    "body": "{\"mapId\":25,\"startStationId\":10,\"endStationIds\":[25,37,74,95,119]}",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "rawBody": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":25,\"tid\":\"\"}",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": 25,
+      "tid": ""
+    }
+  }
+}

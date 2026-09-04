@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-03T19:10:26.3450733+08:00",
+  "elapsedMs": 17,
+  "request": {
+    "method": "GET",
+    "url": "http://172.19.206.222:8888/api/imap/v1/mapResource/removedEdge/25",
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 200,
+    "bytes": 67,
+    "contentType": "application/json; charset=UTF-8",
+    "rawBody": "{\"code\":\"0\",\"message\":\"成功\",\"msgDetail\":\"\",\"result\":[],\"tid\":\"\"}",
+    "parsed": {
+      "code": "0",
+      "message": "成功",
+      "msgDetail": "",
+      "result": [],
+      "tid": ""
+    }
+  }
+}

@@ -292,6 +292,52 @@
 - 证据：Round15、Round16
 - 消费影响：建单前用 `getRouteCostsBy`；多站择优用 Near*；进度可用 remain，但需过滤 MAX 哨兵，且为阶梯更新。
 
+## BC-MAP-003 路网边表可支撑站到站代价自算（生产 RIoT map25，Round 43）
+
+- 结论：
+  1. **`GET /api/imap/v1/mapInfo/edges/{mapId}`** 返回全图有向边表。字段为 **snake_case**：
+     `cost`（float）、`s_node`／`e_node`（**注意不是 `snode`／`enode`**）、`is_back_edge`、
+     `limit_v`／`limit_w`、`robot_direction`、`e_facing`／`s_facing`、`user_define_properties`，
+     坐标 `sx`／`sy`／`ex`／`ey`。**Kiota 生成的 `Edge` 模型键名对不上，必须自定义反序列化。**
+  2. **`Edge.cost` 就是边的欧氏长度**，单位与坐标一致（mm）。map25 的 403 条边逐条比对，
+     `|cost − 欧氏距离|` 中位 0.012 mm、P95 33.8 mm、max 112.6 mm，仅 28 条偏差 >1 mm。
+     与 `getRouteCostsBy` 的 `costs`（spec 明写「单位mm」）同量纲——**这是推断，
+     Round 43 未在同一对起终点上直接对比过两者的数值**。
+  3. **站点定位靠坐标，不靠 `station_offset`**（map25 的 206 个站点该字段全为 0）。
+     站点 `pos.x/pos.y` 到其 `edge_id` 所指边的垂距中位 0.0、max 4.0 mm，且投影参数只有
+     t=0（边起点，96 个）与 t=1（边终点，110 个）两种，**没有站点落在边中间**。
+     规则：比较站点坐标到边两端的距离，近者即该站所在节点。map25 上 206 个站点
+     映射到 206 个互不相同的节点，零冲突。
+  4. **自建图跑 Dijkstra 的结果与 RIoT 的规划一致**：map25 上 23 组
+     `queryNearEnd`／`queryNearestStart` 对照**全部命中**，RIoT 选中的站在自算排序中
+     全部位列第一。用户确认 RIoT 的规划算法就是跑最短路。
+  5. **图是有向的**：map25 有 403 条有向边、307 个节点，403 个有序对中只有 148 个存在
+     反向边。**最短路必须按有向图算**，当无向图会得到错误结果。
+  6. `removedEdge`／`removedEdgeDetail`／`removedStation` 在 map25 上**均为空**；
+     动态代价（`GET /route/`、`getCostUnit`）**均为 `{}`**，与测试环境 Round 15 一致。
+  7. `GET /api/imap/v1/mapEdgeGroup/all` 非空，外层 key 是**边组合名称**（如 `老厂电梯`），
+     且**该接口用 camelCase**（`edgeId`／`gmtCreate`），与同一 RIoT 的 `edges`／`stations`
+     的 snake_case 不同。同一服务混用两套序列化风格。
+- 证据：Round 43（生产 RIoT `172.19.206.222:8888`，mapId 25）
+- 消费影响：调度客户端可以自建路网图算任意站到站代价，结果与 RIoT 规划一致；
+  但必须自定义反序列化、按有向图处理、并按接口区分命名风格。边组合约束与非空动态代价
+  是否改变结果**未测**。
+
+## BC-ROUTE-002 `queryNearEnd` 遇不可达站点抛 kernel NPE（Round 43）
+
+- 结论：候选集合或起点中**只要含有一个在有向图上不可达的站点**，`queryNearEnd`
+  返回 `code=00002` + `java.lang.NullPointerException`，栈帧为
+  `WorldRoute.queryNearestEnd(WorldRoute.java:293)` → `RouteServiceImpl.java:86`。
+  它**既不跳过该站点，也不返回结构化错误码**。
+  这与 BC-ROUTE-001 记录的「空候选列表 NPE」**不是同一个失败点**（那次在
+  `RouteServiceImpl.java:87`，未进入 kernel）。
+- 证据：Round 43 单变量对照 `runs/034`～`037`，唯一变量是 map25 上已知不可达的站 170：
+  - `start=10, ends=[25,37,74,95,119]` → `code=0, result=25`
+  - `start=10, ends=[25,37,74,95,119,170]` → `code=00002` NPE
+  - `start=10, ends=[170]` → NPE；`start=170, ends=[10,25]` → NPE
+- 消费影响：**调用方必须在调用前自己过滤掉不可达站点**，否则一个坏站点会让整轮择优失败。
+  这意味着仅靠 `queryNearEnd` 无法安全使用——**调用方无论如何都需要自己的路网图**。
+
 ## BC-ORDER-014 队列单优先执行 orderRecordPriorityExec
 
 - 结论：`POST /api/order/v1/orderRecordPriorityExec?orderTaskKey=<字符串orderId>` 可将 QUEUEING 单插队；取消当前执行单后，被优先的单会先于同车其它 QUEUEING 单进入 EXECUTING。

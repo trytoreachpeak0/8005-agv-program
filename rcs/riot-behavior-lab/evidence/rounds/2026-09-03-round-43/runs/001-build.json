@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-03T19:10:25.8692397+08:00",
+  "elapsedMs": 129,
+  "request": {
+    "method": "GET",
+    "url": "http://172.19.206.222:8888/api/task/v1/system/build",
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "httpStatus": 404,
+    "bytes": 64,
+    "contentType": "application/json; charset=UTF-8",
+    "rawBody": "{\"code\":\"404\",\"message\":\"Not Found\",\"msgDetail\":\"null\",\"tid\":\"\"}",
+    "parsed": {
+      "code": "404",
+      "message": "Not Found",
+      "msgDetail": "null",
+      "tid": ""
+    }
+  }
+}

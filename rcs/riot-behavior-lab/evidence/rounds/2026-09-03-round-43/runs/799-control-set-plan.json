@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-03T19:10:26.6063965+08:00",
+  "stationIdCount": 206,
+  "pickedStationIds": [
+    10,
+    25,
+    37,
+    74,
+    95,
+    119
+  ],
+  "rule": "explicit -StationIds; chosen offline as a mutually-reachable set from the edge table collected earlier this round"
+}

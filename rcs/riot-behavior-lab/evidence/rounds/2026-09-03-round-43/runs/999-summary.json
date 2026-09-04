@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-03T19:10:27.0984839+08:00",
+  "baseUrl": "http://172.19.206.222:8888",
+  "mapId": 25,
+  "requests": 33,
+  "edgeCount": 403,
+  "stationIdCount": 206,
+  "routeCostSkip": "no -VehicleKey given",
+  "note": "Shortest-path reproduction is offline; see round-plan.md decision thresholds."
+}

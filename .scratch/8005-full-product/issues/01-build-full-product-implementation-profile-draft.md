@@ -1,7 +1,7 @@
 # 建立全量 348 条实施剖面底稿
 
 Type: task
-Status: claimed
+Status: closed
 
 ## Question
 
