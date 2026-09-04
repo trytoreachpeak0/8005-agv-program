@@ -1,8 +1,9 @@
 # 决定全量切片家族编号与 W2G-IS-00～07 的关系
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 06
+Blocks: 08, 09
 
 ## Question
 
@@ -80,3 +81,22 @@ adapter 轨迹三步精确数组）。切片家族一动，这六处一起动。
 `definition` 是否同理推广，由本票定。
 
 详见 [票 06 决议](06-answer.md) 的 3.6 与第四节。
+
+---
+
+## 决议（2026-09-04）
+
+见 [票 07 决议](07-answer.md)。
+
+**替换**为 `FP-IS-NN` 家族（`^FP-IS-[0-9]{2}$`），**16 个切片**：`FP-IS-00`～`07` 与
+`W2G-IS-00`～`07` 一一对应作为 v2 重证，`FP-IS-08`～`15` 是新能力；票 06 的 31 条向量
+全部绑定、无一落空。门禁 `G1 / CONTROL_SERVER_G2 / ONBOARD_HMI_G2 / G3` 不增不减，
+现场验收不进门禁模型；`definition` 推广为全部切片必填，`demandRepresentation` 重写为
+`authorityModel`；**批次与业务簇都不进 id**。
+
+四条推翻本票据预设的事实：pattern 副本是 **9 处 ＋ 161 个测试 trait**（票据与票 06 说两处）；
+票据陈述的三种代价**两种不成立、一种结构上做不到**；「一眼看出属哪个批次」是**循环依赖**
+（批次由票 09 定，票 09 被本票阻塞）；`definition` 的 `demandRepresentation` **三个字段全是
+`const`**，推广必然连带重写。另查出 `runner/` 两个 schema 是**无生产者无消费者且与现实
+不兼容的孤儿**，以及**票 06 判为「v2 落地最大单项」的样例生成器实际存在**——在本仓
+`.scratch/wire-to-gate-ai-implementation-kit/tools/generate-protocol-candidate.mjs`。

@@ -229,8 +229,12 @@ _Avoid_: ProtocolVersion、实现软件版本、main 分支当前内容、可覆
 _Avoid_: 只写 tag、只写 commit、跟踪 main、两端各自维护版本号
 
 **IntegrationSlice（跨端联调切片）**:
-以稳定 IntegrationSliceId 标识、能够由共享协议向量和确定性故障脚本独立复现的一段 WIRE_TO_GATE 跨端能力；它固定前置切片、输入、逐步输出、持久事实、禁止副作用和最终状态，并分别经过双模拟对端门禁及精确两端候选构建的真实联合运行。切片完成不是产品发布批准，也不能替代工厂试运行。
-_Avoid_: 团队任务编号、仓库开发阶段、一次“大联调”、只对 Fake 通过即完成、现场成功倒推通过
+以稳定 IntegrationSliceId 标识、能够由共享协议向量和确定性故障脚本独立复现的一段控制服务端与车载端之间的跨端能力；它固定前置切片、输入、逐步输出、持久事实、禁止副作用和最终状态，并分别经过双模拟对端门禁及精确两端候选构建的真实联合运行。只有双端能力才立切片：服务端与 RIoT、MES 或人之间的单端能力不是切片，需要多个并发会话才能表达的行为（例如多车并发）在保形向量的单会话格式下也无法成为切片，两者的验收另行规定。IntegrationSliceId 属于某个 IntegrationSliceFamily，不跨协议大版本沿用。切片完成不是产品发布批准，也不能替代工厂试运行。
+_Avoid_: 团队任务编号、仓库开发阶段、一次“大联调”、只对 Fake 通过即完成、现场成功倒推通过、把单端工程算作切片
+
+**IntegrationSliceFamily（切片家族）**:
+某一个 ProtocolRelease 之下全部 IntegrationSlice 的完整编号集合，由 id 前缀、编号规则、切片总数、顺序与前置关系共同确定；家族随协议大版本整体换代而不是逐个增补，旧家族随其不可变 tag 原地冻结，其门禁证据此后只能被引用为“前一代的对应切片”，不能被复用为新家族的通过结论。
+_Avoid_: 跨版本沿用编号、两套编号并存于同一 index、把批次或业务分簇编进 IntegrationSliceId、以家族更名代替证据重跑
 
 **FakePeerIdentity（模拟对端身份）**:
 一次一致性运行所使用 Fake Onboard 或 Fake ControlServer 的可复现复合身份，由其所在实现仓库、完整 commit、构建产物哈希、ProtocolReleaseIdentity、测试 harness contract 版本及支持的 IntegrationSliceId 集合共同确定；Fake 只模拟协议可观察行为，不声称证明真实 IO、RIoT 或生产持久化能力。

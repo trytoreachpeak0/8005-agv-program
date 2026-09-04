@@ -210,3 +210,40 @@ G2 证据（`artifacts/g2/*/gate-result.json`）记着 `vectorIds` 数组与 `te
 向量执行器是判据的执行者，目前后者根本不存在。
 
 详见 [票 06 决议](06-answer.md) 的 1.3、第 6 问与第四节。
+
+## 来自票 07 的输入（2026-09-04）
+
+**票 07 已定切片家族，本票的三条前提被改写。**
+
+**一、切片家族不覆盖完整产品的全部工作。**票 07 的 3.2 给出无切片清单：
+`FP-C5` AGV 归档恢复（6 条）、`FP-C9b` 公共站点绑定运维治理（9 条）、
+`FP-C8` 看板本体（`REQ-0268`／`REQ-0269`）、票 14 的 `RouteGraphSnapshot` 引擎——
+四类都是**单端工程**（服务端↔RIoT／↔人／内部），照 MVP 的「双端能力」粒度立不了切片；
+`FP-C6`／`FP-C10` 是票 05 判的延后。**这四类的验收出口形态由本票定。**
+
+**二、多车并发（B2）在保形向量下结构上不可证明。**`runner-contract.schema.json` 的
+`steps[]` 只有 `step`／`atMs`／`action`／`messageType`／`payloadRef` 五个字段，
+`action` 十一个取值没有一个能指定「哪辆车」，`vectorId` 与 `integrationSliceId` 都是单值，
+`input.ndjson` 是一条流。**保形向量表达的是一个会话的一条时间线。**这解释了票 06 为什么
+给 B2 一条向量都没有。多车并发的证明只能落在服务端单端测试 ＋ 现场验收，**本票要定
+那个现场验收出口长什么样**（3 台车、`mapId` 25、票 11 已确认的现场规模）。
+
+**三、`runner/` 两个 schema 修还是删，是本票的决定。**票 07 的 1.5 查实：
+`runner-contract.schema.json` **描述不了仓库里真实存在的向量**（契约要顶层对象带六项必填，
+而 `input.ndjson` 是 step 对象的 NDJSON 流，step 带着契约 `additionalProperties: false`
+禁止的 `adapter`／`result`／`virtualTimeOnly`，又缺必填的 `payloadRef`；
+`initialPersistentFacts` 被锁成只能是空对象，任何需要前置状态的场景无法表达）；
+`result.schema.json` `required` 16 项而真实 `gate-result.json` 只提供 5 项，
+**缺的 11 项里 `onboardHmiCommit`／`fakePeerIdentities`／`firstDivergence`／
+`evidencePointers` 正是「双端联合证据」的核心**。而 `g1-validate.mjs` 对 `runner/`
+只做 `ajv.validateSchema` ＋ `ajv.compile`，**从不用它校验任何文档**。
+
+**这是票 06 那条「G2 记着 `vectorId` 却只跑自家 xunit」的上游原因**——门禁结果本来就
+没按契约产出。本票若定「要有真跑向量的 runner」，这两个文件要按真实格式重写；
+若定「不要」，应当删除而不是留作虚假文档。
+
+**四、门禁名称不受两仓归属交接影响。**`CONTROL_SERVER_G2`／`ONBOARD_HMI_G2` 命名的是
+**哪一端**不是**哪个人**，切片的 `gates` 数组一字不改。本票要回答的仍是票 06 交来的
+「v2 打 tag 的第二名产品负责人是谁」。
+
+详见 [票 07 决议](07-answer.md) 的第 4 问、3.2 与第四节。

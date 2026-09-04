@@ -303,3 +303,48 @@ Blocked by: 07, 13, 14, 15
 动词指向的是动作面。两个面都要扫。
 
 详见 [票 06 决议](06-answer.md) 的 1.3、1.4、1.9、3.6 与第四节。
+
+## 来自票 07 的输入（2026-09-04）
+
+**票 07 已定切片家族（16 个切片，`FP-IS-00`～`15`），本票现在只剩票 15 一个前置。**
+
+**一、票 06 的「最大单项」估算前提是错的——样例生成器存在。**票 06 的 1.6 与 3.7 第 2 项
+写「约 1500 个 invalid 样例是机械派生的但仓库里没有生成器……这是最大的单项」。
+它查的是 `8005-agv-protocol`；生成器在**本仓**：
+`8005-agv-program/.scratch/wire-to-gate-ai-implementation-kit/tools/generate-protocol-candidate.mjs`，
+**595 行**，`node generate-protocol-candidate.mjs <protocol-repository>` 写出**整棵树**——
+`schemas/`、`examples/valid` 与 `examples/invalid`（按 `required`／`type`／`enum-or-const`／
+`uniqueItems`／`x-sorted`／`semantic-*` 逐条派生，正是票 06 第 3 问描述的机械口径）、
+`vectors/`、`integration-slices/index.json`、`runner/` 两个 schema、`errors/`、`manifest/`、
+`compatibility/`、`docs/` 三篇，**连 `tools/g1-validate.mjs` 本身都是它写的**。
+顶层四个常量 `BASE_ID`／`candidateVersion`／`profileId`／`protocolVersion`
+**正是票 06 的 3.1 要改的那四项**；切片家族在它里面是**一张 10 行的表**（第 480–490 行）。
+
+**用户 2026-09-04 已决定复活并升级它。****工作量必须重估，这是本票的活。**
+真实提前量不是 1500 个文件，而是**把 0.1.1 手工补的东西补回生成器**：
+`schemas/governance/` 三个文件（`content-manifest`、`integration-slice-index`、
+`release-approval-attestation`）不在它的输出清单里；它写的 `g1-validate.mjs` 是旧版
+（`manifest.status==="CANDIDATE_UNAPPROVED"`、读 `approvals/release-approval.json`、
+无 `x-sorted` 语义规则、无 attestation 外置逻辑）；`index.json` 的 `schemaVersion` 是
+`"1.0.0"` 且**不带 `definition` 块**。**重估前先在一次性目录里试跑一次**——
+票 07 是逐行读出来的结论，没有实际执行过（Bash 工具里没有 `node`）。
+
+**二、切片是排期的可交付单位，但只覆盖双端能力。**16 个切片各要 2 个 G2 ＋ 1 个 G3。
+票 07 的 3.2 列出**七类没有切片的工作**（`FP-C2` 的多车并发、`FP-C5`、`FP-C9b`、
+`FP-C6`、`FP-C10`、`RouteGraphSnapshot` 引擎、看板本体），排期时不能靠切片计数覆盖它们。
+
+**三、`FP-IS-*` 的 `prerequisites` 是硬顺序约束，与票 02 的 `B2 → (B1+B4) → B3 → B5` 并存
+而不冲突**：前者约束联调证据的先后，后者约束不变量推翻的先后。两者的交叉点是
+`FP-IS-08`（B3 多停靠计划）与 `FP-IS-09`（B5 车载选任务），切片顺序 08→09 与不变量顺序
+B3→B5 方向一致，无矛盾。另有三条有事实依据的依赖边：`FP-IS-13`（充电）← `FP-IS-12`
+（等待点，`REQ-0178`／`REQ-0179` 的清桩完成证明之一是「车辆已到地图等待点」）；
+`FP-IS-11`（反向旅程）← `FP-IS-10`（票 13 要求 `STAGING_TO_WIRE` 单列后一批）；
+`FP-IS-09` ← `FP-IS-08`。
+
+**四、161 个测试 trait 的重打标是真实工作量。**`tests/ControlServer.Tests/` 里
+`[Trait("IntegrationSlice", "W2G-IS-0N")]` 出现 **161 次**，是
+`dotnet test --filter "IntegrationSlice=$Slice"` 的分区键。**它必然与「v2 消息面变更后
+逐个复核测试」合并进行，别单列成两件事。**票 07 的 3.5 给出必须同步修改的 17 处全表，
+其中 6 处票 06 完全没列。
+
+详见 [票 07 决议](07-answer.md) 的 1.8、3.1、3.2、3.5 与第四节。

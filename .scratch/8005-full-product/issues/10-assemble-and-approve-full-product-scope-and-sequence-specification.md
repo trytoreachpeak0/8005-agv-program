@@ -150,3 +150,26 @@ Release Asset，**本图未核验其内容**——tag message 里记着它的 SH
 结构上流程走过了，但两名批准人是谁、签名是否真实存在，本图未证。
 
 详见 [票 06 决议](06-answer.md) 的 1.11、第 6 问与第六节。
+
+## 来自票 07 的输入（2026-09-04）
+
+**批次→切片的映射写在本规格里，不写进协议仓。**票 07 第 2 问定案：
+`integration-slices/index.json` 只记契约事实（id、`sequence`、`prerequisites`、
+`vectorIds`、`gates`、`definition`）；「`FP-IS-13` 属批次 N」「`FP-IS-13` 覆盖 `FP-C1`
+的 19 条」这两句话是**本图的计划事实**，写进协议仓意味着一次重新排期变成一次协议变更，
+而协议变更要作废两端的门禁证据。
+
+**规格中须原样保留两段。**其一，旧家族证据的引用式：
+
+> 批次 0 的跨端能力证据 = `protocol-v0.1.1` 下 `W2G-IS-00`～`W2G-IS-07` 的
+> `CONTROL_SERVER_G2` / `ONBOARD_HMI_G2` / `G3` 结果，
+> 由 `gate-result.json` 的 `protocolTag` ＋ `protocolRepositoryCommit` ＋ 三个哈希唯一定位。
+
+同时写明 `FP-IS-00`～`07` 与 `W2G-IS-00`～`07` **一一对应**，关系是「v2 下的重证」
+而**不是「可以沿用的通过结论」**（`ConformanceRunIdentity` 词条已规定任一绑定分量
+变化都必须建立新运行）。
+
+其二，票 07 的 3.2 **无切片清单**——切片家族不覆盖完整产品的全部工作，
+七类工作没有切片，各有不同理由。
+
+详见 [票 07 决议](07-answer.md) 的第 1、2 问与第四节。
