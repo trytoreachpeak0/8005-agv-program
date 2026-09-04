@@ -60,9 +60,16 @@
 **它的身份是另一张地图的工作票据而非产品文档，且内容已因票 04 查出的第二种建单形态而过时**。
 处置不变——列为实施图待办（规格第 14 节第 6 项）。
 
-### 1.4 分支比 `origin/main` 多 18 个 commit，不是交接文档记的 13
+### 1.4 分支状态：两个 commit 计数都对，口径不同
 
-`git rev-list --count origin/main..HEAD` = **18**，反向 = 10，`git merge-tree` 试合并干净。
+`git rev-list --count origin/main..HEAD` = **18**（相对 `main`），反向 = 10，
+`git merge-tree` 试合并干净。
+
+**交接文档记的「比 origin 多 13 个未推送」同样正确**——它的口径是**远端同名分支**
+`origin/wayfinder/8005-full-product`，当时停在 `5039e440`（票 03），`5039e440..b932a87c`
+恰为 13。汇编时先把两者读成同一个口径、误判交接文档记错，**此处纠正：交接文档没有错，是本
+票读错了参照物。**
+
 已按用户决定合并 `origin/main`，取到 491 行版的 `docs/wire-to-gate-test-automation.md`
 （本 worktree 原为 304 行旧版），规格第 8.1 节据 `main` 版撰写。
 
