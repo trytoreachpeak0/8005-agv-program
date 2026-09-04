@@ -248,18 +248,21 @@ const responseNames = new Set([
   "SessionAccepted", "SessionRejected", "HeartbeatAck", "PreDepartureSafetyCheckResult", "SublotRejected", "SlotOperationCommandRejected", "ManualChargingReturnToServiceResult",
   "LoadCorrectionRejected", "LoadCancellationAuthorization", "LoadCompensationRejected", "ExceptionRecoverySessionOpened", "ExceptionRecoverySessionRejected", "RecoveryActionAccepted",
   "RecoveryActionRejected", "HardwareRecoveryRecordResult", "DurableAck", "SnapshotAppliedAck", "ProtocolProblem",
+  "DemandSelectionResult", "UnableToChargeFieldConfirmationResult", "ManualStationClearanceConfirmationResult",
 ]);
 const requestNames = new Set([
   "SessionHello", "CapabilitySnapshotRequested", "SafetyStateSnapshotRequested", "PreDepartureSafetyCheck", "SublotSubmitted", "ManualChargingReturnToServiceRequested",
   "LoadCorrectionRequested", "LoadCancellationStartRequested", "LoadCompensationRequested", "ExceptionRecoverySessionRequested", "RecoveryActionSubmitted", "HardwareRecoveryRecordSubmitted",
+  "DemandSelectionRequested", "UnableToChargeFieldConfirmationRequested", "ManualStationClearanceConfirmationRequested",
 ]);
-const snapshotNames = new Set(["CapabilitySnapshot", "SafetyStateSnapshot", "VehicleBusinessStateSnapshot", "CurrentStopWorklistSnapshot", "UpcomingStopPlanSnapshot", "ExceptionRecoverySessionSnapshot"]);
+const snapshotNames = new Set(["CapabilitySnapshot", "SafetyStateSnapshot", "VehicleBusinessStateSnapshot", "CurrentStopWorklistSnapshot", "UpcomingStopPlanSnapshot", "ExceptionRecoverySessionSnapshot", "OnboardAlarmSnapshot"]);
 const telemetryNames = new Set(["OperationProgress"]);
 const livenessNames = new Set(["Heartbeat", "HeartbeatAck"]);
 const reliableNames = new Set([
   "RecoveryStateReport", "SessionReadiness", "SafetyStateChanged", "SublotEntryRequested", "SlotOperationCommand", "OperationResult", "LoadCorrectionCommand", "LoadCorrectionResult",
   "LoadCancellationResult", "LoadCompensationCommand", "LoadCompensationResult", "SlotOperationResumeCommand", "FaultCargoRecoveryCommand", "FaultCargoRecoveryResult",
   "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult",
+  "SlotConfigurationActivationCommand", "SlotConfigurationActivationResult",
 ]);
 
 const directions = {
@@ -275,6 +278,11 @@ const directions = {
   RecoveryActionSubmitted: "O_TO_C", RecoveryActionAccepted: "C_TO_O", RecoveryActionRejected: "C_TO_O", HardwareRecoveryRecordSubmitted: "O_TO_C", HardwareRecoveryRecordResult: "C_TO_O",
   SlotOperationResumeCommand: "C_TO_O", FaultCargoRecoveryCommand: "C_TO_O", FaultCargoRecoveryResult: "O_TO_C", ForcedMechanicalRecoveryCommand: "C_TO_O", ForcedMechanicalRecoveryResult: "O_TO_C",
   DurableAck: "BIDIRECTIONAL", SnapshotAppliedAck: "BIDIRECTIONAL", ProtocolProblem: "BIDIRECTIONAL",
+  DemandSelectionRequested: "O_TO_C", DemandSelectionResult: "C_TO_O",
+  UnableToChargeFieldConfirmationRequested: "O_TO_C", UnableToChargeFieldConfirmationResult: "C_TO_O",
+  ManualStationClearanceConfirmationRequested: "O_TO_C", ManualStationClearanceConfirmationResult: "C_TO_O",
+  SlotConfigurationActivationCommand: "C_TO_O", SlotConfigurationActivationResult: "O_TO_C",
+  OnboardAlarmSnapshot: "O_TO_C",
 };
 
 const specs = {};
@@ -335,8 +343,37 @@ add("FaultCargoRecoveryResult", { exceptionRecoverySessionId: R("Id"), recoveryA
 add("ForcedMechanicalRecoveryCommand", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), demandId: Nullable(R("Id")), forcedRecoveryGeneration: R("Generation"), slots: Slots(), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "forcedRecoveryGeneration"], recoveryRole: "FORCED_MECHANICAL_RECOVERY" });
 add("ForcedMechanicalRecoveryResult", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), forcedRecoveryGeneration: R("Generation"), outcome: E("MECHANICALLY_ISOLATED", "FAILED", "UNKNOWN"), slots: Slots(), operator: R("OperatorContext"), observedAt: R("Instant"), electronicEmptyProven: B({ const: false }), vehicleReadyProven: B({ const: false }) }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "forcedRecoveryGeneration"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("DurableAck", { acceptedMessageId: R("Id"), acceptedMessageType: S(), acceptedContentSha256: R("Sha256"), durablyAcceptedAt: R("Instant") }, { businessDedupKeys: ["acceptedMessageId"], recoveryRole: "DURABLE_ACCEPTANCE" });
-add("SnapshotAppliedAck", { snapshotMessageId: R("Id"), snapshotKind: E("CAPABILITY", "SAFETY_STATE", "VEHICLE_BUSINESS_STATE", "CURRENT_STOP_WORKLIST", "UPCOMING_STOP_PLAN", "EXCEPTION_RECOVERY_SESSION"), appliedRevision: R("Revision"), appliedContentSha256: R("Sha256") }, { businessDedupKeys: ["snapshotMessageId"], recoveryRole: "SNAPSHOT_ADOPTION" });
+add("SnapshotAppliedAck", { snapshotMessageId: R("Id"), snapshotKind: E("CAPABILITY", "SAFETY_STATE", "VEHICLE_BUSINESS_STATE", "CURRENT_STOP_WORKLIST", "UPCOMING_STOP_PLAN", "EXCEPTION_RECOVERY_SESSION", "ONBOARD_ALARM"), appliedRevision: R("Revision"), appliedContentSha256: R("Sha256") }, { businessDedupKeys: ["snapshotMessageId"], recoveryRole: "SNAPSHOT_ADOPTION" });
 add("ProtocolProblem", { rejectedMessageId: R("Id"), rejectedMessageType: Nullable(S()), problem: R("Problem"), expectedProtocolVersion: I({ const: protocolVersion }), expectedProfileId: S({ const: profileId }), expectedProtocolReleaseManifestSha256: R("Sha256") });
+// --- v2 additions. All nine take the single-Result shape: one outcome enum plus a nullable
+// problem, never an Accepted/Rejected pair. The pair form would cost four more schemas and about
+// a hundred more examples and buy no expressiveness. ---
+
+// The onboard side picks which committed worklist item to work next. It never discovers, selects
+// or binds a Demand: the list it picks from is the one the control server committed.
+add("DemandSelectionRequested", { selectionRequestId: R("Id"), stationId: S(), worklistRevision: R("Revision"), selectedDemandId: R("Id"), operator: R("OperatorContext"), requestedAt: R("Instant") }, { businessDedupKeys: ["selectionRequestId"] });
+add("DemandSelectionResult", { selectionRequestId: R("Id"), outcome: E("SELECTED", "REJECTED"), problem: Nullable(R("Problem")), operationSessionId: Nullable(R("Id")), currentWorklistRevision: R("Revision") }, { businessDedupKeys: ["selectionRequestId"] });
+
+// Charging failure is a field observation before it is a policy decision: the vehicle reports what
+// it saw at the charger, the control server decides what that means for the charging cycle.
+add("UnableToChargeFieldConfirmationRequested", { confirmationRequestId: R("Id"), chargerStationId: S(), observedCondition: E("CHARGER_UNREACHABLE", "CHARGER_OCCUPIED", "CONNECTION_FAILED", "CHARGER_FAULT"), operator: R("OperatorContext"), observedAt: R("Instant") }, { businessDedupKeys: ["confirmationRequestId"] });
+add("UnableToChargeFieldConfirmationResult", { confirmationRequestId: R("Id"), outcome: E("CONFIRMED", "REJECTED"), problem: Nullable(R("Problem")), chargingPolicyDecision: Nullable(E("RETRY_LATER", "MANUAL_CHARGING_HOLD", "REASSIGN_CHARGER")) }, { businessDedupKeys: ["confirmationRequestId"] });
+
+// Clearing a blocked public station is a human act; the wire only carries who confirmed it and
+// whether the control server released the station's occupancy as a result.
+add("ManualStationClearanceConfirmationRequested", { confirmationRequestId: R("Id"), stationId: S(), publicStationFunction: Nullable(R("PublicStationFunction")), clearedCondition: E("STATION_EMPTY", "OBSTRUCTION_REMOVED", "CARGO_RELOCATED"), operator: R("OperatorContext"), observedAt: R("Instant") }, { businessDedupKeys: ["confirmationRequestId"] });
+add("ManualStationClearanceConfirmationResult", { confirmationRequestId: R("Id"), outcome: E("CONFIRMED", "REJECTED"), problem: Nullable(R("Problem")), stationReleased: B() }, { businessDedupKeys: ["confirmationRequestId"] });
+
+// RELIABLE rather than REQUEST/RESPONSE: activating a slot configuration must not be guessed
+// successful, which is exactly what PENDING_RESULT_REPLAY exists for. A RESPONSE has no re-report
+// semantics, so a disconnect would simply lose the answer.
+add("SlotConfigurationActivationCommand", { activationId: R("Id"), targetSlotConfigurationVersion: S(), targetSlotConfigurationFingerprint: R("Sha256"), expectedActiveSlotConfigurationVersion: Nullable(S()), administrator: R("OperatorContext"), issuedAt: R("Instant") }, { businessDedupKeys: ["activationId"], recoveryRole: "SLOT_CONFIGURATION" });
+add("SlotConfigurationActivationResult", { activationId: R("Id"), outcome: E("ACTIVATED", "REJECTED", "UNKNOWN"), problem: Nullable(R("Problem")), activeSlotConfigurationVersion: S(), activeSlotConfigurationFingerprint: R("Sha256"), verifiedAt: R("Instant") }, { businessDedupKeys: ["activationId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+
+// Alarms are a snapshot, not an event stream: an event stream's reconnect gap is precisely the
+// "stale" display state the rules forbid. AlarmEntry.code is an open set, deliberately not
+// ErrorCode.
+add("OnboardAlarmSnapshot", { alarmSnapshotRevision: R("Revision"), observedAt: R("Instant"), alarms: A(R("AlarmEntry"), { uniqueItems: true }) }, { recoveryRole: "SNAPSHOT_ADOPTION" });
 
 const denylist = ["OperationCancelCommand", "LoadCancellationCommand", "LoadFinalConfirmation", "UnloadCommand", "SublotAccepted", "OperationCommandAck", "OperationResultAck", "LoadCompensationCommandAck", "WireToGateExecutionSnapshot", "DepartureSafetyRevoked", "OnboardCapabilitySnapshot"];
 
