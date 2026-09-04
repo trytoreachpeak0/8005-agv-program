@@ -45,6 +45,7 @@ _Avoid_: 最大管理员、超级账号、安全门禁覆盖者
 **管理员个人账号（PersonalAdministratorAccount）**:
 唯一绑定一名自然人的账号密码身份，只能授予 MaintenanceAdministrator 或 SystemAdministrator 之一；每个账号只允许一个活动登录会话，新登录终止并记录旧会话，不同人员必须分别建立账号，全部查看与变更审计均归属该具体人员。密码只可由 SystemAdministrator 设置，MaintenanceAdministrator 不能自行改密；设置新密码不终止当前会话，新密码从下次登录生效。
 _Avoid_: 岗位共享账号、通用管理员、多人共用密码、同账号并发登录
+_Note_: 该词条描述的是已批准的需求语义，**不是当前实现**。完整产品本期不建人员认证与账号（2026-09-04 用户定案，完整产品图票 05）；现有形态是一个全场共用的环境变量做定时安全比较，**不识别自然人、也不区分 MaintenanceAdministrator 与 SystemAdministrator**，而 `administratorRole` 是消息 payload 里由客户端自行声明的字符串。故任何按个人账号归属的审计在当前实现下都不可归属自然人。
 
 **管理员撤权（AdministratorAccessRevocation）**:
 系统管理员停用管理员个人账号或降低其角色后立即终止该账号的活动登录和异常处置权限；此前已经发出但结果未知的动作继续由系统对账并保留审计，后续处置须由另一具备权限的个人账号重新登录接手。
@@ -177,6 +178,7 @@ _Avoid_: 单次心跳丢失即断线、只依赖 TCP 状态、每车不同超时
 **VehicleBusinessReadiness（车辆业务就绪态）**:
 VehicleConnectionSession 完成认证后，由服务端在能力同步、未结操作及积压结果对账、物理与业务状态核对均通过且不存在 ManualChargingHold 等业务保持时明确授予的业务状态；只有处于该状态才可开始扫码、接收新仓位操作或恢复移动。
 _Avoid_: TCP 已连接、TLS 已认证、心跳正常、电量上升即自动重新投运
+_Note_: 它是 **fail-closed 谓词链的派生量，不是可写状态字段**——「谓词链无命中」即业务就绪。归档恢复、暂停分配、配置维护、电量不足各是链上的一个独立谓词，互不覆盖，因此阻断原因不会被一个笼统的 Disabled 值吞掉。「投运」这个动作写的是一个供谓词读取的已投运标志位，不是把状态设为就绪，故「检查通过也不自动投运」是该形态的直接结果而非另一条规则。
 
 **VehicleBusinessStateSnapshot（车辆业务状态快照）**:
 ControlServer 面向单台 AGV 发布的带版本完整业务投影，只表达 VehicleBusinessReadiness、ManualChargingHold、电量事实未知及结构性业务阻断；它不复制 Demand、停靠计划、车载物理安全或仓位执行状态。

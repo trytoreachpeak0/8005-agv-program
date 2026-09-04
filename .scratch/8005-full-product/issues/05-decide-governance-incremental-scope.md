@@ -1,8 +1,9 @@
 # 决定治理面增量范围（账号权限、配置审计、AGV 生命周期、看板）
 
 Type: grilling
-Status: open
+Status: closed
 Blocked by: 02
+Blocks: 06
 
 ## Question
 
