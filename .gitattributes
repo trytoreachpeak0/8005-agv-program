@@ -8,3 +8,6 @@ mes/queries/sublot-box-count/query.sql -text -diff
 
 # 最终规格同样按字节绑定 SHA-256（记在 issues/10-answer.md），同理禁止行尾转换。
 .scratch/8005-full-product/full-product-scope-and-sequence-specification.md -text
+
+# 候选工具模板会被逐字写进协议仓的 tools/，行尾漂移会让模板与生成输出出现假差异。
+.scratch/wire-to-gate-ai-implementation-kit/tools/templates/*.mjs text eol=lf
