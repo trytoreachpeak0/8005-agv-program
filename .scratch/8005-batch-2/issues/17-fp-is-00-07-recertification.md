@@ -19,6 +19,18 @@
 
 **前置：** 票 14（服务端 v2）、票 15（车载端 v2）、票 16（`vectorId` 绑定守卫）。
 
+**票 16 于 2026-09-08 完成，这一条前置解除**（见 [16-answer.md](16-answer.md)）。守卫落在
+控制端 `562544e`，CI 绿（run
+[34227325616](https://github.com/trytoreachpeak0/8005-agv-control-server/actions/runs/34227325616)，
+`569 passed / 0 failed / 0 skipped`）。**票 14、15 仍未完成，本票尚不可开工。**
+
+票 16 转交本票一件事：`CV-LOAD-CANCELLATION-ALL-EMPTY` 是它 20 条绑定里最薄的一条——服务端
+取消面（`OnboardRecoveryCoordinator.AuthorizeLoadCancellationAsync`）只有
+`FailedCompensationResultIsDurableReplayableAndNeverReleasesDemandOrVehicle` 一条测试覆盖，
+且走的是 `REJECTED` 分支，只证了 `AUTHORIZE_CANCELLATION_EXPLICITLY` 那一半；
+`RECONCILE_EMPTY_FINAL_STATE` 那一半在实现里（同文件 `safeEmpty` 判据）但没有独立测试。
+**`FP-IS-02` 重证时应当补上。**
+
 **状态：** ready-for-agent
 
 - [ ] 八个切片各跑一遍 `CONTROL_SERVER_G2`，八份 `gate-result.json` 全 PASS
