@@ -27,9 +27,10 @@
 **状态：** resolved（2026-09-08，见 `18-answer.md`）
 
 - [x] 合成 3 车 L2 场景建成，三台车在同一场景内各自被派单并推进 —— `three-vehicle-exit`
-- [~] 新场景挂进 CI，**连续三次通过**，三次的证据目录各自独立保留 —— 场景已挂进 `l2.yml`
-      且轮数写成 3，**三连绿在本机取得**（9 次运行全 PASS，9 个独立目录）；CI 上的三连要等
-      这条分支被推上去，推送权在用户
+- [x] 新场景挂进 CI，**连续三次通过**，三次的证据目录各自独立保留 —— 场景已挂进 `l2.yml`
+      且轮数写成 3；本机 9 次运行全 PASS，**2026-09-08 在 CI 上复现**（run
+      [34212712488](https://github.com/trytoreachpeak0/8005-agv-control-server/actions/runs/34212712488)）：
+      17 次运行全 PASS，出口三条各 3/3，证据 552 个文件上传为 `l2-evidence` artifact
 - [x] 引擎陈旧态的三种触发（指纹变化、动态代价由空变非空、超 TTL）各有一份 fail-closed 证据
       —— `route-graph-staleness`；超 TTL 取的是运行态那条，设计态那条见决议缺口三
 - [x] 命令面的三条断言各有证据：该调用时调用了、参数正确、只调一次 —— `command-surface-order-hold`；

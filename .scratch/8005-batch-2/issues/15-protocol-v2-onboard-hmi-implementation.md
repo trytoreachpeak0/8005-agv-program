@@ -21,10 +21,16 @@ Kun Wang：只在 `w2g/*` 分支上工作，改动以 pull request 交给 `Onboa
 
 **前置：** 批次 1 完成（协议 v2 候选生成 ＋ G1 通过）。
 
+**2026-09-08 已满足，前置解除。**协议仓 `fp/v2-candidate`（HEAD `f6ee75d`，已推送）即 v2
+候选，G1 于 2026-09-08 在协议仓 self-hosted runner 上实跑通过（run
+[34212719223](https://github.com/trytoreachpeak0/8005-agv-protocol/actions/runs/34212719223)）：
+`status PASS`、`failures []`、69 schema／63 消息／31 向量／16 切片。详见票 14 的前置节。
+
 **状态：** ready-for-agent
 
 - [ ] 车载端三项身份全部切到 v2
-- [ ] 63 条消息、45 个错误码中属于车载端的那部分全部实现
+- [ ] 63 条消息、**54** 个错误码中属于车载端的那部分全部实现
+      （**不是 45**——见票 14 前置节的更正：43 ＋ 2 冻结 ＋ 9 实现区分码 ＝ 54）
 - [ ] 车载端侧 `IntegrationSlice` trait 重打为 `FP-IS-NN`，并逐条复核测试
 - [ ] 车载端测试全绿
 - [ ] 全部工作在 `w2g/*` 分支上，`OnboardHmi_MVP` 零推送

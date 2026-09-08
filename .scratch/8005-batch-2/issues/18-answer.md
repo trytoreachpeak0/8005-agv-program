@@ -6,8 +6,8 @@ Resolves: `18-track-b-exit-evidence-three-vehicle-l2.md`
 ## 结论一句话
 
 **三台车在同一次运行里各自走完一趟 WIRE_TO_GATE；陈旧态三种触发各有一份 fail-closed 证据；
-命令面「该调用时调用了、参数正确、只调一次」在 L2 上成立。**八条验收里七条通过，一条**部分
-达成**（CI 三连绿要等推送，本机三连绿已取得）。
+命令面「该调用时调用了、参数正确、只调一次」在 L2 上成立。**八条验收全部通过**——写这份决议
+时第八条（CI 三连绿）尚待推送，**2026-09-08 推送并在 CI 上跑通**，见下面缺口一。
 
 证据：**L1 561 passed / 0 failed**（票 09 基准 557 ＋ 4，`-c Release`）；**L2 十一条场景 17 次
 运行全 PASS**，出口三条各连续三次。零新增 migration，零 `Ports.cs` 改动。
@@ -142,7 +142,7 @@ $rows = Get-Journeys; $rows | Where-Object { ... }  # 对
 | 票据条目 | 结果 |
 | --- | --- |
 | 合成 3 车 L2 场景建成，三台车在同一场景内各自被派单并推进 | ✅ `three-vehicle-exit`，22 条判据，三台车各自 `Completed`，六张单绑三把 key |
-| 新场景挂进 CI，**连续三次通过**，三次证据各自独立保留 | ⚠️ **部分**：场景已挂进 `l2.yml` 且轮数写成 3；**三连绿在本机取得**（9 次运行全 PASS，9 个独立目录）。CI 上的三连要等这条分支被推上去 |
+| 新场景挂进 CI，**连续三次通过**，三次证据各自独立保留 | ✅ 场景已挂进 `l2.yml` 且轮数写成 3；本机 9 次运行全 PASS，**2026-09-08 在 CI 上复现**（run [34212712488](https://github.com/trytoreachpeak0/8005-agv-control-server/actions/runs/34212712488)）：17 次运行全 PASS，`three-vehicle-exit`／`command-surface-order-hold`／`route-graph-staleness` 各 3/3，552 个证据文件上传为 `l2-evidence` artifact |
 | 陈旧态三种触发各有一份 fail-closed 证据 | ✅ `route-graph-staleness`，三条各自的 `StaleReason` ＋ 各自的 backlog 原因码 ＋ 全程零 journey 零单 |
 | 命令面三条断言各有证据 | ✅ `command-surface-order-hold`：L2-CS-01/02（调用前零）、03（调用了）、04–08（参数逐项）、09–11（只调一次，两边计数一致） |
 | `FP-C13` 的负向证据在场景里取得 | ✅ `create-gate-unapproved`（票 13 建的）跑通并**挂进了 CI**——此前它不在 CI 清单里 |
@@ -150,15 +150,35 @@ $rows = Get-Journeys; $rows | Where-Object { ... }  # 对
 | L1 全绿且新能力都有新增覆盖 | ✅ 561 passed / 0 failed，新增 4 条覆盖命令面从循环出发那条路径（含「健康时一条命令都不发」的负半条） |
 | 四条证据纪律全部遵守 | ✅ 目录不存在才建、红的没被覆盖（两份留档）、失败时 stage root 留着、17 个新目录零修改 |
 
-**一处部分达成**（CI 三连），理由是推送权在用户手上，不是少做。
+**八条验收全部达成**（2026-09-08 补上最后一条：CI 三连绿，见下面缺口一的收口）。
 
 ## 如实登记的缺口
 
-### 一、CI 的三连绿尚未发生
+### 一、CI 的三连绿尚未发生 —— **2026-09-08 已收口，不再是缺口**
 
-`l2.yml` 已经写成「出口三条各跑三次、任一次红就跳过该场景剩余轮次」，本机 17 次运行全绿。
-但**本会话没有推送任何东西**，所以 CI 上还没跑过一次。推了之后 l2 workflow 会自己跑；
-它的 `timeout-minutes` 已从 20 提到 60（11 条场景 17 次运行，本机耗时约 12 分钟）。
+原文如实记的是当时状态：`l2.yml` 已写成「出口三条各跑三次、任一次红就跳过该场景剩余轮次」，
+本机 17 次运行全绿，但那个会话没有推送任何东西，CI 上一次都没跑过。
+
+**2026-09-08 推送并跑通。**`fp/v2-impl` 推到 origin（`8efc581..9c14185`，26 个提交）。
+
+**一条必须记下的机制**：`l2.yml` 与 `test.yml` 的 push 触发分支是 `[ControlServer_MVP, main]`，
+`fp/v2-impl` 不在里面，**直接推这条分支两个 workflow 一个都不会跑**。用户 2026-09-08 定：
+走 `workflow_dispatch`，不改分支表——把这条长命分支加进 push 表会让它每次推送都占用仓库
+唯一的 self-hosted runner。命令是 `gh workflow run l2.yml --ref fp/v2-impl`。
+
+| run | 结论 | 用时 | 内容 |
+| --- | --- | --- | --- |
+| [34212712488](https://github.com/trytoreachpeak0/8005-agv-control-server/actions/runs/34212712488) l2 | ✅ success | 7 分 16 秒 | 17 次运行全 PASS：8 条既有场景各 1 次，`three-vehicle-exit` 3/3、`command-surface-order-hold` 3/3、`route-graph-staleness` 3/3；552 个证据文件上传为 `l2-evidence` |
+| [34212715811](https://github.com/trytoreachpeak0/8005-agv-control-server/actions/runs/34212715811) test | ✅ success | 1 分 46 秒 | `已通过! - 失败: 0，通过: 561，已跳过: 0，总计: 561`，与本机一致 |
+
+CI 上 7 分 16 秒比本机的约 12 分钟快，`timeout-minutes: 60` 有充足余量。
+
+**证据目录未动**（只增不改）：CI 的 17 份证据落在 runner 的 `RUNNER_TEMP` 下并作为 artifact
+上传，没有写进仓库的 `evidence/`；本票原有的证据目录一字未改。
+
+一处非致命警告，如实记下：`load-result-requires-recovery` 在 09:57:43 打了
+`WARNING: Could not snapshot fake-onboard: 由于目标计算机积极拒绝，无法连接。`，该场景仍 PASS。
+本机跑同一场景没有这条。它是收尾时对已退出的 fake-onboard 取快照，不影响断言。
 
 ### 二、票 11 的缺口一只关上了一条缝
 

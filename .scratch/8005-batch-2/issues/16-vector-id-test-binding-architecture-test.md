@@ -14,7 +14,13 @@ RIoT 白名单架构测试并列为三条「CI 上一条测试绿」的横切守
 **冲突边界：** 独立测试文件，不碰产品代码。与票 14／15 并行——它读协议仓的 `index.json`
 与两端的测试标注，批次 1 一落地就能写。
 
-**前置：** 批次 1 完成（`index.json` 有 v2 的 16 行切片表与 31 条向量）。
+**前置：** 批次 1 完成（`index.json` 有 v2 的 16 行切片表与 31 条向量）。**2026-09-08 已满足，
+前置解除。**`fp/v2-candidate` 的 `integration-slices/index.json` 实测 `schemaVersion 2.0.0`、
+**16** 条切片（`FP-IS-00`～`15`），`vectors/` 实测 **31** 个目录；G1 在 CI 上对这两个数各有
+一条断言并通过（run
+[34212719223](https://github.com/trytoreachpeak0/8005-agv-protocol/actions/runs/34212719223)，
+`integrationSliceCount 16`、`trajectoryCount 31`）。**本票不依赖生成器**，只读协议仓已有的
+`index.json` 与两端测试标注，因此批次 1 那条未达成的生成器出口不阻塞它。
 
 **状态：** ready-for-agent
 
