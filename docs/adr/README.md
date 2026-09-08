@@ -68,3 +68,4 @@
 | [ADR-cross-0055](cross/0055-server-owned-station-departure-wait-timeout.md) | 服务端掌握装货站离站等待超时并原子结束本站 |
 | [ADR-cross-0056](cross/0056-dotnet-toolchain-baseline.md) | 四个可写 .NET 仓库统一工具链基线 |
 | [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡 |
+| [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复 |
