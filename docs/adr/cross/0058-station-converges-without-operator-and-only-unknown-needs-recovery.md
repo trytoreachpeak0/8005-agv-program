@@ -39,6 +39,33 @@ StationDepartureWaitTimeout（默认 5 分钟）计时，到期以 StopClosureCo
 两条合起来的图景是完整的：仓位层面靠目标态闭环反复纠正，站点层面靠服务端期限收口，人工恢复
 只留给传感器不可信。
 
+## 本文档比对的是哪个版本
+
+**这一节是后加的，因为第一版把本地代码当成了线上现状，三条结论因此是错的。**
+
+线上 ControlServer 部署自 commit `75ea9f6`（`D:\zhengyushao\ControlServer\release-manifest.json`，
+2026-09-04 构建，`worktreeCleanAtStart: true`），`/version` 报 `protocolVersion: 1` /
+`protocol-v0.1.1`。而本地 `ControlServer_MVP` 分支已在实施 ADR-cross-0057——两个
+`feat(journey)!` 提交把旅程切到 protocolVersion 2，HEAD 之外还有约 900 行未提交改动。
+
+下面这些**只存在于本地，线上一行都没有**，全部经 `git show 75ea9f6:` 与线上库逐项核对：
+
+| 机制 | 线上 `75ea9f6` | 线上数据库 |
+| --- | --- | --- |
+| `JourneyRuntimeOptions.SublotWaitTimeout` | 不存在 | — |
+| `TryTimeOutSublotWaitAsync` | 0 处 | `JourneyRuntimes` 无 `SublotWaitStartedAt` 列 |
+| 迁移 `20260907174639_SublotWaitTimeoutAndBeforeLoadCancellation` | 当时尚未创建 | 未应用（线上最新是 `20260903110052_...`） |
+| `TransportDemandSuppressions` | 0 处 | 表不存在 |
+| `CancelDemandBeforeLoadAsync` | 0 处 | — |
+
+反过来，`WireToGateStore.ApplyOperationResultAsync` 的 `completedSafely` 二值判定在
+`75ea9f6` 里就是现在这样（1455、1461 行），未变。车载端 `OperationTimeoutMs = 120_000`
+由实测佐证：2026-09-08 首趟真车超时发生在开锁后 119 秒。
+
+**因此「不录入 SUBLOT 会在 5 分钟后被取消」在线上是不成立的。**线上的真实行为是服务端每
+2 秒无限重发 `SublotEntryRequested`，旅程停在 `AwaitingSublot`，车一直占着取货站，没有任何
+机制会解救它——这正是本 ADR 要消除的那类卡死，而且是其中最容易发生的一种。
+
 ## 实现差距
 
 WIRE_TO_GATE 的仓位操作走 `WireToGateSlotOperationExecutor`，与之并存的 `OnboardController`
@@ -51,7 +78,7 @@ WIRE_TO_GATE 的仓位操作走 `WireToGateSlotOperationExecutor`，与之并存
 | 车载端期限 | `OperationTimeoutMs` 默认 120000 ms，**整条命令共享**（`deadline = started + OperationTimeout`），非每仓位各一份 | 基线不设仓位重试上限，站点时长归服务端；这个期限本身即偏离 |
 | 超时结局 | `overallOutcome = "UNKNOWN"`，仓位 `outcome = "UNKNOWN"`，`reasonCode = ACTION_NOT_ALLOWED_IN_STATE` | 把「明确相反状态」当成了 UNKNOWN，正是 ADR-0040 禁止的那种混淆 |
 | 服务端判定 | `completedSafely` 二值：非完美完成一律 `RecoveryRequired` | 缺「确定失败」这一档 |
-| 站点期限 | 无 StationDepartureWaiting；只有 `JourneyRuntimeOptions.SublotWaitTimeout`（默认 5 分钟）覆盖「未录入 SUBLOT」 | ADR-0055 的 StopClosureCommit 未实现 |
+| 站点期限 | **线上一个期限都没有。**无 StationDepartureWaiting，也无 sublot 录入超时——不录入就无限期停在 `AwaitingSublot`。本地新增了 `SublotWaitTimeout`（默认 5 分钟），尚未部署 | ADR-0055 的 StopClosureCommit 未实现；线上连本地那半个替代品都还没有 |
 | 契约 `FAILED` | `overallOutcome` 与 SlotResult 的 `outcome` 枚举均已含 `FAILED`，两端**一次都没用过** | 表达能力已在契约里，实现未取用 |
 
 契约侧不需要改动即可表达「确定的失败」：`overallOutcome: FAILED` 配合
@@ -96,11 +123,15 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
    一并写成 `NOT_STARTED` + `UNKNOWN`，使 2 号仓在从未开启的情况下进入恢复范围。未开启的仓位
    没有任何物理不确定性，应保持 `NOT_STARTED` 且不触发恢复。
 
-7. **未录入 SUBLOT 超时后该订单不再重派。** 现行行为——`SublotWaitTimeout` 到期后
-   `CancelDemandBeforeLoadAsync` 记 `CANCELLED_BY_STATION_TIMEOUT`，并由
-   `TransportDemandSuppressions` 按 TransportDemandKey 写入永久禁令，候选评分以
-   `TRANSPORT_DEMAND_SUPPRESSED` 挡下——**即为期望行为**，无需改动。车辆释放去接后续需求，该订单
-   由 MES 侧另行处理。Zhengyu Shao 于 2026-09-08 确认。
+7. **未录入 SUBLOT 超时后该订单不再重派。** 本地已实现、**尚未部署**的那套行为——
+   `SublotWaitTimeout` 到期后 `CancelDemandBeforeLoadAsync` 记 `CANCELLED_BY_STATION_TIMEOUT`，
+   并由 `TransportDemandSuppressions` 按 TransportDemandKey 写入永久禁令，候选评分以
+   `TRANSPORT_DEMAND_SUPPRESSED` 挡下——**即为期望行为**，设计上无需改动。车辆释放去接后续需求，
+   该订单由 MES 侧另行处理。Zhengyu Shao 于 2026-09-08 确认。
+
+   **但它在线上不存在**（见上文版本一节），所以这一条不是"维持现状"，而是**一项待交付工作**：
+   在这套代码部署之前，不录入 SUBLOT 就是无限期占站，与第 3、4 条要消除的卡死同类。它排在
+   ADR-cross-0055 的 StationDepartureWaiting 之前，因为它已经写好了，只差一次发布。
 
 **Status**: proposed
 
