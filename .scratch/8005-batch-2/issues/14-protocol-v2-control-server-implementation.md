@@ -45,11 +45,11 @@ node v24.20.0）：`status PASS`、`failures []`、69 schema／63 消息／63 va
 上真正执行**——此前所有 g1 运行都在 `main`，而 `evidence/g1-result.json` 的 `checkedAt` 是
 `g1-validate.mjs` 里的硬编码常量，本身不构成执行证据。
 
-**批次 1 有一条出口未达成，但不阻塞本票**：「生成器可重跑且输出确定」。升级后的
-`generate-protocol-candidate.mjs`（规格 3.2 的 11 项输出点）只存在于 `vm01`，从未回到任何
-仓库；本机三份副本字节相同且都是 v0.1.1 版（`profileId WIRE_TO_GATE_MVP`、
-`protocolVersion 1`、`candidateVersion 0.1.0`），写出的 `g1-validate.mjs` 仍是 8 切片 ＋
-`runner/` schema 的老契约。本票依赖的是协议仓里**已有的** v2 内容，不依赖生成器本身。
+**批次 1 四条出口 2026-09-08 全部绿**，见 `../batch-1-exit-verification.md`。其中「生成器可
+重跑且输出确定」这条当天上午一度被误判为缺口（以为升级后的生成器只在 `vm01`），下午查明
+它早在 2026-09-04 就提交在 `fp/generator-v2` 上，只是没合进 `main`；合并后在 `vm01` 上补做
+了两条验证：`--verify-determinism` 报 1754 文件 0 分歧，且用它新产的树与 `fp/v2-candidate`
+逐文件比对 1753/1754 逐字节相同，差异恰好是分叉台账第 6 节的生成后手工步骤。
 
 **状态：** ready-for-agent
 
