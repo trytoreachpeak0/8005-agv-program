@@ -62,15 +62,22 @@ ADR-cross-0055 的站点停留超时处理，与本条无关）。空载时持�
   拆成从属表。现有单单旅程在迁移中视为"一个停靠、一个需求"的退化形态。
 - 车载端的 CurrentStopWorklist 与 UpcomingStopPlan 渲染要能承载多项与多段，属于
   `8005-agv-onboard-hmi`，按 `w2g/*` 分支加 PR 的路径交付。
-- **一并对齐第一期落地时自造的两个理由码。**ControlServer 现在用
-  `CANCELLED_BY_SUBLOT_WAIT_TIMEOUT` 与 `CANCELLED_BY_OPERATOR_BEFORE_LOAD`，而基线登记的是
-  `CANCELLED_BY_STATION_TIMEOUT`（等待到期）与 `CANCELLED_BY_STOP_COMPLETE`（操作员确认本站完成），
-  见 FR-004、FR-031、UC-002、UC-046。同一件事有两套名字会让审计对不上。
-- **取消抑制仍未实现，本次一并补。**ADR-cross-0047 与 FR-004 要求上述两个理由码原子写入
-  `TransportDemandSuppression`（按 TransportDemandKey = 任务类型 + SUBLOT）。ControlServer 目前
-  没有这张表，取消只更新 `AcceptedDemands` 的状态——同一个 DemandId 不会被重选，但 MesIngest 为
-  跨 GONE 再现分配新 DemandId 时，同一个 SUBLOT 会作为新实例重新进入候选，车辆会被再次派往同一个
-  空站点。单单模型下这只是缺陷，多单模型下每个停靠都可能踩到。
+- **理由码已对齐（不必等本条实施，已先行落地）。**第一期自造的
+  `CANCELLED_BY_SUBLOT_WAIT_TIMEOUT` 与 `CANCELLED_BY_OPERATOR_BEFORE_LOAD` 已改为基线登记的
+  `CANCELLED_BY_STATION_TIMEOUT` 与 `CANCELLED_BY_OPERATOR`。第二个的取值值得记一笔：起初以为该用
+  `CANCELLED_BY_STOP_COMPLETE`，但那是 UC-002 里操作员点击「本站装货完成」的终态；本条实现的动作是
+  ADR-cross-0046 首项——"SlotOperationCommand 尚未发送且没有物理装载"的取消——它明确终结为
+  `CANCELLED_BY_OPERATOR`，与装货中取消同码，两者靠物理阶段和审计主体区分。
+- **取消抑制已实现（同样先行落地）。**`TransportDemandSuppressions` 表按
+  TransportDemandKey（任务类型 + SUBLOT）记录永久禁令，五个理由码
+  （`CANCELLED_BY_OPERATOR`、`CANCELLED_BY_LOAD_COMPENSATION`、`CANCELLED_BY_STOP_COMPLETE`、
+  `CANCELLED_BY_STATION_TIMEOUT`、`TERMINATED_BY_FAULT_CARGO_HANDOFF`）写入，候选评分以
+  `TRANSPORT_DEMAND_SUPPRESSED` 挡下。首条禁令不被后来的覆盖，也没有解除入口。此前它一条都没写，
+  包括已有的装货中取消路径。
+- **仍未实现：ADR-cross-0046 要求这一幕也走 `LoadCancellationResult`**（"车载端获得取消授权后确认
+  没有关联目标仓位，直接报告 ALL_EMPTY"），而 `LoadCancellationResult.slotResults` 是 `minItems: 1`，
+  装不下没有仓位的 ALL_EMPTY。当前实现以"授权即终结"绕开该矛盾，形状与 0046 不同。放宽那个下限是
+  schema 变更，随本条的 v0.2.0 一并处理。
 - L2 场景层要新增"一趟多单"的基线场景，现有三条新场景
   （`load-cancelled-before-sublot`、`sublot-wait-timeout`、`auto-charge-endurance`）中按单单假设写的
   断言要重写。合成对端的应答缓存键已在第一期改成带业务身份，多单场景不再受"一个会话只能装一次货"
