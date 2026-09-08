@@ -41,10 +41,13 @@ RIoT 白名单架构测试并列为三条「CI 上一条测试绿」的横切守
 `CV-OPERATION-RESULT-UNKNOWN-RECONCILE`、`CV-SESSION-RECONNECT-DURING-RECOVERY`）——
 **断言要按去重后的 31 数，不是 34。**
 
-**状态：** ready-for-agent
+**状态：** resolved（2026-09-08，见 [16-answer.md](16-answer.md)）—— 20/31 绑定到具名测试，
+11 条按规格 7.2 钉住（切片属批次 3～8，服务端实测零实现）。控制端 L1
+`569 passed / 0 failed / 0 skipped`。**车载端未做**，用户 2026-09-08 定为另开票。
 
-- [ ] 一条架构测试断言每个 `vectorId` 有具名测试对应，删掉一条测试能让它变红
-- [ ] 同一条测试断言不存在指向不存在 `vectorId` 的测试标注，改错一个 id 能让它变红
-- [ ] 断言的向量清单从协议仓的 `index.json` 读取，测试里不出现手抄的第二份清单
-- [ ] 测试在 headless runner 上跑，不需要桌面
-- [ ] 测试不挂任何 `IntegrationSlice` trait
+- [x] 一条架构测试断言每个 `vectorId` 有具名测试对应，删掉一条测试能让它变红
+- [x] 同一条测试断言不存在指向不存在 `vectorId` 的测试标注，改错一个 id 能让它变红
+      （形态偏离：落地为同一测试**类**里的两个 `[Fact]`，见 16-answer.md 第五节，待裁定）
+- [x] 断言的向量清单从协议仓的 `index.json` 读取，测试里不出现手抄的第二份清单
+- [x] 测试在 headless runner 上跑，不需要桌面
+- [x] 测试不挂任何 `IntegrationSlice` trait
