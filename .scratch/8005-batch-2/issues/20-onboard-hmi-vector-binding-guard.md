@@ -82,7 +82,29 @@ SHA-256 是 `71e0a63d49d1973653e1f70addc19c334faff5e53e8597733c1423a7307bd82f`�
 - **该仓工作树脏会中断 L2**（`Get-L2PeerPublish` 拒绝脏源），跑 L2 前先提交到 `w2g/*`。
 - 不改产品代码，只加测试与 vendor 副本。
 
-**前置：** 票 15（车载端 v2）。同一个仓、同一批测试文件，票 15 先落地免得撞车。
+**前置：** ~~票 15（车载端 v2）~~✅ **于 2026-09-09 完成，前置解除**（见
+[15-answer.md](15-answer.md)）。分支 `w2g/fp-v2-impl` = `f0b4e0d`，已推送，`168 passed`。
+
+票 15 转交本票五件事：
+
+1. **vendor 目录已经建好并按字节钉住了**，但 vendor 的是 `manifest/release.json`、
+   `errors/error-codes.json` 与 `schemas/` 整棵树，**`integration-slices/index.json` 还没有**
+   ——本票要加那一份。**加进去之后不需要新的哈希常量**：它同样在 manifest 的 `files` 表里，
+   `ProtocolIdentityArchitectureTests.EveryOtherVendoredFileIsPinnedByTheManifestFileTable`
+   会自动接管它。**那条断言的 `Assert.Equal(70, vendored.Length)` 要跟着改成 71。**
+   本票开工说明第 3 条写的「给既有的 `error-codes.json` 补钉哈希不在本票范围」已经由票 15 做掉了。
+2. **`.gitattributes` 的 `vendor/8005-agv-protocol/** -text` 已经挂上**（该仓原先没有
+   `.gitattributes`，票 15 只加了这一行），不用再加。
+3. **钉住集不要照抄控制端。**本票开工说明第 4 条写「20 绑 / 11 钉的切分对车载端同样成立，钉住集
+   与控制端逐条相同——但要自己重测一遍再照抄」。**票 15 重测的结果是不成立**：控制端钉住的
+   `CapabilitySnapshotRequested`／`SafetyStateSnapshotRequested`／`SublotRejected` 三条，车载端
+   **全部具名**，`SublotRejected` 还有完整的解析与校验。车载端的 11 条缺口是另一组，见
+   15-answer.md 第五节。**向量那一侧要自己再测一遍，同样别假定。**
+4. **`ReasonCodeRegistryArchitectureTests` 读的 vendor 路径已经不带版本段了**
+   （`vendor/8005-agv-protocol/errors/error-codes.json`），注册表也已换成 v2 的 54 个码。
+5. **交付形态改了：只推长期分支，不开 PR。** 用户 2026-09-09 定。`OnboardHmi_MVP` 已钉到
+   **已发布的** `protocol-v0.3.0`，PR 进去等于覆盖已签发布。做法对齐控制端的
+   `origin/fp/v2-impl`。**本票下面那两条关于 PR 的验收要跟着改写。**
 
 ## 两个未定项，等用户裁定
 
@@ -101,6 +123,6 @@ SHA-256 是 `71e0a63d49d1973653e1f70addc19c334faff5e53e8597733c1423a7307bd82f`�
 - [ ] 钉住集里每条都写明切片与批次，且拒绝任何属于 `FP-IS-00`～`07` 的向量被钉住
 - [ ] 两条自证真做过并如实记下原样输出，不是「应该会红」
 - [ ] 全部工作在 `w2g/*` 分支上，`OnboardHmi_MVP` 零推送
-- [ ] PR 已开，标题与正文用中文
+- [ ] ~~PR 已开，标题与正文用中文~~ —— **改写：不开 PR，见上第 5 条**
 - [ ] 该仓 `CLAUDE.md` 与 `docs/` 未被本票改动
 - [ ] 工作树干净，`w2g/*` 分支已推送，L2 可从它发布车载端
