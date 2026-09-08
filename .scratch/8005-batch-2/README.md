@@ -36,7 +36,7 @@ S 波（与 Q 波全程并行，前置是批次 1）
 
   票 15／20 的交付形态在 2026-09-09 由用户改定为**推长期分支，不开 PR**：
   `OnboardHmi_MVP` 已钉到已发布的 `protocol-v0.3.0`，PR 进去等于覆盖已签发布。
-  做法对齐控制端的 `origin/fp/v2-impl`。见 issues/15-answer.md 第十三节。
+  做法对齐控制端的 `origin/fp/v2-impl`。见 issues/15-answer.md 第十四节。
 
 T 波
   18 轨 B 出口证据（3 车 L2 三连绿）  ←08 ←09 ←11 ←12 ←13   ← 轨 B 出口

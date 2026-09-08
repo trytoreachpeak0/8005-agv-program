@@ -1,9 +1,9 @@
 # 15 —— 车载端实现协议 v2（完成说明）
 
 **日期：** 2026-09-09
-**仓库：** `8005-agv-onboard-hmi`，分支 `w2g/fp-v2-impl`
-**结果：** `168 passed / 0 failed / 0 skipped`（原基线 151 ＋ 17 条新守卫），提交 `f0b4e0d`，已推送
-**四处裁定由用户 2026-09-09 逐条定**：三处开工时定（第二节），一处收尾时定（第十三节）。
+**仓库：** `8005-agv-onboard-hmi`，分支 `w2g/fp-v2-impl`，提交 `f0b4e0d` ＋ `9ec5b29`，已推送
+**结果：** `172 passed / 0 failed / 0 skipped`（原基线 151 ＋ 21 条新守卫）
+**四处裁定由用户 2026-09-09 逐条定**：三处开工时定（第二节），一处收尾时定（第十四节）。
 
 ---
 
@@ -12,6 +12,8 @@
 车载 HMI 现在说 v2：三份身份副本全部切到 `AGV_FULL_PRODUCT` ＋ `protocolVersion 2` ＋
 `protocol-v1.0.0` 候选，**四类 payload 形状按 v2 schema 改对**，错误码 43 → 54，并新增三个架构
 测试把身份、消息面与 payload 形状各自钉死。
+
+**收尾双轴复审查出一条我自己引入的 fail-open，已修**，见第十三节。
 
 **「63 条消息车载端都实现了」这句话本票没有兑现，也不该在批次 2 兑现**（11 条缺口，见第五节）。
 本票兑现的是：这句话从此不靠人数数。
@@ -232,14 +234,22 @@ manifest 里的 `errorRegistrySha256`（`ea538d59…`）不是这里用的那个
 
 ---
 
-## 八、四条新守卫（17 条测试）
+## 八、五条新守卫（21 条测试）
 
 | 守卫 | 落在哪 | 条数 | 管什么 |
 | --- | --- | --- | --- |
-| `ProtocolIdentityArchitectureTests` | `SQCD.Agv.UnitTests`（headless） | 7 | 九个常量 ＝ 候选；vendor ＝ 协议按字节；线上身份恰好九个名字；tag 合法且 approvalStatus 说它是候选；脚本副本不漂 |
+| `ProtocolIdentityArchitectureTests` | `SQCD.Agv.UnitTests`（headless） | 7 | 十个常量里 manifest 带的那六个 ＝ 候选；vendor ＝ 协议按字节；线上身份恰好九个名字；tag 合法且 approvalStatus 说它是候选；脚本副本不漂 |
 | `ProtocolMessageSurfaceArchitectureTests` | 同上 | 5 | 63 条消息具名或钉住（双向）；denylist 零命中；`O_TO_C` 不出现在入站 dispatch（除已钉的 9 条） |
-| `ProtocolPayloadShapeArchitectureTests` | `SQCD.Agv.WireToGateG2Tests` | 4 | 驱动真实会话，逐条按 schema 核对车载端发出的原始字节；**fake 服务端发的 C_TO_O 也一起核** |
+| `ProtocolPayloadShapeArchitectureTests` | `SQCD.Agv.WireToGateG2Tests` | 4 | 驱动真实会话，逐条按 schema 核对车载端发出的原始字节；**fake 服务端发出的每一条报文也一起核** |
 | `DropoffStopSnapshotsAreProjectedRatherThanRefused` | 同上 | 1 | 第四节那条「当场打断」的回归测试 |
+| `WireToGateJourneySnapshotTests` | `SQCD.Agv.UnitTests` | 4 | 第十五节那条 fail-open 的回归测试 |
+
+### `Commit` 是唯一没有测试能钉的常量，如实说明
+
+十个常量里，六个由 manifest 核、`ManifestSha256` 由 vendor 副本核、`Tag` 与 `ApprovalStatus`
+各有一条测试。**只有 `Commit` 没有**：仓库里没有任何东西知道一份副本来自协议仓的哪个 commit。
+它由 `run-w2g-g2.ps1` 去协议仓解析并断言候选是 HEAD 的祖先——**那需要机器上同时有两个仓库，
+所以它是门禁不是测试**。测试类的注释里写明了这一条，而不是让人以为十个都覆盖了。
 
 ### payload 形状守卫为什么落在 G2 工程
 
@@ -281,7 +291,7 @@ manifest 里的 `errorRegistrySha256`（`ea538d59…`）不是这里用的那个
 
 ---
 
-## 十、八条自证：真改、真跑、看红、还原
+## 十、十条自证：真改、真跑、看红、还原
 
 `14-answer.md` 第十节的样板。每条都是真改工作树、真编译、真跑，下面是原样输出（只截关键行）。
 
@@ -359,6 +369,24 @@ In the registry but not listed inline: SLOT_CONFIGURATION_FINGERPRINT_MISMATCH
 Failed!  - Failed: 1, Passed: 4, Skipped: 0, Total: 5
 ```
 
+**自证 9 —— 把 `HasConsistentDemand` 改回「派生的 `DemandId` 为 null 即算一致」**（即复审查出的
+那条 fail-open 的原形态）
+
+```
+Failed SQCD.Agv.UnitTests.WireToGateJourneySnapshotTests.APlanWhoseLegsNameDifferentDemandsIsNeverConsistent
+   Assert.False() Failure
+Failed!  - Failed: 1, Passed: 3, Skipped: 0, Total: 4
+```
+
+**自证 10 —— 让 fake 服务端的 `SessionAccepted` 少发一个必填字段**（证明扩宽后的入站覆盖是真的，
+不是只看那三条快照）
+
+```
+The fake control server sends payloads the frozen schemas reject, so the client is being
+parsed against a fiction: SessionAccepted.payload omits required serverBuildCommit
+Failed!  - Failed: 1, Passed: 0, Skipped: 0, Total: 1
+```
+
 ### 一次操作事故，记账
 
 做自证 1 时用了 `git checkout -- src/SQCD.Agv.Infrastructure/WireToGateSessionClient.cs` 还原，
@@ -414,7 +442,83 @@ git blob: 75 73 69 6e 67 ... 0a         （LF）
 
 ---
 
-## 十三、交付形态：票据那句话在收尾时失效了
+## 十三、收尾双轴复审查出的一条 fail-open，与三处守卫缩水
+
+`mattpocock-skills:code-review`，Standards ＋ Spec 两轴并行。票 14 靠它查出七处 v1 形状的报文；
+这次查出的东西性质不同——**代码是对的，但我自己引入了一条 fail-open，另外三处是我把守卫说得比
+它实际做的强。**
+
+### 1. `HasConsistentDemand` 变成了 fail-open（实质缺陷，已修）
+
+v2 把 `demandId` 移进 leg 之后，我把 `WireToGateUpcomingStopPlan.DemandId` 改成由 legs 派生：
+恰好一个非空 id 就返回它，**零个或多个都返回 `null`**。而 `HasConsistentDemand` 的老写法把
+`null` 当作「一致」：
+
+```csharp
+return worklistDemand is null
+    || UpcomingStopPlan?.DemandId is null      // ← 「腿之间互相矛盾」也走这一支
+    || string.Equals(...);
+```
+
+**结果是一份自相矛盾的计划（两条腿分别指向不同需求）会被判成一致**，进而通过
+`CanAcceptSublot` 背后的那道闸。v2 之前这个情形不可能出现——快照顶层只有一个 `demandId`，
+「矛盾」无从表达。**是我把一个新情形折叠进了一个老的 null 语义。**
+
+处置：`DemandIds` 暴露去重后的集合，`DemandId` 只是它长度为 1 时的便利访问器，
+`HasConsistentDemand` 先判「腿之间是否有多于一个需求」，有则**永远不一致**。
+「零个」（充电腿、等待点腿）与「多于一个」从此区分得开。四条回归测试落在
+`WireToGateJourneySnapshotTests`，自证 9 证过它真的会红。
+
+**今天打不到**（控制端最多发 2 条同需求的腿），批次 5／8 会打到。
+
+### 2. fake 服务端那条守卫只看了三条快照（已扩宽）
+
+我在第八节写「fake 服务端发的 C_TO_O 也一起核」。**实际只核了 `SentJourneyEnvelopes`**，
+也就是三条旅程快照；`SessionAccepted`／`SessionReadiness`／`DurableAck`／
+`RecoveryActionAccepted`／`LoadCancellationAuthorization` 全都没核。**那句话说大了。**
+
+处置：`FakeControlServer` 新增 `SentEnvelopes`，在 `WriteEnvelopeAsync` 这个唯一出口记账，
+守卫改看全部，并显式断言握手、就绪与 ack 三类确实在里面。自证 10 证过。
+
+### 3. `Offences` 会静默跳过 `anyOf` 包着的对象（已修）
+
+v2 用 `anyOf: [ <something>, null ]` 表达可空字段。一个可空**对象**（`problem`、
+`expectedProtocolReleaseIdentity`）到了 `Offences` 手里没有自己的 `required`，于是整棵子树
+**一条都不查、也不报**——正是这个类存在的理由，只是下沉了一层。`Resolve` 现在会先剥掉那层
+包装。第 2 条扩宽之后这条才真正会被走到。
+
+### 4. `slotNos` 那一项今天是恒定的（只改注释）
+
+复审指出 `CreateSlotStates` 要求恰好 8 个仓位，所以指纹里那一项永远是 `1..8`，摘要实际只由
+两个配置字符串决定。**属实。**留着不动，但注释里写明了它今天不变——一个输入被写明了才可核对，
+被暗示的不行。
+
+### 5. Standards 轴：三处真重复，已收
+
+- `Sha256`／`Sha256Of` 各自重造了公有的 `WireToGateProtocolSerializer.ComputeSha256`
+  ——而这次改动自己就在调用它。改成直接用。
+- `SQCD.Agv.UnitTests` 里有两份仓库根定位器。`ReasonCodeRegistryArchitectureTests` 改成复用
+  `ProtocolIdentityArchitectureTests.RepositoryRoot()`，只保留自己的注册表存在性前提。
+- `FakeControlServer` 三处内联 leg 字面量，v2 的三个新字段要改三遍。抽成一个 `Leg(...)`。
+
+**跨程序集那两处不收**（`SQCD.Agv.UnitTests` 与 `SQCD.Agv.WireToGateG2Tests` 各有一份
+`RepositoryRoot()` 与 `ReadOnboardSource()`）：消掉它们要新建一个共享测试工程，那是本票范围
+之外的结构决定。
+
+### 6. 复审报了但**不改**的两条，理由写在这
+
+- **`README.md` 第 27／30 行仍写 `正式绑定 protocol-v0.1.1`**，Standards 轴判为硬违规。
+  **实测上游 `origin/OnboardHmi_MVP` 的这两行一模一样**——他们 pin 到 v0.3.0 那次只改了
+  `docs/LOCAL_G2_EVIDENCE.md` 与 vendor 的 README，根 `README.md` 没动。所以这句话在他们自己
+  的分支上就已经是错的（写 v0.1.1，实为 v0.3.0），不是本票改出来的；票据又明写「改仓库怎么
+  描述自己，与修它的代码是两件事，不要顺手改」。
+- **vendor 那 21000 行与新增的 `.gitattributes`**，Spec 轴判为 scope creep。它们是守卫的前提：
+  测试机上没有协议仓，读兄弟目录不成立；按字节钉住又要求禁行尾转换。票 14 在控制端做的是
+  同一件事。
+
+---
+
+## 十四、交付形态：票据那句话在收尾时失效了
 
 **这一节是收尾才出现的，不是开工时能知道的。**准备开 PR 时 `git fetch` 查出的。
 
@@ -469,7 +573,7 @@ v1 的 43 个 ＋ 11 个新的，`OPERATOR_TIMEOUT` 是 v0.3.0 在另一条线�
 
 ---
 
-## 十四、待用户裁定，不要替他决定
+## 十五、待用户裁定，不要替他决定
 
 前四条从上一份交接原样结转，**至今未定**（票 16 的形态偏离、票 20 归哪个批次、票 20 是否阻塞
 票 17、`8005-agv-program` 要不要开 PR）。本票新增两条：
@@ -477,7 +581,7 @@ v1 的 43 个 ＋ 11 个新的，`OPERATOR_TIMEOUT` 是 v0.3.0 在另一条线�
 1. **第五节那 9 个走错方向的 `case` 标签要不要单开一张票。** 它们都是 v1 缺陷，删掉会改变车载
    端对一条走错方向的消息的应答。已钉住，不会再长。
 2. **第九节那三处业务收窄要不要单开一张票。** 今天打不到，但都会在批次 3～8 变成现行故障。
-3. **`OPERATOR_TIMEOUT` 怎么并进 v2 候选**，见第十三节末。它已经不是实现仓的问题，是协议仓的
+3. **`OPERATOR_TIMEOUT` 怎么并进 v2 候选**，见第十四节末。它已经不是实现仓的问题，是协议仓的
    问题，而批次 2 的票里没有一张覆盖它。
 4. **`8005-agv-program/CLAUDE.md` 第 19 行与票 15／20 的授权不一致。** 那里写着
    `8005-agv-onboard-hmi` and `slots-simulator` are **read-only for agents**；票 15／20 则明确
