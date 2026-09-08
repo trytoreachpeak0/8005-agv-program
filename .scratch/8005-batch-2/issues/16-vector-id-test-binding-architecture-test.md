@@ -19,8 +19,27 @@ RIoT 白名单架构测试并列为三条「CI 上一条测试绿」的横切守
 **16** 条切片（`FP-IS-00`～`15`），`vectors/` 实测 **31** 个目录；G1 在 CI 上对这两个数各有
 一条断言并通过（run
 [34212719223](https://github.com/trytoreachpeak0/8005-agv-protocol/actions/runs/34212719223)，
-`integrationSliceCount 16`、`trajectoryCount 31`）。**本票不依赖生成器**，只读协议仓已有的
-`index.json` 与两端测试标注，因此批次 1 那条未达成的生成器出口不阻塞它。
+`integrationSliceCount 16`、`trajectoryCount 31`）。**批次 1 四条出口已于 2026-09-08 全部
+收口**，见 `../batch-1-exit-verification.md`。
+
+**开工前先知道两件实测事实**（2026-09-08 查证，票据原文没写）：
+
+1. **两端目前一条 `vectorId` 标注都没有。**`grep -rn "CV-[A-Z]"` 在
+   `8005-agv-control-server/tests/` 与 `8005-agv-onboard-hmi/tests/` 上零命中。现有的只有
+   187 处 `[Trait("IntegrationSlice", "W2G-IS-NN")]`（票 14 会重打成 `FP-IS-NN`）。
+   **所以本票不是「写一条测试」，是「先建立 31 条绑定，再写守卫它的测试」**——那条测试要有
+   东西可断言，绑定必须先存在。
+2. **控制端没有 vendor 协议仓。**`vendor/` 下只有 `8005-agv-program` 与 `nuget`。而验收
+   第三条要求「清单从协议仓的 `index.json` 读取，测试里不出现手抄的第二份清单」——
+   **怎么让测试读到 `index.json` 是本票的第一个设计决定。**样板是
+   `RiotCallAllowlistArchitectureTests`：它 vendor 了
+   `vendor/8005-agv-program/docs/riot-call-allowlist.md` 并用 `ApprovedAllowlistSha256`
+   钉住字节，`RepositoryRoot()` 靠向上找 `ControlServer.sln` 定位。
+
+`index.json` 的形状：`slices[].vectorIds[]`，**16 切片 / 34 条目 / 31 去重**，与
+`vectors/` 的 31 个目录双向无遗漏。三条向量跨切片共享（`CV-MANUAL-CHARGING-RETURN`、
+`CV-OPERATION-RESULT-UNKNOWN-RECONCILE`、`CV-SESSION-RECONNECT-DURING-RECOVERY`）——
+**断言要按去重后的 31 数，不是 34。**
 
 **状态：** ready-for-agent
 
