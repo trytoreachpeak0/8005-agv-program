@@ -17,12 +17,33 @@
 建议把这八个切片的重证放在一个**连续窗口**内跑完，窗口内轨 B 暂缓合并；或等轨 B 的票
 09～13 合完再跑。两种都行，别边跑边合。
 
-**前置：** 票 14（服务端 v2）、票 15（车载端 v2）、票 16（`vectorId` 绑定守卫）。
+**前置：** ~~票 14（服务端 v2）~~✅、票 15（车载端 v2）、~~票 16（`vectorId` 绑定守卫）~~✅。
 
 **票 16 于 2026-09-08 完成，这一条前置解除**（见 [16-answer.md](16-answer.md)）。守卫落在
 控制端 `562544e`，CI 绿（run
 [34227325616](https://github.com/trytoreachpeak0/8005-agv-control-server/actions/runs/34227325616)，
-`569 passed / 0 failed / 0 skipped`）。**票 14、15 仍未完成，本票尚不可开工。**
+`569 passed / 0 failed / 0 skipped`）。
+
+**票 14 于 2026-09-08 完成，这一条前置也解除**（见 [14-answer.md](14-answer.md)）。服务端已说
+v2，三条 C_TO_O 快照的 payload 形状按 v2 schema 改对，186 处 trait 重打为 `FP-IS-NN`，
+L1 `586 passed / 0 failed / 0 skipped`。
+**票 15 仍未完成，本票尚不可开工**——`ONBOARD_HMI_G2` 与 `G3` 都要车载端先说 v2。
+
+票 14 转交本票三件事：
+
+1. **`test-wire-to-gate.ps1` 的调用形态变了。** `-Slice` 只收 `FP-IS-NN`（正则
+   `^FP-IS-(0[0-9]|1[0-5])$`）；身份不再硬编码在脚本里，改从
+   `src/ControlServer.Host/appsettings.json` 的 `ProtocolCandidate` 读；切片的向量清单改从
+   `vendor/8005-agv-protocol/integration-slices/index.json` 读，不再是脚本里那份手抄表。
+   `gate-result.json` 的 `schemaVersion` 升到 `1.1.0`，新增 `protocolProfileId`、
+   `protocolVersion`、`protocolApprovalStatus`、`integrationSliceIndexSha256`、
+   `selectedTestCount` 五个字段。
+2. **`FP-IS-08`～`15` 出不了 G2 证据，本票的出口只能是八片。** 票 14 实测发现
+   `dotnet test --filter` 选不中任何测试时退出码是 0，脚本会把它写成 `"status": "PASS"`——
+   一个零实现的切片拿到过一份绿的 G2 结果。已改成建目录前先数、选中 0 条即拒绝并报出该片向量。
+3. **`ApprovalStatus` 是 `SUPERSEDING_CANDIDATE`，不是 `APPROVED_RELEASE`。**
+   `New-WireToGateReleaseCandidate.ps1` 因此拒绝打 RC，这是规格 6.6 要的效果，不是要绕过的
+   障碍。本票的出口是三道门禁全 PASS，**不含 RC**。
 
 票 16 转交本票一件事：`CV-LOAD-CANCELLATION-ALL-EMPTY` 是它 20 条绑定里最薄的一条——服务端
 取消面（`OnboardRecoveryCoordinator.AuthorizeLoadCancellationAsync`）只有

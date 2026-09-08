@@ -79,10 +79,15 @@ account, written for humans and in Chinese, is
 What an agent must follow:
 
 - **The unit of collaboration is the integration slice.** Do not invent another
-  one. `8005-agv-protocol/integration-slices/index.json` defines `W2G-IS-00`
-  through `W2G-IS-07`, each with a `sequence` and `prerequisites`. Each slice's
+  one. `8005-agv-protocol/integration-slices/index.json` defines `FP-IS-00`
+  through `FP-IS-15`, each with a `sequence` and `prerequisites`. Each slice's
   `gates` array *is* the division of labour: `G1` shared, `CONTROL_SERVER_G2`
   ours, `ONBOARD_HMI_G2` theirs, `G3` together.
+  **The family replaced `W2G-IS-00` through `07` rather than joining them**
+  (full-product scope specification 7.1); `FP-IS-00` through `07` correspond to
+  the old eight one for one, but as *recertification under v2* — there is no
+  passing verdict to carry over. Existing evidence directories and defect
+  records keep the `W2G-IS-NN` ids they were written with; nothing renames them.
 - **Cross-repository feedback takes one of three routes.** A contract ambiguity
   or error goes to an issue in `8005-agv-protocol` carrying the `vectorId` that
   triggered it. The other side failing the contract goes to an issue in *their*
@@ -92,7 +97,7 @@ What an agent must follow:
   work on my side" is not a report.**
 - **`8005-agv-protocol` needs no advance approval** — Zhengyu Shao decides its
   content alone — **but every push must be announced in an issue that
-  `@SocialKKKK`**, stating what changed, which `W2G-IS-*` slices it touches, and
+  `@SocialKKKK`**, stating what changed, which `FP-IS-*` slices it touches, and
   whether their `ONBOARD_HMI_G2` evidence is now void. **Announce in the same
   task as the push, not later.** Tagging a release still needs the two-owner
   attestation in `attestations/`; **AI and CI cannot approve.**
@@ -110,7 +115,7 @@ prose, issue and pull-request titles and bodies, and commit message bodies.
 
 Stay English inside Chinese text: conventional commit prefixes (`feat:`, `fix:`,
 `docs:`, `chore:`), identifiers, paths, commands, environment variables, error
-codes, gate and slice names (`G1`, `W2G-IS-00`), and protocol message names,
+codes, gate and slice names (`G1`, `FP-IS-00`), and protocol message names,
 schema fields and `vectorId` values — those are the contract itself. Quote an
 error or a test result in its original English first, then explain it in
 Chinese. Do not rewrite existing text to match; this governs new writing.
