@@ -59,7 +59,7 @@ Schema 与 `tools/g1-validate.mjs`（`size===2` → `size===1`）一起改，`pr
 | `G1` | 双方共用 | 协议内容清单与审批签名校验（`pnpm g1`） |
 | `CONTROL_SERVER_G2` | Zhengyu Shao | 服务端单端 + Fake Onboard，绑定精确 manifest 哈希 |
 | `ONBOARD_HMI_G2` | **Zhengyu Shao**（2026-09-04 起，此前 Kun Wang） | 车载端单端，同样绑定 |
-| `G3` | **两人一起** | 双端联调，绑定两端精确 commit |
+| `G3` | **Zhengyu Shao**（2026-09-08 起，此前两人一起） | 双端联调，绑定两端精确 commit |
 
 两边的 G2 之间**没有依赖，可以完全并行**——这条技术事实没变，但 2026-09-04 之后它不再
 表示「两个人分头干」，而是同一边的两条工作线。
@@ -71,8 +71,11 @@ Schema 与 `tools/g1-validate.mjs`（`size===2` → `size===1`）一起改，`pr
 2. **按 `sequence` 顺序推**，`prerequisites` 未满足不开工。这个依赖关系已经在
    `index.json` 里，不需要口头协调。
 3. **两边各自过 G2**，互不阻塞。
-4. **两边 G2 都绿了才约 G3**。G3 需要两人同时在场，是最贵的资源；用 G2 的绿灯当准入
-   条件，避免约了才发现对方没准备好。
+4. **两边 G2 都绿了才跑 G3**。**2026-09-08 起 G3 由一个人跑**：三个 runner
+   （`run-staged-g3.ps1`、`run-staged-g3-restart.ps1`、`run-demand-bearing-g3-vectors.ps1`）
+   全部是 loopback、无人值守，既不需要真车也不需要第二台机器——「两人同时在场」始终是
+   治理规则而非技术约束，而项目被单方接手后它已无人可满足，故取消。仍然用 G2 的绿灯当
+   准入条件：G3 绑定两端精确 commit，进去之前两边都得是想门禁的那份代码。
 5. **G3 发现的问题按下节分流。**
 
 ## 反馈通道：三类问题走三条路

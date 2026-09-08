@@ -82,7 +82,10 @@ What an agent must follow:
   one. `8005-agv-protocol/integration-slices/index.json` defines `W2G-IS-00`
   through `W2G-IS-07`, each with a `sequence` and `prerequisites`. Each slice's
   `gates` array *is* the division of labour: `G1` shared, `CONTROL_SERVER_G2`
-  ours, `ONBOARD_HMI_G2` theirs, `G3` together.
+  ours, `ONBOARD_HMI_G2` **ours too since 2026-09-04**, `G3` ours as well —
+  **one person has run it since 2026-09-08**; all three runners are loopback and
+  unattended, so "both people present" was governance, not a technical need, and
+  nobody was left to satisfy it.
 - **Cross-repository feedback takes one of three routes.** A contract ambiguity
   or error goes to an issue in `8005-agv-protocol` carrying the `vectorId` that
   triggered it. The other side failing the contract goes to an issue in *their*
