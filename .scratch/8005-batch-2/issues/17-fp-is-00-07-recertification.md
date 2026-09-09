@@ -138,8 +138,11 @@ L1 `586 passed / 0 failed / 0 skipped`。
 （协议仓已提交的 `evidence/g1-result.json` 本轮独立复现，且三次 G3 运行的 G1 都 `PASS`），
 但**已出证的那八份 `ONBOARD_HMI_G2` 仍记 `g1Status: SKIPPED`**——修好 G1 的 `b835a40`
 晚于它们，用户裁定先不重出。G3 三个 runner 跑了两过一败。见 [17-answer.md](17-answer.md)。
-**八个切片仍未通过，而本轮查清了原因：第三条验收用现有 G3 runner 结构上做不出来**，
+**八个切片仍未通过，而上一轮查清了原因：第三条验收用现有 G3 runner 结构上做不出来**，
 详见 17-answer.md 第六节。
+**2026-09-09 第三轮：用户裁定「引入分级状态」＋「单开票 23」，
+本票第三条验收自此显式阻塞在[票 23](23-g3-per-slice-gate-result.md)**，
+其余三条待裁定（demand-bearing 断言、证据 SHA-256、控制端 format 8 条）用户定先不动。
 
 - [x] 八个切片各跑一遍 `CONTROL_SERVER_G2`，八份 `gate-result.json` 全 PASS
       —— `fp/v2-impl` = `a143c9c`，证据已提交（`5915cf7`）；`FP-IS-02` 另有一份绑 `3f62647`
@@ -147,12 +150,20 @@ L1 `586 passed / 0 failed / 0 skipped`。
 - [x] 八个切片各跑一遍 `ONBOARD_HMI_G2`，八份 `gate-result.json` 全 PASS
       —— `w2g/fp-v2-impl` = `360a405`，**证据已 `git add -f` 提交入库**（`153b705`，73 个文件，
       用户 2026-09-09 裁定两端对齐；先例 `a1e32dd`）
-- [ ] 八个切片各跑一遍 `G3`，全 PASS —— **做不出来，需先做 G3 runner 的按片改造。**
+- [ ] 八个切片各跑一遍 `G3`，全 PASS —— **阻塞在[票 23](23-g3-per-slice-gate-result.md)。**
       三个 runner 把切片结论写成字面常量（`formalSlicePass = $false`、
       `officialSlices` 只名 `FP-IS-00`／`04`／`05`／`06` 且都是 `INCONCLUSIVE`），
-      且都只发 `run-result.json`，全仓只有 `test-wire-to-gate.ps1` 发 `gate-result.json`。
-      **这是那三个 runner 的既定立场，不是配置问题**——见 17-answer.md 第六节与
-      待裁定第 1 条。本轮已按现有形态跑完一轮 v2 身份的 G3，证据 `0d26bc9`
+      且都只发 `run-result.json`，全仓只有 `test-wire-to-gate.ps1` 发 `gate-result.json`
+      而它第 4 行是 `[ValidateSet('G2')]`。**这是那三个 runner 的既定立场，不是配置问题**
+      ——见 17-answer.md 第六节。上一轮已按现有形态跑完一轮 v2 身份的 G3，证据 `0d26bc9`。
+
+      **2026-09-09 用户裁定：单开票 23 做按片改造，并引入分级状态**（不是把 staged G3
+      直接认成通过，也不是维持现状）。票 23 提供 `assuranceLevel` 这把尺；
+      **本条验收最终认到哪一级，由本票在票 23 落地后写死**——`STAGED_REBUILD` 与
+      `DEMAND_BEARING_RESTORE` 已被裁定计入 `formalSlicePass`，所以本条预计认这两级。
+      ⚠️ **票 23 另查出一件本票必须正视的事**：`FP-IS-01`／`02`／`03`／`07`
+      **在四个 G3 runner 里一次都不出现**，八份证据不是「改个出证路径」就有的，
+      那四片要么补场景要么如实记「本批次无 G3 面」。见票 23 第一节
 - [x] 每份 `gate-result.json` 绑定精确的 `ProtocolReleaseIdentity`（v2 三元组）
       —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`，`tagExists` = `false`
 - [x] 证据落在 `evidence/g2/<日期>-<描述>/`（车载端脚本另插一层 `protocol-v1.0.0`，是它既有的

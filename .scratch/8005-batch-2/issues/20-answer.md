@@ -323,7 +323,7 @@ public void CommentedOut()
 | `VectorTraitRegex` 把 `"ProtocolVector"` 又硬写了一遍，与 `VectorTrait` 常量成了第二份不比对的副本，改名即失明 | 改成把常量拼进 pattern。这条批评用的正是本文件自己的论点 |
 | 多行 attribute 读不到 → 静默少算 | 分块改成**括号配平**累加（`BracketDelta`，跳过字符串字面量），多行 attribute 整块读进来 |
 | `[Fact, Trait(...)]` 合并列表两个正则都不匹配 | `VectorTraitRegex` 去掉前导 `[` 锚点；`RunnableTestAttributeRegex` 改成 `(?<=[\[,])` 后顾 |
-| `[Fact(DisplayName = "Skips…")]` 被当成 skip | `RunsAsATest` 从子串 `Skip` 改成 `SkipArgumentRegex`（`Skip\s*=`） |
+| `[Fact(DisplayName = "Skips…")]` 被当成 skip | `RunsAsATest` 从子串 `Skip` 改成 `SkipArgumentRegex`（`\bSkip\s*=`） |
 | Data Clumps：三个 list 永远一起传 | 收成 `ClaimAccumulator` |
 | Duplicated Code：两条镜像规则里同一个 `slices.Any(...)` 谓词写了两遍，只差一个 `!` | 抽成 `BelongsToASliceThisBatchImplements()` |
 | Mysterious Name：`NewlyUnbound` 并没有跟任何"之前的状态"比 | 改名 `UnboundAndUnpinned` |

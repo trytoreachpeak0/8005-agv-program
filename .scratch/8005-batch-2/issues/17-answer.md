@@ -218,14 +218,53 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
 外加一件票 22 不需要做的前置：**先定清「staged G3 下一片算不算通过」**。
 那已经越出「跑一轮 v2 身份的 G3」这个授权，见第七节第 1 条。
 
+### 🔴 2026-09-09 第三轮补：缺口比上面写的大，四片根本没有 G3 面
+
+开票 23 前把范围又核了一遍，查出上面那段漏说的一半。把**车载端**的
+`run-staged-g3-recovery-ack-drop.ps1` 也算进来，四个 G3 runner 命名的片是：
+
+| runner | 仓 | 命名的片 |
+| --- | --- | --- |
+| `run-staged-g3.ps1` | 控制端 | `FP-IS-00`、`FP-IS-06` |
+| `run-staged-g3-restart.ps1` | 控制端 | `FP-IS-00`、`FP-IS-06` |
+| `run-demand-bearing-g3-vectors.ps1` | 控制端 | `FP-IS-04`、`FP-IS-05` |
+| `run-staged-g3-recovery-ack-drop.ps1` | 车载端 | `FP-IS-00`、`FP-IS-06` |
+
+**`FP-IS-01`／`02`／`03`／`07` 在四个 runner 里一次都不出现。**
+所以「八份 `gate-result.json`」不是一件事是两件：`00`／`04`／`05`／`06` 是把常量换成算出来的
+（机械），另四片**没有任何 runner 声称覆盖**，要补场景或如实记「本批次无 G3 面」。
+
+**还有一条更靠里的**：三个 runner 共 19／20／20 条具名断言（`assertions` 那个 `[ordered]@{}`），
+**没有一条挂着切片标识**。切片归属整个存在于 `officialSlices` 那个字面常量里，也就是说
+「哪条断言构成哪一片的 G3 证据」这件事**今天在代码里没有任何记录**。按片改造的第一步不是改
+代码，是把这张归属表写下来——写下来守卫才有东西可钉。已写进票 23 第一节与第三节的
+`assertionIds`。
+
+顺带纠一句上面写过的措辞：`test-wire-to-gate.ps1` **已经有** `-Slice` 参数（第 5 行，
+`^FP-IS-(0[0-9]|1[0-5])$`），挡路的只有第 4 行 `$Gate` 的 `[ValidateSet('G2')]`；
+但它的主体是对本地工作树跑 `dotnet test --filter`，**本质是 G2 夹具**，
+放宽 ValidateSet 扩不到 G3。
+
 ## 七、待用户裁定
 
-1. **🔴 G3 按片改造要不要单开一张票。**见第六节。改造范围：给三个 runner 加 `-Slice`、
-   按片发 `gate-result.json`、把 `officialSlices` 由常量改成算出来的，并先裁定「staged G3
-   下一片算不算通过」——后者是判断问题不是工程问题，`formalSlicePass = $false` 是有意为之。
-   在它落地之前，**票 17 的第三条验收无法勾上**。
+1. ~~**🔴 G3 按片改造要不要单开一张票。**~~
+   **✅ 2026-09-09 用户裁定，两问都已定：**
 
-2. **`run-demand-bearing-g3-vectors.ps1` 那条断言怎么办。**两条路：
+   - 判断题「staged G3 下一片算不算通过」→ **引入分级状态**。不维持现状，也不直接认成通过。
+     落法是把 `status`（断言过没过）与 `assuranceLevel`（实际动了什么）拆成两个字段，
+     `formalSlicePass` 由 `$LevelsThatCountAsSlicePass` 算出而不再是字面 `$false`；
+     `STAGED_REBUILD` 与 `DEMAND_BEARING_RESTORE` 计入，`CANDIDATE_ARTEFACT` 留位。
+   - 改造 → **单开票 23**，见
+     [23-g3-per-slice-gate-result.md](23-g3-per-slice-gate-result.md)。
+
+   ⚠️ **随之作废的是 2026-09-04 那份 `SUMMARY.md` 里「不构成切片通过」的措辞，
+   但那份证据不许改**（证据目录只增不改），作废说明写在票 23 的答复与新一轮 G3 的
+   `SUMMARY.md` 里。
+
+   票 17 第三条验收自此显式阻塞在票 23。
+
+2. **`run-demand-bearing-g3-vectors.ps1` 那条断言怎么办。**
+   **2026-09-09 用户裁定：本轮先不动。**两条路：
    ① 保持现状，承认这个 runner 在 v2 下不可能过，直到重采一次 v2 现场运行；
    ② 把它拆开——运行中服务端的身份仍然断言，恢复的现场库那份改成如实记录
    （`fieldStoreProtocolCommit`）而不是断言相等。
@@ -236,6 +275,7 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
    （见第二节），且要再占一次机器与门禁授权。
 
 4. **控制端 `dotnet format --verify-no-changes` 在 `fp/v2-impl` 上是 `exit=2`。**
+   **2026-09-09 用户裁定：本轮先不动。**
    8 条 `WHITESPACE`，散在 `OnboardJourneyPublisher.cs`、`OnboardPeerSession.cs`、
    `ExperimentalRiotCreateGateTests.cs`、`JourneyRuntimeWorkerTests.cs`——**四个文件工作树都没改动，
    是分支上既有的**，与本轮无关。`test-wire-to-gate.ps1` 不跑 format，所以
@@ -272,3 +312,4 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
    目前没有任何东西去**校验**这张表，所以它还没让谁做出错误判断；但它是一张**已经错了**的
    摘要表，任何将来写来核对证据完整性的工具都会一上来就报全红。要不要修、怎么修
    （给 `evidence/**` 加 `-text`？还是让 runner 写 LF？）请用户定。
+   **2026-09-09 用户裁定：本轮先不动，缺口保持记录在案。**
