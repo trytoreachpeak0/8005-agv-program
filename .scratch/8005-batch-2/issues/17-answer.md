@@ -295,12 +295,56 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
    （已知豁免裁定，或先按第 2 条拆断言再重跑），两条都注明要用户裁定。
    **路②仍未动**——它属于改门禁断言，不在任何已有授权内。
 
+   **✅ 同一轮用户随后选了①**：`FP-IS-04`／`05` 那条断言裁定为已知豁免，
+   并接受「四片本批次无 G3 面」作为如实出口。**豁免范围写窄到第六项合取**，理由与它当前
+   不可验证这一点见下面第 2 条。**第三条验收仍未勾**，因为口径解决后还剩一件实事：
+   **要跑一轮改造后的 G3 并把六份 `gate-result.json` 入库**——票 23 那六份是临时目录的自证、
+   已随 session 消失，库里现有的 `evidence/g3/20260909-v2-identity/` 是分级改造之前的旧形态。
+   **跑门禁需要用户单独授权，本轮没跑。**
+
 2. **`run-demand-bearing-g3-vectors.ps1` 那条断言怎么办。**
-   **2026-09-09 用户裁定：本轮先不动。**两条路：
+   ~~**2026-09-09 用户裁定：本轮先不动。**~~
+   **✅ 2026-09-09 第四轮改判：裁定为已知豁免**（用户选路①）。两条路原文：
    ① 保持现状，承认这个 runner 在 v2 下不可能过，直到重采一次 v2 现场运行；
    ② 把它拆开——运行中服务端的身份仍然断言，恢复的现场库那份改成如实记录
    （`fieldStoreProtocolCommit`）而不是断言相等。
    **②属于改门禁断言，不在本轮授权内。**
+
+   ### 🔴 落地豁免时查出来的事：这不是「一条断言」，是六项合取
+
+   写豁免范围时回源码核了一遍，`run-demand-bearing-g3-vectors.ps1:626-632`：
+
+   ```powershell
+   $protocolBindingPass = $null -ne $version -and
+       $version.protocolCommit -eq $ProtocolCommit -and
+       $version.protocolTag -eq 'protocol-v1.0.0' -and
+       $null -ne $probeResult -and
+       [string]$probeResult.serverBuildCommit -eq $ControlServerCommit -and
+       [string]$baseline.sessionRecoveryRows[0]['protocolCommit'] -eq $ProtocolCommit
+   ```
+
+   **只有最后一项与现场库历史有关**，前五项问的全是运行中服务端与被测构建的身份。
+   所以 `23-answer.md` 第四节那句「那条问的是恢复的现场库里记的 `protocolCommit`」
+   **描述的是第六项，不是整条断言**——已在该文件就地更正。
+
+   **这决定了豁免必须写窄：豁免的是第六项合取，不是 `protocolAndBuildIdentityBoundToTheSharedBinding`
+   这个名字。** 笼统豁免整条，等于把五项真正该守的身份检查一起吞掉——将来服务端身份配错、
+   被测构建 commit 对不上，这条照样 `FAIL`，而豁免会让它看起来仍是「那个已知的现场库问题」。
+
+   ⚠️ **而以脚本当前的形态，这个窄豁免在证据层面不可验证**：六项揉成一个布尔值写进
+   `gate-result.json`，看不出是哪一项 `false`。目前「false 的只可能是第六项」是**推断**，
+   靠两条旁证：
+
+   - 同脚本 `restartedHostServesTheSameStorePass`（626 行上方）里
+     `$versionAfterRestart.protocolCommit -eq $ProtocolCommit` 与
+     `$handshakeResult.serverBuildCommit -eq $ControlServerCommit` **都通过了**，
+     与第 2／5 项同源；
+   - `/version` 端点的字段名实核过（`Program.cs:167-169` 发 `protocolReleaseVersion`／
+     `protocolTag`／`protocolCommit`），`appsettings.json` 的 `ProtocolCandidate.tag`
+     就是 `protocol-v1.0.0`，所以第 3 项成立——**这一项没有独立佐证，是靠读配置推的**。
+
+   **要让豁免可验证，就得做路②的前半段**：把第六项从合取里拆出来单独出字段。
+   这仍然属于改门禁断言，**未获授权，本轮没做**。
 
 3. **八份 `ONBOARD_HMI_G2` 要不要在 G1 修好之后重出。**用户本轮定「先不重出」。
    重出的话八份 `g1Status` 会从 `SKIPPED` 变 `PASS`，但要 `-ProtocolRoot` 指一份普通克隆
