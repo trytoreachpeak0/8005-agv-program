@@ -13,7 +13,11 @@
 | `G3` | ⚠️ 三个 runner 两过一败，**且按片验收结构上做不出来** | `e3ea250` ＋ `153b705` ＋ `fb5f7c5` ＋ `f6ee75d` |
 
 所有证据都绑 `protocol-v1.0.0@f6ee75defe6e2d18f63f4082bee445dbb678ab1b`，
-`approvalStatus` = `SUPERSEDING_CANDIDATE`，`tagExists` = `false`（tag 至今没打）。
+`approvalStatus` = `SUPERSEDING_CANDIDATE`。
+
+⚠️ **`tagExists` 这个字段不在 `gate-result.json` 里**（复审查出来的一处措辞不准）。
+它在车载端的 `summary.json` 与本轮 G3 的 `run-result.json` 里，两处都记 `false`。
+`gate-result.json` 记的是 `protocolTag`／`protocolApprovalStatus` 那一组。
 
 ---
 
@@ -53,8 +57,14 @@
 **这不是协议内容的问题。协议仓也不能为此修改**——`g1-validate.mjs` 在 manifest 的清单里，
 改它就改掉 `manifestSha256`，两端所有身份绑定全废。
 
-`b835a40` 因此在 `Invoke-ProtocolG1` 里前置认出这个形状并如实说明，而不是报成 FAIL 诬告候选。
+`b835a40` 因此在 `Invoke-ProtocolG1` 里前置认出这个形状并如实说明。
 指向一份普通克隆时实测 `Status: PASS`、`protocol.g1Status = PASS`。
+
+⚠️ **本节初稿写的「而不是报成 FAIL 诬告候选」是错的，复审查出来的。**
+前置判定走的是 `Add-Failure`（`run-w2g-g2.ps1:266`），而 `$failures` 非空即
+`status = 'FAIL'`（同文件 `:524`），最后仍然 `throw`。**只有措辞变了，运行结论没变。**
+真正的收益是下一个人不必再花一轮去查「为什么 manifest file count 对不上」——
+不是「把 FAIL 变成了别的」。
 
 **`run-staged-g3.ps1` 不受影响**：它用 `git clone` 取协议仓，那种 `.git` 是目录——本轮三次 G3
 运行的 `logs/protocol-g1.log` 都是 `PASS`。
@@ -163,6 +173,13 @@
 是 2026-08-29 那次已授权现场运行在**当时的协议**下写进去的。现场库是 v0.1.1 时代的冻结产物，
 **任何 v2 身份的运行对它都过不了这一条**，除非重新采一次 v2 下的已授权现场运行。
 
+**决定性佐证（收尾复审补的）：2026-09-04 那一轮之所以通过这条断言，正是因为当时
+`$ProtocolCommit` 本身就是 `1531489e`。** 换句话说，这条断言从来没有独立地证过什么——
+它只在「现场库与候选是同一个协议」时成立，而那恰好是协议不变时的默认情形。
+
+顺带一处更正：该断言是**七个**合取项不是六个（三个存在性检查 ＋ 四个实质比较），
+`SUMMARY.md` 里的表已改。
+
 该 runner 真正要证的 19 条全部通过（RIoT `UNKNOWN` 对账逐腿恰好建一次单、结果重放与三类拒绝、
 卸货原子收尾、宿主重启后需求与租约存活、无移动无外部副作用、密钥扫描）。
 **失败证据按纪律保留，不重跑覆盖。**
@@ -183,7 +200,15 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
 
 - 三个加起来只提到**四片**（`00`／`04`／`05`／`06`），`FP-IS-01`／`02`／`03`／`07`
   在任何 G3 runner 里都不出现；
-- 三个都只发 `run-result.json`，**全仓只有 `test-wire-to-gate.ps1` 发 `gate-result.json`**。
+- 三个都只发 `run-result.json`，**全仓只有 `test-wire-to-gate.ps1` 发 `gate-result.json`**；
+- **而 `test-wire-to-gate.ps1:4` 是 `[ValidateSet('G2')][string]$Gate = 'G2'`**——
+  唯一那个会发 `gate-result.json` 的脚本，**在参数层面就拒绝被要求跑 G3**。
+  （这条是收尾复审补的，比初稿的判断更硬。）
+- 三个 runner 都没有 `-Slice` 参数；`Slice` 这个词在它们里面只出现在那几个 classification
+  常量中间。
+
+这些常量**早于本轮**：由 `b4afdb3`（staged G3 runner 建立时）写下，票 14 的 `978a9e4`
+只是把 `W2G-IS-NN` 重打标成 `FP-IS-NN`。所以「既定立场」不是事后追认。
 
 而这是**刻意的立场**，2026-09-04 那份 G3 证据的 `SUMMARY.md` 写得明白：staged G3 绑 commit、
 从 exact clone 重新 publish、**不碰任何候选产物，因此不构成切片通过**。

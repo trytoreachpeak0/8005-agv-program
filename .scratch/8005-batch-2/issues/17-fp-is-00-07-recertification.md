@@ -134,8 +134,10 @@ L1 `586 passed / 0 failed / 0 skipped`。
 `RECONCILE_EMPTY_FINAL_STATE` 那一半在实现里（同文件 `safeEmpty` 判据）但没有独立测试。
 **`FP-IS-02` 重证时应当补上。**
 
-**状态：** in-progress —— 2026-09-09 第二轮：两道 G2 已全绿并全部入库，G1 实测通过，
-G3 三个 runner 跑了两过一败。见 [17-answer.md](17-answer.md)。
+**状态：** in-progress —— 2026-09-09 第二轮：两道 G2 已全绿并全部入库；**G1 本身实测通过**
+（协议仓已提交的 `evidence/g1-result.json` 本轮独立复现，且三次 G3 运行的 G1 都 `PASS`），
+但**已出证的那八份 `ONBOARD_HMI_G2` 仍记 `g1Status: SKIPPED`**——修好 G1 的 `b835a40`
+晚于它们，用户裁定先不重出。G3 三个 runner 跑了两过一败。见 [17-answer.md](17-answer.md)。
 **八个切片仍未通过，而本轮查清了原因：第三条验收用现有 G3 runner 结构上做不出来**，
 详见 17-answer.md 第六节。
 
@@ -155,8 +157,11 @@ G3 三个 runner 跑了两过一败。见 [17-answer.md](17-answer.md)。
       —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`，`tagExists` = `false`
 - [x] 证据落在 `evidence/g2/<日期>-<描述>/`（车载端脚本另插一层 `protocol-v1.0.0`，是它既有的
       目录约定）；`evidence/g3/20260909-v2-identity/` 三个子目录一 runner 一份
-- [x] `-EvidenceRoot`／`-Output` 都是不存在的目录；本轮没有重跑覆盖任何既有证据，
-      **包括那份失败的 `DEMAND_BEARING_SLICE_FAIL`**
+- [x] `-EvidenceRoot`／`-Output` 都是不存在的目录；**在这两个仓里**本轮没有重跑覆盖任何既有证据，
+      **包括那份失败的 `DEMAND_BEARING_SLICE_FAIL`**。
+      ⚠️ 范围说明：协议仓的 `evidence/g1-result.json` **被覆写过一次**——`g1-validate.mjs` 会写它，
+      本轮第一次冒烟跑在了协议工作树上。已还原并核过 SHA-256（`82a20ee2…`），
+      详见 17-answer.md 第二节末
 - [x] 证据目录只增不改
 - [x] 车载端侧的门禁跑在我方 `w2g/*` 分支上，commit 绑定如实记录
       （`implementationBranch` = `w2g/fp-v2-impl`）
