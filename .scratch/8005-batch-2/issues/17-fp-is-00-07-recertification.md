@@ -146,7 +146,7 @@ L1 `586 passed / 0 failed / 0 skipped`。
 **2026-09-09 第四轮：票 23 已 `done`，第三条验收的阻塞随之从工程问题变成口径问题。**
 用户把「改写成什么」交给 agent 定，选定**按分级口径如实改写、但不勾**，
 本票因此仍是 `in-progress`，且**唯一未完的就是第三条**。
-**同一轮用户随后选了收口路①：`FP-IS-04`／`05` 那条断言裁定为已知豁免**（范围写窄到第六项合取，
+**同一轮用户随后选了收口路①：`FP-IS-04`／`05` 那条断言裁定为已知豁免**（范围写窄到第 7 项合取，
 见该条末尾）。**口径问题到此解决，第三条现在只差一件事：跑一轮改造后的 G3 并把证据入库，
 而那需要用户单独授权门禁。**
 
@@ -186,15 +186,15 @@ L1 `586 passed / 0 failed / 0 skipped`。
 
       **豁免的范围是这个，不能写宽：**
 
-      - 豁免的是 `protocolAndBuildIdentityBoundToTheSharedBinding` 的**第六项合取**——
+      - 豁免的是 `protocolAndBuildIdentityBoundToTheSharedBinding` 的**第 7 项合取**——
         `baseline.sessionRecoveryRows[0].protocolCommit -eq $ProtocolCommit`，
         问的是被恢复的现场库的历史（2026-08-29 那次现场运行绑 `protocol-v0.1.1`），
         不是被测构建，任何 v2 身份的运行对它都过不了，除非重采一次 v2 现场运行。
-      - **不豁免同一条断言的前五项**（运行中服务端的 `protocolCommit`／`protocolTag`、
+      - **不豁免同一条断言的前六项**（运行中服务端的 `protocolCommit`／`protocolTag`、
         被测构建的 `serverBuildCommit`、两个非空守卫）。它们是真正该守的身份绑定。
       - ⚠️ **以脚本当前形态，这个窄豁免在证据层面不可验证**：六项揉成一个布尔值，
-        `gate-result.json` 看不出是哪一项 `false`。「只有第六项挂了」目前是带旁证的推断。
-        要让它可验证得做路②的前半段（把第六项单独出字段），**那仍需单独授权**。
+        `gate-result.json` 看不出是哪一项 `false`。「只有第 7 项挂了」当时是带旁证的推断。
+        要让它可验证得做路②的前半段（把第 7 项单独出字段），**那仍需单独授权**。
         展开见 [17-answer.md](17-answer.md) 第七节第 2 条。
 
       **裁定完成后，勾上本条还差最后一步——而这一步没做：**

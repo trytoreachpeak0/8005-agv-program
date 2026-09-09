@@ -296,7 +296,7 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
    **路②仍未动**——它属于改门禁断言，不在任何已有授权内。
 
    **✅ 同一轮用户随后选了①**：`FP-IS-04`／`05` 那条断言裁定为已知豁免，
-   并接受「四片本批次无 G3 面」作为如实出口。**豁免范围写窄到第六项合取**，理由与它当前
+   并接受「四片本批次无 G3 面」作为如实出口。**豁免范围写窄到第 7 项合取**，理由与它当前
    不可验证这一点见下面第 2 条。**第三条验收仍未勾**，因为口径解决后还剩一件实事：
    **要跑一轮改造后的 G3 并把六份 `gate-result.json` 入库**——票 23 那六份是临时目录的自证、
    已随 session 消失，库里现有的 `evidence/g3/20260909-v2-identity/` 是分级改造之前的旧形态。
@@ -310,29 +310,40 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
    （`fieldStoreProtocolCommit`）而不是断言相等。
    **②属于改门禁断言，不在本轮授权内。**
 
-   ### 🔴 落地豁免时查出来的事：这不是「一条断言」，是六项合取
+   ### 🔴 落地豁免时查出来的事：这不是「一条断言」，是七项合取
 
    写豁免范围时回源码核了一遍，`run-demand-bearing-g3-vectors.ps1:626-632`：
 
    ```powershell
-   $protocolBindingPass = $null -ne $version -and
-       $version.protocolCommit -eq $ProtocolCommit -and
-       $version.protocolTag -eq 'protocol-v1.0.0' -and
-       $null -ne $probeResult -and
-       [string]$probeResult.serverBuildCommit -eq $ControlServerCommit -and
-       [string]$baseline.sessionRecoveryRows[0]['protocolCommit'] -eq $ProtocolCommit
+   $protocolBindingPass = $null -ne $version -and                                           # 1
+       $version.protocolCommit -eq $ProtocolCommit -and                                     # 2
+       $version.protocolTag -eq 'protocol-v1.0.0' -and                                      # 3
+       $null -ne $probeResult -and                                                          # 4
+       [string]$probeResult.serverBuildCommit -eq $ControlServerCommit -and                 # 5
+       $null -ne $baseline -and                                                             # 6
+       [string]$baseline.sessionRecoveryRows[0]['protocolCommit'] -eq $ProtocolCommit       # 7
    ```
 
-   **只有最后一项与现场库历史有关**，前五项问的全是运行中服务端与被测构建的身份。
-   所以 `23-answer.md` 第四节那句「那条问的是恢复的现场库里记的 `protocolCommit`」
-   **描述的是第六项，不是整条断言**——已在该文件就地更正。
+   ⚠️ **本节初稿把它写成「六项」并说豁免第六项，两处都错**：贴代码时漏掉了第 6 项
+   `$null -ne $baseline`，于是最后一项被数成了第六。**豁免的是第 7 项。**
+   第 6 项必须留在断言里——「现场库根本没读到」与「读到了、历史对不上」是两回事。
 
-   **这决定了豁免必须写窄：豁免的是第六项合取，不是 `protocolAndBuildIdentityBoundToTheSharedBinding`
-   这个名字。** 笼统豁免整条，等于把五项真正该守的身份检查一起吞掉——将来服务端身份配错、
+   🔴 **更该记的是这个错误怎么来的：本文第五节末尾早就写过「该断言是七个合取项不是六个
+   （三个存在性检查 ＋ 四个实质比较）」，是上一轮就做过的更正。** 第四轮写本节时没有回读
+   同一份文档的第五节，凭对交接文档那句「一条关于现场库历史的断言」的印象重述，
+   又把六项写了回去。**回源码核救回来了这一次**——但纪律要补一条：
+   动一条断言之前，先 grep 本文件里它自己的名字，看这份文档对它已经说过什么。
+
+   **只有第 7 项与现场库历史有关**，前六项问的全是运行中服务端与被测构建的身份。
+   所以 `23-answer.md` 第四节那句「那条问的是恢复的现场库里记的 `protocolCommit`」
+   **描述的是第 7 项，不是整条断言**——已在该文件就地更正。
+
+   **这决定了豁免必须写窄：豁免的是第 7 项合取，不是 `protocolAndBuildIdentityBoundToTheSharedBinding`
+   这个名字。** 笼统豁免整条，等于把六项真正该守的身份检查一起吞掉——将来服务端身份配错、
    被测构建 commit 对不上，这条照样 `FAIL`，而豁免会让它看起来仍是「那个已知的现场库问题」。
 
    ⚠️ **而以脚本当前的形态，这个窄豁免在证据层面不可验证**：六项揉成一个布尔值写进
-   `gate-result.json`，看不出是哪一项 `false`。目前「false 的只可能是第六项」是**推断**，
+   `gate-result.json`，看不出是哪一项 `false`。目前「false 的只可能是第 7 项」是**推断**，
    靠两条旁证：
 
    - 同脚本 `restartedHostServesTheSameStorePass`（626 行上方）里
@@ -343,7 +354,7 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
      `protocolTag`／`protocolCommit`），`appsettings.json` 的 `ProtocolCandidate.tag`
      就是 `protocol-v1.0.0`，所以第 3 项成立——**这一项没有独立佐证，是靠读配置推的**。
 
-   **要让豁免可验证，就得做路②的前半段**：把第六项从合取里拆出来单独出字段。
+   **要让豁免可验证，就得做路②的前半段**：把第 7 项从合取里拆出来单独出字段。
    这仍然属于改门禁断言，**未获授权，本轮没做**。
 
 3. **八份 `ONBOARD_HMI_G2` 要不要在 G1 修好之后重出。**用户本轮定「先不重出」。

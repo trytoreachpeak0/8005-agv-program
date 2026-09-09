@@ -132,14 +132,19 @@ formalSlicePass = ($status -eq 'PASS') -and ($assuranceLevel -in $LevelsThatCoun
 `protocolCommit` 是 2026-08-29 `protocol-v0.1.1` 的历史，**任何 v2 身份的运行对它都过不了**
 （[17-answer.md](17-answer.md) 第七节第 2 条）。
 
-⚠️ **2026-09-09 第四轮就地更正：上一句原文写的是「那条问的是恢复的现场库里记的
-`protocolCommit`」，不准确。** 那条断言是**六项合取**（`run-demand-bearing-g3-vectors.ps1:626-632`），
-现场库历史只是**第六项**；前五项问的是运行中服务端与被测构建的身份。
-证据里六项揉成一个布尔值，**分辨不出是哪一项 `false`**，所以「只有第六项挂了」是带旁证的推断
-而不是实测结论。展开与后果（尤其是豁免必须写窄到第六项）见 17-answer.md 第七节第 2 条。它是 `runWide`，
+它是 `runWide`，
 所以两片都该 FAIL——实测两片 `status` 都是 `FAIL`、`formalSlicePass` 都是 `false`，
 **不是 `INCONCLUSIVE`**（那个留给 runner 自身出错），而且两份证据照样写了出来。
 这正是设计要的区别：**「问了，答案是不对」与「没问成」在证据里必须长得不一样。**
+
+⚠️ **2026-09-09 第四轮就地更正：上面那句「它唯一失败的断言是 …」写得不准。**
+那条断言是**七项合取**（`run-demand-bearing-g3-vectors.ps1:626-632`），
+现场库历史只是**第 7 项**；前六项问的是运行中服务端与被测构建的身份，
+而当时的证据把七项揉成一个布尔值，**分辨不出是哪一项 `false`**。
+[票 24](24-demand-bearing-field-store-assertion-split.md) 已把第 7 项拆成如实记录，
+2026-09-09 重跑实测：前六项作为断言全过、`status` 转 `PASS`，
+新记录字段 `fieldStoreProvenance.matchesBoundProtocolCommit` 为 `false`——
+**当初「挂的只是现场库那一项」的推断，到这一轮才成为实测结论。**
 
 ### 第一轮 restart 查出的一个真缺口（已修，`a46101e`）
 
