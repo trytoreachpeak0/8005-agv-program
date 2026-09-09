@@ -134,27 +134,43 @@ L1 `586 passed / 0 failed / 0 skipped`。
 `RECONCILE_EMPTY_FINAL_STATE` 那一半在实现里（同文件 `safeEmpty` 判据）但没有独立测试。
 **`FP-IS-02` 重证时应当补上。**
 
-**状态：** in-progress —— 2026-09-09 跑完两道 G2，G3 未跑。见 [17-answer.md](17-answer.md)。
-用户裁定「先跑两道 G2，G3 等推送定下来」。**八个切片尚未通过**——一片要四道门禁齐全才算过。
+**状态：** in-progress —— 2026-09-09 第二轮：两道 G2 已全绿并全部入库，G1 实测通过，
+G3 三个 runner 跑了两过一败。见 [17-answer.md](17-answer.md)。
+**八个切片仍未通过，而本轮查清了原因：第三条验收用现有 G3 runner 结构上做不出来**，
+详见 17-answer.md 第六节。
 
 - [x] 八个切片各跑一遍 `CONTROL_SERVER_G2`，八份 `gate-result.json` 全 PASS
-      —— `fp/v2-impl` = `a143c9c`，证据已提交（`5915cf7`）
+      —— `fp/v2-impl` = `a143c9c`，证据已提交（`5915cf7`）；`FP-IS-02` 另有一份绑 `3f62647`
+      的重出（`e3ea250`，`selectedTestCount` 17 → 18）
 - [x] 八个切片各跑一遍 `ONBOARD_HMI_G2`，八份 `gate-result.json` 全 PASS
-      —— `w2g/fp-v2-impl` = `360a405`，证据在盘上**未提交**（该仓 `.gitignore` 排除
-      `evidence/`，破例与否待裁定）
-- [ ] 八个切片各跑一遍 `G3`，全 PASS —— **未跑**，需先推车载端，四件前提见 17-answer.md 第五节
+      —— `w2g/fp-v2-impl` = `360a405`，**证据已 `git add -f` 提交入库**（`153b705`，73 个文件，
+      用户 2026-09-09 裁定两端对齐；先例 `a1e32dd`）
+- [ ] 八个切片各跑一遍 `G3`，全 PASS —— **做不出来，需先做 G3 runner 的按片改造。**
+      三个 runner 把切片结论写成字面常量（`formalSlicePass = $false`、
+      `officialSlices` 只名 `FP-IS-00`／`04`／`05`／`06` 且都是 `INCONCLUSIVE`），
+      且都只发 `run-result.json`，全仓只有 `test-wire-to-gate.ps1` 发 `gate-result.json`。
+      **这是那三个 runner 的既定立场，不是配置问题**——见 17-answer.md 第六节与
+      待裁定第 1 条。本轮已按现有形态跑完一轮 v2 身份的 G3，证据 `0d26bc9`
 - [x] 每份 `gate-result.json` 绑定精确的 `ProtocolReleaseIdentity`（v2 三元组）
-      —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`
+      —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`，`tagExists` = `false`
 - [x] 证据落在 `evidence/g2/<日期>-<描述>/`（车载端脚本另插一层 `protocol-v1.0.0`，是它既有的
-      目录约定）；`evidence/g3/` 部分待 G3
-- [x] `-EvidenceRoot`／`-Output` 都是不存在的目录；本轮没有重跑覆盖任何既有证据
+      目录约定）；`evidence/g3/20260909-v2-identity/` 三个子目录一 runner 一份
+- [x] `-EvidenceRoot`／`-Output` 都是不存在的目录；本轮没有重跑覆盖任何既有证据，
+      **包括那份失败的 `DEMAND_BEARING_SLICE_FAIL`**
 - [x] 证据目录只增不改
 - [x] 车载端侧的门禁跑在我方 `w2g/*` 分支上，commit 绑定如实记录
       （`implementationBranch` = `w2g/fp-v2-impl`）
-- [x] 证据与说明中不出现「沿用已通过结论」这类表述——两份 `SUMMARY.md` 都在开头明写
-      「是 v2 下的重新证明，不是沿用」
+- [x] 证据与说明中不出现「沿用已通过结论」这类表述——三份 `SUMMARY.md` 都在开头明写
 
-⚠️ **两件本轮做不到／没做的，写在这里而不是藏起来**：协议 G1 在本机跑不了，八份
-`ONBOARD_HMI_G2` 的 `g1Status` 都是 `SKIPPED`（原因见 17-answer.md 第四节；G1 不在本票要的三道
-门禁里）；票 16 转交的 `FP-IS-02` 那条测试**没补**，补完之后 `FP-IS-02` 的
-`CONTROL_SERVER_G2` 要重出一份新证据。
+⚠️ **本轮做不到／没做的，写在这里而不是藏起来**：
+
+1. **G3 的按片验收做不出来**（上面第三条）。需单开一张改造票，并先裁定「staged G3 下一片
+   算不算通过」。
+2. **`run-demand-bearing-g3-vectors.ps1` 失败一条断言**，失败在恢复的现场库那行记的
+   `protocolCommit` 是 `protocol-v0.1.1` 的——那是 2026-08-29 现场运行的历史，
+   任何 v2 身份的运行对它都过不了。该 runner 真正要证的 19 条全过。
+3. **八份 `ONBOARD_HMI_G2` 的 `g1Status` 仍是 `SKIPPED`。** G1 本身实测通过
+   （`b835a40` 修好了 `run-w2g-g2.ps1`），但用户裁定「先不重出证据」。
+
+**上一版这里写的两件已经不成立**：「协议 G1 在本机跑不了」经实测证伪（见 17-answer.md
+第一节）；`FP-IS-02` 那条测试**已补**（`3f62647`）并已重出证据（`e3ea250`）。
