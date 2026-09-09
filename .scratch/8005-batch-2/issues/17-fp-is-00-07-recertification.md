@@ -134,7 +134,7 @@ L1 `586 passed / 0 failed / 0 skipped`。
 `RECONCILE_EMPTY_FINAL_STATE` 那一半在实现里（同文件 `safeEmpty` 判据）但没有独立测试。
 **`FP-IS-02` 重证时应当补上。**
 
-**状态：** in-progress —— 2026-09-09 第二轮：两道 G2 已全绿并全部入库；**G1 本身实测通过**
+**状态：** done（2026-09-09 第四轮收口，限定见下）—— 2026-09-09 第二轮：两道 G2 已全绿并全部入库；**G1 本身实测通过**
 （协议仓已提交的 `evidence/g1-result.json` 本轮独立复现，且三次 G3 运行的 G1 都 `PASS`），
 但**已出证的那八份 `ONBOARD_HMI_G2` 仍记 `g1Status: SKIPPED`**——修好 G1 的 `b835a40`
 晚于它们，用户裁定先不重出。G3 三个 runner 跑了两过一败。见 [17-answer.md](17-answer.md)。
@@ -147,8 +147,18 @@ L1 `586 passed / 0 failed / 0 skipped`。
 用户把「改写成什么」交给 agent 定，选定**按分级口径如实改写、但不勾**，
 本票因此仍是 `in-progress`，且**唯一未完的就是第三条**。
 **同一轮用户随后选了收口路①：`FP-IS-04`／`05` 那条断言裁定为已知豁免**（范围写窄到第 7 项合取，
-见该条末尾）。**口径问题到此解决，第三条现在只差一件事：跑一轮改造后的 G3 并把证据入库，
-而那需要用户单独授权门禁。**
+见该条末尾），并定「先拆再跑」，授权改门禁断言 ＋ 跑一轮 G3 出证。
+**✅ 两件都做完了**（[票 24](24-demand-bearing-field-store-assertion-split.md)，
+证据 `evidence/g3/20260909-graded-per-slice/`＠`1f25f6e`），**第三条验收随之勾上，
+本票九条验收全部勾满，状态改 `done`。**
+
+🔴 **但本票的出口带着四条限定，读结论时必须连着看**：
+① `FP-IS-01`／`02`／`03`／`07` **本批次没有 G3 面**，如实记在
+`slicesWithoutSurfaceThisBatch`，不发证据——**出口不是「八片都过了 G3」**；
+② `FP-IS-04`／`05` 的通过以那条现场库历史断言被裁定豁免为前提；
+③ 八份 `ONBOARD_HMI_G2` 的 `g1Status` 仍是 `SKIPPED`（用户裁定不重出）；
+④ `fullG3` 与 `releaseCandidate` 在三份 `run-result.json` 里都仍是 `INCONCLUSIVE`，
+**本票的出口不含 RC**。
 
 - [x] 八个切片各跑一遍 `CONTROL_SERVER_G2`，八份 `gate-result.json` 全 PASS
       —— `fp/v2-impl` = `a143c9c`，证据已提交（`5915cf7`）；`FP-IS-02` 另有一份绑 `3f62647`
@@ -156,8 +166,9 @@ L1 `586 passed / 0 failed / 0 skipped`。
 - [x] 八个切片各跑一遍 `ONBOARD_HMI_G2`，八份 `gate-result.json` 全 PASS
       —— `w2g/fp-v2-impl` = `360a405`，**证据已 `git add -f` 提交入库**（`153b705`，73 个文件，
       用户 2026-09-09 裁定两端对齐；先例 `a1e32dd`）
-- [ ] `G3` 的按片出证与分级结论 —— **2026-09-09 第四轮按[票 23](23-g3-per-slice-gate-result.md)
-      的分级口径改写，本条仍不勾**，收口条件写在本条末尾。
+- [x] `G3` 的按片出证与分级结论 —— **2026-09-09 第四轮按[票 23](23-g3-per-slice-gate-result.md)
+      的分级口径改写，并在[票 24](24-demand-bearing-field-store-assertion-split.md) 出证后勾上**，
+      收口经过写在本条末尾。
       **改写前的原文是「八个切片各跑一遍 `G3`，全 PASS」**：那个口径在本批次不可能成立，
       而且它预设的「八片都有 G3 面」本身与事实不符（见下表）。改写只是让本条与实测对齐，
       **不代表本条已达成**。下面这段解释它当初为什么做不出来，保留不删：
@@ -182,7 +193,10 @@ L1 `586 passed / 0 failed / 0 skipped`。
       而「本批次轨 A 出口是否达成」属于发布层判断，不由 agent 代签。
 
       **✅ 2026-09-09 第四轮：用户选路①，`FP-IS-04`／`05` 那条断言裁定为已知豁免。**
-      同时接受「四片本批次无 G3 面」作为如实出口。路②（拆断言）**未选、未做**。
+      同时接受「四片本批次无 G3 面」作为如实出口。
+      **随后用户又定「先拆再跑」，于是路②的前半段也做了**——见
+      [票 24](24-demand-bearing-field-store-assertion-split.md)：把那一项从合取里拆成如实记录，
+      **正是它把「挂的只是现场库那一项」从推断变成了实测**。
 
       **豁免的范围是这个，不能写宽：**
 
@@ -192,19 +206,24 @@ L1 `586 passed / 0 failed / 0 skipped`。
         不是被测构建，任何 v2 身份的运行对它都过不了，除非重采一次 v2 现场运行。
       - **不豁免同一条断言的前六项**（运行中服务端的 `protocolCommit`／`protocolTag`、
         被测构建的 `serverBuildCommit`、两个非空守卫）。它们是真正该守的身份绑定。
-      - ⚠️ **以脚本当前形态，这个窄豁免在证据层面不可验证**：六项揉成一个布尔值，
-        `gate-result.json` 看不出是哪一项 `false`。「只有第 7 项挂了」当时是带旁证的推断。
-        要让它可验证得做路②的前半段（把第 7 项单独出字段），**那仍需单独授权**。
-        展开见 [17-answer.md](17-answer.md) 第七节第 2 条。
+      - ✅ **这个窄豁免现在在证据层面可验证了**（票 24）：第 7 项已移出合取、改为
+        `fieldStoreProvenance` 记录节。**本轮实测两件事同时成立**——前六项作为断言全部通过
+        （`status=PASS`），第七项量出来仍是 `false`（`matchesBoundProtocolCommit: false`）。
+        **这才真正证明当初挂的就是它**；在此之前那只是带旁证的推断。
+        展开见 [17-answer.md](17-answer.md) 第七节第 2 条与 [24-answer.md](24-answer.md)。
 
-      **裁定完成后，勾上本条还差最后一步——而这一步没做：**
+      **✅ 出证也做完了，本条据此勾上：**
 
-      ⚠️ **本票正式出证要另跑一轮 G3 并另外授权。** 票 23 那六份 `gate-result.json`
-      是它自己的自证，落在临时目录、随 session 清理**已经消失**，**不是本票的门禁证据**。
-      库里现有的 `evidence/g3/20260909-v2-identity/` 是**分级改造之前**按旧形态跑的，
-      没有按片 `gate-result.json`。所以本条**在证据入库之前不能勾**——
-      勾了就是「验收勾上、证据不在库」，正是本线一直在防的失真。
-      出证那一轮的 `SUMMARY.md` 里要把上面这段豁免范围逐字写进去。
+      新证据 `8005-agv-control-server/evidence/g3/20260909-graded-per-slice/`，提交 `1f25f6e`，
+      79 个文件。三个 runner 真跑全过（19／19、20／20、20／20），
+      六份 `gate-result.json`（`schemaVersion 1.3.0`）全部 `status=PASS` ＋ `formalSlicePass=true`。
+      绑定：控制端 `b46b072`、车载端 `153b705`、simulator `fb5f7c5`、协议 `f6ee75d`，
+      开跑前逐条对远端核过。豁免范围已逐字写进那一轮的 `SUMMARY.md`。
+
+      ⚠️ **本条勾的是什么，读的时候要连着看：** 四片有 G3 面且通过、
+      **四片本批次没有 G3 面**（记在 `slicesWithoutSurfaceThisBatch`，不发证据）、
+      `FP-IS-04`／`05` 的通过以上面那条豁免为前提。
+      三份 `run-result.json` 里 `fullG3` 与 `releaseCandidate` **仍是 `INCONCLUSIVE`**。
 - [x] 每份 `gate-result.json` 绑定精确的 `ProtocolReleaseIdentity`（v2 三元组）
       —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`，`tagExists` = `false`
 - [x] 证据落在 `evidence/g2/<日期>-<描述>/`（车载端脚本另插一层 `protocol-v1.0.0`，是它既有的

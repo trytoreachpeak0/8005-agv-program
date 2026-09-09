@@ -91,19 +91,19 @@ Context 里给了 `fieldStoreProvenance`，就要求 `protocolCommit` 非空—�
 
 ## 七、验收
 
-**状态：** in-progress —— 2026-09-09 开票。
+**状态：** done —— 2026-09-09 开票、实现、自证、三个 runner 真跑并入库，见 [24-answer.md](24-answer.md)。
 
-- [ ] `$protocolBindingPass` 只含第 1～6 项，第 7 项不再参与它
-- [ ] `fieldStoreProvenance` 四个字段写进 `gate-result.json`，`matchesBoundProtocolCommit`
+- [x] `$protocolBindingPass` 只含第 1～6 项，第 7 项不再参与它
+- [x] `fieldStoreProvenance` 四个字段写进 `gate-result.json`，`matchesBoundProtocolCommit`
       如实为 `false`
-- [ ] `$assertions` 的名字集合与改动前逐字相同（归属表守卫不抛可作旁证）
-- [ ] `schemaVersion` = `1.3.0`，且另外两个 runner 出的 `gate-result.json` 里没有该节
-- [ ] 非空守卫覆盖新字段，且真验过它会抛
-- [ ] 真跑一轮三个 runner 的 G3，证据入库（用户已授权）
-- [ ] `FP-IS-04`／`FP-IS-05` 的 `status` 从 `FAIL` 变 `PASS`，
+- [x] `$assertions` 的名字集合与改动前逐字相同（归属表守卫不抛可作旁证）
+- [x] `schemaVersion` = `1.3.0`，且另外两个 runner 出的 `gate-result.json` 里没有该节
+- [x] 非空守卫覆盖新字段，且真验过它会抛
+- [x] 真跑一轮三个 runner 的 G3，证据入库（用户已授权）
+- [x] `FP-IS-04`／`FP-IS-05` 的 `status` 从 `FAIL` 变 `PASS`，
       且 `formalSlicePass=true`、`assuranceLevel=DEMAND_BEARING_RESTORE`
-- [ ] 证据 `SUMMARY.md` 里逐字写清豁免范围（豁免第 7 项，不豁免前六项）
-- [ ] 自证：真改、真跑、看红、还原，记原样输出
+- [x] 证据 `SUMMARY.md` 里逐字写清豁免范围（豁免第 7 项，不豁免前六项）
+- [x] 自证：真改、真跑、看红、还原，记原样输出
 
 ## 八、本票不决定的（留给票 17 或用户）
 
