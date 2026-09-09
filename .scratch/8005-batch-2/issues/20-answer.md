@@ -248,12 +248,29 @@ Installed SDKs:
 
 **顺带一条实测证据：SDK 10.0.302 编不过这个仓库。**它的分析器在票 15 留下的
 `ReasonCodeRegistryArchitectureTests.cs:576` 上报 `CA1859`，而 `TreatWarningsAsErrors=true`。
-所以"随便找个装着的 SDK 顶上"不成立，**`global.json` 要么补装 `8.0.424`，要么改成 `8.0.425`
-——这是那个仓库的决定**（`global.json` 的最后一次改动是他们的
-`85fb860 build: align onboard HMI with dotnet toolchain baseline`）。
+所以"随便找个装着的 SDK 顶上"不成立。
 
-同一台机器上 `8005-agv-control-server` 的 `global.json` 钉的是同一个版本，**所以这条同样挡着
-控制端**，也就同样挡着票 17。
+### 这件事已经有裁定了，只是还没到本线上
+
+远端分支 `w2g/dotnet-sdk-8.0.425` 的 HEAD `7a4e509`
+**`chore(toolchain)!: .NET SDK 基线由 8.0.424 抬到 8.0.425`**（Zhengyu Shao，2026-09-09 10:24）
+就是这件事的决议：`global.json` 一行改动 `8.0.424` → `8.0.425`。提交正文写明起因是
+Windows Update 的 `KB5126052`／`KB5124008` 替换了同一 feature band 内的旧版本，
+`8.0.424` 目录不复存在，**四个可写 .NET 仓在那台机器上全部 `dotnet build` 失败**，
+并说明这是 ADR-cross-0056 第一层机制的预期表现而非故障。
+
+所以这条**不是待裁定项，是待搬运项**：
+
+- 那个分支在 **MVP 线**（`protocol-v0.3.0`）上，不在本线。`w2g/fp-v2-impl` 从更早的点分出，
+  `global.json` 仍是 `8.0.424`。
+- `8005-agv-control-server` 的 `global.json` 同样还是 `8.0.424`。
+- **本票没有把那一行搬过来**——改工具链基线不在票 20 的边界内（"不改产品代码，只加测试与
+  vendor 副本"），而且它是那位所有者自己带 ADR 引用的决定。要不要 cherry-pick 到
+  `w2g/fp-v2-impl` 与控制端，请用户定。
+
+⚠️ **那条提交自己还留了一句**：「**CI runner（`win11-01`）仍是 8.0.424**……在它升到 8.0.425
+之前，它会是唯一落后的那台——而门禁证据与发布包都在它上面产出。」**票 17 要在那台机器上出证，
+这句直接相关。**
 
 ---
 
@@ -361,10 +378,12 @@ param(
 必须先实现 `ForcedMechanicalRecoveryResult`）、要么由用户裁定降级。**不处置就不能声称
 `FP-IS-07` 重证通过。**
 
-### 3. SDK 版本挡着出证
+### 3. SDK 版本挡着出证，但决议已存在，只差搬运
 
-见第六节末。这条与交接文档第六节第 6 条（`dotnet format` 的 CRLF 冲突）是**两件不同的事**，
-两件都挡着票 17，都要用户裁定。
+见第六节末。修法已经由 `w2g/dotnet-sdk-8.0.425` 的 `7a4e509` 定下（`global.json` 一行），
+只是还没到 `w2g/fp-v2-impl` 与控制端上；而且那条提交自己指出 CI runner `win11-01` 仍是
+`8.0.424`。这与交接文档第六节第 6 条（`dotnet format` 的 CRLF 冲突）是**两件不同的事**，
+两件都挡着票 17。
 
 ---
 
