@@ -29,7 +29,7 @@
 v2，三条 C_TO_O 快照的 payload 形状按 v2 schema 改对，186 处 trait 重打为 `FP-IS-NN`，
 L1 `586 passed / 0 failed / 0 skipped`。
 **票 15 于 2026-09-09 完成，最后一条前置解除**（见 [15-answer.md](15-answer.md)）。车载端
-`w2g/fp-v2-impl` = `f0b4e0d`（已推送），`168 passed / 0 failed / 0 skipped`。
+`w2g/fp-v2-impl` = `9ec5b29`（已推送），`172 passed / 0 failed / 0 skipped`。
 
 票 15 转交本票四件事，**其中前两件会挡住出证，开工先看**：
 

@@ -79,4 +79,4 @@ Kun Wang：只在 `w2g/*` 分支上工作，改动以 pull request 交给 `Onboa
 - [x] 该仓 `CLAUDE.md` 与 `docs/` 未被本票改动
       —— **该仓根本没有 `CLAUDE.md`**（票据这句是从别的仓抄来的）；`docs/` 与 `README.md` 零改动
 - [x] 工作树干净，`w2g/*` 分支已推送，L2 可从它发布车载端
-      —— `w2g/fp-v2-impl` = `f0b4e0d`，fast-forward（`641292e..f0b4e0d`），未 force-push
+      —— `w2g/fp-v2-impl` = `9ec5b29`，fast-forward（`641292e..9ec5b29`，两个提交），未 force-push
