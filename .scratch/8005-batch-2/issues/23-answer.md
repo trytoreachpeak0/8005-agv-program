@@ -109,7 +109,7 @@ formalSlicePass = ($status -eq 'PASS') -and ($assuranceLevel -in $LevelsThatCoun
 一条 `runWide` 失败让每片都 FAIL；runner 自身出错时每片记 `INCONCLUSIVE` 而不是 `FAIL`；
 两条拒绝路径的措辞；`gate-result.json` 一片一份且 `-Slice` 只出那一份；
 身份字段为空时抛且不写文件。脚本在
-`%TEMP%\claude\<本 session 目录>\scratchpaderify-g3-slice-evidence.ps1`。
+`%TEMP%\claude\<本 session 目录>\scratchpad/verify-g3-slice-evidence.ps1`。
 
 **`-Slice` 拒绝路径（真跑，4/4）**：`run-staged-g3.ps1 -Slice FP-IS-02`（无 G3 面）、
 同脚本 `-Slice FP-IS-04`（别的 runner 认领）、`run-staged-g3-restart.ps1 -Slice FP-IS-02`、
@@ -121,13 +121,19 @@ formalSlicePass = ($status -eq 'PASS') -and ($assuranceLevel -in $LevelsThatCoun
 | runner | 结果 |
 | --- | --- |
 | `run-staged-g3.ps1` | ✅ `STAGED_G3_RECOVERY_REPLAY_PASS`；`FP-IS-00`／`FP-IS-06` 各一份 `gate-result.json`，都是 `status=PASS` ＋ `assuranceLevel=STAGED_REBUILD` ＋ `formalSlicePass=true`；断言归属 12／10 条 |
-| `run-staged-g3-restart.ps1` | 第一轮 ✅ `STAGED_G3_PROCESS_RESTART_PASS`（但暴露了第七节那个 null，见下）；**修完之后的重跑未完** |
-| `run-demand-bearing-g3-vectors.ps1` | **未跑** |
+| `run-staged-g3-restart.ps1` | ✅ `STAGED_G3_PROCESS_RESTART_PASS`；同上两片，`protocolReleaseVersion` 修好后为 `'1.0.0'`，九个身份字段无一为空 |
+| `run-demand-bearing-g3-vectors.ps1` | ❌ `DEMAND_BEARING_SLICE_FAIL`（**预期内**，见下）；`FP-IS-04`／`FP-IS-05` 各一份 `gate-result.json`，都是 `status=FAIL` ＋ `assuranceLevel=DEMAND_BEARING_RESTORE` ＋ `formalSlicePass=false` |
 
-⚠️ **下一个 session 的第一件事就是把后两个跑完**，见交接文档。
-预期 demand-bearing 仍会失败在那条关于现场库历史的断言上（`protocolAndBuildIdentityBoundToTheSharedBinding`，
-是 `runWide`），**而那正好是一次真的 FAIL 路径验证**：它应当让 `FP-IS-04` 与 `FP-IS-05`
-都记 `status=FAIL`、`formalSlicePass=false`，而不是 `INCONCLUSIVE`。
+三个 runner 共出 **6 份 `gate-result.json`**，覆盖 `FP-IS-00`／`04`／`05`／`06`
+（`00` 与 `06` 各两份，staged 与 restart 一人一份）。
+
+**demand-bearing 那次失败正好把 FAIL 路径验成了。** 它唯一失败的断言是
+`protocolAndBuildIdentityBoundToTheSharedBinding`——那条问的是恢复的现场库里记的
+`protocolCommit`，而那是 2026-08-29 `protocol-v0.1.1` 的历史，**任何 v2 身份的运行对它都过不了**
+（[17-answer.md](17-answer.md) 第七节第 2 条，用户裁定本轮不动它）。它是 `runWide`，
+所以两片都该 FAIL——实测两片 `status` 都是 `FAIL`、`formalSlicePass` 都是 `false`，
+**不是 `INCONCLUSIVE`**（那个留给 runner 自身出错），而且两份证据照样写了出来。
+这正是设计要的区别：**「问了，答案是不对」与「没问成」在证据里必须长得不一样。**
 
 ### 第一轮 restart 查出的一个真缺口（已修，`a46101e`）
 
