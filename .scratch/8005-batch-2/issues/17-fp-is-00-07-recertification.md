@@ -68,6 +68,40 @@ L1 `586 passed / 0 failed / 0 skipped`。
    `New-WireToGateReleaseCandidate.ps1` 因此拒绝打 RC，这是规格 6.6 要的效果，不是要绕过的
    障碍。本票的出口是三道门禁全 PASS，**不含 RC**。
 
+## 票 21 转交本票四件事（2026-09-09，见 [21-answer.md](21-answer.md)）
+
+**票 21 已把 `FP-IS-07` 的两个向量缺口关掉**，`VectorsThisBatchOwesANamedTest` 已清空。
+车载端 `w2g/fp-v2-impl` = `ea3c75e`，`154 + 42 passed`，未推送。本票不再有向量欠账。
+但票 21 换来了四件新的开工须知：
+
+1. **🔴 CI runner（`win11-01`）现在会 `dotnet` 失败。** 用户 2026-09-09 定，SDK 基线 8.0.425
+   已搬到 `w2g/fp-v2-impl`（`3f26a32`）与控制端 `fp/v2-impl`（`a143c9c`），两仓的
+   `global.json` 现在要求 8.0.425 ＋ `rollForward: disable`，而那台机器是 8.0.424。
+   **门禁证据与发布包都在它上面产出**，出证前必须先让它升级。这是搬运的已知代价。
+
+   好处是：本机现在可以直接在仓库目录内跑 `dotnet`，旧交接里那个「仓库外临时目录钉
+   `global.json`」的绕法作废。
+
+2. **上面第 1 条障碍（`dotnet format`）的修法已经存在，是搬运不是裁定。**
+   远端 `w2g/normalize-line-endings` HEAD `9ee7e4d`（Zhengyu Shao，2026-09-09 11:04）给该仓加
+   `.gitattributes` 的 `* text=auto eol=lf`，提交信息里直接写着「这正是 `ONBOARD_HMI_G2`
+   从未绿过的原因」，实测 22800 条 `ENDOFLINE`。
+
+   ⚠️ **不能直接 cherry-pick。** 那份只有全局那条（它从 MVP 线出，那条线没有 vendor 目录），
+   本线现有的 `.gitattributes` 只有票 15 加的 `vendor/8005-agv-protocol/** -text`。
+   **两条都要有，且 vendor 那条必须在后**——否则 71 个文件的 SHA-256 会全部漂移。
+
+   另：**控制端本线早就有 `* text=auto eol=lf`**，这条障碍只存在于车载端。
+
+3. **上面第 2 条障碍（`-Slice`／`IntegrationSlice`）原封不动。** 票 21 按票据边界故意没做。
+   实测补充：**控制端有这一族 trait**（`RecoveryStateMachineG2Tests.cs:457` 同时挂
+   `FP-IS-05` 与 `FP-IS-07`），车载端 0 处。是单边缺口，不是两端都缺。
+
+4. **真正驱动物理解锁的 G2 夹具仍然不存在。** 票 21 的四条测试走的是「目标仓位本来就没货」
+   那条短路，`PulseUnlockAsync` 与 `WaitForLockerAsync` 一次都没调用；
+   `FakeIoModuleClient.WaitForLockerAsync` 至今 `throw new NotSupportedException`。
+   `FP-IS-07` 的向量绑定补齐了，但「解锁—等待反馈—复位」在车载端仍无测试驱动。
+
 票 16 转交本票一件事：`CV-LOAD-CANCELLATION-ALL-EMPTY` 是它 20 条绑定里最薄的一条——服务端
 取消面（`OnboardRecoveryCoordinator.AuthorizeLoadCancellationAsync`）只有
 `FailedCompensationResultIsDurableReplayableAndNeverReleasesDemandOrVehicle` 一条测试覆盖，
