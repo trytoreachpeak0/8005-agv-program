@@ -17,8 +17,11 @@
 建议把这八个切片的重证放在一个**连续窗口**内跑完，窗口内轨 B 暂缓合并；或等轨 B 的票
 09～13 合完再跑。两种都行，别边跑边合。
 
-**前置：** ~~票 14（服务端 v2）~~✅、~~票 15（车载端 v2）~~✅、~~票 16（`vectorId` 绑定守卫）~~✅。
-**三条前置全部解除，本票可开工。**
+**前置：** ~~票 14（服务端 v2）~~✅、~~票 15（车载端 v2）~~✅、~~票 16（`vectorId` 绑定守卫）~~✅、
+~~票 21（`FP-IS-07` 两个向量缺口）~~✅、~~票 22（`IntegrationSlice` trait ＋ `-Slice`）~~✅。
+**2026-09-09：两条硬障碍都已不在**——`dotnet format` 那条已搬运（`d9dd631`），
+`-Slice`／`IntegrationSlice` 那条由票 22 关闭（`b4f3530`），`win11-01` 那条经实测与用户裁定
+不是本票前提。**本票现在真的可开工，且开工的第一步是进门禁，需用户点头。**
 
 **票 16 于 2026-09-08 完成，这一条前置解除**（见 [16-answer.md](16-answer.md)）。守卫落在
 控制端 `562544e`，CI 绿（run
@@ -74,12 +77,17 @@ L1 `586 passed / 0 failed / 0 skipped`。
 车载端 `w2g/fp-v2-impl` = `ea3c75e`，`154 + 42 passed`，未推送。本票不再有向量欠账。
 但票 21 换来了四件新的开工须知：
 
-1. **🔴 CI runner（`win11-01`）现在会 `dotnet` 失败。** 用户 2026-09-09 定，SDK 基线 8.0.425
-   已搬到 `w2g/fp-v2-impl`（`3f26a32`）与控制端 `fp/v2-impl`（`a143c9c`），两仓的
-   `global.json` 现在要求 8.0.425 ＋ `rollForward: disable`，而那台机器是 8.0.424。
-   **门禁证据与发布包都在它上面产出**，出证前必须先让它升级。这是搬运的已知代价。
+1. ~~**🔴 CI runner（`win11-01`）现在会 `dotnet` 失败。**~~ **这条不是本票的前提，2026-09-09
+   实测证伪 ＋ 用户裁定。** SDK 基线 8.0.425 确实已搬到 `w2g/fp-v2-impl`（`3f26a32`）与控制端
+   `fp/v2-impl`（`a143c9c`），`win11-01` 确实还是 8.0.424；错的是「门禁证据与发布包都在它上面
+   产出」这半句——它出自 `7a4e509` 的提交信息，但历史 `CONTROL_SERVER_G2` 证据的 `.trx` 里写的
+   是 `computerName="LAB-WIN-01"`（见 `evidence/g2/20260830-issue26-264615a/*/`），G3 证据里的
+   路径也是 `C:\Users\szy`，**都是本机**。本机已是 8.0.425。`win11-01` 上跑的是 GitHub Actions
+   （`test.yml`／`l2.yml`，触发条件是推 `main`／`ControlServer_MVP` 或开 PR）与 `release.yml`
+   出包，而本票的出口明写「不含 RC」。
+   **用户 2026-09-09 裁定：不算本票前提，门禁在本机出证**，`win11-01` 的升级另作运维事项跟踪。
 
-   好处是：本机现在可以直接在仓库目录内跑 `dotnet`，旧交接里那个「仓库外临时目录钉
+   好处仍然成立：本机现在可以直接在仓库目录内跑 `dotnet`，旧交接里那个「仓库外临时目录钉
    `global.json`」的绕法作废。
 
 2. **上面第 1 条障碍（`dotnet format`）的修法已经存在，是搬运不是裁定。**
@@ -89,13 +97,30 @@ L1 `586 passed / 0 failed / 0 skipped`。
 
    ⚠️ **不能直接 cherry-pick。** 那份只有全局那条（它从 MVP 线出，那条线没有 vendor 目录），
    本线现有的 `.gitattributes` 只有票 15 加的 `vendor/8005-agv-protocol/** -text`。
-   **两条都要有，且 vendor 那条必须在后**——否则 71 个文件的 SHA-256 会全部漂移。
+   **两条都要有。**
 
    另：**控制端本线早就有 `* text=auto eol=lf`**，这条障碍只存在于车载端。
 
-3. **上面第 2 条障碍（`-Slice`／`IntegrationSlice`）原封不动。** 票 21 按票据边界故意没做。
-   实测补充：**控制端有这一族 trait**（`RecoveryStateMachineG2Tests.cs:457` 同时挂
-   `FP-IS-05` 与 `FP-IS-07`），车载端 0 处。是单边缺口，不是两端都缺。
+   ✅ **2026-09-09 已搬运，见 `d9dd631`。** 前后实测：`exit=2`／22093 条 `ENDOFLINE` ＋ 16 条
+   `WHITESPACE`／62 个 `.cs` → `exit=0`／零诊断。全仓 206 个文本文件现在一律 `i/lf w/lf`，
+   vendor 73 个文件字节未动（`manifest/release.json` 仍是 `84f984ea…`）。
+
+   ⚠️ **上面「否则 71 个文件的 SHA-256 会全部漂移」那句是错的**，搬运时把四种规则顺序各真跑一遍
+   证伪了它：只要全局那条带着 `eol=lf`，vendor 那条在前在后摘要都不漂；顺序只在有人把 `eol=lf`
+   删掉、退回让 `core.autocrlf` 决定时才成为分界。四行表在 `.gitattributes` 的注释里，推导在
+   [22-answer.md](22-answer.md) 第一节。
+
+3. ~~**上面第 2 条障碍（`-Slice`／`IntegrationSlice`）原封不动。**~~
+   **✅ 2026-09-09 由票 22 关闭**（用户裁定单开一张票），见
+   [22-onboard-integration-slice-trait-and-slice-gate.md](22-onboard-integration-slice-trait-and-slice-gate.md)
+   与 [22-answer.md](22-answer.md)。车载端 `b4f3530`：新增 64 行 `IntegrationSlice` trait
+   （由既有 58 处 `ProtocolVector` 按切片索引投影，只投到 `sequence ≤ 7` 的八片），
+   `run-w2g-g2.ps1` 有了 `-Slice`，带 `-Slice` 的运行另出一份 `gate-result.json`
+   （`schemaVersion 1.1.0`，与控制端同形）。
+   ⚠️ `CV-MANUAL-CHARGING-RETURN` **不挂 `FP-IS-13`**，理由见 22-answer.md 第三节。
+
+   八片实测选中数：`FP-IS-00` 11、`01` 5、`02` 5、`03` 9、`04` 2、`05` 5、`06` 8、`07` 19，
+   八片全 PASS。**这些冒烟跑在临时证据目录里，不是本票的门禁证据。**
 
 4. **真正驱动物理解锁的 G2 夹具仍然不存在。** 票 21 的四条测试走的是「目标仓位本来就没货」
    那条短路，`PulseUnlockAsync` 与 `WaitForLockerAsync` 一次都没调用；
