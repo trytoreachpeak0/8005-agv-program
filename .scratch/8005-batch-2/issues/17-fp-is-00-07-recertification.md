@@ -134,14 +134,27 @@ L1 `586 passed / 0 failed / 0 skipped`。
 `RECONCILE_EMPTY_FINAL_STATE` 那一半在实现里（同文件 `safeEmpty` 判据）但没有独立测试。
 **`FP-IS-02` 重证时应当补上。**
 
-**状态：** ready-for-agent
+**状态：** in-progress —— 2026-09-09 跑完两道 G2，G3 未跑。见 [17-answer.md](17-answer.md)。
+用户裁定「先跑两道 G2，G3 等推送定下来」。**八个切片尚未通过**——一片要四道门禁齐全才算过。
 
-- [ ] 八个切片各跑一遍 `CONTROL_SERVER_G2`，八份 `gate-result.json` 全 PASS
-- [ ] 八个切片各跑一遍 `ONBOARD_HMI_G2`，八份 `gate-result.json` 全 PASS
-- [ ] 八个切片各跑一遍 `G3`，全 PASS
-- [ ] 每份 `gate-result.json` 绑定精确的 `ProtocolReleaseIdentity`（v2 三元组）
-- [ ] 证据落在 `evidence/g2/<日期>-<描述>/<FP-IS-NN>/` 与 `evidence/g3/<日期>-<描述>/`
-- [ ] `-EvidenceRoot` 是不存在的目录；红的证据不被绿的重跑覆盖；失败时 stage root 不删
-- [ ] 证据目录只增不改——若需纠正，写新目录并在 `SUMMARY.md` 里指向被纠正的那份
-- [ ] 车载端侧的门禁跑在我方 `w2g/*` 分支上，commit 绑定如实记录
-- [ ] 证据与说明中不出现「沿用已通过结论」这类表述
+- [x] 八个切片各跑一遍 `CONTROL_SERVER_G2`，八份 `gate-result.json` 全 PASS
+      —— `fp/v2-impl` = `a143c9c`，证据已提交（`5915cf7`）
+- [x] 八个切片各跑一遍 `ONBOARD_HMI_G2`，八份 `gate-result.json` 全 PASS
+      —— `w2g/fp-v2-impl` = `360a405`，证据在盘上**未提交**（该仓 `.gitignore` 排除
+      `evidence/`，破例与否待裁定）
+- [ ] 八个切片各跑一遍 `G3`，全 PASS —— **未跑**，需先推车载端，四件前提见 17-answer.md 第五节
+- [x] 每份 `gate-result.json` 绑定精确的 `ProtocolReleaseIdentity`（v2 三元组）
+      —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`
+- [x] 证据落在 `evidence/g2/<日期>-<描述>/`（车载端脚本另插一层 `protocol-v1.0.0`，是它既有的
+      目录约定）；`evidence/g3/` 部分待 G3
+- [x] `-EvidenceRoot`／`-Output` 都是不存在的目录；本轮没有重跑覆盖任何既有证据
+- [x] 证据目录只增不改
+- [x] 车载端侧的门禁跑在我方 `w2g/*` 分支上，commit 绑定如实记录
+      （`implementationBranch` = `w2g/fp-v2-impl`）
+- [x] 证据与说明中不出现「沿用已通过结论」这类表述——两份 `SUMMARY.md` 都在开头明写
+      「是 v2 下的重新证明，不是沿用」
+
+⚠️ **两件本轮做不到／没做的，写在这里而不是藏起来**：协议 G1 在本机跑不了，八份
+`ONBOARD_HMI_G2` 的 `g1Status` 都是 `SKIPPED`（原因见 17-answer.md 第四节；G1 不在本票要的三道
+门禁里）；票 16 转交的 `FP-IS-02` 那条测试**没补**，补完之后 `FP-IS-02` 的
+`CONTROL_SERVER_G2` 要重出一份新证据。
