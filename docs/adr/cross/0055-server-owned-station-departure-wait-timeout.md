@@ -12,8 +12,49 @@ StationDepartureWaiting 只适用于服务端裁定可继续装货的站点。�
 - 服务端掌握期限、原子结束本站并在投影同步和实时安全核验后发车（采纳）
 
 **Consequences**:
-- StationDepartureWaitPolicy 使用项目默认值和可选站点覆盖，第一版默认 5 分钟。
+- StationDepartureWaitPolicy 的项目默认值已实现，第一版 5 分钟；**可选的站点覆盖没有实现**，全线共用一个值（详见下方实现映射）。
 - 手动结束与自动超时共享 StopClosureCommit，但使用不同的取消终态和审计主体。
 - 发车失败不复活已取消任务，而是进入“本站已结束，等待发车重试”。
 - 无下一 PlannedStop 且空载时进入停车点流程；载有已提交 Sublot 却无下一站时原地保持并报警。
-- 车载界面全程显示剩余时间；最后 60 秒黄色，最后 10 秒红色逐秒闪烁，不依赖声音设备。
+- 车载界面在服务端给出截止时间时全程显示剩余时间，最后 60 秒转黄、最后 10 秒转红并逐秒闪烁，不依赖声音设备。期限缺席与期限耗尽这两种状态界面必须能分别表达：`stationDepartureDeadlineAt` 为空时（纯卸货站、关卡站、超时被配置为禁用）显示“无倒计时”而不是 00:00；剩余时间归零后不显示负数，改显示“已到期，等待服务端结算”——ADR-cross-0058 决策 4 使期限到期不必然结束本站，仓门未闭时车辆会带着一个已耗尽的倒计时继续等下去。
+
+## 实现映射（2026-09-09）
+
+本 ADR 的三个名字——StationDepartureWaiting、StationDepartureWaitTimeout、StopClosureCommit——在
+`8005-agv-control-server` 的 `src/` 里全部 0 命中。决策没有变，落成的形状与命名与本文不同：它搭在
+ADR-cross-0058 决策 4 一并实现的 `SublotWaitTimeout` 上（`80d7c65`），而不是另起一套按原名命名的状态机。
+之所以不补：服务端已有三个独立期限——`SublotWaitTimeout` 管“这次停靠还等不等人”、`HoldingTimeout` 管
+“这趟车还收不收货”（ADR-cross-0057）、ADR-cross-0058 的仓位目标态不设上限——再加第四个只会让“车到底在
+等什么”更难说清。
+
+| 本文的名字 | 承载它的实现 |
+| --- | --- |
+| StationDepartureWaiting 状态 | `JourneyRuntimeStage.AwaitingSublot`（`ControlServer.Domain/WireToGateModels.cs:210`）。不是新状态——服务端本来就有一个“到站后等操作员录 SUBLOT”的 stage，期限挂在它上面 |
+| StationDepartureWaitTimeout 选项 | `JourneyRuntimeOptions.SublotWaitTimeout`，默认 5 分钟；`TimeSpan.Zero` 表示禁用，非零时校验要求至少 5 秒（`JourneyRuntimeOptions.cs:60`、`:110`） |
+| 计时起点 | `JourneyStopRow.SublotWaitStartedAt`，**每个停靠一份**。三处种下：发作业清单前（`JourneyRuntimeEngine.cs:988`，必须早于清单发出，否则车辆第一份快照里的倒计时是空的）、`SetStage` 进入该 stage 时（`:2219`）、断联后重填（`:547`） |
+| “每个 LoadBatch 闭环后从完整时长重新计时” | `TryContinueLoadingAtStopAsync` 里的硬重置 `stop.SublotWaitStartedAt = now`（`:2418`），随下一轮作业清单一起发出 |
+| “断联使本轮截止失效，恢复握手与对账后重新计满” | 会话失效时 `WireToGateStore` 把当前停靠的 `SublotWaitStartedAt` 置 null（`WireToGateStore.cs:90`），`AwaitingSublot` 分支在 readiness gate 之后重填——落在 gate 之后即是“握手与投影对账完成之后” |
+| 到期判定 | `TryTimeOutSublotWaitAsync`（`JourneyRuntimeEngine.cs:2110` 起），只在 `AwaitingSublot` 且本轮找不到匹配 SUBLOT 时调用 |
+| “只有服务端先接受装货开始或纠错请求才退出等待” | `FindMatchingSublotAsync` 返回非空即离开等待，转入重校验与发命令 |
+| “活动仓位操作阻断倒计时离站” | 由 stage 机天然承担：有活动仓位操作时旅程在 `AwaitingLoadResult`/`AwaitingUnloadResult`，到期判定根本不会被调用（`:637` 的注释就是为此写的） |
+| “部分装货无进展达到同一时长时只告警” | ADR-cross-0058 决策 4 落成 `STATION_TIMEOUT_DOOR_NOT_CLOSED`：仓门未闭时把 `runtime.BlockReasonCode` 设成该码并持续等待，stage 仍留在 `AwaitingSublot` 而**不转 Blocked**（`:2122` 起） |
+| “车载端只显示服务端截止时间” | `StationDepartureDeadline(stop)`（`:2013`）由 `SublotWaitStartedAt + SublotWaitTimeout` 得出，随 `CurrentStopWorklistSnapshot` 的 `stationDepartureDeadlineAt` 下发（protocol-v0.3.0，服务端侧 `0f6b424`）。关卡站与超时禁用两种情况都发 `null` |
+| `CANCELLED_BY_STATION_TIMEOUT` | 到期且仓门已闭时，对本停靠全部待装需求调 `CancelDemandBeforeLoadAsync`，并由 `TransportDemandSuppressions` 按 TransportDemandKey 写永久禁令（ADR-cross-0058 决策 7） |
+| `CANCELLED_BY_STOP_COMPLETE` | 终态已注册（`WireToGateStore.cs:1205`）并在用，但**写它的不是操作员按钮**：`grep StopComplete` 在服务端零命中，实际由 `ConcludeLoadingStopAsync` 的 `HoldingExpired` 分支写入。**“已核验操作员主动结束本站”这个入口尚未实现** |
+| StationDepartureWaitPolicy 的站点覆盖 | **未实现**，只有全局选项。当前没有需要不同时长的站点；真要加，落点是这个选项按 StationId 取值，判定点 `TryTimeOutSublotWaitAsync` 与下发点 `StationDepartureDeadline` 从同一处读，两边不会分叉 |
+
+### 为什么没有一个叫 StopClosureCommit 的动作
+
+“原子结束本站”被实现成一段共同尾部，而不是一个具名动作。到期结算的两步——逐条终结未开始的待装需求，
+然后交给 `ConcludeLoadingStopAsync` 决定去下一个取货站还是关卡站并发出 `PreDepartureSafetyCheck`——写在
+`TryTimeOutSublotWaitAsync` 里，落在同一次 `SaveChangesAsync` 中。
+
+这么做是因为“结束本站”有三个入口：本站已装满或没有更多可装、持货超时（ADR-cross-0057）、本条的站点期限
+到期。三者的差别只在“谁被取消、记什么理由”，尾部完全相同，而那个尾部就是 `ConcludeLoadingStopAsync`。
+再包一层具名动作只会多一层间接；本文要求的原子性由 EF Core 的工作单元承担，不需要一个函数来命名它。
+
+一处读代码时容易看反的地方：到期结算遍历的是 `PendingAt`（本停靠全部 `Planned` 需求），不是
+`UncommandedAt`（其中还没发出装货命令的那些）。而 `CancelDemandBeforeLoadAsync` 碰到已记录 station
+operation 的需求会抛 `BusinessIdentityConflictException`，不是跳过。两者不冲突，靠的是状态机不变式：装货
+命令一发出旅程立刻转 `AwaitingLoadResult`，所以处在 `AwaitingSublot` 时不存在“已命令但未结算”的需求。这个
+安全性来自 stage，不来自那个筛选条件本身。
