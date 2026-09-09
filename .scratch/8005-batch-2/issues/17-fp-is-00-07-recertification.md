@@ -157,13 +157,18 @@ L1 `586 passed / 0 failed / 0 skipped`。
       而它第 4 行是 `[ValidateSet('G2')]`。**这是那三个 runner 的既定立场，不是配置问题**
       ——见 17-answer.md 第六节。上一轮已按现有形态跑完一轮 v2 身份的 G3，证据 `0d26bc9`。
 
-      **2026-09-09 用户裁定：单开票 23 做按片改造，并引入分级状态**（不是把 staged G3
-      直接认成通过，也不是维持现状）。票 23 提供 `assuranceLevel` 这把尺；
-      **本条验收最终认到哪一级，由本票在票 23 落地后写死**——`STAGED_REBUILD` 与
-      `DEMAND_BEARING_RESTORE` 已被裁定计入 `formalSlicePass`，所以本条预计认这两级。
-      ⚠️ **票 23 另查出一件本票必须正视的事**：`FP-IS-01`／`02`／`03`／`07`
-      **在四个 G3 runner 里一次都不出现**，八份证据不是「改个出证路径」就有的，
-      那四片要么补场景要么如实记「本批次无 G3 面」。见票 23 第一节
+      **✅ 票 23 于 2026-09-09 完成**（控制端 `a46101e`），三个 runner 都真跑过。
+      但**本条仍勾不上，而且卡点已经从工程问题变成口径问题**——实测出来的是这样：
+
+      | | 片 | 结果 |
+      | --- | --- | --- |
+      | 有 G3 面且通过 | `FP-IS-00`、`FP-IS-06` | `status=PASS`、`assuranceLevel=STAGED_REBUILD`、`formalSlicePass=true`（staged 与 restart 各出一份，共四份） |
+      | 有 G3 面但失败 | `FP-IS-04`、`FP-IS-05` | `status=FAIL`，失败在 `protocolAndBuildIdentityBoundToTheSharedBinding`——**那条问的是恢复的现场库的历史，不是被测构建**（第七节第 2 条，用户裁定本轮不动） |
+      | 无 G3 面 | `FP-IS-01`／`02`／`03`／`07` | 四个 G3 runner 里一次都不出现；用户裁定如实记录，不发证据 |
+
+      **所以「八个切片全 PASS」在本批次不可能成立**，本条要么改写、要么等那条现场库断言处理掉。
+      🔴 **改写成什么由用户定**，两条路写在 `17-answer.md` 第七节第 1 条末尾。
+      本票只提供尺子的是票 23，选哪一格是本票的事
 - [x] 每份 `gate-result.json` 绑定精确的 `ProtocolReleaseIdentity`（v2 三元组）
       —— 两端各八份逐字段一致，`approvalStatus` = `SUPERSEDING_CANDIDATE`，`tagExists` = `false`
 - [x] 证据落在 `evidence/g2/<日期>-<描述>/`（车载端脚本另插一层 `protocol-v1.0.0`，是它既有的

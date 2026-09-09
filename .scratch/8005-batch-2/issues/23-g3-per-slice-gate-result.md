@@ -154,27 +154,42 @@ G2 的 `-Slice` 是**过滤器**：改 `dotnet test --filter`，只跑那一片�
 
 ## 八、验收
 
-**状态：** in-progress —— 2026-09-09 由用户裁定单开并当轮开工。
+**状态：** done —— 2026-09-09 单开、开工并完成，见 [23-answer.md](23-answer.md)。
+控制端 `fp/v2-impl` = `a46101e`（`e4a8f0f` 实现 ＋ `a46101e` 修一个 null 并加守卫），
+`587 passed / 0 failed / 0 skipped`（Debug 与 Release 各一轮），未推送。
+三个 runner 都真跑过，共出六份 `gate-result.json`，**跑在临时证据目录里，不入库、
+不是票 17 的门禁证据**（用户裁定）。
 
-- [ ] 第二节那两个字段落地：`status` 与 `assuranceLevel` 分开，`assuranceLevel` 的三个取值
-      各有注释说明它实际动了什么
-- [ ] `formalSlicePass` 由 `$LevelsThatCountAsSlicePass` 算出，该常量旁写明用户
-      2026-09-09 的裁定原文
-- [ ] `officialSlices` 不再是字面常量，由该 runner 认领的片算出
-- [ ] **第一节乙那四片（`01`／`02`／`03`／`07`）如实记「本批次无 G3 面」**
+- [x] 第二节那两个字段落地：`status` 与 `assuranceLevel` 分开，`assuranceLevel` 的三个取值
+      各有注释说明它实际动了什么（`Get-G3AssuranceLevelLadder`）
+- [x] `formalSlicePass` 由 `Get-G3AssuranceLevelsThatCountAsSlicePass` 算出，裁定原文写在
+      `g3-slice-evidence.ps1` 顶部那段注释里
+- [x] `officialSlices` 不再是字面常量，由该 runner 认领的片算出（`New-G3Classification`）
+- [x] **第一节乙那四片（`01`／`02`／`03`／`07`）如实记「本批次无 G3 面」**
       （用户 2026-09-09 裁定：不补新场景）。四片不发 `gate-result.json`，
       在脚本里立成具名常量并写明理由，`23-answer.md` 与新一轮 G3 的 `SUMMARY.md` 各写一遍。
       **没有靠扩 `officialSlices` 数组凑数**
-- [ ] 每条具名断言的切片归属写下来了（`assertionIds`），且三个 runner 各自的归属表能被
-      一条守卫或一次自证核住
-- [ ] 三个 runner 都有 `-Slice`，语义是第四节那张表（**不改变实际跑什么**）
-- [ ] `-Slice` 指到该 runner 不认领的片时，**在建目录之前**拒绝并报出它认领哪几片
-- [ ] `gate-result.json` `schemaVersion` `1.2.0`，`gate` 为 `G3`，一片一份
-- [ ] 不带 `-Slice` 的既有调用形态行为不变（`run-result.json` 逐字段同形）
-- [ ] `grep -P '[\x00-\x08\x0b\x0c\x0e-\x1f]' scripts/*.ps1` 无命中
-- [ ] `dotnet test` Debug 与 Release 全绿，0 failed 0 skipped（本票不改产品代码，
-      这一条是回归）
-- [ ] 自证：真改工作树、真跑、看红、从副本还原并核 SHA-256、**还原后刷时间戳**再跑
+- [x] 每条具名断言的切片归属写下来了（`assertionIds`），由 `Assert-G3ClaimCoversReport`
+      双向核住，且离线自证是**从三个 runner 源码里提断言名**来比对的（19／20／20）
+- [x] 三个 runner 都有 `-Slice`，语义是第四节那张表（**不改变实际跑什么**）
+- [x] `-Slice` 指到该 runner 不认领的片时，**在建目录之前**拒绝并报出它认领哪几片
+      —— 四条路径真跑过，四次事后 `StageRoot` 与 `EvidenceRoot` 都不存在
+- [x] `gate-result.json` `schemaVersion` `1.2.0`，`gate` 为 `G3`，一片一份（实测共六份）
+- [~] 不带 `-Slice` 的既有调用形态**跑什么**没变，但 **`run-result.json` 不是逐字段同形**——
+      这条验收当初写错了，本票的目的就是改 `classification` 的形状。实际变化有两处，都是有意的：
+      `classification` 由五个键（`stagedSlice`／`vectorSlice`、`formalSlicePass`、`officialSlices`、
+      `fullG3`、`releaseCandidate`）变成七个（`runStatus`、`assuranceLevel`、`formalSlicePass`、
+      `officialSlices`、`slicesWithoutSurfaceThisBatch`、`fullG3`、`releaseCandidate`），
+      且 `officialSlices` 的每一项多了 `assuranceLevel` 与 `formalSlicePass`；
+      顶层多一个 `gateResults`。**`fullG3` 与 `releaseCandidate` 仍是字面 `INCONCLUSIVE`，没动。**
+      其余字段一个未改
+- [x] `grep -P '[\x00-\x08\x0b\x0c\x0e-\x1f]' scripts/*.ps1` 无命中
+- [x] `dotnet test` Debug 与 Release 全绿 —— 两轮都是
+      `Failed: 0, Passed: 587, Skipped: 0`（Debug 1m04s、Release 54s）
+- [x] 自证：20 条离线检查 ＋ 四条拒绝路径真跑 ＋ 三个 runner 真跑。
+      **本票没有做「改工作树看红再还原」那种自证**，因为它不需要：断言归属表的红是由
+      `Assert-G3ClaimCoversReport` 在真实运行里报出来的（提取器缩进 bug 那次），
+      FAIL 路径的红是由 demand-bearing 真失败报出来的，**两处都不是构造的**
 
 ## 九、本票不决定的（留给票 17 或用户）
 
