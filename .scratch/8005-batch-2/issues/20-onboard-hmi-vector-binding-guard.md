@@ -116,15 +116,35 @@ SHA-256 是 `71e0a63d49d1973653e1f70addc19c334faff5e53e8597733c1423a7307bd82f`�
    （原文写的代价是「多等一个 PR 的评审周期」，那是交付形态改为只推分支之前的算法，
    见上第 5 条。）
 
-**状态：** ready-for-agent —— **前置票 15 已于 2026-09-09 完成，可开工**
+**状态：** done（2026-09-09）。决议见 [`20-answer.md`](20-answer.md)。
 
-- [ ] 一条架构测试断言每个 `vectorId` 有车载端具名测试对应，删掉一条测试能让它变红
-- [ ] 同一条测试断言不存在指向不存在 `vectorId` 的标注，改错一个 id 能让它变红
-- [ ] 向量清单从 vendor 的 `index.json` 读取并**钉住 SHA-256**，测试里不出现手抄的第二份清单
-- [ ] 守卫落在 `SQCD.Agv.UnitTests`，`dotnet test` 绿且**不需要桌面**（不写「CI 绿」，该仓无 CI）
-- [ ] 钉住集里每条都写明切片与批次，且拒绝任何属于 `FP-IS-00`～`07` 的向量被钉住
-- [ ] 两条自证真做过并如实记下原样输出，不是「应该会红」
-- [ ] 全部工作在 `w2g/*` 分支上，`OnboardHmi_MVP` 零推送
-- [ ] ~~PR 已开，标题与正文用中文~~ —— **改写：不开 PR，见上第 5 条**
-- [ ] 该仓 `docs/` 与 `README.md` 未被本票改动（**该仓没有 `CLAUDE.md`**，票 15 实测）
-- [ ] 工作树干净，`w2g/*` 分支已推送，L2 可从它发布车载端
+- [x] 一条架构测试断言每个 `vectorId` 有车载端具名测试对应，删掉一条测试能让它变红
+      —— `EveryFrozenVectorIsBoundToANamedTestOrPinned`；自证一见 20-answer 第五节
+- [x] 同一条测试断言不存在指向不存在 `vectorId` 的标注，改错一个 id 能让它变红
+      —— `NoTestClaimsAVectorIdTheProtocolNeverFroze`。**与控制端一样落成两个 `[Fact]` 而不是
+      「同一条测试」**，形态偏离与票 16 同源，仍待用户裁定；裁定后两端一起改
+- [x] 向量清单从 vendor 的 `index.json` 读取并**钉住 SHA-256**，测试里不出现手抄的第二份清单
+      —— 由 manifest `files` 表钉住，未引入新哈希常量（票 15 转交第 1 条）；本地再核一遍见
+      `TheVendoredIndexIsPinnedByTheManifestFileTable`
+- [x] 守卫落在 `SQCD.Agv.UnitTests`，`dotnet test` 绿且**不需要桌面**（不写「CI 绿」，该仓无 CI）
+      —— 为此守卫改成**源码级扫描**：`net8.0` 工程不能引用 `net8.0-windows` 的 G2 工程，
+      反射方案只看得见半个仓库。理由见 20-answer 第二节第 1 条
+- [ ] ⚠️ 钉住集里每条都写明切片与批次，且拒绝任何属于 `FP-IS-00`～`07` 的向量被钉住
+      —— **按字面不成立，需用户裁定。**车载端有两个 `FP-IS-07` 向量没有具名测试：
+      `CV-FAULT-CARGO-HANDOFF`（实现全有、测试全无）与 `CV-FORCED-MECHANICAL-RECOVERY`
+      （`ForcedMechanicalRecoveryResult` 根本没实现）。落地为两个互为镜像、谁也吸收不了谁的
+      钉住集，每条写明切片、批次与发现内容。详见 20-answer 第四节
+- [x] 两条自证真做过并如实记下原样输出，不是「应该会红」
+      —— 20-answer 第五节，且已对复审加固后的扫描器重跑一遍
+- [x] 全部工作在 `w2g/*` 分支上，`OnboardHmi_MVP` 零推送
+- [x] ~~PR 已开，标题与正文用中文~~ —— **改写：不开 PR，见上第 5 条**
+- [x] 该仓 `docs/` 与 `README.md` 未被本票改动（**该仓没有 `CLAUDE.md`**，票 15 实测）
+      —— `src/` 也零改动
+- [ ] 工作树干净，`w2g/*` 分支已推送，L2 可从它发布车载端 —— 已提交、工作树干净，
+      **推送待用户确认**（`8005-agv-program/CLAUDE.md` 说该仓对 agent 只读，与本票授权冲突，
+      交接文档第六节第 7 条列为待裁定）
+
+**⚠️ 本票不解决票 17 的第二条障碍。**交接文档 `…-20260909-i.md` 第四节说「要按切片出证就得先有
+`IntegrationSlice` trait——而那正是票 20 的内容」，但本票十条验收从头到尾只说 `vectorId`。
+落地后实测：该仓 `IntegrationSlice` trait 仍为 **0 处**，`run-w2g-g2.ps1` 仍无 `-Slice` 参数。
+详见 20-answer 第八节第 1 条。
