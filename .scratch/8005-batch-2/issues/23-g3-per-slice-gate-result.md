@@ -113,8 +113,13 @@ G2 的 `-Slice` 是**过滤器**：改 `dotnet test --filter`，只跑那一片�
   不要各写一份。
 - **`run-staged-g3.ps1` 已有的身份读法**：从 `src/ControlServer.Host/appsettings.json` 的
   `ProtocolCandidate` 读，不硬编码。`$expectedProtocol` 已经在脚本里。
-- **切片索引**读克隆出来的协议仓那份（三个 runner 都已经克隆协议仓并比过
-  `manifestSha256`），**不是** vendor 那份——vendor 那份是给测试进程用的。
+- **切片索引**读 vendor 那份（`vendor/8005-agv-protocol/integration-slices/index.json`），
+  三个 runner 一致，`integrationSliceIndexSha256` 如实记录用的是哪一份。
+  ⚠️ **本节初稿写的「读克隆出来的协议仓那份，三个 runner 都已经克隆协议仓」是错的**——
+  开工前实测：**只有 `run-staged-g3.ps1` 克隆协议仓**（`$protocolSource`），
+  `run-staged-g3-restart.ps1` 与 `run-demand-bearing-g3-vectors.ps1` 一次都不克隆它。
+  vendor 那份由 `manifest/release.json` 的 `files` 表钉住，`test-wire-to-gate.ps1` 已是这么用的。
+  **在 staged 里额外断言 vendor 那份与克隆出来的那份逐字节相同**，把这条链补上。
 - **`run-demand-bearing-g3-vectors.ps1` 的 `SharedRunnerSource` 机制**：它已经从
   `run-staged-g3.ps1` 读回对端绑定与合成对端夹具，新的共用函数照这条路走，
   不要变成三份互相漂移的副本。
@@ -128,7 +133,8 @@ G2 的 `-Slice` 是**过滤器**：改 `dotnet test --filter`，只跑那一片�
   元信息与出证路径。`run-demand-bearing-g3-vectors.ps1` 那条关于现场库历史的断言照旧失败，
   怎么办是 [17-answer.md](17-answer.md) 第七节第 2 条，**不在本票内**。
 - **证据目录只增不改**，`-EvidenceRoot` 必须是不存在的目录，失败的证据也留。
-- **不进门禁、不推送。** 本票的自证跑在临时证据目录里；票 17 的正式 G3 重跑要另外点头。
+- **不推送。** 本票的自证跑在**临时证据目录**里，不入库、不算票 17 的门禁证据
+  （用户 2026-09-09 授权，先例是票 22 的八次冒烟）；**票 17 的正式 G3 重跑要另外点头。**
 - 新脚本／新函数 PowerShell 7，`#Requires -Version 7`。
 
 ## 七、开工前必须知道的三件事
@@ -148,15 +154,17 @@ G2 的 `-Slice` 是**过滤器**：改 `dotnet test --filter`，只跑那一片�
 
 ## 八、验收
 
-**状态：** open —— 2026-09-09 由用户裁定单开，尚未开工。
+**状态：** in-progress —— 2026-09-09 由用户裁定单开并当轮开工。
 
 - [ ] 第二节那两个字段落地：`status` 与 `assuranceLevel` 分开，`assuranceLevel` 的三个取值
       各有注释说明它实际动了什么
 - [ ] `formalSlicePass` 由 `$LevelsThatCountAsSlicePass` 算出，该常量旁写明用户
       2026-09-09 的裁定原文
 - [ ] `officialSlices` 不再是字面常量，由该 runner 认领的片算出
-- [ ] **第一节乙那四片（`01`／`02`／`03`／`07`）有明确结论并写进 `23-answer.md`**——
-      补场景，或如实记「本批次无 G3 面」。**没有靠扩 `officialSlices` 数组凑数**
+- [ ] **第一节乙那四片（`01`／`02`／`03`／`07`）如实记「本批次无 G3 面」**
+      （用户 2026-09-09 裁定：不补新场景）。四片不发 `gate-result.json`，
+      在脚本里立成具名常量并写明理由，`23-answer.md` 与新一轮 G3 的 `SUMMARY.md` 各写一遍。
+      **没有靠扩 `officialSlices` 数组凑数**
 - [ ] 每条具名断言的切片归属写下来了（`assertionIds`），且三个 runner 各自的归属表能被
       一条守卫或一次自证核住
 - [ ] 三个 runner 都有 `-Slice`，语义是第四节那张表（**不改变实际跑什么**）
