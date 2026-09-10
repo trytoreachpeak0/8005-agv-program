@@ -19,5 +19,5 @@
 - 工作区根的 `check-toolchain.ps1` 扫描全部七个仓库并列出偏离；可写仓有偏离则退出码为 1。`8005-agv-onboard-hmi` 与 `slots-simulator` 属于 Kun Wang，只报告不修改，也不影响退出码。
 - `8005-agv-onboard-hmi` 自身也存在同类分裂（`SQCD.Agv.UnitTests` 是 xunit v2、`SQCD.Agv.WireToGateG2Tests` 是 v3），`slots-simulator` 的两个测试项目则完全没有测试框架，是 `OutputType=Exe` 的自建断言程序。这些通过 issue 告知，不代为修改。
 - `8005-agv-program` 无代码，其 `global.json` 已删除。
-- 升级基线时改本 ADR 与各仓的三个 props 文件，`check-toolchain.ps1` 顶部的 `$Baseline` 随之更新，不允许个别仓单独领先或落后。
+- 升级基线时改本 ADR 与各仓的三个 props 文件，`check-toolchain.ps1` 顶部的 `$Baseline` 随之更新，不允许个别仓单独领先或落后。**协议仓 `compatibility/implementation-version-matrix.json` 的 `sharedDevelopmentBaseline` 也要一起改**——它是 `global.json` 之外唯一一份基线复述，`check-toolchain.ps1` 拿它的 `dotnetSdk` 对照 `$Baseline`、`dotnetRuntime` 对照已装基线 SDK 自带的运行时。在此之前 G1 拿脚本里硬编码的同一对字符串去断言它，于是 8.0.425 升级时两份一起过期、一起绿了一天（[#36](https://github.com/trytoreachpeak0/8005-agv-program/issues/36)）。
 - **2026-09-09 基线由 8.0.424 抬到 8.0.425，起因是 Windows Update 而非主动选型。**.NET SDK 的补丁更新经 Microsoft Update 分发，会**替换**同一 feature band 内的旧版本：控制端当天装了 `KB5126052` 与 `KB5124008` 之后，`C:\Program Files\dotnet\sdk` 下只剩 `8.0.425`，`8.0.424` 的目录不复存在，机器上也没有第二份，于是四个仓在那台机器上全部构建失败——**这正是第一层机制的预期表现，不是故障**。选择抬基线而不是把旧版本装回去，是因为该渠道已经取不回旧版本，而 `rollForward: disable` 的价值在于版本明确、可复现，不在于停在某个具体数字。**升级时 CI runner（`win11-01`）必须一起升**，否则它会变成唯一落后的那台，而门禁证据正是在它上面产出的。
