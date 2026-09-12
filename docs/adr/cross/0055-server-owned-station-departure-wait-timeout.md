@@ -16,7 +16,7 @@ StationDepartureWaiting 只适用于服务端裁定可继续装货的站点。�
 - 手动结束与自动超时共享 StopClosureCommit，但使用不同的取消终态和审计主体。
 - 发车失败不复活已取消任务，而是进入“本站已结束，等待发车重试”。
 - 无下一 PlannedStop 且空载时进入停车点流程；载有已提交 Sublot 却无下一站时原地保持并报警。
-- 车载界面在服务端给出截止时间时全程显示剩余时间，最后 60 秒转黄、最后 10 秒转红并逐秒闪烁，不依赖声音设备。期限缺席与期限耗尽这两种状态界面必须能分别表达：`stationDepartureDeadlineAt` 为空时（纯卸货站、关卡站、超时被配置为禁用）显示“无倒计时”而不是 00:00；剩余时间归零后不显示负数，改显示“已到期，等待服务端结算”——ADR-cross-0058 决策 4 使期限到期不必然结束本站，仓门未闭时车辆会带着一个已耗尽的倒计时继续等下去。
+- 车载界面在服务端给出截止时间时全程显示剩余时间，最后 60 秒转黄、最后 10 秒转红并逐秒闪烁，不依赖声音设备。期限缺席与期限耗尽这两种状态界面必须能分别表达：`stationDepartureDeadlineAt` 为空时（纯卸货站、关卡站、超时被配置为禁用）显示“无倒计时”而不是 00:00；剩余时间归零后不显示负数，改显示“已到期，等待本站结束”——ADR-cross-0058 决策 4 使期限到期不必然结束本站，仓门未闭时车辆会带着一个已耗尽的倒计时继续等下去；而仓门已闭时，按期限结算的是车辆自己（见文末 2026-09-12 核对），所以文案不说是谁在结算。2026-09-09 版这里写的是“等待服务端结算”。
 
 ## 实现映射（2026-09-09）
 
@@ -58,3 +58,28 @@ ADR-cross-0058 决策 4 一并实现的 `SublotWaitTimeout` 上（`80d7c65`）�
 operation 的需求会抛 `BusinessIdentityConflictException`，不是跳过。两者不冲突，靠的是状态机不变式：装货
 命令一发出旅程立刻转 `AwaitingLoadResult`，所以处在 `AwaitingSublot` 时不存在“已命令但未结算”的需求。这个
 安全性来自 stage，不来自那个筛选条件本身。
+
+## 实现映射核对（2026-09-12）
+
+上表写于 2026-09-09。ADR-cross-0058 转 accepted 时（8005-agv-program#21）按线上服务端 `3b379bb` 与车载端
+`6b8a0b0` 核了一遍：表里的名字全部还在，**行号已漂移，按名字查**；决策没有变。有三处与上表或上一节不再一致：
+
+1. **到期判定多了一个执行点，在车上。**上表“到期判定”只列了 `TryTimeOutSublotWaitAsync`，它只在
+   `AwaitingSublot` 跑。扫了 SUBLOT、仓位操作在途的 `AwaitingLoadResult` 那一格服务端不判——有在途操作时
+   它既发不走车，也没有中止通道——由车载端按下发的 `stationDepartureDeadlineAt` 执行：仓门已闭而货没动时，
+   期限过后再宽限一轮，第二次读到仍是相反态就报 `FAILED` / `OPERATOR_TIMEOUT`（车载端 `3d8206f`，
+   8005-agv-program#24）。期限仍由服务端算、服务端发；本文“车载端只显示服务端截止时间”在这一格收窄为
+   “车载端按服务端截止时间执行”。
+2. **“部分装货无进展只告警”那一行的告警码有两个产地，现场可达的是另一个。**`STATION_TIMEOUT_DOOR_NOT_CLOSED`
+   在 `AwaitingLoadResult` 由 `ReconcileStationTimeoutDoorNotClosedAsync` 挂上（`d36f11b`），2026-09-11 在
+   真车上观测到（ADR-cross-0058 Verification，SC1-C-01）。表里写的 `AwaitingSublot` 那一处代码还在，但那一格
+   一条仓位命令都没发过，开着的门没有我方命令能解释，会话先转 `RecoveryRequired`，旅程在就绪门挂的是
+   `ONBOARD_SESSION_NOT_READY`，原因读 `SessionRecoveries`（8005-agv-program#25）。
+3. **“结束本站”现在有四个入口，不是三个。**上一节列的三个——本站已装满或没有更多可装、持货超时、站点期限
+   到期——之外，多了“本批以另一种终态结束”：操作员取消、补偿清空、故障货物交接（8005-agv-program#28），以及
+   装载确定失败（8005-agv-program#39，`de3960e`：服务端以 `CANCELLED_BY_STATION_TIMEOUT` 终结需求后进这一支）。
+   它的尾部仍是 `TryContinueLoadingAtStopAsync` 不成立时的 `ConcludeLoadingStopAsync`，所以“一段共同尾部而非
+   具名动作”的判断不变。确定失败这个入口之所以归本文管，是因为车辆只在本站期限过后再宽限一轮才报 `FAILED`，
+   它到达时关站条件已经成立。
+
+“已核验操作员主动结束本站”入口仍不存在（服务端 `StopComplete` 仍零命中），站点覆盖仍未实现。

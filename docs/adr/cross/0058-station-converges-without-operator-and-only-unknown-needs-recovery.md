@@ -102,6 +102,9 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
    自动重新输出开锁脉冲并提示操作员，不判失败、不进恢复、不设次数上限。仓位各自闭环，已达预期
    并安全锁闭的仓位不因其它仓位未完成而重开。
 
+   *2026-09-12 回写：「不设次数上限」在实现里收窄为「不设次数上限，但受本站期限约束」——服务端下发的
+   站点期限过后，车辆在相反态上再宽限一轮，仍是相反态就按第 5 条结算。见文末 Verification。*
+
 2. **只有 UNKNOWN 进人工恢复。** SlotOccupancyState 为 UNKNOWN、锁闭反馈无效或开锁输出无法确认
    复位，才暂停并进入恢复。人未放料、未取料、未关门都不是 UNKNOWN。
 
@@ -119,6 +122,9 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
    LoadTaskCancellation 终结，**卸货不适用本条**——UnloadCompletionRequired 无取消分支，仍按
    第 1 条持续闭环直到取空。
 
+   *2026-09-12 回写：装货不再经 LoadTaskCancellation 终结——没有任何一方会发它。服务端收到确定失败后
+   自己以 `CANCELLED_BY_STATION_TIMEOUT` 终结这条需求并照常收尾。见文末 Verification。*
+
 6. **未开始的仓位不因其它仓位失败而被判失败。** 现行实现把 `command.Slots` 中所有未完成仓位
    一并写成 `NOT_STARTED` + `UNKNOWN`，使 2 号仓在从未开启的情况下进入恢复范围。未开启的仓位
    没有任何物理不确定性，应保持 `NOT_STARTED` 且不触发恢复。
@@ -133,7 +139,9 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
    在这套代码部署之前，不录入 SUBLOT 就是无限期占站，与第 3、4 条要消除的卡死同类。它排在
    ADR-cross-0055 的 StationDepartureWaiting 之前，因为它已经写好了，只差一次发布。
 
-**Status**: proposed
+   *2026-09-12 回写：已随 2026-09-09 的 RC 上线，2026-09-12 在真车上验收。见文末 Verification。*
+
+**Status**: accepted（2026-09-12 由 proposed 转，依据见文末 Verification）
 
 **Considered Options**:
 - 维持现状，靠 `recoveryResumeEnabled` 打开 HMI 恢复入口（拒绝：把每一次操作员迟疑都升级为需要
@@ -167,3 +175,119 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
   现有 `sublot-wait-timeout` 覆盖的是第 7 条那一路，不重叠。
 - 验收必须在真实 IO 模块上进行。模拟器可以证明软件闭环，不能证明光幕极性、锁反馈时序与机械
   弹开行为——本条的每一条判据都建立在这三者之上。
+
+## Verification（2026-09-12）
+
+**本节是后加的。**上面「本文档比对的是哪个版本」与「实现差距」两节记的是 2026-09-08 线上 `75ea9f6`
+的状态，原样保留，那是本条的出发点；它们描述的差距今天已全部关闭，现在成立的以本节为准。本条据此由
+`proposed` 转 `accepted`。执行过程在 8005-agv-program#11 那张地图上，下文的 `#NN` 都是该仓库的 issue。
+
+### 核对的是哪个版本
+
+线上服务端 `3b379bb`（release run 34687146146，包 SHA-256 `78f5c665…`），车载端 `6b8a0b0`，
+`protocol-v0.3.0`（`345c53c`，manifest `b6c81ca9…`）。下文引用的每个实现 commit 都核过是这两个线上
+commit 的祖先。
+
+### 七条决策各自落在哪
+
+| 决策 | 实现 | 与原文不同的地方 |
+| --- | --- | --- |
+| 1 目标态闭环 | 车载端 `DriveSlotToTargetStateAsync`：并发等「达成态」与「相反态」，读到相反态就重打开锁脉冲并提示（`4bbe36f`，#16）；受本站期限约束（`3d8206f`，#24） | 「不设次数上限」收窄为「不设次数上限，但受本站期限约束」。上限不是次数，是服务端给的时刻：期限过后车辆在相反态上再宽限一轮，第二次读到相反态才停止重开、按第 5 条结算（#24） |
+| 2 只有 UNKNOWN 进恢复 | 执行器里 `UNKNOWN` 只剩锁闭反馈无效、开锁输出无法确认复位那个 `catch`（#26）；客户端在开锁等操作员时退出，重启后按实时 IO 补交结果，开过的仓全到最终态报 `COMPLETED`、否则 `UNKNOWN`（`0f2cf9d`，#40）。恢复握手走得完：补偿对账后会话回到 `Ready`（`369919f`，#46），多需求旅程补偿一条后继续走（`8be28b1`，#47），被拒过一次的 attempt 仍能再开恢复会话（`6b8a0b0`，#49），恢复动作可经自动化面发起（`bb58b21`，#41） | 无 |
+| 3 OperationTimeout 不判死 | `OperationTimeout` 退化为提示节拍，到期只再提示一次、不重复脉冲（`4bbe36f`，#16）；服务端随作业清单下发 `stationDepartureDeadlineAt`（`0f6b424`，#12），车载端显示倒计时（`f47092b`，#15） | 车载端不只**显示**截止时间，还**执行**它——第 1 条那一轮宽限就是按它判的（#24）。期限仍由服务端算、服务端发。倒计时归零文案是「已到期，等待本站结束」，理由见 ADR-cross-0055 |
+| 4 期限到期而仓门未闭时不结束本站 | `AwaitingSublot` 那一处判定在 `80d7c65`；`AwaitingLoadResult` 这一格挂 `STATION_TIMEOUT_DOOR_NOT_CLOSED` 并持续等待（`ReconcileStationTimeoutDoorNotClosedAsync`，`d36f11b`，#24）；就绪豁免按 agvId 收窄（`770447f`，#25） | 告警码只在 `AwaitingLoadResult` 可达——操作员扫了码、开了门、走开，正是本条 Consequences 点名的那一格。`AwaitingSublot` 时本站一条仓位命令都没发过，开着的门没有我方命令能解释，会话按离站安全转 `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，旅程挂 `ONBOARD_SESSION_NOT_READY`，原因读 `SessionRecoveries`（#25）。那不是操作员迟疑，是正确行为。「本站不结束」两格都成立 |
+| 5 仓门已闭的超时按确定失败结算 | 服务端 `StationOperationStatus.Failed` 与确定失败判定（`5f8f5a7`）；车载端产出 `FAILED` + 三个明确物理字段 + `OPERATOR_TIMEOUT`（`3d8206f`，#24，此前服务端那段判定没有生产者）；服务端收到后自己终结需求（`CancelDemandAfterDeterminateLoadFailureAsync`，`de3960e`，#39），经「本批以终态结束」的收尾分支离站（`946d460`，#28） | 装货不再经 LoadTaskCancellation 终结。原文让旅程停在 `AwaitingLoadResult` 等这条取消，L2 实测没有任何一方会发它：车载端对结果已记录的 attempt 不给「取消装货」，`CancelDemandBeforeLoadAsync` 拒绝有过仓位操作的需求，站点期限与持货超时都不在这一格检查。现在服务端以 `CANCELLED_BY_STATION_TIMEOUT` 终结需求、永久抑制、结算悬空的装货命令，然后照常决定再装一轮、去下一站还是去关卡。服务端有权关站，是因为车辆只在期限过后再宽限一轮才报 `FAILED`，它到达时关站条件已经成立。「卸货不适用本条」不变 |
+| 6 未开始的仓位不因其它仓位失败被判失败 | 车载端按真实 IO 读数填 `NOT_STARTED`、`reasonCodes` 留空，并修掉失败仓位被后续循环改写成 `NOT_STARTED` 的覆盖（`4bbe36f`，#16） | 无 |
+| 7 未录入 SUBLOT 超时后不再重派 | `SublotWaitTimeout` → `CancelDemandBeforeLoadAsync` → `TransportDemandSuppressions`（`80f6b93`），随 2026-09-09 的 RC 上线（#18） | 原文写「尚未部署」，已部署 |
+
+### 真机验收
+
+条件是 2026-09-11 改定的：`agv01` 真车走真实线路，IO 接车上的 slots-simulator（`127.0.0.1:1502`），
+扫码、开关仓门、放料取空、按 HMI 与恢复全部由 `8005-agv-control-server` 的
+`scripts/field/FieldOperator.psm1` 经两端自动化面冒充，现场无人；人只做每次派车的授权。证据都在
+`8005-agv-control-server` 的 `evidence/field/` 下，车载端全程是 `6b8a0b0`。
+
+| 窗口 | 时间 | 服务端 | 证据 | 结论 |
+| --- | --- | --- | --- | --- |
+| 窗口一 FW-SC1（#45） | 2026-09-11 21:28–22:13 | `403f306` | `20260911-FW-SC1-unattended`（`123c5f9`） | finalize **FAIL 18/20**，两条红都归因到驱动与判据，以本窗口结案 |
+| 窗口二 FW-FL2 第一次（#20） | 2026-09-12 13:30–14:02 | `403f306` | `20260912-FW-FL2-unattended`（`d20bc6c`） | 中止、未 finalize：T、X 成立后撞上 #52 |
+| 窗口二续跑 | 2026-09-12 15:02–16:30 | `e0d6df7` | `20260912-FW-FL2-resumed`（`a0f8940`） | 未 finalize，对照原始输出人工判：S52、NE、R1/R2、两趟完整闭环成立，CH 撞上 #53 |
+| 窗口二充电短窗口 | 2026-09-12 18:22–18:55 | `3b379bb` | `20260912-FW-FL2-charging`（`f8d355e`） | finalize **PASS/14**：CH、完整闭环、R1 |
+
+按决策看：
+
+- **决策 1**：SC1-A-01..04 PASS。停靠 1 的 1 号仓空关两轮，车自己重开两次（`UNLOCKING` 1→2→3），
+  第三次放料照常提交，没有 `FAILED`、没有 `RecoveryRequired`。卸货一侧是续跑窗口的 NE：关卡上 5 号仓
+  带货关门两轮，车每轮自己重开，取空后提交（人工判）。
+- **决策 2**：反面由 SC1-A-04、SC1-B-03、SC1-B-05 给出——开门不放料与确定失败都没有进恢复，会话保持
+  `Ready`。正面在真车上只发生过一次，不在验收窗口里：#19 那次人工窗口留下的真 `UNKNOWN`（客户端在开锁
+  等操作员时退出），修复上线后经自动化面补偿清空，5 秒对账 `Reconciled / ALL_EMPTY`，会话同一世代回到
+  `Ready`（#44，2026-09-11 20:16）。
+- **决策 3**：SC1-C-06 PASS。门一直开着，晾过 `OperationTimeout` 之后提示还在走，脉冲只打过一次。
+- **决策 4**：SC1-C-01..05 PASS。停靠 2 的 3 号仓开着走开，21:42:09 期限到期，21:42:11 挂上
+  `STATION_TIMEOUT_DOOR_NOT_CLOSED`，stage 停在 `AwaitingLoadResult` 而不是 `Blocked`，过期 20 分钟后
+  仍然如此；关门后按真实 IO 结算，告警消失。
+- **决策 5**：SC1-B-01..06 PASS。同一格关门不放料，决策 1 先重开一轮，第二次空关后 22:03:03 结算
+  `Failed`，服务端自己把需求判 `Cancelled` 并按 `CANCELLED_BY_STATION_TIMEOUT` 永久抑制，旅程不经任何人
+  按任何按钮离站。
+- **决策 6**：**现场没有专门的判据。**只由车载端单元测试覆盖（`WireToGateSlotOperationExecutorTests`
+  里四处断言未开始的仓位是 `NOT_STARTED`），真车上没有单独观测过。
+- **决策 7**：窗口二第一次的场景 T。停靠 1 车要 SUBLOT 没人扫，13:40:02 期限到，2 秒后需求
+  `Cancelled / CANCELLED_BY_STATION_TIMEOUT` 并永久抑制，旅程自己去停靠 2（`02-t-settled` 帧，人工判）。
+  更早的人工窗口 #19 在停靠 1 也照此结算过一条。
+
+窗口二里另有几样不属于本条七条决策、但在同一个验收终点里：扫码前取消订单（X）、两趟之间自动充电
+（CH：49% 触发，RIoT 单展开为 `move 212 → move 211 → act 78(1,0)`，接上电，62% 释放后接着受理）、一趟
+五条需求的完整闭环、车静止时服务重启后几秒回到 `Ready`。
+
+### 没有证明的
+
+1. **SC1-A-05「操作员迟疑时 HMI 不出现恢复入口」在现场没有观测。**驱动脚本读过车载端快照，但写现场
+   记录前抛错，这一项找不回来，如实判红（驱动缺陷已修，`33093ea`）。它只由 L2 真装置整窗彩排
+   `real-onboard-field-window-rehearsal-010`、`-012` 覆盖。
+2. **SC1-W-03 在窗口一的原判据下是红的。**`b-settled` 那一帧取在车驶离之后，拍到的是发车即降级的
+   `RecoveryRequired / DEPARTURE_SAFETY_NOT_READY`，不是把开着的仓门当成会话故障。判据已改为行驶中的帧
+   不判（`f2aceec`），对该窗口五帧空跑为 PASS；证据目录里的原判不改。
+3. **光幕极性、锁反馈时序与机械弹开。**上面 Consequences 最后一句要求验收在真实 IO 模块上进行，理由
+   正是模拟器证明不了这三样。2026-09-11 改定验收全部无人值守之后，本条不再证明它们；它们仍是本条每一条
+   判据的物理前提，第一次接真实模块时要单独验。
+4. **窗口二四次运行里只有充电短窗口完整 finalize**，第一次与续跑的结论是对照原始输出人工判的（各自的
+   `ABORTED.md`）。
+5. **决策 1/4/5 的现场证据跑在 `403f306` 上。**之后上线的 `e0d6df7`（#52：结束本站之后本轮就判出车前
+   安全检查、回答过期换 id 重问）与 `3b379bb`（#53：自动充电）都改过旅程运行时。它们不碰这三条的判定
+   本身，但确定失败之后「旅程自己离站」那段路径被 #52 改过。改过之后的覆盖是 `CONTROL_SERVER_G2` 的
+   `W2G-IS-02`/`-03`/`-04`/`-07`（在 `889cbcb` 上，产品代码与 `e0d6df7` 相同）和续跑窗口里真车上的离站；
+   FW-SC1 整窗彩排最后一次跑在 `9e7db45`，没有在线上身份上重跑。
+6. **另外两台车。**
+7. **决策 4 的告警升级规程**（对象、通道、节奏）按原文不在本条内，至今没有定。
+
+### Consequences 里今天已不成立的几句
+
+原文不改，逐条记在这里：
+
+- 「不需要协议变更……均已在 `protocol-v0.1.1` 中定义……是否新增 `OPERATOR_TIMEOUT` 留待下一次协议
+  批次」：本条没有为自己单独改协议，但两端现在 pin 的是 `protocol-v0.3.0`。那一批加了
+  `OPERATOR_TIMEOUT`（`8005-agv-protocol` 的 `docs/candidate-limitations.md` 写明是为本条加的），车载端在
+  确定失败的仓位上报的就是它；同批新增的 `stationDepartureDeadlineAt` 与 `slotOperationAttemptId` 两端
+  都已补上发送方（#12、#15、#22）。
+- 「按 `w2g/*` 分支加 PR 的路径交付，需 Kun Wang 同意」：2026-09-09 起同意与合并都归我方，本条的车载端
+  PR 都由我方合并。
+- 「ADR-cross-0055 的 StationDepartureWaiting 至今未实现，本条第 3、4 条依赖它」：不补那套状态机，站点
+  期限由 `SublotWaitTimeout` 承担，映射见 ADR-cross-0055 的实现映射一节（#14）。
+- 「L2 场景层需新增三条」：已补（#17），其中「仓门未闭超时」一条后来改钉 `AwaitingLoadResult`（#25）。
+- 「验收必须在真实 IO 模块上进行」：见上一节第 3 条。
+
+### 与 ADR-cross-0057 组合起来的约束
+
+Consequences 说三个期限相互独立，这没有错；但放进同一趟旅程，它们会约束验收剧本怎么排。窗口一照「停靠 1
+演 A、停靠 2 演 C 接 B」排：A 在停靠 1 装上货，持货时钟开始走（30 分钟，全旅程一次）；C 要晾「站点期限
+5 分钟 + 20 分钟」，到停靠 3 时持货必然超时，停靠 3–5 的三条需求被 `CANCELLED_BY_STOP_COMPLETE` 结掉。
+两条 ADR 各自的行为都对。换成 C/B 在停靠 1、A 在停靠 2 就排得开，因为 B 的确定失败不起算持货（#45，驱动
+默认编排已改，`f2aceec`）。**任何要在装货站上久晾的现场动作，排在第一条装载提交之后都要先算这笔账。**
+
+### 收尾时的现场配置
+
+- `wireToGate.recoveryResumeEnabled` 出厂是 `false`，没有改。验收期间经工作区
+  `remote-ops/onboard-hmi/scripts/14-set-recovery-window.ps1` 临时开过，每次都 `-Revert` 关回；2026-09-12
+  在 agv01 上实读为 `false`，`CONTROL_SERVER_RECOVERY_PROOF` 不存在，自动化面关着。
+- agv01 的 IO 仍指向模拟器 `127.0.0.1:1502`。重新部署车载端会把它渲染回真实模块。
