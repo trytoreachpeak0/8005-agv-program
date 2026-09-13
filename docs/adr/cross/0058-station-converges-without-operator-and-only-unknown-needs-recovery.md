@@ -116,6 +116,10 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
    闭合，闭合后立即按当时的真实 IO 读数结算。**告警升级的对象、通道与节奏由项目现场规程规定，
    不在本 ADR 内。**
 
+   *2026-09-13 回写：规程已定，见
+   [`docs/site-procedures/station-door-not-closed-escalation.md`](../../site-procedures/station-door-not-closed-escalation.md)
+   （[program#55](https://github.com/trytoreachpeak0/8005-agv-program/issues/55)）。*
+
 5. **仓门已闭合的超时按确定失败结算，不进恢复。** 期限到期时若仓门已闭、开锁输出已复位、
    SlotOccupancyState 明确，车载端报 `overallOutcome: FAILED` 与真实的三个物理字段；服务端据此
    走确定失败路径而非 `RecoveryRequired`。装货依 ADR-cross-0015 与 ADR-cross-0046 经
@@ -259,7 +263,12 @@ commit 的祖先。
    `W2G-IS-02`/`-03`/`-04`/`-07`（在 `889cbcb` 上，产品代码与 `e0d6df7` 相同）和续跑窗口里真车上的离站；
    FW-SC1 整窗彩排最后一次跑在 `9e7db45`，没有在线上身份上重跑。
 6. **另外两台车。**
-7. **决策 4 的告警升级规程**（对象、通道、节奏）按原文不在本条内，至今没有定。
+7. **决策 4 的告警升级规程**（对象、通道、节奏）按原文不在本条内。2026-09-13 已定
+   （[program#55](https://github.com/trytoreachpeak0/8005-agv-program/issues/55)），见
+   [`docs/site-procedures/station-door-not-closed-escalation.md`](../../site-procedures/station-door-not-closed-escalation.md)。
+   它依赖的两件事尚未合入：看板投影（[control-server#42](https://github.com/trytoreachpeak0/8005-agv-control-server/issues/42)），
+   以及期限到期后空关仍弹开、在途装货可取消（[onboard-hmi#48](https://github.com/trytoreachpeak0/8005-agv-onboard-hmi/issues/48)）——
+   后者会改写本条决策 1 与决策 5 的 2026-09-12 回写。
 
 ### Consequences 里今天已不成立的几句
 
