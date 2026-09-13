@@ -33,6 +33,15 @@
 不是我方能单方面推进的。批次完成的限定清单见
 [`../README.md`](../README.md) 开头那一节第 3 条。
 
+**2026-09-13：W1 窗口开过了，演练仍未做；本票改挂到生产切到 v2 线的那次现场窗口（用户定）。**
+W1 为了不等切 v2，做在生产现有的 v0.3.0 库上（逐车逐仓 IO 核对 PASS，证据在
+`8005-agv-control-server` 分支 `feat/w1-unattended` 的 `evidence/field/20260913-W1-three-vehicle-qualification/`）。
+急停代码（`VehicleFaultCoordinator`、`EmergencyStopSupervisor`）只在 v2 线，生产的 MVP 线一处都没有，
+所以那次窗口里本票无从做起。状态仍是 `ready-for-agent`，卡点改为两条：
+① 生产跑上 v2 线；② 上面第②处没变，RIoT 侧要有人能把一张在途单置为终态 FAILED。
+它与 `8005-agv-control-server#44`（切 v2 前对齐光幕极性常量）同属切 v2 前后的待办。
+复核记录见规格 8.3 执行记录下的「补记」小节。
+
 一条演练设计上的更正：要造的是「车读不出停住」，不是「单失败了」——`RequiresEscalation` 会把
 一台停稳（读数确证未移动、位置已知、证据新鲜）的车挡在急停之外。**空载不等于静止**，让空载车
 在途行驶即可自然满足这一条，不需要动传感器。
