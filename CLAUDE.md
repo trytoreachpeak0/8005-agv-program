@@ -15,10 +15,13 @@ parts that load only when Claude reads the files they govern.
 ## Repository write authority
 
 The workspace root `CLAUDE.md` is the authority. In short: this repository,
-`8005-agv-control-server`, `8005-mes-ingest` and `riot-sdk` are writable;
-`8005-agv-onboard-hmi` and `slots-simulator` are read-only for agents;
-`8005-agv-protocol` is writable but every pushed change must be announced to Kun
-Wang in a `@SocialKKKK` issue. If that file is not loaded — a clone of this
+`8005-agv-control-server`, `8005-mes-ingest`, `riot-sdk` and `8005-test-lab` are
+writable; `8005-agv-onboard-hmi` and `slots-simulator` are writable **on `w2g/*`
+branches only** — a change reaches `OnboardHmi_MVP` / `main` as a pull request
+whose agreement and merge are both ours (since 2026-09-09), never by a direct
+push, and nothing there is force-pushed, tagged or released;
+`8005-agv-protocol` is writable with no announcement duty (since 2026-09-08).
+If that file is not loaded — a clone of this
 repository on its own, outside the workspace — treat all three as read-only and
 ask.
 
@@ -44,7 +47,8 @@ rules, or the test-tier and Golden WPF renderer constraints below.
 
 ### Issue tracker
 
-Issues and specs live as markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
+Issues and specs live as GitHub issues. See `docs/agents/issue-tracker.md`.
+`.scratch/` is a closed archive, read for history, not the tracker.
 
 ### Triage labels
 
@@ -71,8 +75,9 @@ before writing it.
 ## Collaboration workflow
 
 Two people drive this project. Kun Wang (GitHub `SocialKKKK`) owns
-`8005-agv-onboard-hmi` and `slots-simulator`; Zhengyu Shao owns
-`8005-agv-control-server`; `8005-agv-protocol` is jointly maintained. The full
+`8005-agv-onboard-hmi` and `slots-simulator`, but **the development work on both
+has been ours since 2026-09-04**; Zhengyu Shao owns `8005-agv-control-server`;
+`8005-agv-protocol` is jointly maintained. The full
 account, written for humans and in Chinese, is
 [`docs/collaboration-workflow.md`](docs/collaboration-workflow.md).
 
@@ -82,7 +87,10 @@ What an agent must follow:
   one. `8005-agv-protocol/integration-slices/index.json` defines `FP-IS-00`
   through `FP-IS-15`, each with a `sequence` and `prerequisites`. Each slice's
   `gates` array *is* the division of labour: `G1` shared, `CONTROL_SERVER_G2`
-  ours, `ONBOARD_HMI_G2` theirs, `G3` together.
+  ours, `ONBOARD_HMI_G2` **ours too since 2026-09-04**, `G3` ours as well —
+  **one person has run it since 2026-09-08**; all three runners are loopback and
+  unattended, so "both people present" was governance, not a technical need, and
+  nobody was left to satisfy it.
   **The family replaced `W2G-IS-00` through `07` rather than joining them**
   (full-product scope specification 7.1); `FP-IS-00` through `07` correspond to
   the old eight one for one, but as *recertification under v2* — there is no
@@ -90,20 +98,22 @@ What an agent must follow:
   records keep the `W2G-IS-NN` ids they were written with; nothing renames them.
 - **Cross-repository feedback takes one of three routes.** A contract ambiguity
   or error goes to an issue in `8005-agv-protocol` carrying the `vectorId` that
-  triggered it. The other side failing the contract goes to an issue in *their*
+  triggered it. A peer repository failing the contract goes to an issue in *that*
   repository — **run G3 for evidence first** and attach the evidence directory.
   Work inside a repository stays in that repository's issues.
   **A cross-repository claim must carry reproducible gate evidence; "it does not
   work on my side" is not a report.**
-- **`8005-agv-protocol` needs no advance approval** — Zhengyu Shao decides its
-  content alone — **but every push must be announced in an issue that
-  `@SocialKKKK`**, stating what changed, which `FP-IS-*` slices it touches, and
-  whether their `ONBOARD_HMI_G2` evidence is now void. **Announce in the same
-  task as the push, not later.** Tagging a release still needs the two-owner
-  attestation in `attestations/`; **AI and CI cannot approve.**
+- **`8005-agv-protocol` needs no advance approval and no announcement** — Zhengyu
+  Shao decides its content alone, and since 2026-09-08 a push is announced to
+  nobody: **do not `@SocialKKKK` anything.** A push still voids gate evidence,
+  ours now — state what changed, which `FP-IS-*` slices it touches and which
+  evidence is void, in the commit message and on the slice board. Tagging a
+  release needs a one-owner attestation in `attestations/` (two before
+  2026-09-08); "one owner" means the user signs, never an agent, and **AI and CI
+  cannot approve.**
 - **Batch protocol changes.** A patch release voids the affected G1/G2/G3
-  evidence on both sides (`docs/release-governance.md`), so every small change
-  costs the other side a full gate re-run.
+  evidence (`docs/release-governance.md`) — all of it ours — so every small change
+  costs us a full gate re-run.
 
 ## Language
 
