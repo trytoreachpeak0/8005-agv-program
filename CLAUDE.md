@@ -84,13 +84,18 @@ account, written for humans and in Chinese, is
 What an agent must follow:
 
 - **The unit of collaboration is the integration slice.** Do not invent another
-  one. `8005-agv-protocol/integration-slices/index.json` defines `W2G-IS-00`
-  through `W2G-IS-07`, each with a `sequence` and `prerequisites`. Each slice's
+  one. `8005-agv-protocol/integration-slices/index.json` defines `FP-IS-00`
+  through `FP-IS-15`, each with a `sequence` and `prerequisites`. Each slice's
   `gates` array *is* the division of labour: `G1` shared, `CONTROL_SERVER_G2`
   ours, `ONBOARD_HMI_G2` **ours too since 2026-09-04**, `G3` ours as well —
   **one person has run it since 2026-09-08**; all three runners are loopback and
   unattended, so "both people present" was governance, not a technical need, and
   nobody was left to satisfy it.
+  **The family replaced `W2G-IS-00` through `07` rather than joining them**
+  (full-product scope specification 7.1); `FP-IS-00` through `07` correspond to
+  the old eight one for one, but as *recertification under v2* — there is no
+  passing verdict to carry over. Existing evidence directories and defect
+  records keep the `W2G-IS-NN` ids they were written with; nothing renames them.
 - **Cross-repository feedback takes one of three routes.** A contract ambiguity
   or error goes to an issue in `8005-agv-protocol` carrying the `vectorId` that
   triggered it. A peer repository failing the contract goes to an issue in *that*
@@ -101,7 +106,7 @@ What an agent must follow:
 - **`8005-agv-protocol` needs no advance approval and no announcement** — Zhengyu
   Shao decides its content alone, and since 2026-09-08 a push is announced to
   nobody: **do not `@SocialKKKK` anything.** A push still voids gate evidence,
-  ours now — state what changed, which `W2G-IS-*` slices it touches and which
+  ours now — state what changed, which `FP-IS-*` slices it touches and which
   evidence is void, in the commit message and on the slice board. Tagging a
   release needs a one-owner attestation in `attestations/` (two before
   2026-09-08); "one owner" means the user signs, never an agent, and **AI and CI
@@ -120,7 +125,7 @@ prose, issue and pull-request titles and bodies, and commit message bodies.
 
 Stay English inside Chinese text: conventional commit prefixes (`feat:`, `fix:`,
 `docs:`, `chore:`), identifiers, paths, commands, environment variables, error
-codes, gate and slice names (`G1`, `W2G-IS-00`), and protocol message names,
+codes, gate and slice names (`G1`, `FP-IS-00`), and protocol message names,
 schema fields and `vectorId` values — those are the contract itself. Quote an
 error or a test result in its original English first, then explain it in
 Chinese. Do not rewrite existing text to match; this governs new writing.

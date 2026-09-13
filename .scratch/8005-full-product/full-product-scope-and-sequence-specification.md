@@ -856,6 +856,81 @@ JSON Schema 库。据此要求两端各加一条**「reasonCode 字面量 ∈ �
 
 **批次 2 的两轨出口独立**：轨 B 不阻塞轨 A，但两轨都完成才算批次 2 完成。
 
+#### 执行记录：批次 2 于 2026-09-09 由用户宣告完成
+
+**上面 8.3 那张表是 2026-09-04 批准的文本，本节不改动它**，只记录实际达成的形态
+以及它与表格原文的差异。票据与证据在 `.scratch/8005-batch-2/`。
+
+| 轨 | 出口 | 达成 |
+| --- | --- | --- |
+| 轨 B | 票 18 | 2026-09-08 `resolved`，八条验收全过 |
+| 轨 A | 票 17 | 2026-09-09 `done`，九条验收全勾 |
+
+🔴 **轨 A 的达成形态与表格原文有一处差异，宣告完成即接受它：**
+
+表格原文要求「`FP-IS-00`～`07` 各一遍 `CONTROL_SERVER_G2` ＋ `ONBOARD_HMI_G2` ＋ `G3` 全 PASS」。
+**两道 G2 确实八片全 PASS。`G3` 不是八片**：
+
+- `FP-IS-00`／`04`／`05`／`06` 有 G3 面且 `formalSlicePass=true`；
+- **`FP-IS-01`／`02`／`03`／`07` 本批次没有 G3 面**——四个 G3 runner 里一次都不出现。
+  用户 2026-09-09 裁定**如实记录、不补四个新场景**，所以它们不发证据，
+  记在每份 `run-result.json` 的 `slicesWithoutSurfaceThisBatch`；
+- `FP-IS-04`／`05` 的通过以一条**已知豁免**为前提：被恢复的现场库记的历史 `protocolCommit`
+  是 `protocol-v0.1.1`，任何 v2 身份的运行对它都过不了。用户同日裁定豁免，
+  票 24 把该项从断言里拆成如实记录（`fieldStoreProvenance`），前六项仍是断言且全过。
+
+表格原文的第二条判据「161 个 trait 重打标后 `dotnet test --filter` 的分区无遗漏无重复」
+**已由票 14 满足**（实测形态见 `14-answer.md`）。
+
+**轨 B 现场栏那项（W1 的空载急停演练）未做，且不阻塞**：票 19 逐字写着不要因它挂起整个
+批次 2，而 8.4 里 W1 窗口的门槛是**批次 3 代码就绪**。票 19 仍是 `ready-for-agent`，
+随 W1 窗口补齐。
+
+**另外三件仍然悬着，宣告完成不掩盖它们**：八份 `ONBOARD_HMI_G2` 的 `g1Status` 仍是
+`SKIPPED`（用户裁定不重出）；三份 G3 `run-result.json` 里 `fullG3` 与 `releaseCandidate`
+仍是 `INCONCLUSIVE`，**批次 2 的完成不含 RC**；票 20／21／22／23／24 不在本规格的批次 2
+范围里，批次归属至今未定。
+
+#### 补记：2026-09-13 在已发布的 `protocol-v1.0.0` 上复核
+
+上面的执行记录写于 2026-09-09，那时协议还是候选身份。2026-09-12 协议两次改 manifest，
+当天发布为 `protocol-v1.0.0`（注释 tag 指向 `9f22db8`，`APPROVED_RELEASE`）。按
+`docs/release-governance.md`，绑旧身份的门禁与 L2 证据从此不再是现行证据，两轨出口要在发布身份上
+重新成立。**本节只记复核结果，不改 8.3 的表格，不改上面的执行记录，也不改宣告完成这件事。**
+
+**结论：两轨出口在 `protocol-v1.0.0` 上都重新成立，与 2026-09-09 的形态相同。**
+
+| 轨 | 出口判据 | 在 `protocol-v1.0.0` 上 | 证据（`8005-agv-control-server` `fp/v2-impl`，另注明的除外） |
+| --- | --- | --- | --- |
+| 轨 A | `CONTROL_SERVER_G2` 八片 | 全部 `PASS`，服务端 `6b21662` | `evidence/g2/20260912-protocol-v1.0.0-6b21662/FP-IS-00`～`07` |
+| 轨 A | `ONBOARD_HMI_G2` 八片 | 全部 `PASS`，脚本内 `g1Status` 均为 `PASS`，车载端 `98f4e06` | `8005-agv-onboard-hmi` 的 `evidence/g2/20260912-protocol-v1.0.0-98f4e06/FP-IS-00`～`07` |
+| 轨 A | `G3` | `FP-IS-00`／`06` 在主 runner 与进程重启 runner 上 `PASS`，`FP-IS-04`／`05` 在需求线路 runner 上 `PASS`，均 `formalSlicePass=true`；`FP-IS-01`／`02`／`03`／`07` 仍记在 `slicesWithoutSurfaceThisBatch` | `evidence/g3/20260912-protocol-v1.0.0-staged-harness-a1243a8`、`…-restart-harness-a1243a8`、`…-demand-bearing-harness-a1243a8` |
+| 轨 B | 合成 3 车 L2；陈旧态 fail-closed；命令面三条断言 | CI run 34701119449（`a1243a8`）23/23 `PASS`，`three-vehicle-exit`、`command-surface-order-hold`、`route-graph-staleness` 各连续 3/3；每份身份为 `protocol-v1.0.0@9f22db8`，`batchId` 为 `batch-2` | `evidence/l2/20260912-ci-34701119449-*`，轨 B 那九份 2026-09-13 从 CI artifact 原样入库（`65bffc0c`） |
+| 轨 B | L1；RIoT 白名单架构测试 | 服务端 699 passed / 0 skipped（`6b21662`，含 `RiotCallAllowlistArchitectureTests`） | `docs/batch-3-v2-exit-report.md` 第一节 |
+
+`a1243a8` 相对 `6b21662` 只改了 G3 runner 的默认值与证据，`src/`、`tests/` 未动，所以 L2 与门禁测的是
+同一份产品代码。
+
+**9 月 9 日那几条限定，现状如下：**
+
+- **`G3` 不是八片**：不变。
+- **`FP-IS-04`／`05` 依赖现场库历史那条豁免**：不变。这一轮 `fieldStoreProvenance.matchesBoundProtocolCommit`
+  仍如实为 `false`，真正的解仍是重采一次 v2 现场运行。
+- **八份 `ONBOARD_HMI_G2` 的 `g1Status` 是 `SKIPPED`**：**已解决**，这一轮八份都是 `PASS`。
+- **不含 RC**：仍成立。`protocol-v1.0.0` 已发布，但三份 G3 `run-result.json` 的 `fullG3` 与
+  `releaseCandidate` 仍是 `INCONCLUSIVE`。
+- **票 20～24 的批次归属**：仍未定。
+- **W1 的空载急停演练（票 19）**：仍未做，**改挂到生产切到 v2 线的那次现场窗口**（用户 2026-09-13 定）。
+  W1 窗口 2026-09-13 已经开过，但为了不等切 v2，做在生产现有的 v0.3.0 库上；急停代码只在 v2 线，
+  那次窗口里演练本来就做不了。前置仍是两条：生产跑上 v2 线；RIoT 侧有人能把一张在途单置为终态 FAILED。
+  它和 `8005-agv-control-server#44`（切 v2 前对齐光幕极性常量）同属切 v2 前后的待办。
+
+**另登记一处文档与实现的偏离，不改文档**：`docs/riot-call-allowlist.md` 1.5 节写的 `triggerEmergency`
+触发条件（仓门未安全锁闭时移动、无单可 `OrderHold`）在实现里没有对应路径，实现只在「在途单被报 FAILED
+且证不出停住」时升级，见 `.scratch/8005-batch-2/issues/19-answer.md` 第四节。那段文字是已批准需求
+`REQ-0246` 的汇编，改它等于改产品规则；服务端的白名单架构测试也钉着这份文档的 SHA-256。
+`8005-agv-control-server#1` 同日评论了现状，保持打开。
+
 ### 8.4 三个现场窗口与证据目录
 
 窗口按**现场前置就绪**排，不按批次号排——两处现场前置（桩安装、等待点测绘）的时间不由本
