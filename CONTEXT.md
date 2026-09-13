@@ -759,6 +759,10 @@ _Avoid_: 审批入口、逐仓重复认证、跨异常开仓、开启仍绑定 S
 
 ### 鉴权
 
+> **获批端点的逐条清单在 [`docs/riot-call-allowlist.md`](docs/riot-call-allowlist.md)。** 本节的
+> 词条定义分层与治理规则，那份文档才是「哪个 HTTP 方法 ＋ 哪条路径获批」的查阅入口，并且标注了
+> 每一条的基线载体。需求基线仍是真相源，那份文档是它的汇编。
+
 **RIoT 调用授权层级（RIoTCallAuthorizationTier）**:
 8005 按每个具体 RIoT 操作的业务后果、可逆性和安全影响确定授权层级，并绑定接口、HTTP 方法、适用环境与 schema 版本；不能仅按只读或写入粗分风险。
 _Avoid_: RIoT 读写分级、所有写接口同级、按 HTTP 动词推断授权
