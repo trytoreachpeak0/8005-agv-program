@@ -494,12 +494,12 @@ _Avoid_: 指定单条 Demand 的长期配置、默认所有车辆承载全部任
 _Avoid_: 跨 Map 分区、对全厂 TransportDemand 强制分区、车辆当前位置分区、路线分区
 
 **DispatchZoneAreaAssignment（调度分区 AREA 归属）**:
-一个 MES AREA 到一个 DispatchZone 的有效正向映射；存在映射表示该 AREA 属于 8005 执行范围并确定其调度分区，未映射 AREA 的 TransportDemand 在选任务时静默跳过且不报警。
-_Avoid_: 未映射即配置异常、自动猜测分区、为范围外 AREA 报警、从 MesIngest 删除 Demand
+一个 MES AREA 到一个 DispatchZone 的有效正向映射；存在映射表示该 AREA 属于 8005 执行范围，并同时确定其调度分区与 AreaSlotPositionAssignment，缺少开门侧指派的映射不成立；未映射 AREA 的 TransportDemand 在选任务时静默跳过且不报警。
+_Avoid_: 未映射即配置异常、自动猜测分区、为范围外 AREA 报警、从 MesIngest 删除 Demand、脱离本映射另维护一份 AREA 开门侧表
 
 **AreaSlotPositionAssignment（区域号仓位位置指派）**:
-一个 MES AREA 被指派的唯一 SlotPosition 分组，表示车辆停靠该 AREA 所在站点时只能开启这一组仓门；以 AREA 而非站点为键，因为站点可删除重建而 AREA 稳定。同一站点所含 AREA 的指派不一致或 AREA 未指派时，该站点涉及的 AREA 一律不派车。
-_Avoid_: SlotSide、开门侧绑定站点号、从站名或车辆朝向推导、同一站点两组仓门都能开、指派不一致时自动挑一组
+DispatchZoneAreaAssignment 为每个纳入 8005 执行范围的 MES AREA 指定的唯一 SlotPosition 分组，表示车辆停靠该 AREA 所在站点时只能开启这一组仓门；纳入执行即必须指派，未映射的 AREA 不需要指派，也不参与任何站点的一致性判断。以 AREA 而非站点为键，因为站点可删除重建而 AREA 稳定：站点删除重建或 AREA 换到其它站点时，指派原样沿用。同一站点所含已纳入执行的 AREA 指派不一致时，这些 AREA 一律不接受新派车；Demand 在分配仓位时冻结当时的指派，之后的指派变化与站点不一致都不改变已冻结的 Demand。
+_Avoid_: SlotSide、开门侧绑定站点号、从站名、车辆朝向或站点朝向推导、同一站点两组仓门都能开、指派不一致时自动挑一组、为未映射 AREA 要求指派或报警、在途 Demand 随指派变化改开另一组
 
 **DispatchZoneEnRoutePickupPolicy（调度分区顺路取货策略）**:
 每个 DispatchZone 独立规定途中追加本区新 TransportDemand 时允许的最大 EnRoutePickupDeliveryDelay；值为零或未配置表示本区禁止途中追加，不继承全项目默认值。
