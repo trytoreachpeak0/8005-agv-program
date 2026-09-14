@@ -368,6 +368,8 @@ run-demand-bearing-g3-vectors.ps1:728-733  同上（只名 FP-IS-04 / FP-IS-05�
    是分支上既有的**，与本轮无关。`test-wire-to-gate.ps1` 不跑 format，所以
    `CONTROL_SERVER_G2` 不受影响；车载端的 `run-w2g-g2.ps1` 跑，而车载端 `formatExitCode` 是 0。
    补不补请用户定。
+   **→ 2026-09-14 转出 `8005-agv-control-server#59`。**当日在 `fp/v2-impl`（`2b2aa51c`）实测已涨到
+   11 个文件 37 处 `WHITESPACE`。
 
 5. 上一版第七节那两件本轮都做完了（车载端证据已提交、`FP-IS-02` 测试已补并重出证据）。
 
