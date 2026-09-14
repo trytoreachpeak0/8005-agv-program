@@ -944,7 +944,8 @@ JSON Schema 库。据此要求两端各加一条**「reasonCode 字面量 ∈ �
 | 轨 A | `ONBOARD_HMI_G2` | 十片全部 `PASS`，车载端 `8d19fee`（产品代码同 G3 绑定的 `b960108`），`g1Status` 均为 `PASS` | `8005-agv-onboard-hmi` `w2g/b3-on-v2` 的 `evidence/g2/20260914-protocol-v1.0.0-8d19fee/` |
 | 轨 A | `G3` | **八片全部 `formalSlicePass=true`**：`FP-IS-01`／`02`／`03`／`07` 在新的 journey runner（80 条断言）；`FP-IS-00`／`06` 在主 runner 与进程重启 runner；`FP-IS-04`／`05` 在需求线路 runner。四份 `run-result.json` 的 `slicesWithoutSurfaceThisBatch` 都为空 | `evidence/g3/20260914-protocol-v1.0.0-{journey,staged,restart,demand-bearing}-052759bc/` |
 | 轨 A | trait 分区无遗漏无重复 | 不变，已由票 14 满足 | `14-answer.md` |
-| 轨 B | 合成 3 车 L2 三连；陈旧态 fail-closed；命令面三条断言；L1；白名单架构测试 | **待在 `052759bc` 上重跑 CI**：9 月 13 日那份 CI 证据绑 `a1243a8`，此后服务端产品代码有改动（见下） | 9 月 13 日：`evidence/l2/20260912-ci-34701119449-*` |
+| 轨 B | 合成 3 车 L2 三连；陈旧态 fail-closed；命令面三条断言 | CI run 34807641700（`2f7433b8`，产品代码同 `052759bc`）场景步骤 `success`，26 次运行全 `PASS`：`three-vehicle-exit`、`command-surface-order-hold`、`route-graph-staleness`、`emergency-stop-single-trigger` 各连续 3/3。🔴 **只有运行日志**：上传证据时 GitHub artifact 存储配额已满，逐场景证据目录没能留下 | `evidence/l2/20260914-ci-34807641700-track-b-log/` |
+| 轨 B | L1；RIoT 白名单架构测试 | CI run 34807639494 第 2 次：722 passed / 0 failed（第 1 次是 runner 连不上 NuGet，未编译）；本地同一产品代码 722 passed | 同上目录的 `test-run-34807639494-attempt2.log` |
 
 **journey runner 是什么、为什么算正式通过。**真服务端、真车载端（WPF，UI Automation 驱动操作员动作）、真仓位模拟器，
 RIoT 与 MES 用仿真对端；十条 L2 场景的判据映射成 G3 断言后按归属表分片。等级名 `JOURNEY_SIMULATED_COUNTERPARTS`，
