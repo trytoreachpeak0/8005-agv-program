@@ -880,32 +880,32 @@ _Avoid_: 动态 Station 引用、按新名称自动换站、目录或绑定变�
 _Avoid_: 人工 AREA 映射、StationAreaOverride、把公共业务点按 AREA 解析、无法唯一解析时自动择一
 
 **PublicStationFunction（公共站点功能）**:
-8005 固定公共作业区域承担的业务功能，包括派工待送、烘箱、关卡、三光和氮气柜；任务类型决定该功能是运输起点还是终点，每张 Map 上的每种功能只显式绑定一个 FixedTaskStation，不从 AREA 或站点名称自动识别。派工待送与氮气柜在现场可以是同一个柜子，此时两种功能绑定同一个 Station；除这一对外，一个 Station 只承担一种功能。
-_Avoid_: TASK_TYPE、MES AREA、AREA 命名机台站点、按站点名猜测功能、同图同功能多个站点、车辆当前位置、把派工待送与氮气柜合并为一种功能
+固定公共作业区域地点类别（派工待送、烘箱、关卡、三光、氮气柜）的旧称，产品不再维护这一分类：FixedTaskStation 按任务类型绑定，TaskTypePublicStationRuleVersion 只记起点/终点，PublicStationBindingHold 与目录变化影响也按任务类型计。需要说明一个公共站点是什么地方时，用任务类型与 Station 名称表达；协议中的同名字段保持为空。
+_Avoid_: 按 PublicStationFunction 绑定站点、按功能暂停、按功能计算目录变化影响、在任务类型规则中维护功能、同一 Station 承担多个功能
 
-**MapPublicStationRequirementSet（地图公共站点功能需求集）**:
-一张 Map 上当前获准启用的任务类型实际依赖的 PublicStationFunction 集合；全部需求功能都具有有效绑定后，相关任务类型才可在该 Map 投运，未启用的其余功能不强制配置。
-_Avoid_: 每张 Map 无条件配齐全部五种功能、目录已同步即业务就绪、缺失功能时默认站点
+**MapPublicStationRequirementSet（地图公共站点需求集）**:
+一张 Map 上当前获准启用、需要 FixedTaskStation 的任务类型集合；某个任务类型在该 Map 具有有效绑定后才可投运，未启用的任务类型不强制配置。
+_Avoid_: 每张 Map 无条件配齐全部任务类型的站点、目录已同步即业务就绪、缺失绑定时默认站点、按 PublicStationFunction 列需求
 
 **TaskTypePublicStationRuleVersion（任务类型公共站点规则版本）**:
-不可变地固定每个受支持 TASK_TYPE 所使用的 PublicStationFunction 及其起点/终点角色；新规则只在相关 Map 的绑定已满足新功能需求后才可激活，既有 TransportDemand 保留冻结版本。
-_Avoid_: 按 TASK_TYPE 重复保存站点、缺少公共站点时先启用任务类型、规则变更重写既有任务
+不可变地固定每个受支持 TASK_TYPE 的 FixedTaskStation 是运输起点还是终点；新规则只在相关 Map 已具有对应任务类型的有效绑定后才可激活，既有 TransportDemand 保留冻结版本。
+_Avoid_: 在规则中保存站点、在规则中维护 PublicStationFunction、缺少固定站点时先启用任务类型、规则变更重写既有任务
 
 **FixedTaskStation（任务固定站点）**:
-8005 项目把已同步的具体 Station 按 `mapId + PublicStationFunction` 唯一显式绑定得到的公共业务点；TransportDemand 依任务类型使用同图对应功能的唯一绑定，只有派工待送与氮气柜可以绑定同一 Station，其余功能不得共用 Station，并禁止跨图运输。
-_Avoid_: 固定 AREA、从 MES 行读取的第二个端点、AREA 显式覆盖、按名称自动推断公共功能、同图同功能站点集合、派工待送与氮气柜以外的公共功能共用 Station
+8005 项目把已同步的具体 Station 按 `mapId + TASK_TYPE` 唯一显式绑定得到的公共业务点；每个任务类型在每张 Map 上最多一个，TransportDemand 使用同图本任务类型的这一绑定，并禁止跨图运输。同一 Station 不得被多个任务类型绑定，确需复用须以新的现场证据重新批准。
+_Avoid_: 固定 AREA、从 MES 行读取的第二个端点、AREA 显式覆盖、按名称自动推断、按 PublicStationFunction 绑定、同图同任务类型站点集合、多个任务类型共用 Station
 
 **PublicStationBindingSetVersion（公共站点绑定集版本）**:
-一张 Map 的完整不可变 PublicStationFunction—Station 绑定集，同时固定 MapPublicStationRequirementSet、TaskTypePublicStationRuleVersion 和校验所用的 MapStationCatalogSnapshot 修订；只能全图原子激活，回滚也是经当前事实重校验的新激活。
-_Avoid_: 逐功能即时覆盖、混用新旧绑定、旧版本直接翻回当前、回滚改写历史
+一张 Map 的完整不可变 TASK_TYPE—Station 绑定集，同时固定 MapPublicStationRequirementSet、TaskTypePublicStationRuleVersion 和校验所用的 MapStationCatalogSnapshot 修订；只能全图原子激活，回滚也是经当前事实重校验的新激活。
+_Avoid_: 逐任务类型即时覆盖、混用新旧绑定、旧版本直接翻回当前、回滚改写历史
 
 **PublicStationBindingHold（公共站点绑定暂停）**:
-维护管理员或系统管理员对明确 Map 与 PublicStationFunction 立即收紧的受审计门禁，它阻断对该功能发起新的站点使用，但不删除绑定或改写已有 RIoT 订单；恢复必须由系统管理员重新校验和激活。
-_Avoid_: 删除绑定、定时自动恢复、暂停后既有订单自动取消、普通操作员暂停
+维护管理员或系统管理员对明确 Map 与 TASK_TYPE 立即收紧的受审计门禁，它阻断该任务类型对其 FixedTaskStation 发起新的站点使用，不连带其他任务类型，也不删除绑定或改写已有 RIoT 订单；恢复必须由系统管理员重新校验和激活。
+_Avoid_: 删除绑定、定时自动恢复、暂停后既有订单自动取消、普通操作员暂停、按 PublicStationFunction 暂停、连带暂停其他任务类型
 
 **SingleBerthStationClaim（单车位站点占用权）**:
-一个 Station 在同一时刻只允许由一台已到达车辆占用，或由一台已承诺前往的车辆预占；同一 Station 同时绑定为派工待送与氮气柜时，两种功能共用这一份占用权。任一状态成立时，其他车辆不得承接下一站为该 Station 的新任务。
-_Avoid_: 只检查当前占位、不检查在途预占、两车同时承诺同一站点、按功能绑定分别计算占用
+一个 Station 在同一时刻只允许由一台已到达车辆占用，或由一台已承诺前往的车辆预占；任一状态成立时，其他车辆不得承接下一站为该 Station 的新任务。
+_Avoid_: 只检查当前占位、不检查在途预占、两车同时承诺同一站点
 
 **NearStationQuery**:
 在候选 Station 集合中，按路径代价选出最近的起点或终点 Station（对应 RIoT `queryNearestStart` / `queryNearEnd`）；返回的是 stationId，不是折线几何。
@@ -1768,14 +1768,16 @@ _Avoid_: 第二管理角色代确认、普通操作员恢复、定时恢复、�
 
 **架构不变量（AllocationArchitectureInvariant）**:
 当前已实施的服务端分配语义或跨端契约中，一条被现行代码或协议 schema 强制成立、且任何新条目
-若要推翻就必须重做既有实现的性质。完整产品语境下已识别六条：车辆占用必由一条 TransportDemand
+若要推翻就必须重做既有实现的性质。完整产品语境下已识别八条：车辆占用必由一条 TransportDemand
 引起、全系统至多一辆车与一条未收敛 journey、一次承诺等于一条 Demand 加固定两段行程、站点没有
-独占概念、车载对 Demand 是只读投影绝不发现选择或绑定，以及站点任务类型准入必在装货腿检查并冻结
-（见 LoadLegAdmissionBinding）。它描述现状，不是需求，也不是设计目标。**这个集合是逐步识别出来的，
+独占概念、车载对 Demand 是只读投影绝不发现选择或绑定、站点任务类型准入必在装货腿检查并冻结
+（见 LoadLegAdmissionBinding）、车载持有并声明自身仓位配置而服务端只记录不裁决，以及仓位可互换、
+任何仓位服务任何站点。它描述现状，不是需求，也不是设计目标。**这个集合是逐步识别出来的，
 不是一次穷举得到的**：前五条来自票 02，第六条由票 13 在判定 `STAGING_TO_WIRE` 方向反转时补充识别，
+第七条由票 05 补充识别，第八条由 program#70 在前后仓位分侧需求中补充识别，
 因此后续票据遇到「某条新能力似乎要重做既有实现」时，应先检查它是否推翻了一条尚未列出的不变量。
 _Avoid_: 设计原则、架构约束（泛称，二者不含「现已被强制成立」这一层）、把它当作需求条目引用、
-把这六条当作封闭集合
+把已列出的条目当作封闭集合
 
 **重构类条目（ArchitectureBreakingItem）**:
 其实现要求推翻至少一条架构不变量的需求条目。判定是条目的内在性质，与实施先后无关，也与该条目
@@ -1868,10 +1870,10 @@ _Avoid_: 下达离点订单即释放（REQ-0293 明文禁止）、由下一段�
 
 **停靠目的类别（StopPurposeCategory）**:
 一个计划停靠是为了业务装卸、前往等待点还是前往充电桩，三值 BUSINESS／WAITING_POINT／CHARGER。
-它与「取货还是卸货」以及「站点是哪种 PublicStationFunction」两个维度正交：后两者只在 BUSINESS
+它与「取货还是卸货」以及「站点是 AREA 机台站点还是 FixedTaskStation」两个维度正交：后两者只在 BUSINESS
 下有意义，而等待点与充电桩停靠两者皆无。它是计划里可以存在不由 TransportDemand 引起的停靠这一
 事实的表达方式。
-_Avoid_: 把等待点或充电桩塞进 PublicStationFunction、用 legType 的一个新值同时表达目的与方向、
+_Avoid_: 把等待点或充电桩登记为 FixedTaskStation、用 legType 的一个新值同时表达目的与方向、
 认为每个计划停靠都对应至少一条 Demand
 
 **车辆用途占有与派发唯一性门禁的层次关系**:
