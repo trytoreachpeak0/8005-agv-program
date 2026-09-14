@@ -104,8 +104,8 @@ _Avoid_: IO 通道、配置数组索引、可用仓位
 _Avoid_: 单仓位配置副本、仓位位置、载重模板、IO 模板
 
 **SlotPosition（仓位位置）**:
-仓位在车辆上的规范物理位置值，其中已经包含原“所属面”的方位信息，不再另设独立所属面字段。
-_Avoid_: SlotSide、所属面字段、界面数组索引、IO 通道位置
+仓位在车辆上的规范物理位置值，其中已经包含原“所属面”的方位信息，不再另设独立所属面字段。当前八仓车型取 `FRONT`（1～4 号，前侧仓门）与 `REAR`（5～8 号，后侧仓门）两组，车辆停靠 AREA 机台站点时只能开启其中一组。
+_Avoid_: SlotSide、所属面字段、界面数组索引、IO 通道位置、用 LEFT/RIGHT 称呼前后两组、在规则里按仓号区间写死分组
 
 **VehicleSlotTemplate（整车仓位模板）**:
 可供多个同构 AGV 复用的整车仓位组合，定义物理仓位集合及每仓的 SlotPosition、SlotTemplate 引用，但不包含车辆 IO 映射；单车不得直接覆盖布局，差异必须建立新模板或新版本。
@@ -497,6 +497,10 @@ _Avoid_: 跨 Map 分区、对全厂 TransportDemand 强制分区、车辆当前�
 一个 MES AREA 到一个 DispatchZone 的有效正向映射；存在映射表示该 AREA 属于 8005 执行范围并确定其调度分区，未映射 AREA 的 TransportDemand 在选任务时静默跳过且不报警。
 _Avoid_: 未映射即配置异常、自动猜测分区、为范围外 AREA 报警、从 MesIngest 删除 Demand
 
+**AreaSlotPositionAssignment（区域号仓位位置指派）**:
+一个 MES AREA 被指派的唯一 SlotPosition 分组，表示车辆停靠该 AREA 所在站点时只能开启这一组仓门；以 AREA 而非站点为键，因为站点可删除重建而 AREA 稳定。同一站点所含 AREA 的指派不一致或 AREA 未指派时，该站点涉及的 AREA 一律不派车。
+_Avoid_: SlotSide、开门侧绑定站点号、从站名或车辆朝向推导、同一站点两组仓门都能开、指派不一致时自动挑一组
+
 **DispatchZoneEnRoutePickupPolicy（调度分区顺路取货策略）**:
 每个 DispatchZone 独立规定途中追加本区新 TransportDemand 时允许的最大 EnRoutePickupDeliveryDelay；值为零或未配置表示本区禁止途中追加，不继承全项目默认值。
 _Avoid_: 全项目统一延迟、未配置即自动允许、距离阈值、路线实现参数
@@ -602,8 +606,20 @@ _Avoid_: 失联即充电中断、失联即充电桩故障、超时结束订单�
 _Avoid_: 遥测缺失算零增长、旧值当当前值、遥测恢复后补算缺口、超时自动结束或释放、仅凭电池数据缺失判定车辆或充电桩故障
 
 **DispatchSlotEligibility（派车仓位资格）**:
-车辆只有在可用仓位数量、规格、载重及当前已载任务兼容性全部满足已选单个或复合任务集合时才可进入候选；通过后不因剩余空仓更多而取得排序优势。
-_Avoid_: 仓位不足软扣分后仍派车、剩余空仓越多越优先、把车型不兼容折算为评分
+车辆只有在每条 Demand 所需 SlotPosition 分组内的可用仓位数量、规格、载重及当前已载任务兼容性全部满足已选单个或复合任务集合时才可进入候选；其它分组的空仓不计入，通过后不因剩余空仓更多而取得排序优势。
+_Avoid_: 仓位不足软扣分后仍派车、剩余空仓越多越优先、把车型不兼容折算为评分、按整车空仓总数判断容量、一条 Demand 跨分组拆装
+
+**StationSlotAccessConstraint（站点仓位开启约束）**:
+车辆停靠 AREA 机台站点时，装货与卸货都只允许开启该 AREA 的 AreaSlotPositionAssignment 分组内的仓位；关卡、烘箱、三光以及作为卸货点的派工待送不受此约束。
+_Avoid_: 只约束卸货、只约束装货、公共站点单侧开门
+
+**DestinationSlotPositionLoading（按目的地定装货仓位）**:
+在集中装货点装载送往 AREA 机台的 Demand 时，两组仓门都可开启，但该 Demand 的全部花篮必须装入目的 AREA 被指派的 SlotPosition 分组，不得跨组拆分。
+_Avoid_: 按装货点就近装、先装后调仓、跨组拆装一条 Demand
+
+**VehicleFull（车辆装满）**:
+多需求装货中，至少一个候选 Demand 因其所需 SlotPosition 分组空仓不足被拒、且此刻没有其它候选能够装入的状态；进入即结束装货前往卸货，不等持货超时。没有任何候选时不算装满，按持货超时处理。
+_Avoid_: 八仓全满才算装满、按整车空仓总数判满、有空仓就继续等待、零候选即出发
 
 **MapDispatchEligibility（地图派车资格）**:
 TransportDemand 所属 DispatchZone 的 Map 与 AGV 当前所在 Map 必须是同一个 mapId，车辆才能承接该 Demand；无法确认车辆当前 Map 时，该车退出全部派车候选并产生车辆级状态提示，重新取得明确 Map 后恢复参与。任务类型、分区车辆准入、距离近、路线可达或存在空仓均不能覆盖地图不一致或未知。
