@@ -165,3 +165,8 @@ formalSlicePass = ($status -eq 'PASS') -and ($assuranceLevel -in $LevelsThatCoun
    同病，跨仓且要另开授权。
 4. **票 17 第三条验收最终认到哪一级。** 本票只提供尺子。按现在的常量，
    `STAGED_REBUILD` 与 `DEMAND_BEARING_RESTORE` 计入，所以票 17 预计认这两级 ＋ 四片记在案。
+
+**2026-09-14 去向**：第 1 条转出 `8005-agv-control-server#60`（归属表此后又加了 journey runner 那 80 条）；
+第 2 条转出 `8005-agv-control-server#58`；第 3 条转出 `8005-agv-onboard-hmi#62`；
+第 4 条已了结——用户 2026-09-09 定分级口径，并新增 `JOURNEY_SIMULATED_COUNTERPARTS` 一级（2026-09-13），
+2026-09-14 八片均 `formalSlicePass=true`。
