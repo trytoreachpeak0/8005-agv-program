@@ -610,12 +610,12 @@ _Avoid_: 遥测缺失算零增长、旧值当当前值、遥测恢复后补算�
 _Avoid_: 仓位不足软扣分后仍派车、剩余空仓越多越优先、把车型不兼容折算为评分、按整车空仓总数判断容量、一条 Demand 跨分组拆装
 
 **StationSlotAccessConstraint（站点仓位开启约束）**:
-车辆停靠 AREA 机台站点时，装货与卸货都只允许开启该 AREA 的 AreaSlotPositionAssignment 分组内的仓位；关卡、烘箱、三光以及作为卸货点的派工待送不受此约束。
+车辆停靠 AREA 机台站点时，装货与卸货都只允许开启该 AREA 的 AreaSlotPositionAssignment 分组内的仓位；关卡、烘箱、三光、氮气柜以及作为卸货点的派工待送不受此约束。
 _Avoid_: 只约束卸货、只约束装货、公共站点单侧开门
 
 **DestinationSlotPositionLoading（按目的地定装货仓位）**:
-在集中装货点装载送往 AREA 机台的 Demand 时，两组仓门都可开启，但该 Demand 的全部花篮必须装入目的 AREA 被指派的 SlotPosition 分组，不得跨组拆分。
-_Avoid_: 按装货点就近装、先装后调仓、跨组拆装一条 Demand
+在公共站点装载送往 AREA 机台的 Demand 时，两组仓门都可开启，但该 Demand 的全部花篮必须装入目的 AREA 被指派的 SlotPosition 分组，不得跨组拆分。
+_Avoid_: 按装货点就近装、先装后调仓、跨组拆装一条 Demand、把清洗间或氮气柜当作独立的集中装货点
 
 **VehicleFull（车辆装满）**:
 多需求装货中，至少一个候选 Demand 因其所需 SlotPosition 分组空仓不足被拒、且此刻没有其它候选能够装入的状态；进入即结束装货前往卸货，不等持货超时。没有任何候选时不算装满，按持货超时处理。
@@ -880,8 +880,8 @@ _Avoid_: 动态 Station 引用、按新名称自动换站、目录或绑定变�
 _Avoid_: 人工 AREA 映射、StationAreaOverride、把公共业务点按 AREA 解析、无法唯一解析时自动择一
 
 **PublicStationFunction（公共站点功能）**:
-8005 固定公共作业区域承担的业务功能，包括派工待送、烘箱、关卡、三光和氮气柜；任务类型决定该功能是运输起点还是终点，每张 Map 上的每种功能只显式绑定一个 FixedTaskStation，不从 AREA 或站点名称自动识别。
-_Avoid_: TASK_TYPE、MES AREA、AREA 命名机台站点、按站点名猜测功能、同图同功能多个站点、车辆当前位置
+8005 固定公共作业区域承担的业务功能，包括派工待送、烘箱、关卡、三光和氮气柜；任务类型决定该功能是运输起点还是终点，每张 Map 上的每种功能只显式绑定一个 FixedTaskStation，不从 AREA 或站点名称自动识别。派工待送与氮气柜在现场可以是同一个柜子，此时两种功能绑定同一个 Station；除这一对外，一个 Station 只承担一种功能。
+_Avoid_: TASK_TYPE、MES AREA、AREA 命名机台站点、按站点名猜测功能、同图同功能多个站点、车辆当前位置、把派工待送与氮气柜合并为一种功能
 
 **MapPublicStationRequirementSet（地图公共站点功能需求集）**:
 一张 Map 上当前获准启用的任务类型实际依赖的 PublicStationFunction 集合；全部需求功能都具有有效绑定后，相关任务类型才可在该 Map 投运，未启用的其余功能不强制配置。
@@ -892,8 +892,8 @@ _Avoid_: 每张 Map 无条件配齐全部五种功能、目录已同步即业务
 _Avoid_: 按 TASK_TYPE 重复保存站点、缺少公共站点时先启用任务类型、规则变更重写既有任务
 
 **FixedTaskStation（任务固定站点）**:
-8005 项目把已同步的具体 Station 按 `mapId + PublicStationFunction` 唯一显式绑定得到的公共业务点；TransportDemand 依任务类型使用同图对应功能的唯一绑定，同一 Station 不得同时承担多个功能，并禁止跨图运输。
-_Avoid_: 固定 AREA、从 MES 行读取的第二个端点、AREA 显式覆盖、按名称自动推断公共功能、同图同功能站点集合、同一 Station 复用多个公共功能
+8005 项目把已同步的具体 Station 按 `mapId + PublicStationFunction` 唯一显式绑定得到的公共业务点；TransportDemand 依任务类型使用同图对应功能的唯一绑定，只有派工待送与氮气柜可以绑定同一 Station，其余功能不得共用 Station，并禁止跨图运输。
+_Avoid_: 固定 AREA、从 MES 行读取的第二个端点、AREA 显式覆盖、按名称自动推断公共功能、同图同功能站点集合、派工待送与氮气柜以外的公共功能共用 Station
 
 **PublicStationBindingSetVersion（公共站点绑定集版本）**:
 一张 Map 的完整不可变 PublicStationFunction—Station 绑定集，同时固定 MapPublicStationRequirementSet、TaskTypePublicStationRuleVersion 和校验所用的 MapStationCatalogSnapshot 修订；只能全图原子激活，回滚也是经当前事实重校验的新激活。
@@ -904,8 +904,8 @@ _Avoid_: 逐功能即时覆盖、混用新旧绑定、旧版本直接翻回当�
 _Avoid_: 删除绑定、定时自动恢复、暂停后既有订单自动取消、普通操作员暂停
 
 **SingleBerthStationClaim（单车位站点占用权）**:
-一个 FixedTaskStation 在同一时刻只允许由一台已到达车辆占用，或由一台已承诺前往的车辆预占；任一状态成立时，其他车辆不得承接下一站为该站点的新任务。
-_Avoid_: 只检查当前占位、不检查在途预占、两车同时承诺同一站点
+一个 Station 在同一时刻只允许由一台已到达车辆占用，或由一台已承诺前往的车辆预占；同一 Station 同时绑定为派工待送与氮气柜时，两种功能共用这一份占用权。任一状态成立时，其他车辆不得承接下一站为该 Station 的新任务。
+_Avoid_: 只检查当前占位、不检查在途预占、两车同时承诺同一站点、按功能绑定分别计算占用
 
 **NearStationQuery**:
 在候选 Station 集合中，按路径代价选出最近的起点或终点 Station（对应 RIoT `queryNearestStart` / `queryNearEnd`）；返回的是 stationId，不是折线几何。
@@ -1670,6 +1670,10 @@ _Avoid_: 第二次焊线（口语替代正式 step 名）
 **WireToGate**:
 运输任务类型代码 `WIRE_TO_GATE`：焊线或键合完工机台 → 同图固定关卡站点。它以 MesIngest 发布的完整 WorkType 为业务边界，下游不再按 STEP、EQP 或文本将焊线与键合二次分类。
 _Avoid_: 只按口语“焊线完工”缩窄范围、下游自行重新判定 TASK_TYPE、焊线和键合分为两种本地任务
+
+**StagingToWire**:
+运输任务类型代码 `STAGING_TO_WIRE`：同图固定派工待送站点 → MES 指定的焊线或键合机台，即机台叫料。起终点规则与其余五类相反（起点固定区域，终点取查询 EQP/AREA）。清洗完工送焊线、氮气柜送焊线或键合都属于这一类，不另建任务类型。
+_Avoid_: 清洗送焊线任务、氮气柜送焊线任务、CLEANING_TO_WIRE、按产品实际存放处另选取货站点
 
 **WireToNitrogen**:
 运输任务类型代码 `WIRE_TO_NITROGEN`：WireBond1 机台 → 固定氮气柜站点。起终点规则同 `WIRE_TO_GATE`（起点取查询 EQP/AREA，终点固定区域）。PDA 扫码入柜后该行从 MES 快照消失；之后再上 WireBond2 由既有 `STAGING_TO_WIRE` 覆盖，不另建任务类型。不含键合。
