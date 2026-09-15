@@ -183,3 +183,98 @@ diff -rq <repo-tree> <generator-out>
 `JSON.stringify(value, null, 2)`），`content-manifest.schema.json` 的唯一差异是**有意删掉的**
 `runnerContractsSha256`（`properties` 与 `required` 各一处）。attestation 模板与那个向量的两个
 文件与 HEAD **逐字节相同**。
+
+---
+
+## 8. 批次 5 起点复核与跨线差异
+
+批次 5 的协议侧生成器票（program#89～#95）都默认「生成器就是 `protocol-v1.0.0` 的机械来源」。
+第 7 节之后生成器又和协议候选同步过两次——`a9d7a405`（对齐协议仓 `16e2567`，单人签名）与
+`8a5dfd7d`（对齐 `9f22db8`，AI 可经授权批准）——两次提交各自在正文里声明了「1762 个文件逐字节
+相同」，但本台账没有记。本节把那句声明换成实测，并把协议仓两条线之间的账算清。
+
+### 8.1 起点复核（program#89）
+
+| 项 | 值 |
+| --- | --- |
+| 复核日期 | 2026-09-15 |
+| 机器 | 控制端 `LAB-WIN-01`，Windows 11 Pro 10.0.26200，node v24.20.0，pnpm 11.25.0 |
+| 生成器 | `fp/b5-protocol` 的分出点 `c5eda22f`（创建该分支时的 `origin/main`）。生成器 blob `8b976a33`，`templates/g1-validate.mjs` `7b5502ea`，`templates/finalize-manifest.mjs` `4eaef0e4`；自 `8a5dfd7d` 起未改 |
+| 对照 | 协议仓 `9f22db8`（`protocol-v1.0.0`，注释 tag `05b267f`；`origin/fp/v2-candidate` 顶端，之后无未发布提交），1762 个跟踪文件 |
+| 生成器输出 | **1754** 个文件 |
+| 放回七个元文件、finalize、G1 之后 | **1762** 个文件（`node_modules/` 不计） |
+| 逐字节相同／不同／缺失／多余 | **1762／0／0／0** |
+| `pnpm g1` | **PASS**，failures 为空；manifest `a0e1deedb50419057dbe6aa7a7e8df983fb9ea901bbc452f97020ebf4743ef23`，与 `9f22db8` 的 `manifest/release.json` 相同 |
+| `--verify-determinism` | 1754 个文件，**0 divergent** |
+
+**结论：没有差异需要归类，前提成立。**program#96（批次5-21）落地前不需要先处理任何复核差异。
+
+做法与第 6 节相同，只多了比对与留证：
+
+1. 生成器写到空临时目录，这一份原样保留，作为「finalize 之前的输出」。
+2. 复制一份，`git archive 9f22db8 -- <七个元文件>` 展开进去，展开后逐个核对 blob id 与 `9f22db8` 一致。
+3. `pnpm install --frozen-lockfile`、`pnpm manifest:finalize`、`pnpm g1`。
+4. 候选树每个文件（`node_modules/` 除外）算 git blob id，与 `git ls-tree -r 9f22db8` 逐条比对。这与和
+   `git archive 9f22db8` 展开的树逐字节比对等价，且不受控制端 `core.autocrlf=true` 影响。
+5. `node generate-protocol-candidate.mjs --verify-determinism`。
+
+两个坑，重跑时别再踩：
+
+- **`git hash-object` 打不开临时目录里的长路径负例**（`Filename too long`，超过 MAX_PATH），blob id
+  要在进程内按 `sha1("blob <字节数>\0" + 内容)` 自己算。
+- **program 仓的生成器 `.mjs` 没有 `eol=lf` 属性**（只有 `tools/templates/*.mjs` 有），控制端检出是 CRLF。
+  这不影响输出——生成器读模板、写文本时都把 `\r\n` 换成 `\n`——但记录生成器身份时要取经过 clean
+  filter 的 blob id（`git hash-object <文件>`，不带 `--no-filters`），否则记下的是 CRLF 字节的哈希。
+
+### 8.2 跨线差异：协议仓 `main` 独有的 8 个提交
+
+协议仓 `main`（MVP 线）与 v2 线的 merge-base 是 `e54e988`，`protocol-v0.3.0` 与 `protocol-v1.0.0`
+互不为祖先。`main` 独有的 8 个提交从未进入生成器。逐条对照提交内容与 `9f22db8` 实读：
+
+| `main` 独有提交 | 内容 | `9f22db8` 现状 | 处置 |
+| --- | --- | --- | --- |
+| `db064d2` | `CV-LOAD-CANCELLATION-BEFORE-LOAD`，两步：`LoadCancellationStartRequested` → `LoadCancellationAuthorization`，授权即终结 | 31 条向量里没有 | program#93（批次5-05）按 ADR-cross-0046 以四步形态重做：取消请求 → 授权 → 空 `slotResults` 的 `ALL_EMPTY` 结果 → `DurableAck`（规格第 19.4 节）。**不照搬** |
+| `952b49c` | 0.2.0 解除单单收窄：`items` 上限 8、`legs` 上限 10、`legType` 加 `TO_CHARGER`、`expectedSublots` 数组、`slotResults` `minItems: 0` | `CurrentStopWorklistSnapshot.items` `maxItems: 8`；`legs` `maxItems: 9`、`sequence` 上限 9；充电停靠由腿上的 `stopPurposeCategory`（`BUSINESS`／`WAITING_POINT`／`CHARGER`）表达；`SublotEntryRequested.expectedSublot` 仍是单值；`LoadCancellationResult.slotResults` 仍是 `minItems: 1` | 上限与充电停靠：v1.0.0 已以 v2 形态具备，不移植。`expectedSublots` 归 program#92（批次5-04）；`slotResults` `minItems: 0` 归 program#93（批次5-05）。同一提交里 `CLAUDE.md`、`README.md` 的改动是元文件；`compatibility/report.json`、`docs/candidate-limitations.md` 是 MVP 线 0.2.0 的叙述，v2 的对应内容由生成器写出，归 program#90（批次5-02） |
+| `dff1686` | 发布批准改为单人签名 | attestation schema 在 APPROVED 时 `approvals` `minItems`／`maxItems` 为 1；G1 为 `size===1` | 已由协议仓 `16e2567` 与生成器 `a9d7a405` 移植（`8a5dfd7d` 另加 `approverKind`／`authorizedBy`） |
+| `b31a47a` | 取消推送后的通知义务（`CLAUDE.md`） | `9f22db8:CLAUDE.md` 仍写着每次推送后开 issue @`SocialKKKK` | 元文件，生成器不产（第 2 节第 5 项）。由 program#96（批次5-21）放回元文件时改写 |
+| `dbae7b9` | 三条恢复消息加 `slotOperationAttemptId`；注册表加 `OPERATOR_TIMEOUT`；G1 新增「注册表 `codes` 顺序与 `ErrorCode` enum 一致」检查 | 三条消息都没有该字段；注册表 54 条，没有 `OPERATOR_TIMEOUT` | 字段归 program#95（批次5-07）；码归 program#91（批次5-03）。**一致性检查不移植**：生成器里 `errorCodeNames = errorCodes.map((item) => item.code)`，`errors/error-codes.json` 的 `codes` 与 `ErrorCode` enum 由同一个 `requiredErrorCodes` 列表派生，结构上不会分叉。MVP 线需要这条检查，是因为那边两处靠手工同步 |
+| `345c53c` | `CurrentStopWorklistSnapshot.stationDepartureDeadlineAt` | payload 只有 `stationId`、`worklistRevision`、`operationSessionId`、`items` | program#91（批次5-03） |
+| `fbdc94d` | 仓内候选 G1 记录跟上 0.3.0 | — | 不移植：`evidence/` 在 finalize 与 G1 的排除列表里，不进 manifest；v2 的 `evidence/g1-result.json` 由 `pnpm g1` 重新产出 |
+| `850ca4c` | SDK 矩阵 8.0.425／8.0.31，G1 不再硬编码 | 矩阵仍是 8.0.424／8.0.30，G1 断言同一对字面量 | **本票移植**，见 8.3 |
+
+八行里没有「暂未分类」：六行指派到票或已移植，两行（`fbdc94d` 与 `dbae7b9` 的一致性检查）写明不移植的理由。
+
+### 8.3 移植 `850ca4c`
+
+`850ca4c` 修的是「两份基线一起过期、一起绿」：ADR-cross-0056 在 2026-09-09 把 SDK 基线抬到 8.0.425，
+矩阵还停在 8.0.424／8.0.30，而 G1 断言的正是脚本里硬编码的同一对值。生成器与 G1 模板带着同一个毛病，
+这里照 `850ca4c` 改两处，取值以 `850ca4c` 为准：
+
+- 生成器写 `compatibility/implementation-version-matrix.json` 的那段：`dotnetSdk` 8.0.425、`dotnetRuntime`
+  8.0.31、`requiredAction` 同步。`pinnedPackages` 里 EF Core Sqlite 的 8.0.30 是包版本，不动。
+- `tools/templates/g1-validate.mjs`：矩阵检查换成 `850ca4c` 的原句，只要求两者是精确版本号。与真实
+  工具链的比对归工作区根的 `check-toolchain.ps1`。
+
+两处必须一起改。分两步做时实测如下（每列都是一次完整的生成、放回元文件、finalize、G1）：
+
+| 检查 | 移植前 `c5eda22f` | 只改矩阵 | 两处都改 |
+| --- | --- | --- | --- |
+| 生成的矩阵三项等于 `850ca4c` | ✗ | ✓ | ✓ |
+| G1 的矩阵检查语句等于 `850ca4c` | ✗ | ✗ | ✓ |
+| `pnpm g1` PASS | ✓（两份一起过期） | ✗ `version matrix mismatch` | ✓ |
+| 把 `dotnetRuntime` 改成 `8.0` 时 G1 以 `850ca4c` 的报错拒绝 | ✗ | ✗ | ✓ |
+
+两处都改之后：
+
+| 项 | 值 |
+| --- | --- |
+| finalize 之前的生成输出，移植前后比 | 1754 个文件，1752 相同；**只有 `compatibility/implementation-version-matrix.json` 与 `tools/g1-validate.mjs` 不同**，无增删 |
+| 生成的矩阵 | blob `4598e66`，与协议仓 `850ca4c` 的同名文件逐字节相同 |
+| `tools/g1-validate.mjs` 相对 `9f22db8` | 只改矩阵检查所在的一行 |
+| `pnpm g1` | **PASS**，failures 为空；manifest `4a0625e803ef39e2279279d3a0d5695fb6fc10c80b0b124b116e53a0f9982ba7` |
+| 与 `9f22db8` 比 | 1758 相同、4 不同、0 缺失、0 多余。不同的是上面两个文件，以及随之变化的 `manifest/release.json`、`evidence/g1-result.json` |
+| manifest 分哈希 | 只有 `fileTableSha256` 变（文件表恰两条变化）；`schemaBundleSha256`、`examplesSha256`、`vectorsSha256`、`errorRegistrySha256` 不变 |
+| `--verify-determinism` | 1754 个文件，**0 divergent** |
+
+没有写协议仓，没有改任何 schema、向量、错误码、切片或身份常量。协议仓的这两处变化由 program#96
+（批次5-21）随 v2.0.0 候选包一并落地。

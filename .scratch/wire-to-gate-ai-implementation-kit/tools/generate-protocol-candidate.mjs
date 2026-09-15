@@ -1133,8 +1133,8 @@ writeJson("compatibility/report.json", {
 writeJson("compatibility/implementation-version-matrix.json", {
   status: "CANDIDATE",
   sharedDevelopmentBaseline: {
-    dotnetSdk: "8.0.424",
-    dotnetRuntime: "8.0.30",
+    dotnetSdk: "8.0.425",
+    dotnetRuntime: "8.0.31",
     targetFrameworks: { controlServer: "net8.0", onboardHmi: "net8.0-windows" },
     runtimeIdentifiers: ["win-x64"],
     packageCompatibilityRule: "All Microsoft.Extensions and EF Core packages remain on the 8.x major line and are locked by each implementation repository; protocol wire compatibility is defined only by the materialized ProtocolReleaseIdentity.",
@@ -1149,7 +1149,7 @@ writeJson("compatibility/implementation-version-matrix.json", {
     { name: "ajv", version: "8.20.0", consumers: ["protocol G1"] },
     { name: "ajv-formats", version: "3.0.1", consumers: ["protocol G1"] },
   ],
-  requiredAction: "Install or pin SDK 8.0.424 before reproducible product builds; do not treat the observed 8.0.29 runtime as equivalent evidence.",
+  requiredAction: "Install or pin SDK 8.0.425 before reproducible product builds; do not treat the observed 8.0.29 runtime as equivalent evidence.",
 });
 
 writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis repository contains an approval-neutral **content snapshot**, not an approved ProtocolRelease. Machine-readable JSON Schema, the content manifest, the external approval attestation, errors, examples, vectors, the governance schemas and the integration-slice index are authoritative. Markdown is explanatory only.\n\nRun \`pnpm install --frozen-lockfile\`, \`pnpm manifest:finalize\` and \`pnpm g1\`. A PASS proves content and attestation consistency and reports their independent hashes. It does not turn a \`PENDING\` attestation into human G0 approval or prove either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
