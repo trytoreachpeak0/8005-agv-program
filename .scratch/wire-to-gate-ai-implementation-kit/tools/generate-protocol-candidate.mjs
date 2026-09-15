@@ -212,6 +212,26 @@ const requiredErrorCodes = [
     allowedMessageTypes: ["ExceptionRecoverySessionSnapshot"],
     meaning: "A recovery action has been selected and the exception recovery session stays blocked until its result arrives.",
   }],
+  // Release 2.0.0: why the control server rejects a SUBLOT after entry. ADR-cross-0057 lists four
+  // real causes; these three plus the existing EXPECTED_BASKET_COUNT_MISMATCH (revalidated quantity
+  // differs from the reservation) cover them. PACKAGE missing, unmatched and conflicting share one
+  // code because ErrorCode is closed: finer field detail goes in the non-authoritative displayMessage.
+  // introducedInRelease takes effect once the errorCodes mapping reads overrides (program#90).
+  ["SUBLOT_NOT_IN_DISPATCH_SCOPE", "BUSINESS", "NEW_MESSAGE_ID", {
+    allowedMessageTypes: ["SublotRejected"],
+    meaning: "The SUBLOT entered by the operator does not belong to any demand in the current dispatch scope, so the control server rejects the entry (FR-001 AC-4).",
+    introducedInRelease: "2.0.0",
+  }],
+  ["SUBLOT_BOX_COUNT_UNAVAILABLE", "BUSINESS", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["SublotRejected"],
+    meaning: "Revalidation after SUBLOT entry found no usable SUBLOT_BOX_COUNT: the lookup failed, returned nothing or returned a non-positive count (BR-013 section 2).",
+    introducedInRelease: "2.0.0",
+  }],
+  ["PACKAGE_CAPACITY_UNRESOLVED", "BUSINESS", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["SublotRejected"],
+    meaning: "Revalidation after SUBLOT entry could not resolve basket capacity: PACKAGE is missing, or the approved capacity mapping has no match or conflicting matches (BR-013 section 2).",
+    introducedInRelease: "2.0.0",
+  }],
 ];
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
@@ -370,7 +390,7 @@ add("LoadCorrectionCommand", { correctionId: R("Id"), demandId: R("Id"), slotOpe
 add("LoadCorrectionResult", { correctionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("COMPLETED", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["correctionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("LoadCancellationStartRequested", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["cancellationId", "demandId"] });
 add("LoadCancellationAuthorization", { cancellationId: R("Id"), decision: E("AUTHORIZED", "REJECTED"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), slots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }), problem: Nullable(R("Problem")) }, { businessDedupKeys: ["cancellationId", "demandId"] });
-add("LoadCancellationResult", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["cancellationId", "demandId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+add("LoadCancellationResult", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 0, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["cancellationId", "demandId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("LoadCompensationRequested", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), operator: R("OperatorContext") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "demandId", "slotOperationAttemptId"] });
 add("LoadCompensationRejected", { recoveryActionId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["recoveryActionId"] });
 add("LoadCompensationCommand", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), slots: Slots(), expectedFinalPhysicalState: S({ const: "EMPTY" }), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "demandId", "slotOperationAttemptId"], recoveryRole: "LOAD_COMPENSATION" });
@@ -631,7 +651,7 @@ writeJson("examples/invalid/profile/I-PROFILE-UNKNOWN-001.json", invalidWrapper(
 writeJson("errors/error-codes.json", { registryVersion: "1.0.0", appendOnly: true, displayMessageAuthoritative: false, codes: errorCodes });
 
 // Every vector carries productAssertions: what each side must be able to prove when the wire
-// trace matches. That was FP-IS-01's special case in v1; here it is mandatory for all 31, because
+// trace matches. That was FP-IS-01's special case in v1; here it is mandatory for every vector, because
 // a trace alone never distinguishes "did the right thing" from "emitted the right bytes".
 const wire = (...messages) => messages;
 const trajectories = {
@@ -674,6 +694,21 @@ const trajectories = {
   "CV-LOAD-CANCELLATION-ALL-EMPTY": {
     messages: wire("LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"),
     productAssertions: { controlServer: ["AUTHORIZE_CANCELLATION_EXPLICITLY", "RECONCILE_EMPTY_FINAL_STATE"], onboardHmi: ["PROVE_ALL_SLOTS_EMPTY", "NEVER_CANCEL_UNILATERALLY"] },
+  },
+  // Cancelled at the pickup station before any SlotOperationCommand: no slot was opened, so the
+  // result carries an empty slotResults. Four steps, not the MVP's two (protocol-v0.3.0 db064d2):
+  // ADR-cross-0046 ends this case with LoadCancellationResult as well, and the demand terminates
+  // only once that result is durably accepted.
+  "CV-LOAD-CANCELLATION-BEFORE-LOAD": {
+    messages: wire("LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"),
+    productAssertions: { controlServer: ["AUTHORIZE_CANCELLATION_WITHOUT_SLOT_OPERATION", "TERMINATE_ONLY_ON_ALL_EMPTY_RESULT"], onboardHmi: ["REPORT_ALL_EMPTY_WITHOUT_SLOT_IO", "NEVER_CANCEL_UNILATERALLY"] },
+  },
+  // BR-013 revalidates after entry; a failure comes back to the vehicle as SublotRejected with its
+  // real reason code instead of the SUBLOT silently missing from the worklist.
+  "CV-SUBLOT-REJECTED-AFTER-ENTRY": {
+    messages: wire("SublotEntryRequested", "SublotSubmitted", "SublotRejected"),
+    stableErrorCode: "PACKAGE_CAPACITY_UNRESOLVED",
+    productAssertions: { controlServer: ["REVALIDATE_SUBLOT_AFTER_ENTRY", "NEVER_UNLOCK_ON_REJECTED_ENTRY"], onboardHmi: ["DISPLAY_SERVER_REJECTION_REASON", "KEEP_ENTRY_OPEN_FOR_RESCAN"] },
   },
   "CV-PREDEPARTURE-SAFETY-EXPIRES": {
     messages: wire("PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "SafetyStateChanged", "ProtocolProblem"),
@@ -833,7 +868,7 @@ const slices = [
     authorityModel: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
     ownerResponsibilities: { controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"], onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"] },
   }],
-  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY"], {
+  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY"], {
     scope: "STATION_PICKUP_AND_MULTI_SLOT_LOAD",
     requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED"],
     authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SublotEntryRequested", "SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
