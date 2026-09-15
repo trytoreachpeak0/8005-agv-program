@@ -2,7 +2,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| 状态 | **待批准** |
+| 状态 | **已批准**（2026-09-15） |
 | 批准人 | 用户（Zhengyu Shao）一人 |
 | 产出 | [Wayfinder 地图 program#64](https://github.com/trytoreachpeak0/8005-agv-program/issues/64)：票 65～73、80 |
 | 日期 | 2026-09-15 |
