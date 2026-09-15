@@ -17,7 +17,7 @@
 仍在执行，一解除 RIoT 就可能让车接着开，而确认的人可能就在车旁。`CAN_NOT_RECOVER` 仍禁止解除，转 RIoT 人员。解除只结束
 急停，不恢复派车资格、不解除故障阻断。
 
-**Status**: proposed（随 `CP-0003` 批准改为 accepted）
+**Status**: accepted（2026-09-15 随 `CP-0003` 批准由 proposed 转）
 
 **Considered Options**:
 - 锁住后仍按 `REQ-0247` 的完整组合证据判停，两站之间的位置改用 `getVehicleInfo.precisePosition` 的坐标补上（拒绝：用户认为急停一定停稳，不需要再读）
