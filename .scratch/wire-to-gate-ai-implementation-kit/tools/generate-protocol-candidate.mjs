@@ -384,7 +384,10 @@ add("SafetyStateSnapshotRequested", { requestedSafetyStateVersion: Nullable(R("R
 add("SafetyStateSnapshot", { safetyStateVersion: R("Revision"), observedAt: R("Instant"), safety: R("SafetySummary"), slotStates: A(R("SlotState"), { minItems: 8, maxItems: 8, uniqueItems: true }) }, { recoveryRole: "SAFETY_RECONCILIATION" });
 add("PreDepartureSafetyCheck", { preDepartureSafetyCheckId: R("Id"), demandId: R("Id"), movementLegId: R("Id"), expectedSafetyStateVersion: R("Revision"), targetStationId: S() }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
 add("PreDepartureSafetyCheckResult", { preDepartureSafetyCheckId: R("Id"), outcome: E("SAFE", "UNSAFE", "UNKNOWN"), observedAt: R("Instant"), safetyStateVersion: R("Revision"), validUntil: R("Instant"), safety: R("SafetySummary") }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
-add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN"), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
+// Release 2.0.0 (program#94): batteryState and chargingCycleState are orthogonal, per full-product
+// ticket 06's B5 table. loadingPhase is null without a transport journey, and carries a closedReason
+// exactly when its state is CLOSED.
+add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN", "MANDATORY_CHARGE"), chargingCycleState: E("NOT_CHARGING", "ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE", "UNKNOWN"), loadingPhase: Nullable(O({ state: E("LOADING", "CARGO_HOLDING_WAIT", "VEHICLE_FULL", "CLOSED"), cargoHoldingDeadlineAt: Nullable(R("Instant")), closedReason: Nullable(E("VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE")) }, { if: { properties: { state: { const: "CLOSED" } }, required: ["state"] }, then: { properties: { closedReason: { type: "string" } } }, else: { properties: { closedReason: { type: "null" } } } })), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
 add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }) }, { businessDedupKeys: ["worklistRevision"] });
 add("UpcomingStopPlanSnapshot", { planRevision: R("Revision"), legs: A(O({ movementLegId: R("Id"), legType: Nullable(E("TO_PICKUP", "TO_DROPOFF")), stopPurposeCategory: R("StopPurposeCategory"), demandId: Nullable(R("Id")), publicStationFunction: Nullable(R("PublicStationFunction")), sequence: I({ minimum: 1, maximum: 9 }), stationId: S(), mapId: S(), state: E("PLANNED", "ACTIVE", "ARRIVED", "COMPLETED", "BLOCKED") }), { maxItems: 9, uniqueItems: true, "x-sortedBy": "sequence" }) }, { businessDedupKeys: ["planRevision"] });
 // Release 2.0.0: sublot entry is scoped to the dispatch. The control server offers every SUBLOT in
@@ -582,11 +585,17 @@ const envelopeFor = (spec) => {
     value.payload.operationType = "LOAD";
     value.payload.expectedFinalPhysicalState = "OCCUPIED";
   }
+  // The sampler takes the first enum value for closedReason, but loadingPhase allows a reason only
+  // once the phase is CLOSED.
+  if (spec.name === "VehicleBusinessStateSnapshot") value.payload.loadingPhase.closedReason = null;
   return value;
 };
 
 const invalidTypeValue = (schema) => {
   const resolved = resolveRef(schema);
+  // A nullable inline object needs a value that is neither branch: an object with unknown keys is
+  // rejected for its required and additionalProperties, which is not the type failure it claims.
+  if (resolved.anyOf?.some((option) => option.type === "object")) return "not-an-object";
   if (resolved.anyOf) return { definitely: "invalid" };
   if (resolved.type === "string") return 123;
   if (resolved.type === "integer" || resolved.type === "number") return "not-a-number";
@@ -612,6 +621,11 @@ for (const spec of Object.values(specs)) {
   const valid = envelopeFor(spec);
   writeJson(`examples/valid/${spec.name}/V-${spec.name}-MIN-001.json`, valid);
   const schema = JSON.parse(fs.readFileSync(path.join(root, `schemas/messages/${spec.name}.schema.json`), "utf8"));
+  const payloadNegative = (suffix, fieldPath, rule, mutate) => {
+    const vectorId = `I-${spec.name}-${suffix}`;
+    const broken = clone(valid); mutate(broken.payload);
+    writeJson(`examples/invalid/${spec.name}/${vectorId}.json`, invalidWrapper(vectorId, broken, "PROTOCOL_SCHEMA_INVALID", fieldPath, rule));
+  };
   for (const field of schema.required) {
     const broken = clone(valid); delete broken[field];
     writeJson(`examples/invalid/${spec.name}/I-${spec.name}-REQUIRED-ENVELOPE-${field}.json`, invalidWrapper(`I-${spec.name}-REQUIRED-ENVELOPE-${field}`, broken, "PROTOCOL_SCHEMA_INVALID", `/${field}`, "required"));
@@ -641,6 +655,23 @@ for (const spec of Object.values(specs)) {
       } else sortedBroken.payload[field] = [2, 1];
       writeJson(`examples/invalid/${spec.name}/I-${spec.name}-SORT-${field}.json`, invalidWrapper(`I-${spec.name}-SORT-${field}`, sortedBroken, "PROTOCOL_SCHEMA_INVALID", `/payload/${field}`, "x-sorted"));
     }
+    // An inline object field, as opposed to a shared $ref type, gets the same negatives one level
+    // down, plus one for a property the object does not declare.
+    const inline = fieldSchema.type === "object" ? fieldSchema : fieldSchema.anyOf?.find((option) => option.type === "object");
+    if (inline) {
+      for (const key of inline.required) payloadNegative(`REQUIRED-PAYLOAD-${field}-${key}`, `/payload/${field}/${key}`, "required", (payload) => { delete payload[field][key]; });
+      for (const [key, keySchema] of Object.entries(inline.properties)) {
+        const invalidValue = invalidTypeValue(keySchema);
+        if (invalidValue !== undefined) payloadNegative(`TYPE-${field}-${key}`, `/payload/${field}/${key}`, "type", (payload) => { payload[field][key] = invalidValue; });
+        if ([resolveRef(keySchema), ...(keySchema.anyOf ?? [])].some((option) => option.enum)) payloadNegative(`ENUM-${field}-${key}`, `/payload/${field}/${key}`, "enum-or-const", (payload) => { payload[field][key] = "__NOT_ALLOWED__"; });
+      }
+      payloadNegative(`ADDITIONAL-${field}`, `/payload/${field}`, "additionalProperties", (payload) => { payload[field].undeclaredProperty = "not-in-schema"; });
+    }
+  }
+  // Both sides of loadingPhase's CLOSED correspondence: a closed phase without a reason, an open one with a reason.
+  if (spec.name === "VehicleBusinessStateSnapshot") {
+    payloadNegative("IF-THEN-loadingPhase-closedReason-CLOSED", "/payload/loadingPhase/closedReason", "if-then", (payload) => { payload.loadingPhase.state = "CLOSED"; });
+    payloadNegative("IF-THEN-loadingPhase-closedReason-OPEN", "/payload/loadingPhase/closedReason", "if-then", (payload) => { payload.loadingPhase.closedReason = "PLANNED_LOADING_COMPLETE"; });
   }
   if (correlationRuleFor(spec) === "REQUIRED_ORIGINAL_MESSAGE_ID") {
     const broken = clone(valid); broken.correlationId = null;
