@@ -51,7 +51,7 @@
 | [ADR-cross-0038](cross/0038-new-slot-operation-attempt-id-after-compensated-load-retry.md) | 装货补偿后重试使用新的仓位操作尝试编号（已由 ADR-cross-0039 废止） |
 | [ADR-cross-0039](cross/0039-operator-starts-server-authorized-load-compensation.md) | 操作员发起、服务端授权装货补偿 |
 | [ADR-cross-0040](cross/0040-internal-light-curtain-is-slot-occupancy-evidence.md) | 仓内光幕作为仓位有货与空仓的物理证据 |
-| [ADR-cross-0041](cross/0041-one-basket-per-physical-slot.md) | 每个物理仓位最多存放一个花篮 |
+| [ADR-cross-0041](cross/0041-one-basket-per-physical-slot.md) | 每个物理仓位最多存放一个花篮（部分由 ADR-cross-0059 修订） |
 | [ADR-cross-0042](cross/0042-sublot-is-load-input-and-server-resolves-task.md) | 装货输入是 SUBLOT，服务端解析任务和花篮数 |
 | [ADR-cross-0043](cross/0043-server-enforces-global-sublot-reservation.md) | 服务端保证 SUBLOT 的全局唯一占用 |
 | [ADR-cross-0044](cross/0044-baskets-have-no-individual-identity.md) | 花篮没有独立身份，只追踪 SUBLOT 与仓位 |
@@ -67,6 +67,6 @@
 | [ADR-cross-0054](cross/0054-auto-load-commit-with-pre-departure-correction.md) | 装货物理闭环后自动提交，整站结束前仍可纠错 |
 | [ADR-cross-0055](cross/0055-server-owned-station-departure-wait-timeout.md) | 服务端掌握装货站离站等待超时并原子结束本站 |
 | [ADR-cross-0056](cross/0056-dotnet-toolchain-baseline.md) | 四个可写 .NET 仓库统一工具链基线 |
-| [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡 |
+| [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡（「装满」部分由 ADR-cross-0059 修订） |
 | [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复 |
-| [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单（提议中，随 `CP-0002` 批准生效） |
+| [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
