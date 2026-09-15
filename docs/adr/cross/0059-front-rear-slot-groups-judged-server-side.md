@@ -40,8 +40,8 @@ AREA 稳定；放进分区归属，因为另建一张同键的表只会多出「
 但让站不打断任何阻断离站的状态——仓门开着、正在录入或纠错、状态未知、断联、维护开门——要等它们安全收敛、
 离站安全核验通过后才动。
 
-**Status**: proposed（随 `CP-0002` 批准改为 accepted；届时 ADR-cross-0041 与 ADR-cross-0057 的 Status
-行加「部分由 ADR-cross-0059 修订」）
+**Status**: accepted（2026-09-15 随 `CP-0002` 批准由 proposed 转；ADR-cross-0041 与 ADR-cross-0057 的 Status
+行已加「部分由 ADR-cross-0059 修订」）
 
 **Considered Options**:
 - 车载端按站点校验开门侧（拒绝：要改协议并作废两端门禁证据，而开错门是效率问题）

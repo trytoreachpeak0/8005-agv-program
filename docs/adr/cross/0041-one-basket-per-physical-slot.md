@@ -10,7 +10,7 @@
 
 仓内光幕只负责判断一个仓位 OCCUPIED、EMPTY 或 UNKNOWN，不负责识别产品、统计同仓数量或判断子批号归属；这些业务约束由服务端的任务、子批号和仓位分配保证。花篮没有独立身份，按 ADR-cross-0044 作为 AnonymousBasket 处理。
 
-**Status**: accepted
+**Status**: accepted（部分由 [ADR-cross-0059](0059-front-rear-slot-groups-judged-server-side.md) 修订：可用仓位数与物理仓位数改按所需仓位分组计，2026-09-15 随 `CP-0002` 批准）
 
 **Considered Options**:
 - 允许一个仓位放多个花篮（拒绝：单个光幕占用状态无法证明花篮数量）
