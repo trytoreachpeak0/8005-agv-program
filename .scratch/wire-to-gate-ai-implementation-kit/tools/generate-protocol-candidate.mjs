@@ -232,6 +232,16 @@ const requiredErrorCodes = [
     meaning: "Revalidation after SUBLOT entry could not resolve basket capacity: PACKAGE is missing, or the approved capacity mapping has no match or conflicting matches (BR-013 section 2).",
     introducedInRelease: "2.0.0",
   }],
+  // Release 2.0.0: the reason code of a determinate slot failure after the station deadline
+  // (ADR-cross-0058 decision 5). Registered although the v2 onboard HMI never emits it: the control
+  // server keeps a defensive determinate-failure settlement that needs a registered code, and another
+  // onboard build sending it must still pass the closed enum. The MVP line puts it in exactly one
+  // place, SlotResult.reasonCodes of a FAILED slot in OperationResult, hence the narrowing.
+  ["OPERATOR_TIMEOUT", "BUSINESS", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["OperationResult"],
+    meaning: "The operator did not complete the slot operation before the station departure deadline; the slot door is closed and the unlock output reset, so the slot is settled as a determinate failure rather than an unknown outcome (ADR-cross-0058 decision 5). The WIRE_TO_GATE_MVP line introduced a code of the same name and meaning in protocol-v0.3.0.",
+    introducedInRelease: "2.0.0",
+  }],
 ];
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
@@ -375,7 +385,7 @@ add("SafetyStateSnapshot", { safetyStateVersion: R("Revision"), observedAt: R("I
 add("PreDepartureSafetyCheck", { preDepartureSafetyCheckId: R("Id"), demandId: R("Id"), movementLegId: R("Id"), expectedSafetyStateVersion: R("Revision"), targetStationId: S() }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
 add("PreDepartureSafetyCheckResult", { preDepartureSafetyCheckId: R("Id"), outcome: E("SAFE", "UNSAFE", "UNKNOWN"), observedAt: R("Instant"), safetyStateVersion: R("Revision"), validUntil: R("Instant"), safety: R("SafetySummary") }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
 add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN"), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
-add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }) }, { businessDedupKeys: ["worklistRevision"] });
+add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }) }, { businessDedupKeys: ["worklistRevision"] });
 add("UpcomingStopPlanSnapshot", { planRevision: R("Revision"), legs: A(O({ movementLegId: R("Id"), legType: Nullable(E("TO_PICKUP", "TO_DROPOFF")), stopPurposeCategory: R("StopPurposeCategory"), demandId: Nullable(R("Id")), publicStationFunction: Nullable(R("PublicStationFunction")), sequence: I({ minimum: 1, maximum: 9 }), stationId: S(), mapId: S(), state: E("PLANNED", "ACTIVE", "ARRIVED", "COMPLETED", "BLOCKED") }), { maxItems: 9, uniqueItems: true, "x-sortedBy": "sequence" }) }, { businessDedupKeys: ["planRevision"] });
 add("SublotEntryRequested", { demandId: R("Id"), operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), expectedSublot: S(), entryMethods: A(S(), { const: ["SCANNER", "KEYBOARD"] }), expiresOnRevisionChange: B({ const: true }) }, { businessDedupKeys: ["demandId", "operationSessionId"] });
 add("SublotSubmitted", { demandId: R("Id"), operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), sublot: S(), entryMethod: E("SCANNER", "KEYBOARD"), operator: R("OperatorContext") }, { businessDedupKeys: ["demandId", "operationSessionId"] });
