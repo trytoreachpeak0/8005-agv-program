@@ -1,5 +1,7 @@
 # 8005 完整产品实施范围与顺序规格
 
+> **批次 4 起已被取代**：范围与顺序以 [`docs/specs/full-product-scope-and-sequence-v2.md`](../../docs/specs/full-product-scope-and-sequence-v2.md) 为准；批次 0～3 仍以本文为依据，本文正文不改。
+
 | 项 | 值 |
 | --- | --- |
 | 状态 | **已批准**（2026-09-04） |
