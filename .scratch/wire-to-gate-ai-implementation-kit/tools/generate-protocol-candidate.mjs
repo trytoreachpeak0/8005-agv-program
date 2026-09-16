@@ -54,14 +54,14 @@ const SCHEMA = "https://json-schema.org/draft/2020-12/schema";
 // Candidate identity. Everything written below derives from these constants, so moving the
 // candidate to another protocol version, profile or release version is an edit of this block
 // alone. Never reintroduce these values as literals in the write-out region.
-const BASE_ID = "https://schemas.8005-agv.local/agv-full-product/v2";
-const candidateVersion = "1.0.0";
+const BASE_ID = "https://schemas.8005-agv.local/agv-full-product/v3";
+const candidateVersion = "2.0.0";
 const profileId = "AGV_FULL_PRODUCT";
 const profileDisplayName = "AGV_FULL_PRODUCT";
-const protocolVersion = 2;
-const baseReleaseTag = "protocol-v0.1.1";
+const protocolVersion = 3;
+const baseReleaseTag = "protocol-v1.0.0";
 // Fixed so the candidate tools stay byte-reproducible; it is a candidate stamp, not a build clock.
-const candidateTimestamp = "2026-09-04T00:00:00Z";
+const candidateTimestamp = "2026-09-15T00:00:00Z";
 
 const writeJson = (relative, value) => {
   const file = path.join(root, relative);
@@ -212,6 +212,36 @@ const requiredErrorCodes = [
     allowedMessageTypes: ["ExceptionRecoverySessionSnapshot"],
     meaning: "A recovery action has been selected and the exception recovery session stays blocked until its result arrives.",
   }],
+  // Release 2.0.0: why the control server rejects a SUBLOT after entry. ADR-cross-0057 lists four
+  // real causes; these three plus the existing EXPECTED_BASKET_COUNT_MISMATCH (revalidated quantity
+  // differs from the reservation) cover them. PACKAGE missing, unmatched and conflicting share one
+  // code because ErrorCode is closed: finer field detail goes in the non-authoritative displayMessage.
+  // introducedInRelease takes effect once the errorCodes mapping reads overrides (program#90).
+  ["SUBLOT_NOT_IN_DISPATCH_SCOPE", "BUSINESS", "NEW_MESSAGE_ID", {
+    allowedMessageTypes: ["SublotRejected"],
+    meaning: "The SUBLOT entered by the operator does not belong to any demand in the current dispatch scope, so the control server rejects the entry (FR-001 AC-4).",
+    introducedInRelease: "2.0.0",
+  }],
+  ["SUBLOT_BOX_COUNT_UNAVAILABLE", "BUSINESS", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["SublotRejected"],
+    meaning: "Revalidation after SUBLOT entry found no usable SUBLOT_BOX_COUNT: the lookup failed, returned nothing or returned a non-positive count (BR-013 section 2).",
+    introducedInRelease: "2.0.0",
+  }],
+  ["PACKAGE_CAPACITY_UNRESOLVED", "BUSINESS", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["SublotRejected"],
+    meaning: "Revalidation after SUBLOT entry could not resolve basket capacity: PACKAGE is missing, or the approved capacity mapping has no match or conflicting matches (BR-013 section 2).",
+    introducedInRelease: "2.0.0",
+  }],
+  // Release 2.0.0: the reason code of a determinate slot failure after the station deadline
+  // (ADR-cross-0058 decision 5). Registered although the v2 onboard HMI never emits it: the control
+  // server keeps a defensive determinate-failure settlement that needs a registered code, and another
+  // onboard build sending it must still pass the closed enum. The MVP line puts it in exactly one
+  // place, SlotResult.reasonCodes of a FAILED slot in OperationResult, hence the narrowing.
+  ["OPERATOR_TIMEOUT", "BUSINESS", "AFTER_STATE_CHANGE", {
+    allowedMessageTypes: ["OperationResult"],
+    meaning: "The operator did not complete the slot operation before the station departure deadline; the slot door is closed and the unlock output reset, so the slot is settled as a determinate failure rather than an unknown outcome (ADR-cross-0058 decision 5). The WIRE_TO_GATE_MVP line introduced a code of the same name and meaning in protocol-v0.3.0.",
+    introducedInRelease: "2.0.0",
+  }],
 ];
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
@@ -220,7 +250,9 @@ const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, ov
   allowedMessageTypes: overrides.allowedMessageTypes ??
     (category === "PROTOCOL" ? ["ProtocolProblem", "SessionRejected"] : ["*"]),
   retryDisposition,
-  introducedInRelease: candidateVersion,
+  // Not candidateVersion: the registry is appendOnly, and a code keeps the release that introduced it.
+  // Every code above shipped in protocol-v1.0.0; a code added for a later release names it in overrides.
+  introducedInRelease: overrides.introducedInRelease ?? "1.0.0",
 }));
 const errorCodeNames = errorCodes.map((item) => item.code);
 
@@ -352,12 +384,22 @@ add("SafetyStateSnapshotRequested", { requestedSafetyStateVersion: Nullable(R("R
 add("SafetyStateSnapshot", { safetyStateVersion: R("Revision"), observedAt: R("Instant"), safety: R("SafetySummary"), slotStates: A(R("SlotState"), { minItems: 8, maxItems: 8, uniqueItems: true }) }, { recoveryRole: "SAFETY_RECONCILIATION" });
 add("PreDepartureSafetyCheck", { preDepartureSafetyCheckId: R("Id"), demandId: R("Id"), movementLegId: R("Id"), expectedSafetyStateVersion: R("Revision"), targetStationId: S() }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
 add("PreDepartureSafetyCheckResult", { preDepartureSafetyCheckId: R("Id"), outcome: E("SAFE", "UNSAFE", "UNKNOWN"), observedAt: R("Instant"), safetyStateVersion: R("Revision"), validUntil: R("Instant"), safety: R("SafetySummary") }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
-add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN"), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
-add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }) }, { businessDedupKeys: ["worklistRevision"] });
+// Release 2.0.0 (program#94): batteryState and chargingCycleState are orthogonal, per full-product
+// ticket 06's B5 table. loadingPhase is null without a transport journey, and carries a closedReason
+// exactly when its state is CLOSED.
+add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN", "MANDATORY_CHARGE"), chargingCycleState: E("NOT_CHARGING", "ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE", "UNKNOWN"), loadingPhase: Nullable(O({ state: E("LOADING", "CARGO_HOLDING_WAIT", "VEHICLE_FULL", "CLOSED"), cargoHoldingDeadlineAt: Nullable(R("Instant")), closedReason: Nullable(E("VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE")) }, { if: { properties: { state: { const: "CLOSED" } }, required: ["state"] }, then: { properties: { closedReason: { type: "string" } } }, else: { properties: { closedReason: { type: "null" } } } })), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
+add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }) }, { businessDedupKeys: ["worklistRevision"] });
 add("UpcomingStopPlanSnapshot", { planRevision: R("Revision"), legs: A(O({ movementLegId: R("Id"), legType: Nullable(E("TO_PICKUP", "TO_DROPOFF")), stopPurposeCategory: R("StopPurposeCategory"), demandId: Nullable(R("Id")), publicStationFunction: Nullable(R("PublicStationFunction")), sequence: I({ minimum: 1, maximum: 9 }), stationId: S(), mapId: S(), state: E("PLANNED", "ACTIVE", "ARRIVED", "COMPLETED", "BLOCKED") }), { maxItems: 9, uniqueItems: true, "x-sortedBy": "sequence" }) }, { businessDedupKeys: ["planRevision"] });
-add("SublotEntryRequested", { demandId: R("Id"), operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), expectedSublot: S(), entryMethods: A(S(), { const: ["SCANNER", "KEYBOARD"] }), expiresOnRevisionChange: B({ const: true }) }, { businessDedupKeys: ["demandId", "operationSessionId"] });
-add("SublotSubmitted", { demandId: R("Id"), operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), sublot: S(), entryMethod: E("SCANNER", "KEYBOARD"), operator: R("OperatorContext") }, { businessDedupKeys: ["demandId", "operationSessionId"] });
-add("SublotRejected", { demandId: R("Id"), operationSessionId: R("Id"), problem: R("Problem"), currentWorklistRevision: R("Revision") }, { businessDedupKeys: ["demandId", "operationSessionId"] });
+// Release 2.0.0: sublot entry is scoped to the dispatch. The control server offers every SUBLOT in
+// scope, the vehicle reports only what was scanned, and the control server resolves the demand
+// (FP-IS-01 NEVER_DISCOVER_SELECT_OR_BIND_DEMAND). One worklistRevision offers one scope, so the
+// request is identified by it. A submission and its rejection carry no business identity: a rescan
+// of the same SUBLOT may differ in entryMethod, operator and revalidated reason, so any key short of
+// the whole payload would call it a conflict. Each entry is its own messageId, and SublotRejected
+// points back at it through correlationId.
+add("SublotEntryRequested", { operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), expectedSublots: StringArray({ minItems: 1, maxItems: 8, uniqueItems: true }), entryMethods: A(S(), { const: ["SCANNER", "KEYBOARD"] }), expiresOnRevisionChange: B({ const: true }) }, { businessDedupKeys: ["operationSessionId", "worklistRevision"] });
+add("SublotSubmitted", { operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), sublot: S(), entryMethod: E("SCANNER", "KEYBOARD"), operator: R("OperatorContext") });
+add("SublotRejected", { demandId: Nullable(R("Id")), operationSessionId: R("Id"), problem: R("Problem"), currentWorklistRevision: R("Revision"), rejectedSublot: S() });
 add("SlotOperationCommand", { demandId: R("Id"), operationSessionId: R("Id"), slotOperationAttemptId: R("Id"), operationType: E("LOAD", "UNLOAD"), slots: Slots(), expectedBasketCount: I({ minimum: 1, maximum: 8 }), expectedFinalPhysicalState: E("OCCUPIED", "EMPTY"), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["demandId", "slotOperationAttemptId"], recoveryRole: "SLOT_OPERATION" });
 add("SlotOperationCommandRejected", { slotOperationAttemptId: R("Id"), problem: R("Problem"), observedCapabilityVersion: R("Revision"), conflictingContentSha256: Nullable(R("Sha256")) }, { businessDedupKeys: ["slotOperationAttemptId"] });
 add("OperationProgress", { slotOperationAttemptId: R("Id"), phase: E("PREPARING", "UNLOCKING", "WAITING_OPERATOR", "VERIFYING", "SAFE_FINISH", "PAUSED"), activeUnlockSlots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }), completedSlots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }), observedAt: R("Instant") }, { businessDedupKeys: ["slotOperationAttemptId"] });
@@ -370,17 +412,17 @@ add("LoadCorrectionCommand", { correctionId: R("Id"), demandId: R("Id"), slotOpe
 add("LoadCorrectionResult", { correctionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("COMPLETED", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["correctionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("LoadCancellationStartRequested", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["cancellationId", "demandId"] });
 add("LoadCancellationAuthorization", { cancellationId: R("Id"), decision: E("AUTHORIZED", "REJECTED"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), slots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }), problem: Nullable(R("Problem")) }, { businessDedupKeys: ["cancellationId", "demandId"] });
-add("LoadCancellationResult", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["cancellationId", "demandId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+add("LoadCancellationResult", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 0, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["cancellationId", "demandId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("LoadCompensationRequested", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), operator: R("OperatorContext") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "demandId", "slotOperationAttemptId"] });
 add("LoadCompensationRejected", { recoveryActionId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["recoveryActionId"] });
 add("LoadCompensationCommand", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), slots: Slots(), expectedFinalPhysicalState: S({ const: "EMPTY" }), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "demandId", "slotOperationAttemptId"], recoveryRole: "LOAD_COMPENSATION" });
 add("LoadCompensationResult", { recoveryActionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("ExceptionRecoverySessionRequested", { requestId: R("Id"), administrator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), reason: S(), authenticationProof: S({ examples: ["INVALID-PLACEHOLDER-NOT-A-SECRET"] }) }, { businessDedupKeys: ["requestId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
-add("ExceptionRecoverySessionOpened", { requestId: R("Id"), exceptionRecoverySessionId: R("Id"), openedAt: R("Instant"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["requestId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
+add("ExceptionRecoverySessionOpened", { requestId: R("Id"), exceptionRecoverySessionId: R("Id"), openedAt: R("Instant"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["requestId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionRejected", { requestId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["requestId"] });
-add("ExceptionRecoverySessionSnapshot", { exceptionRecoverySessionId: R("Id"), recoverySessionRevision: R("Revision"), state: E("OPEN", "ACTION_SELECTED", "EXECUTING", "CLOSED"), administratorId: S(), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), selectedAction: Nullable(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY")), allowedActions: A(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), { uniqueItems: true }), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }) }, { businessDedupKeys: ["exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
+add("ExceptionRecoverySessionSnapshot", { exceptionRecoverySessionId: R("Id"), recoverySessionRevision: R("Revision"), state: E("OPEN", "ACTION_SELECTED", "EXECUTING", "CLOSED"), administratorId: S(), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), selectedAction: Nullable(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY")), allowedActions: A(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), { uniqueItems: true }), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }) }, { businessDedupKeys: ["exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("RecoveryActionSubmitted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), action: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "RECOVERY_ACTION" });
-add("RecoveryActionAccepted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), acceptedAction: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), recoverySessionRevision: R("Revision"), acceptedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"], recoveryRole: "RECOVERY_ACTION" });
+add("RecoveryActionAccepted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), acceptedAction: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), recoverySessionRevision: R("Revision"), acceptedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"], recoveryRole: "RECOVERY_ACTION" });
 add("RecoveryActionRejected", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), problem: R("Problem"), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"] });
 add("HardwareRecoveryRecordSubmitted", { recordId: R("Id"), exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), operator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), slots: Slots(), checksPerformed: StringArray({ minItems: 1, uniqueItems: true }), actionsPerformed: StringArray({ minItems: 1, uniqueItems: true }), observations: StringArray({ minItems: 1 }), observedAt: R("Instant") }, { businessDedupKeys: ["recordId", "exceptionRecoverySessionId", "recoveryActionId"], recoveryRole: "HARDWARE_RECORD" });
 add("HardwareRecoveryRecordResult", { recordId: R("Id"), outcome: E("RECORDED", "REJECTED"), problem: Nullable(R("Problem")), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["recordId"] });
@@ -543,11 +585,17 @@ const envelopeFor = (spec) => {
     value.payload.operationType = "LOAD";
     value.payload.expectedFinalPhysicalState = "OCCUPIED";
   }
+  // The sampler takes the first enum value for closedReason, but loadingPhase allows a reason only
+  // once the phase is CLOSED.
+  if (spec.name === "VehicleBusinessStateSnapshot") value.payload.loadingPhase.closedReason = null;
   return value;
 };
 
 const invalidTypeValue = (schema) => {
   const resolved = resolveRef(schema);
+  // A nullable inline object needs a value that is neither branch: an object with unknown keys is
+  // rejected for its required and additionalProperties, which is not the type failure it claims.
+  if (resolved.anyOf?.some((option) => option.type === "object")) return "not-an-object";
   if (resolved.anyOf) return { definitely: "invalid" };
   if (resolved.type === "string") return 123;
   if (resolved.type === "integer" || resolved.type === "number") return "not-a-number";
@@ -573,6 +621,11 @@ for (const spec of Object.values(specs)) {
   const valid = envelopeFor(spec);
   writeJson(`examples/valid/${spec.name}/V-${spec.name}-MIN-001.json`, valid);
   const schema = JSON.parse(fs.readFileSync(path.join(root, `schemas/messages/${spec.name}.schema.json`), "utf8"));
+  const payloadNegative = (suffix, fieldPath, rule, mutate) => {
+    const vectorId = `I-${spec.name}-${suffix}`;
+    const broken = clone(valid); mutate(broken.payload);
+    writeJson(`examples/invalid/${spec.name}/${vectorId}.json`, invalidWrapper(vectorId, broken, "PROTOCOL_SCHEMA_INVALID", fieldPath, rule));
+  };
   for (const field of schema.required) {
     const broken = clone(valid); delete broken[field];
     writeJson(`examples/invalid/${spec.name}/I-${spec.name}-REQUIRED-ENVELOPE-${field}.json`, invalidWrapper(`I-${spec.name}-REQUIRED-ENVELOPE-${field}`, broken, "PROTOCOL_SCHEMA_INVALID", `/${field}`, "required"));
@@ -602,6 +655,23 @@ for (const spec of Object.values(specs)) {
       } else sortedBroken.payload[field] = [2, 1];
       writeJson(`examples/invalid/${spec.name}/I-${spec.name}-SORT-${field}.json`, invalidWrapper(`I-${spec.name}-SORT-${field}`, sortedBroken, "PROTOCOL_SCHEMA_INVALID", `/payload/${field}`, "x-sorted"));
     }
+    // An inline object field, as opposed to a shared $ref type, gets the same negatives one level
+    // down, plus one for a property the object does not declare.
+    const inline = fieldSchema.type === "object" ? fieldSchema : fieldSchema.anyOf?.find((option) => option.type === "object");
+    if (inline) {
+      for (const key of inline.required) payloadNegative(`REQUIRED-PAYLOAD-${field}-${key}`, `/payload/${field}/${key}`, "required", (payload) => { delete payload[field][key]; });
+      for (const [key, keySchema] of Object.entries(inline.properties)) {
+        const invalidValue = invalidTypeValue(keySchema);
+        if (invalidValue !== undefined) payloadNegative(`TYPE-${field}-${key}`, `/payload/${field}/${key}`, "type", (payload) => { payload[field][key] = invalidValue; });
+        if ([resolveRef(keySchema), ...(keySchema.anyOf ?? [])].some((option) => option.enum)) payloadNegative(`ENUM-${field}-${key}`, `/payload/${field}/${key}`, "enum-or-const", (payload) => { payload[field][key] = "__NOT_ALLOWED__"; });
+      }
+      payloadNegative(`ADDITIONAL-${field}`, `/payload/${field}`, "additionalProperties", (payload) => { payload[field].undeclaredProperty = "not-in-schema"; });
+    }
+  }
+  // Both sides of loadingPhase's CLOSED correspondence: a closed phase without a reason, an open one with a reason.
+  if (spec.name === "VehicleBusinessStateSnapshot") {
+    payloadNegative("IF-THEN-loadingPhase-closedReason-CLOSED", "/payload/loadingPhase/closedReason", "if-then", (payload) => { payload.loadingPhase.state = "CLOSED"; });
+    payloadNegative("IF-THEN-loadingPhase-closedReason-OPEN", "/payload/loadingPhase/closedReason", "if-then", (payload) => { payload.loadingPhase.closedReason = "PLANNED_LOADING_COMPLETE"; });
   }
   if (correlationRuleFor(spec) === "REQUIRED_ORIGINAL_MESSAGE_ID") {
     const broken = clone(valid); broken.correlationId = null;
@@ -628,10 +698,10 @@ writeJson("examples/invalid/profile/I-PROFILE-UNKNOWN-001.json", invalidWrapper(
   writeJson("examples/invalid/profile/I-ENVELOPE-STALE-SESSION-001.json", invalidWrapper("I-ENVELOPE-STALE-SESSION-001", broken, "STALE_SESSION_GENERATION", "/sessionGeneration", "semantic-session-generation"));
 }
 
-writeJson("errors/error-codes.json", { registryVersion: "1.0.0", appendOnly: true, displayMessageAuthoritative: false, codes: errorCodes });
+writeJson("errors/error-codes.json", { registryVersion: "1.1.0", appendOnly: true, displayMessageAuthoritative: false, codes: errorCodes });
 
 // Every vector carries productAssertions: what each side must be able to prove when the wire
-// trace matches. That was FP-IS-01's special case in v1; here it is mandatory for all 31, because
+// trace matches. That was FP-IS-01's special case in v1; here it is mandatory for every vector, because
 // a trace alone never distinguishes "did the right thing" from "emitted the right bytes".
 const wire = (...messages) => messages;
 const trajectories = {
@@ -674,6 +744,21 @@ const trajectories = {
   "CV-LOAD-CANCELLATION-ALL-EMPTY": {
     messages: wire("LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"),
     productAssertions: { controlServer: ["AUTHORIZE_CANCELLATION_EXPLICITLY", "RECONCILE_EMPTY_FINAL_STATE"], onboardHmi: ["PROVE_ALL_SLOTS_EMPTY", "NEVER_CANCEL_UNILATERALLY"] },
+  },
+  // Cancelled at the pickup station before any SlotOperationCommand: no slot was opened, so the
+  // result carries an empty slotResults. Four steps, not the MVP's two (protocol-v0.3.0 db064d2):
+  // ADR-cross-0046 ends this case with LoadCancellationResult as well, and the demand terminates
+  // only once that result is durably accepted.
+  "CV-LOAD-CANCELLATION-BEFORE-LOAD": {
+    messages: wire("LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"),
+    productAssertions: { controlServer: ["AUTHORIZE_CANCELLATION_WITHOUT_SLOT_OPERATION", "TERMINATE_ONLY_ON_ALL_EMPTY_RESULT"], onboardHmi: ["REPORT_ALL_EMPTY_WITHOUT_SLOT_IO", "NEVER_CANCEL_UNILATERALLY"] },
+  },
+  // BR-013 revalidates after entry; a failure comes back to the vehicle as SublotRejected with its
+  // real reason code instead of the SUBLOT silently missing from the worklist.
+  "CV-SUBLOT-REJECTED-AFTER-ENTRY": {
+    messages: wire("SublotEntryRequested", "SublotSubmitted", "SublotRejected"),
+    stableErrorCode: "PACKAGE_CAPACITY_UNRESOLVED",
+    productAssertions: { controlServer: ["REVALIDATE_SUBLOT_AFTER_ENTRY", "NEVER_UNLOCK_ON_REJECTED_ENTRY"], onboardHmi: ["DISPLAY_SERVER_REJECTION_REASON", "KEEP_ENTRY_OPEN_FOR_RESCAN"] },
   },
   "CV-PREDEPARTURE-SAFETY-EXPIRES": {
     messages: wire("PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "SafetyStateChanged", "ProtocolProblem"),
@@ -833,7 +918,7 @@ const slices = [
     authorityModel: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
     ownerResponsibilities: { controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"], onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"] },
   }],
-  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY"], {
+  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY"], {
     scope: "STATION_PICKUP_AND_MULTI_SLOT_LOAD",
     requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED"],
     authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SublotEntryRequested", "SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
@@ -1090,7 +1175,16 @@ writeJson("compatibility/report.json", {
   baseRelease: baseReleaseTag,
   classification: "BREAKING_PROTOCOL_VERSION_INCREASE",
   wireCompatibility: "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED",
-  changeSummary: `Freeze the ${profileDisplayName} protocol surface: ProtocolVersion ${protocolVersion}, profile ${profileId}, release ${candidateVersion}. Payload, delivery-class, error-registry and conformance-index changes against ${baseReleaseTag} are breaking; no negotiation and no downgrade path exist.`,
+  // One sentence per change, in the order of specification 6.3 items 1-6 plus the seventh added by 19.4.
+  changeSummary: [
+    "CurrentStopWorklistSnapshot gains a required, nullable stationDepartureDeadlineAt carrying the server-owned station departure deadline (ADR-cross-0055, ADR-cross-0058), and OPERATOR_TIMEOUT joins the error registry so the server can record its defensive determinate-failure settlement; the v2 onboard HMI does not emit that code.",
+    "Sublot entry is scoped to the dispatch rather than to one demand: SublotEntryRequested replaces demandId and the single expectedSublot with a required expectedSublots list, SublotSubmitted no longer carries demandId because the server resolves the demand, and SublotRejected carries a nullable demandId and the rejectedSublot.",
+    "LoadCancellationResult.slotResults may be empty, so a cancellation authorized before any slot operation reports ALL_EMPTY with no slots; vector CV-LOAD-CANCELLATION-BEFORE-LOAD covers it.",
+    "SublotRejected gains vector CV-SUBLOT-REJECTED-AFTER-ENTRY and three rejection reason codes, SUBLOT_NOT_IN_DISPATCH_SCOPE, SUBLOT_BOX_COUNT_UNAVAILABLE and PACKAGE_CAPACITY_UNRESOLVED, so a rejection after entry states its real cause.",
+    "VehicleBusinessStateSnapshot restores the charging fields settled in full-product ticket 06: batteryState gains MANDATORY_CHARGE and a required chargingCycleState reports where the charging cycle stands.",
+    "VehicleBusinessStateSnapshot gains a required, nullable loadingPhase object carrying the loading state, the cargo holding deadline and the reason loading closed, including a waiting-station yield.",
+    "ExceptionRecoverySessionOpened, ExceptionRecoverySessionSnapshot and RecoveryActionAccepted each gain a required, nullable slotOperationAttemptId, so a vehicle whose own attempt record is gone can still assemble LoadCompensationRequested.",
+  ],
   runtimeRule: "Exact ProtocolVersion and exact materialized ProtocolReleaseIdentity required; no negotiation.",
   optionalFieldPolicy: "No optional payload fields exist in this candidate. Future optional fields require proof that omission and ignore preserve safety and business conclusions.",
   historyPolicy: "Published tags, commits, manifests, schemas, vectors and approvals are immutable; defects require a superseding release.",
@@ -1098,8 +1192,8 @@ writeJson("compatibility/report.json", {
 writeJson("compatibility/implementation-version-matrix.json", {
   status: "CANDIDATE",
   sharedDevelopmentBaseline: {
-    dotnetSdk: "8.0.424",
-    dotnetRuntime: "8.0.30",
+    dotnetSdk: "8.0.425",
+    dotnetRuntime: "8.0.31",
     targetFrameworks: { controlServer: "net8.0", onboardHmi: "net8.0-windows" },
     runtimeIdentifiers: ["win-x64"],
     packageCompatibilityRule: "All Microsoft.Extensions and EF Core packages remain on the 8.x major line and are locked by each implementation repository; protocol wire compatibility is defined only by the materialized ProtocolReleaseIdentity.",
@@ -1114,11 +1208,13 @@ writeJson("compatibility/implementation-version-matrix.json", {
     { name: "ajv", version: "8.20.0", consumers: ["protocol G1"] },
     { name: "ajv-formats", version: "3.0.1", consumers: ["protocol G1"] },
   ],
-  requiredAction: "Install or pin SDK 8.0.424 before reproducible product builds; do not treat the observed 8.0.29 runtime as equivalent evidence.",
+  requiredAction: "Install or pin SDK 8.0.425 before reproducible product builds; do not treat the observed 8.0.29 runtime as equivalent evidence.",
 });
 
 writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis repository contains an approval-neutral **content snapshot**, not an approved ProtocolRelease. Machine-readable JSON Schema, the content manifest, the external approval attestation, errors, examples, vectors, the governance schemas and the integration-slice index are authoritative. Markdown is explanatory only.\n\nRun \`pnpm install --frozen-lockfile\`, \`pnpm manifest:finalize\` and \`pnpm g1\`. A PASS proves content and attestation consistency and reports their independent hashes. It does not turn a \`PENDING\` attestation into human G0 approval or prove either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
-writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- \`manifest/release.json\` is an approval-neutral content snapshot. It hashes all governed protocol content except itself, \`attestations/\`, \`.git/\`, \`node_modules/\`, generated \`evidence/\` and \`.github/\`.\n- \`attestations/release-approval.template.json\` is a tracked, blank template governed by its JSON Schema and excluded from the content manifest. A completed \`release-approval.json\` must remain external to Git and be uploaded as a GitHub Release Asset. This prevents the approval record from changing either the manifest hash or the commit it approves.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, content manifest hash, approval-attestation hash, schema bundle hash and vectors hash.\n- Exactly one approval of the exact commit and content manifest hash must be recorded in the attestation before an immutable tag/release is created. The approver is the product owner or, since 2026-09-12, an AI agent the product owner has authorized for that release; the attestation records which (\`approverKind\`) and, for an AI agent, who authorized it (\`authorizedBy\`). CI cannot approve.\n- This required **two** distinct product owners until 2026-09-08. The second signature was the counterpart maintainer of the onboard HMI and simulator repositories; that role ended when the project was taken over, and a rule demanding a signature nobody can give is a rule that gets worked around. Releases from 0.2.0 onward carry exactly one owner, and this v2 candidate was branched before that change reached \`main\`, so it is carried over here. On 2026-09-12 the product owner also allowed an AI agent to approve: requiring the owner to perform every release by hand added a step without adding a decision. What still holds: CI cannot approve, and the attestation records who approved — the product owner by name, or an AI agent together with the owner who authorized it — at a stated time.\n- G1 validates the content manifest and attestation independently, verifies an approved attestation points at the current content manifest, requires exactly one approval, and reports both hashes. Candidate G1 uses the tracked blank template. Release G1 sets \`PROTOCOL_APPROVAL_ATTESTATION\` to the external completed asset. The annotated tag message and GitHub release metadata must record both reported hashes.\n- The attestation never contains its own hash. Its SHA-256 is computed from its final bytes and bound externally by the annotated tag and release metadata, avoiding another self-reference.\n- Release order is fixed: freeze and push the content commit; generate the external attestation against that commit and manifest; run G1 with \`PROTOCOL_APPROVAL_ATTESTATION\`; create annotated \`protocol-v<SemVer>\` tag pointing at the frozen content commit with both hashes in its message; then publish the same attestation as a release asset.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- A conformance-index or trajectory correction may use a patch release only when it restores an already approved responsibility boundary, changes no message Schema or wire semantics, and the release approver approves that compatibility classification. It still changes the manifest/vector identity and invalidates affected G1/G2/G3 evidence.\n- Historical red evidence and released identities are immutable.\n`);
+// The ProtocolVersion collisions and release history named below are facts about released identities,
+// so they stay literal: moving the candidate constants must not rewrite them.
+writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- ProtocolVersion is scoped to a \`profileId\`: the integer increases monotonically only within one \`profileId\`, and two profiles can carry the same integer. \`WIRE_TO_GATE_MVP\` 0.2.0 and \`AGV_FULL_PRODUCT\` 1.0.0 are both ProtocolVersion 2; \`WIRE_TO_GATE_MVP\` 0.3.0 and \`AGV_FULL_PRODUCT\` 2.0.0 are both ProtocolVersion 3. Identity is therefore compared only as the complete \`ProtocolReleaseIdentity\`, never by the integer alone, and evidence and logs always write the pair \`(profileId, ProtocolVersion)\`.\n- \`manifest/release.json\` is an approval-neutral content snapshot. It hashes all governed protocol content except itself, \`attestations/\`, \`.git/\`, \`node_modules/\`, generated \`evidence/\` and \`.github/\`.\n- \`attestations/release-approval.template.json\` is a tracked, blank template governed by its JSON Schema and excluded from the content manifest. A completed \`release-approval.json\` must remain external to Git and be uploaded as a GitHub Release Asset. This prevents the approval record from changing either the manifest hash or the commit it approves.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, content manifest hash, approval-attestation hash, schema bundle hash and vectors hash.\n- Exactly one approval of the exact commit and content manifest hash must be recorded in the attestation before an immutable tag/release is created. The approver is the product owner or, since 2026-09-12, an AI agent the product owner has authorized for that release; the attestation records which (\`approverKind\`) and, for an AI agent, who authorized it (\`authorizedBy\`). CI cannot approve.\n- This required **two** distinct product owners until 2026-09-08. The second signature was the counterpart maintainer of the onboard HMI and simulator repositories; that role ended when the project was taken over, and a rule demanding a signature nobody can give is a rule that gets worked around. \`WIRE_TO_GATE_MVP\` releases from 0.2.0 onward and every \`AGV_FULL_PRODUCT\` release carry exactly one approval. On 2026-09-12 the product owner also allowed an AI agent to approve: requiring the owner to perform every release by hand added a step without adding a decision. What still holds: CI cannot approve, and the attestation records who approved — the product owner by name, or an AI agent together with the owner who authorized it — at a stated time.\n- G1 validates the content manifest and attestation independently, verifies an approved attestation points at the current content manifest, requires exactly one approval, and reports both hashes. Candidate G1 uses the tracked blank template. Release G1 sets \`PROTOCOL_APPROVAL_ATTESTATION\` to the external completed asset. The annotated tag message and GitHub release metadata must record both reported hashes.\n- The attestation never contains its own hash. Its SHA-256 is computed from its final bytes and bound externally by the annotated tag and release metadata, avoiding another self-reference.\n- Release order is fixed: freeze and push the content commit; generate the external attestation against that commit and manifest; run G1 with \`PROTOCOL_APPROVAL_ATTESTATION\`; create annotated \`protocol-v<SemVer>\` tag pointing at the frozen content commit with both hashes in its message; then publish the same attestation as a release asset.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- A conformance-index or trajectory correction may use a patch release only when it restores an already approved responsibility boundary, changes no message Schema or wire semantics, and the release approver approves that compatibility classification. It still changes the manifest/vector identity and invalidates affected G1/G2/G3 evidence.\n- Historical red evidence and released identities are immutable.\n`);
 writeText("docs/candidate-limitations.md", `# Candidate limitations and release finalization\n\nThe candidate intentionally uses structurally valid synthetic zero hashes inside envelope examples. Examples are schema fixtures, not evidence of a materialized release identity.\n\nThe manifest/approval circularity is resolved by the owner-approved governance separation recorded on 2026-08-25. \`manifest/release.json\` is an approval-neutral content snapshot and excludes \`attestations/\`; a completed external \`release-approval.json\` GitHub Release Asset binds the final immutable candidate commit and content manifest hash. The repository tracks only its blank Schema-governed template. G1 validates both artifacts and reports both hashes for the annotated tag and GitHub release metadata.\n\n**Conformance vectors are a weak binding, and this candidate makes that explicit.** No assertion executor has ever read \`input.ndjson\` or \`expected.json\`: all five were searched and every \`vectorId\` reference is a label written by a human. This candidate therefore drops the \`runner/\` contracts rather than keeping a promise of an executor that does not exist. What replaces them is an architecture test in each implementation repository asserting that every \`vectorId\` has an identically named test. G2's "the vector is the criterion" is consequently a permanent weak binding: what is mechanically guaranteed is that a vector has a corresponding test, not that its bytes were executed.\n\n\`${baseReleaseTag}\` remains immutable. The current \`${candidateVersion}\` candidate is a breaking ProtocolVersion increase to ${protocolVersion} under profile \`${profileId}\`: message payloads, the error registry and the conformance index all change, and no negotiation or downgrade path exists. Its attestation remains \`PENDING\`; its release approval — by the product owner or an AI agent the product owner authorized — must cover the new exact commit, content manifest hash, vectors hash and breaking classification before \`protocol-v${candidateVersion}\` can be created.\n`);
 
 writeJson("package.json", {
