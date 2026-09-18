@@ -87,7 +87,7 @@ ssh -L 58009:127.0.0.1:58009 factory01
 传感器一直读「未锁」，门机械卡住关不上，光幕卡在「有货」。车看到的是「门还没关好」「货还没取走」，会一直提示、一直等，
 永远不会自己判 `UNKNOWN`。车上的操作员也分辨不出这是硬件坏了还是人没做完，所以这件事交给维护管理员判断。依据是
 [`CP-0005`](../../requirements/change-proposals/CP-0005.md) 与
-[ADR-cross-0062](../adr/cross/0062-server-side-slot-fault-declaration-enters-recovery.md)（都在草稿中）。
+[ADR-cross-0062](../adr/cross/0062-server-side-slot-fault-declaration-enters-recovery.md)（2026-09-18 已批准，需求基线 `v1.4.0`）。
 
 **谁能做。**只有维护管理员或系统管理员（持异常处置权限的人）。班组长和操作员不能判故障，车上屏也没有这个入口。
 
@@ -176,3 +176,4 @@ RC 上线后才成立：
 | --- | --- | --- |
 | 2026-09-13 | 初版 | [program#55](https://github.com/trytoreachpeak0/8005-agv-program/issues/55) |
 | 2026-09-18 | 5.3 第 3 步改为指向新增的 5.4：看板「人工判故障」（`protocol-v3.0.0` 之后）与重启车载端程序的过渡办法（之前） | [program#113](https://github.com/trytoreachpeak0/8005-agv-program/issues/113)、`CP-0005`（草稿） |
+| 2026-09-18 | `CP-0005` 与 ADR-cross-0062 已批准，5.4 引言里的「都在草稿中」改为已批准；5.4 的生效条件不变 | [program#116](https://github.com/trytoreachpeak0/8005-agv-program/issues/116)，需求基线 `v1.4.0` |

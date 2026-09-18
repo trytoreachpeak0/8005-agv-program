@@ -1,6 +1,6 @@
 # 服务端确定目标仓位集合，车载端批量开锁
 
-> *2026-09-18：本文讲批量开锁（BatchUnlock）的部分拟由 [ADR-cross-0061](0061-one-slot-door-unlocked-at-a-time.md)（`proposed`）取代——业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开；随 `CP-0004` 批准生效，具体取代哪几句见该文 Consequences。其余正文不变。*
+> *2026-09-18：本文讲批量开锁（BatchUnlock）的部分由 [ADR-cross-0061](0061-one-slot-door-unlocked-at-a-time.md) 取代——业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开；已随 `CP-0004` 批准生效（2026-09-18，需求基线 `v1.4.0`），具体取代哪几句见该文 Consequences。其余正文不变。*
 
 服务端负责确定不可增删的完整目标仓位集合。第一版装货在取得不可修改的 ExpectedBasketCount 后，一次分配数量相等的目标仓位并批量开锁；卸货同样按本站完整目标集合批量开锁。SlotOperationCommand.slots 表达集合，不赋予花篮、操作员放取或关门顺序。车载端按仓位 IO 绑定将目标集合按模块分组，同一模块优先用 Modbus `0x0F` 批量开锁，跨模块并行发送。
 

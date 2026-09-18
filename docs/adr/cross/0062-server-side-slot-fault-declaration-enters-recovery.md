@@ -38,7 +38,7 @@ ADR-cross-0058 决策 2 规定「只有 `UNKNOWN` 进人工恢复」，`UNKNOWN`
    固定文字，由 `CP-0005` 第八节实现票 1 改成管理员可填写（只在会话里、由管理员填，操作工界面不加入口），上线前记在现场交接记录里。
    决策 4 上线后不再作为常规做法，只留给没到门槛但现场已明显损坏的情形。
 
-**Status**: proposed（随 `CP-0005` 批准转为 accepted）
+**Status**: accepted（2026-09-18 随 `CP-0005` 批准由 proposed 转；需求基线 `v1.4.0`）
 
 **Considered Options**:
 
