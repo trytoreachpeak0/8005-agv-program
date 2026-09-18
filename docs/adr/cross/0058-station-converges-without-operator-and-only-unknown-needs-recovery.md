@@ -112,6 +112,10 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
 2. **只有 UNKNOWN 进人工恢复。** SlotOccupancyState 为 UNKNOWN、锁闭反馈无效或开锁输出无法确认
    复位，才暂停并进入恢复。人未放料、未取料、未关门都不是 UNKNOWN。
 
+   *2026-09-18 补充：`UNKNOWN` 多了一种来源——传感器读数有效但读错、执行器出不了提示循环时，车载端上报期待动作超时，由持异常
+   处置权限的管理员在服务端依据现场事实把该仓判为 `UNKNOWN`，见 [ADR-cross-0062](0062-server-side-slot-fault-declaration-enters-recovery.md)
+   （`proposed`，随 `CP-0005` 批准生效）。车载端自己仍不因时间判 `UNKNOWN`。*
+
 3. **车载端 `OperationTimeout` 不再是判死依据。** 它退化为提示与告警的节拍，不产生业务终态。
    站点能停多久由服务端按 ADR-cross-0055 掌握，车载端只显示服务端截止时间。
 

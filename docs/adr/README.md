@@ -72,3 +72,4 @@
 | [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
 | [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除 |
 | [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开（proposed） |
+| [ADR-cross-0062](cross/0062-server-side-slot-fault-declaration-enters-recovery.md) | 仓位卡住但读数有效时，车载端上报超时，由管理员在服务端判为 UNKNOWN 进入恢复（proposed） |
