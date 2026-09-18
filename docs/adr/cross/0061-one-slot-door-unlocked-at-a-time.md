@@ -58,7 +58,7 @@ SlotOperationAttemptId，从下一个未完成的仓按同一顺序继续，未�
 - 业务提交粒度：装货整批自动提交（ADR-cross-0036、0054），8005 卸货逐仓清空业务状态（ADR-cross-0037）；
 - 站点保护与离站条件。
 
-**Status**: proposed（随 `CP-0004` 批准转为 accepted）
+**Status**: accepted（2026-09-18 随 `CP-0004` 批准由 proposed 转；需求基线 `v1.4.0`）
 
 **Considered Options**:
 
