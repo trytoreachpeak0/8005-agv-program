@@ -1115,15 +1115,17 @@ control-server#46～#57、onboard-hmi#53 于 2026-09-14 以 `not planned` 关闭
 
 | 项 | 现状 |
 | --- | --- |
-| 现行基线 | `v1.3.0`，`requirements/baselines/current-requirements-v1.3.0.md` |
-| Baseline SHA-256 | `ac74c78e6e51778898041500c6d7a897909536707c5fed96b44349aacf8fbec7`（git blob，LF） |
-| content commit | `e78cd24fa047b6599e896be6b55cd295f94cadce` |
-| tag | `requirements-baseline-v1.3.0`（已推送） |
-| 条目数 | 356 |
+| 现行基线 | `v1.4.0`，`requirements/baselines/current-requirements-v1.4.0.md`（2026-09-18 起；此前为 `v1.3.0`） |
+| Baseline SHA-256 | `ea3e3b11d131c01a5d4dfee6c7cc3c31eb6fa8205bacf3c505300277f3928d74`（git blob，LF） |
+| content commit | `3154c41fd0bef974290bc0f81ee05695f818921b` |
+| tag | `requirements-baseline-v1.4.0`（已推送） |
+| 条目数 | 359 |
 | `CP-0002` | 已批准（2026-09-15，program#85），基线 `v1.2.0`；ADR-cross-0059 `accepted`，ADR-cross-0041／0057 已加指针 |
 | `CP-0003` | 已批准（2026-09-15，program#87 草稿、#88 批准与发布）：修订 `REQ-0247`、`REQ-0248`，新增 `REQ-0356`；ADR-cross-0060 `accepted` |
+| `CP-0004` | 已批准（2026-09-18，program#112、#114 草稿，#116 批准，#117 落地）：新增 `REQ-0357`，修订 `REQ-0223`、`REQ-0353`、`REQ-0226`；ADR-cross-0061 `accepted`，与 `CP-0005` 合并升 `v1.4.0` |
+| `CP-0005` | 已批准（2026-09-18，program#114 草稿，#116 批准，#117 落地）：新增 `REQ-0358`、`REQ-0359`；ADR-cross-0062 `accepted` |
 
-第 12.2 节节点 2、第 14 节第 1 项已完成。正文各处「355 条」按第 19.3 节读作 356。
+第 12.2 节节点 2、第 14 节第 1 项已完成。正文各处「355 条」按需求基线 `v1.4.0` 读作 359。第 19.3 节记的是 `v1.3.0` 时剖面同步到 356 行；`REQ-0357`～`REQ-0359` 三行尚未进剖面，由批准后的剖面更新补上（`CP-0004` 第七节第 4 条）。
 
 `CP-0003` 一句话：
 
