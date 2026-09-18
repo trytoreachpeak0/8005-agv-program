@@ -1,5 +1,7 @@
 # 装货任务离站前可取消，但必须整批清空
 
+> *2026-09-18：本文讲批量开锁（BatchUnlock）的部分拟由 [ADR-cross-0061](0061-one-slot-door-unlocked-at-a-time.md)（`proposed`）取代——业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开；随 `CP-0004` 批准生效，具体取代哪几句见该文 Consequences。其余正文不变。*
+
 同事初稿 §2.1 原称车载端不理解任务，§2.2 将站点任务和业务时机归服务端，§23 提议通用 OperationCancelCommand。准确边界应是“车载端不拥有任务事实，但必须知道并展示本次停靠需要处理的业务”。现场需要车载界面在 CurrentStopWorklist 中展示当前停靠的待装与待卸任务，并允许操作员取消可取消的装货任务，以避免该任务再次触发车辆回到当前站点。
 
 车载端按 ADR-cross-0048 接收并显示服务端 CurrentStopWorklistSnapshot。任务项按 ADR-cross-0047 使用现有 DemandId 标识，至少包含 DemandId、SUBLOT、作业类型、ExpectedBasketCount、完成/剩余数量、状态、关联仓位摘要和服务端裁定的可用操作。已核验操作员可以提交取消请求，服务端负责验证、持久化、更新调度并返回新快照；车载端不能只在本地隐藏任务。

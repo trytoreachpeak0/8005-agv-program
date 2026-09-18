@@ -45,9 +45,9 @@
 | [ADR-cross-0032](cross/0032-explicit-message-delivery-classes.md) | 协议消息采用明确的交付类别 |
 | [ADR-cross-0033](cross/0033-onboard-publishes-abstract-safety-state-changes.md) | 车载端可靠发布抽象安全状态变化 |
 | [ADR-cross-0034](cross/0034-heartbeat-versions-detect-safety-state-gaps.md) | 心跳通过版本号发现能力与安全状态缺口 |
-| [ADR-cross-0035](cross/0035-server-orders-slots-onboard-executes-array-order.md) | 服务端确定目标仓位集合，车载端批量开锁 |
+| [ADR-cross-0035](cross/0035-server-orders-slots-onboard-executes-array-order.md) | 服务端确定目标仓位集合，车载端批量开锁（批量开锁部分拟由 ADR-cross-0061 取代） |
 | [ADR-cross-0036](cross/0036-load-batch-commit-and-hardware-fault-hold.md) | 装货整批成功才提交，硬件故障暂停等待人工处置 |
-| [ADR-cross-0037](cross/0037-unload-batch-clears-business-state-only-after-all-empty.md) | 8005 卸货跨 Sublot 批量开锁，按仓位独立清空业务状态 |
+| [ADR-cross-0037](cross/0037-unload-batch-clears-business-state-only-after-all-empty.md) | 8005 卸货跨 Sublot 批量开锁，按仓位独立清空业务状态（批量开锁部分拟由 ADR-cross-0061 取代） |
 | [ADR-cross-0038](cross/0038-new-slot-operation-attempt-id-after-compensated-load-retry.md) | 装货补偿后重试使用新的仓位操作尝试编号（已由 ADR-cross-0039 废止） |
 | [ADR-cross-0039](cross/0039-operator-starts-server-authorized-load-compensation.md) | 操作员发起、服务端授权装货补偿 |
 | [ADR-cross-0040](cross/0040-internal-light-curtain-is-slot-occupancy-evidence.md) | 仓内光幕作为仓位有货与空仓的物理证据 |
@@ -71,3 +71,4 @@
 | [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复 |
 | [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
 | [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除 |
+| [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开（proposed） |
