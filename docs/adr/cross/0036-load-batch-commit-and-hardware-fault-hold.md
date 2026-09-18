@@ -1,5 +1,7 @@
 # 装货整批成功才提交，硬件故障暂停等待人工处置
 
+> *2026-09-18：本文讲批量开锁（BatchUnlock）的部分拟由 [ADR-cross-0061](0061-one-slot-door-unlocked-at-a-time.md)（`proposed`）取代——业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开；随 `CP-0004` 批准生效，具体取代哪几句见该文 Consequences。其余正文不变。*
+
 同事初稿 §5.1 所称“总任务码”实际就是操作员输入的 Sublot。服务端根据 Sublot 解析唯一任务和不可修改的 ExpectedBasketCount，一次分配数量相等的完整仓位集合并批量开锁，同时保留逐仓结果。业务上一个任务只对应一个 Sublot，一个 Sublot 包含 1～N 个待存放花篮；因此整个任务是一个 LoadBatch，逐仓结果只是物理过程，不能形成逐仓正式业务提交。
 
 服务端在 OperationCommitPoint 前必须按 ADR-cross-0041 确认花篮数量与完整目标仓位数量相等，冻结任务、子批号、产品数量、目标仓位集合和批量执行方式，并一次性预留全部目标仓位。无法容纳整批产品时不得发送 SlotOperationCommand，车载端不得打开任何仓位。
