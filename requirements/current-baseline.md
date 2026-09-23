@@ -1,11 +1,11 @@
 # 当前需求基线
 
-- Version: `v1.4.0`
-- Baseline: [current-requirements-v1.4.0.md](baselines/current-requirements-v1.4.0.md)
-- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0004.md](change-proposals/CP-0004.md) 与 [change-proposals/CP-0005.md](change-proposals/CP-0005.md)（合并批准）
-- Baseline SHA-256: `ea3e3b11d131c01a5d4dfee6c7cc3c31eb6fa8205bacf3c505300277f3928d74`
-- Content Git Commit: `3154c41fd0bef974290bc0f81ee05695f818921b`
-- Annotated Git Tag: `requirements-baseline-v1.4.0`
+- Version: `v1.5.0`
+- Baseline: [current-requirements-v1.5.0.md](baselines/current-requirements-v1.5.0.md)
+- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0006.md](change-proposals/CP-0006.md)
+- Baseline SHA-256: `b8a64e7477732fbcd2aa80f3807a3555d45e5263e1b000cf67a7e01ef8ddf66f`
+- Content Git Commit: `087eebed24d7b72aed573c85b3c8131a75b9cf64`
+- Annotated Git Tag: `requirements-baseline-v1.5.0`
 
 本文件是唯一当前版本指针。候选版本在正式批准、提交并创建发布 tag 前不得替换此指针。
 
@@ -15,6 +15,7 @@
 
 | 版本 | 文件 | Baseline SHA-256 | Content Git Commit | Annotated Tag |
 | --- | --- | --- | --- | --- |
+| `v1.5.0` | [current-requirements-v1.5.0.md](baselines/current-requirements-v1.5.0.md) | `b8a64e7477732fbcd2aa80f3807a3555d45e5263e1b000cf67a7e01ef8ddf66f` | `087eebed24d7b72aed573c85b3c8131a75b9cf64` | `requirements-baseline-v1.5.0` |
 | `v1.4.0` | [current-requirements-v1.4.0.md](baselines/current-requirements-v1.4.0.md) | `ea3e3b11d131c01a5d4dfee6c7cc3c31eb6fa8205bacf3c505300277f3928d74` | `3154c41fd0bef974290bc0f81ee05695f818921b` | `requirements-baseline-v1.4.0` |
 | `v1.3.0` | [current-requirements-v1.3.0.md](baselines/current-requirements-v1.3.0.md) | `ac74c78e6e51778898041500c6d7a897909536707c5fed96b44349aacf8fbec7` | `e78cd24fa047b6599e896be6b55cd295f94cadce` | `requirements-baseline-v1.3.0` |
 | `v1.2.0` | [current-requirements-v1.2.0.md](baselines/current-requirements-v1.2.0.md) | `08051d5eaa2be88d4388d95fd0467c31217a9ada10dad1ab8bc813cf8ac7c782` | `8f37b73fc205104ec5ba090317d3d125016d35d8` | `requirements-baseline-v1.2.0` |
@@ -33,6 +34,7 @@ git cat-file blob <tag>:requirements/baselines/current-requirements-<版本>.md 
 
 | 版本 | 日期 | 变更提案 | 内容 |
 | --- | --- | --- | --- |
+| `v1.5.0` | 2026-09-23 | [`CP-0006`](change-proposals/CP-0006.md) | 故障恢复与订单重建：修订 `REQ-0148`（取消另可作用于按 `REQ-0164` 认定的已证明外来运行订单，对其只允许取消）、`REQ-0164`（0/1 门禁不变；订单已进入运行态、执行车辆属于 8005 当前有效的 `RiotVehicleBinding`、对照 `OrderIntent` 与订单命令审计证明不是 8005 创建的外来订单可以在 RIoT 取消，认不准只阻断告警，终结前这辆车不接新活）；新增 `REQ-0360`（本服务端的在途单在 RIoT 被取消＝误操作，同车自动重建）、`REQ-0361`（自动重建先等可配置延迟，同一需求短时间内再出问题即停并告警）、`REQ-0362`（人工清除 `FAILED` 故障后有货无货都留本车重建）、`REQ-0363`（收尾或本站结束后撤掉车载端仍挂着的站，重连后补发）。共 363 条 |
 | `v1.4.0` | 2026-09-18 | [`CP-0004`](change-proposals/CP-0004.md)、[`CP-0005`](change-proposals/CP-0005.md) | 一次只开一个仓门与仓位卡住时的出口，两份提案合并批准：`CP-0004` 新增 `REQ-0357`（业务仓位操作一次只开一扇仓门，先 FRONT 后 REAR、组内按仓位号，前一仓 `UNKNOWN` 时停下转人工，维护开门模式例外），修订 `REQ-0223`（操作员手工重开同样一次一扇）、`REQ-0353`（两组仓门同样一次一扇）、`REQ-0226`（维护开门只在整车没有未收敛的业务仓位操作时进入）；`CP-0005` 新增 `REQ-0358`（当前仓位等待操作员过久时上报服务端）、`REQ-0359`（持异常处置权限的管理员在服务端人工判故障，把该仓判为 `UNKNOWN` 进入恢复）。共 359 条 |
 | `v1.3.0` | 2026-09-15 | [`CP-0003`](change-proposals/CP-0003.md) | 急停锁住即视为停稳、人员确认后由服务端解除：新增 `REQ-0356`（服务端已登录人员确认原因已消除、车上无货、仓门已关闭并记下身份后由服务端解除，解除前订单须已终结，不重触发）；修订 `REQ-0247`（急停状态回查确认为 `CAN_RECOVER`／`CAN_NOT_RECOVER` 即视为已停稳）、`REQ-0248`（锁住后监控急停状态，人工确认后的解除不属于意外恢复）。共 356 条 |
 | `v1.2.0` | 2026-09-15 | [`CP-0002`](change-proposals/CP-0002.md) | 前后仓位分侧：新增 `REQ-0349`～`REQ-0355` 七条；修订十五条——`REQ-0191`／`0208`／`0210` 改为开门侧随分区归属指派、容量按所需仓位分组计，`REQ-0204`、`0324`、`0334`、`0335`、`0338`、`0340`、`0342`、`0343` 固定站点改按 `mapId + TASK_TYPE` 绑定，`REQ-0304`、`0336`、`0337`、`0348` 的「公共站点功能」措辞改为按任务类型、文义不变。共 355 条 |
