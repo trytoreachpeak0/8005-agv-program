@@ -30,18 +30,18 @@ ADR-cross-0058 决策 4 一并实现的 `SublotWaitTimeout` 上（`80d7c65`）�
 | 本文的名字 | 承载它的实现 |
 | --- | --- |
 | StationDepartureWaiting 状态 | `JourneyRuntimeStage.AwaitingSublot`（`ControlServer.Domain/WireToGateModels.cs:210`）。不是新状态——服务端本来就有一个“到站后等操作员录 SUBLOT”的 stage，期限挂在它上面 |
-| StationDepartureWaitTimeout 选项 | `JourneyRuntimeOptions.SublotWaitTimeout`，默认 5 分钟；`TimeSpan.Zero` 表示禁用，非零时校验要求至少 5 秒（`JourneyRuntimeOptions.cs:60`、`:110`） |
-| 计时起点 | `JourneyStopRow.SublotWaitStartedAt`，**每个停靠一份**。三处种下：发作业清单前（`JourneyRuntimeEngine.cs:988`，必须早于清单发出，否则车辆第一份快照里的倒计时是空的）、`SetStage` 进入该 stage 时（`:2219`）、断联后重填（`:547`） |
+| StationDepartureWaitTimeout 选项 | `JourneyRuntimeOptions.StationDepartureWaitTimeout`（2026-09-09 时叫 `SublotWaitTimeout`），默认 5 分钟；`TimeSpan.Zero` 表示禁用，非零时校验要求至少 5 秒 |
+| 计时起点 | `JourneyRuntimeRow.StationDepartureWaitStartedAt`（2026-09-09 时是 `JourneyStopRow.SublotWaitStartedAt`，每个停靠一份；现在挂在旅程行上，一趟旅程一份，因为同一时刻只有当前停靠在等）。种下与重填的几处：到站那一段发作业清单前（`PublishPickupStateAsync`，必须早于清单发出，否则车辆第一份快照里的倒计时是空的）、装完进入离站等待时、断联后在 `AwaitingSublot` 与 `AwaitingLoadResult` 两个分支里重填 |
 | “每个 LoadBatch 闭环后从完整时长重新计时” | `TryContinueLoadingAtStopAsync` 里的硬重置 `stop.SublotWaitStartedAt = now`（`:2418`），随下一轮作业清单一起发出 |
-| “断联使本轮截止失效，恢复握手与对账后重新计满” | 会话失效时 `WireToGateStore` 把当前停靠的 `SublotWaitStartedAt` 置 null（`WireToGateStore.cs:90`），`AwaitingSublot` 分支在 readiness gate 之后重填——落在 gate 之后即是“握手与投影对账完成之后” |
-| 到期判定 | `TryTimeOutSublotWaitAsync`（`JourneyRuntimeEngine.cs:2110` 起），只在 `AwaitingSublot` 且本轮找不到匹配 SUBLOT 时调用 |
+| “断联使本轮截止失效，恢复握手与对账后重新计满” | 作废有两处：新的一代开始握手时 `WireToGateStore.BeginSessionRecoveryAsync` 把这辆车旅程行上的 `StationDepartureWaitStartedAt` 置 null；会话不在 `Ready` 的每一轮，`JourneyRuntimeEngine.AdvanceAsync` 在就绪闸门前同样置 null。重填在闸门之后——落在闸门之后即是“握手与投影对账完成之后”。**重填的期限作为新的一版清单下发到车上**（control-server#339）：排给车的那一版清单带的期限与服务端此刻判定用的不同时，清单升一版（新的修订号、新的 messageId），等录入时录入请求跟着那一版重发。在那之前重填只发生在服务端，车上留着断联之前那一版的期限 |
+| 到期判定 | `TryEndStopAtStationDeadlineAsync`（2026-09-09 时叫 `TryTimeOutSublotWaitAsync`），只在 `AwaitingSublot` 且本轮找不到匹配 SUBLOT 时调用 |
 | “只有服务端先接受装货开始或纠错请求才退出等待” | `FindMatchingSublotAsync` 返回非空即离开等待，转入重校验与发命令 |
 | “活动仓位操作阻断倒计时离站” | 由 stage 机天然承担：有活动仓位操作时旅程在 `AwaitingLoadResult`/`AwaitingUnloadResult`，到期判定根本不会被调用（`:637` 的注释就是为此写的） |
 | “部分装货无进展达到同一时长时只告警” | ADR-cross-0058 决策 4 落成 `STATION_TIMEOUT_DOOR_NOT_CLOSED`：仓门未闭时把 `runtime.BlockReasonCode` 设成该码并持续等待，stage 仍留在 `AwaitingSublot` 而**不转 Blocked**（`:2122` 起） |
-| “车载端只显示服务端截止时间” | `StationDepartureDeadline(stop)`（`:2013`）由 `SublotWaitStartedAt + SublotWaitTimeout` 得出，随 `CurrentStopWorklistSnapshot` 的 `stationDepartureDeadlineAt` 下发（protocol-v0.3.0，服务端侧 `0f6b424`）。关卡站与超时禁用两种情况都发 `null` |
+| “车载端只显示服务端截止时间” | `JourneyRuntimeEngine.StationDepartureDeadline(runtime, timeout)` 由 `StationDepartureWaitStartedAt + StationDepartureWaitTimeout` 得出，随 `CurrentStopWorklistSnapshot` 的 `stationDepartureDeadlineAt` 下发（protocol-v0.3.0，服务端侧 `0f6b424`）。关卡站与超时禁用两种情况都发 `null` |
 | `CANCELLED_BY_STATION_TIMEOUT` | 到期且仓门已闭时，对本停靠全部待装需求调 `CancelDemandBeforeLoadAsync`，并由 `TransportDemandSuppressions` 按 TransportDemandKey 写永久禁令（ADR-cross-0058 决策 7） |
 | `CANCELLED_BY_STOP_COMPLETE` | 终态已注册（`WireToGateStore.cs:1205`）并在用，但**写它的不是操作员按钮**：`grep StopComplete` 在服务端零命中，实际由 `ConcludeLoadingStopAsync` 的 `HoldingExpired` 分支写入。**“已核验操作员主动结束本站”这个入口尚未实现** |
-| StationDepartureWaitPolicy 的站点覆盖 | **未实现**，只有全局选项。当前没有需要不同时长的站点；真要加，落点是这个选项按 StationId 取值，判定点 `TryTimeOutSublotWaitAsync` 与下发点 `StationDepartureDeadline` 从同一处读，两边不会分叉 |
+| StationDepartureWaitPolicy 的站点覆盖 | **未实现**，只有全局选项。当前没有需要不同时长的站点；真要加，落点是这个选项按 StationId 取值，判定点 `TryEndStopAtStationDeadlineAsync` 与下发点 `StationDepartureDeadline` 从同一处读，两边不会分叉 |
 
 ### 为什么没有一个叫 StopClosureCommit 的动作
 
@@ -70,6 +70,8 @@ operation 的需求会抛 `BusinessIdentityConflictException`，不是跳过。�
    期限过后再宽限一轮，第二次读到仍是相反态就报 `FAILED` / `OPERATOR_TIMEOUT`（车载端 `3d8206f`，
    8005-agv-program#24）。期限仍由服务端算、服务端发；本文“车载端只显示服务端截止时间”在这一格收窄为
    “车载端按服务端截止时间执行”。
+   **2026-09-23 更正：这一格与当前的 v2 车载端不符**（见文末 2026-09-23 核对）。v2 车载端过了期限只改显示、不结算失败、
+   不报 `OPERATOR_TIMEOUT`，“车载端只显示服务端截止时间”在这一格重新成立。
 2. **“部分装货无进展只告警”那一行的告警码有两个产地，现场可达的是另一个。**`STATION_TIMEOUT_DOOR_NOT_CLOSED`
    在 `AwaitingLoadResult` 由 `ReconcileStationTimeoutDoorNotClosedAsync` 挂上（`d36f11b`），2026-09-11 在
    真车上观测到（ADR-cross-0058 Verification，SC1-C-01）。表里写的 `AwaitingSublot` 那一处代码还在，但那一格
@@ -80,6 +82,29 @@ operation 的需求会抛 `BusinessIdentityConflictException`，不是跳过。�
    装载确定失败（8005-agv-program#39，`de3960e`：服务端以 `CANCELLED_BY_STATION_TIMEOUT` 终结需求后进这一支）。
    它的尾部仍是 `TryContinueLoadingAtStopAsync` 不成立时的 `ConcludeLoadingStopAsync`，所以“一段共同尾部而非
    具名动作”的判断不变。确定失败这个入口之所以归本文管，是因为车辆只在本站期限过后再宽限一轮才报 `FAILED`，
-   它到达时关站条件已经成立。
+   它到达时关站条件已经成立。（2026-09-23：这个前提在 v2 车载端上不再成立，它不因期限报 `FAILED`，见文末核对。
+   服务端这个入口仍在，只是不再由站点期限触发。）
 
 “已核验操作员主动结束本站”入口仍不存在（服务端 `StopComplete` 仍零命中），站点覆盖仍未实现。
+
+## 实现映射核对（2026-09-23）
+
+control-server#339 按服务端 `fc3dda3c`（`fp/v2-impl`）与 v2 车载端核了一遍，改了三样；决策没有变。
+
+1. **车载端那一格（上一节第 1 条）与当前 v2 车载端不符，已在原处更正。**cs#331 作者读车载端 `1184bb07`
+   （当时 `w2g/fp-v2-impl` 的顶端）：`WireToGateBusinessService.StationDeadlinePassed()` 每次从最新一版清单读期限，
+   过没过只用来选操作提示文案；界面到期文案是“已到期，等待本站结束”（`StationDepartureCountdownFormatter`）；
+   `WireToGateSessionClient` 的注释写明 `OPERATOR_TIMEOUT` 不在这里产生，“past the station departure deadline this
+   onboard reopens rather than settling a determinate failure”。也就是说，v2 车载端过了期限只改显示，不结算失败、
+   不报 `OPERATOR_TIMEOUT`、不动仓门，也不作废或重新计满期限，永远照最新一版清单上的 `stationDepartureDeadlineAt` 判。
+2. **“断联使本轮截止失效，重新计满”那一行补上了下发。**因为车载端永远照最新一版清单上的期限显示，只在服务端重填，
+   现场看到的就不是服务端判定用的那一个：旧期限在断联期间已过时，车上显示“已到期”，服务端却刚重新计满。
+   control-server#339 起，重填出来的期限与排给车的那一版不同时，清单升一版下发。
+3. **表里的名字按当前代码改了**：`SublotWaitTimeout` → `StationDepartureWaitTimeout`，
+   `JourneyStopRow.SublotWaitStartedAt` → `JourneyRuntimeRow.StationDepartureWaitStartedAt`，`TryTimeOutSublotWaitAsync` →
+   `TryEndStopAtStationDeadlineAsync`，`WireToGateStore.cs:90` → `WireToGateStore.BeginSessionRecoveryAsync`；改过的这几行去掉了行号，
+   按名字查。
+
+这次**没有**核、原样留着的：`TryContinueLoadingAtStopAsync`、`CancelDemandBeforeLoadAsync`、`ConcludeLoadingStopAsync`
+三个名字在服务端 `src/` 里零命中，它们所在的三行（每个 LoadBatch 闭环后重新计时、`CANCELLED_BY_STATION_TIMEOUT`、
+`CANCELLED_BY_STOP_COMPLETE`）需要另外按现在的代码核，control-server#339 不涉及这三行。
