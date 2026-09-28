@@ -81,6 +81,17 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:09:37 首次回读即 `emergencyState=CAN_RECOVER`。
 - 16:09:37～16:09:48 共 8 次采样：`orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0、位移 0，全程不变。
 
+#### A4 `release`（`phase=A-release`，经调度转来「就位」后带 `-Ready`）— `MATCH`
+
+- 16:10:53 `POST /api/device/v1/command/sync/service/BROKERX-7daca4ee…1127/cancelEmergency`（body 形状同 A3）→ `code=0`。
+- 16:10:54、16:10:55、16:10:56 回读仍 `CAN_RECOVER`；16:10:57 读到 `OK`（发出到解开约 4 秒）。其间 `orderState=7`、车速 0、位移 0。
+
+#### A5 `observe`（`phase=A-observe`）— `MATCH`
+
+- 16:11:00～16:11:59 共 42 次采样：`orderState` 42 次均为 `7`，`USER_FORCE_IDLE`、`MT_PAUSED`、`emergencyState=OK`，两个接口车速均 0。
+- 16:10:57（A4 末次）到 16:11:00（A5 首次）之间约 3 秒无采样（两阶段衔接），前后读数相同。
+- 16:11:44、16:11:45 两次坐标变化 6 mm、5 mm（车速 0），下一采样即回 0。推的：定位读数抖动；远低于中止判据 50 mm，照实记录。
+
 ### 运行 B
 
 未执行。
