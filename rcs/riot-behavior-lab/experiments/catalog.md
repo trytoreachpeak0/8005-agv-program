@@ -26,6 +26,7 @@
 | E 移动订单 | E2 | 监控订单直到到站 | 只读（依赖 E1） |
 | E 移动订单 | E3 | 对进行中订单做 interrupt | 写 |
 | E 移动订单 | E4 | 按车查积压订单并清队后再派 | 写 |
+| E 移动订单 | E5 | HELD 叠加软件急停与解除 | 写（动车、急停） |
 | F 充电调度 | F1 | 指定该车充电 | 写 |
 | G 停靠 | G1 | 空闲返停靠点 | 写 |
 | H 启停设备 | H1 | disable 测试车 | 写 |
@@ -426,6 +427,19 @@ flowchart TB
   1. `deviceKey` 传不存在的设备 → 期待：报错，不影响测试车或其它车的启用状态（与 H1 反例对称）。
 - **风险等级**：写-可逆
 - **人工干预**：可能需要：API enable 失败时由用户在 UI 重新启用，避免测试车留下禁用。
+
+---
+
+#### E5 HELD 叠加软件急停与解除
+
+- **测试意图**：订单已 `HELD(7)` 时再 `triggerEmergency` → `cancelEmergency`，订单是否保持 `7`、车是否保持静止；解除后 `CONTINUE_FROM_HELD` 是否仍有效；急停锁住期间 CONTINUE 是否被接受。
+- **前置条件**：测试车在目标地图上、已定位、在站上、空闲、名下无未完成订单、不在车组；路段双向可达，且不与生产车可能经过的路段重合；车空载，现场有人、物理急停可按。
+- **测试程序**（写）：单段 `move` 建单（可带 `speed` 限速）→ 车确实在走后立即 `CMD_ORDER_HELD` → 静止稳定 → `triggerEmergency` → `cancelEmergency` → 观察 60 秒 → `CMD_ORDER_CONTINUE_FROM_HELD` → 跑到 `SUCCESS`。第二格：锁住期间发 `CONTINUE_FROM_HELD`。
+- **预期结果**：见 `BC-ORDER-020`（Round44 首测）。
+- **反例/边界**：锁住期间 CONTINUE 被接受后再解除急停，车可能自行继续（Round44 未测，`INFERRED`）；做这一格要事先确认路段与现场。
+- **风险等级**：写-会动车、会发急停。每次运行单独授权；任何「不该动时动了」立即再 `triggerEmergency`。
+- **人工干预**：会让车动的命令（建单、解除急停、CONTINUE）之前等现场人员「就位」；读数给不了的「有没有蠕动」由现场口头报告。
+- **执行器**：[`../evidence/rounds/2026-09-28-round-44/run-round44.ps1`](../evidence/rounds/2026-09-28-round-44/run-round44.ps1)（一次一个阶段；会让车动的阶段不带 `-Ready` 即拒绝）。
 
 ---
 

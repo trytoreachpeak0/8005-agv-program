@@ -93,6 +93,34 @@ order=5 SUCCESS + IDLE
 
 证据：[`../evidence/rounds/2026-07-20-round-10/`](../evidence/rounds/2026-07-20-round-10/)
 
+### HELD 叠加软件急停（Round 44，`OBSERVED`；生产 RIoT map 26）
+
+```text
+order=7 + USER_FORCE_IDLE + MT_PAUSED + emergency=OK
+  --triggerEmergency-->
+order=7 + USER_FORCE_IDLE + MT_PAUSED + emergency=CAN_RECOVER
+  --cancelEmergency--> （约 4～5 秒）
+order=7 + USER_FORCE_IDLE + MT_PAUSED + emergency=OK      ← 60 秒不变，车不动
+  --CMD_ORDER_CONTINUE_FROM_HELD-->
+order=3 + PROCESSING_ORDER + MT_RUNNING，车速 0，state=PAUSE   ← 约 16 秒
+order=3 + PROCESSING_ORDER + MT_RUNNING，车速>0
+  -->
+order=5 SUCCESS + IDLE
+
+另一分支：
+order=7 + emergency=CAN_RECOVER
+  --CMD_ORDER_CONTINUE_FROM_HELD-->（code=0，被接受）
+order=3 + PROCESSING_ORDER + MT_PAUSED + emergency=CAN_RECOVER，车不动
+  --CMD_ORDER_CANCEL-->
+order=2 + IDLE + MT_FINISHED + emergency=CAN_RECOVER
+  --cancelEmergency-->
+order=2 + IDLE + emergency=OK，车不动
+```
+
+未测：`order=3 + CAN_RECOVER` 直接 `cancelEmergency` 之后车是否自行继续。另：订单执行期间 `controlState` 始终 `CONTROL_STATE_ERR`，与急停无关；行驶中避障暂停时订单仍 `3`、`MT_RUNNING`，只有车辆 `state/sysState=PAUSE`。
+
+证据：[`../evidence/rounds/2026-09-28-round-44/`](../evidence/rounds/2026-09-28-round-44/)；契约 `BC-ORDER-020`
+
 ### 幂等（Round 10）
 
 相同 `upperId` 在 SUCCESS / EXECUTING 下再次建单 → 业务拒绝 `0610008`，状态面不变。
