@@ -92,9 +92,39 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:10:57（A4 末次）到 16:11:00（A5 首次）之间约 3 秒无采样（两阶段衔接），前后读数相同。
 - 16:11:44、16:11:45 两次坐标变化 6 mm、5 mm（车速 0），下一采样即回 0。推的：定位读数抖动；远低于中止判据 50 mm，照实记录。
 
+#### A5'（约 16:12，经调度）
+
+用户在现场确认车没动过；同时给出 A6 的「就位」。
+
+#### A6 `continue`（`phase=A-continue`，带 `-Ready`）— `MATCH`
+
+- 16:13:06 `POST /api/task/v1/order/command/order-2104483377808801792` `{"commandType":"CMD_ORDER_CONTINUE_FROM_HELD","disableVehicle":false,"reason":"riot-behavior-lab-R44-A-continue"}`，161 ms → `code=0`。
+- 16:13:07 首次回读即 `orderState=3`、`PROCESSING_ORDER`、`MT_RUNNING`；**但车速 0、坐标不变，车辆卡片 `sysState=PAUSE`、车辆详情 `state=PAUSE`、`paused=true`，持续到 16:13:21**。
+- 16:13:22 `state`/`sysState` 变 `EXECUTING`；16:13:23 车速 0.3、位移 234 mm。从命令到真正起步约 16 秒，在事先时限 20 秒内。
+
+#### A7 `run-to-end`（`phase=A-run-to-end`）— `MATCH`
+
+- 16:16:13 `orderState=5`、`currentStation=155`、`IDLE`、`MT_FINISHED`。行驶车速 0.3。
+- 行驶中车速为 0 的停顿（`orderState` 始终 3，`movementState` 始终 `MT_RUNNING`）：
+  | 时间 | 位置 | 朝向 | `state` | 解读 |
+  | --- | --- | --- | --- | --- |
+  | 16:13:45～16:13:52 | 拐角 `(-56630, -35670)` | 12 → 1572 | 先 `PAUSE` 约 2 秒，后 `EXECUTING` | 原地转向（朝向在变） |
+  | 16:14:08～16:14:13 | 拐角 `(-56634, -31256)` | 1575 → 3140 | `EXECUTING` | 原地转向 |
+  | **16:14:53～16:15:29** | **直道中段 `(-65590, -31227)`，站 159/160 附近** | **3140 不变** | **`PAUSE`，`paused=true`** | **车自停 36 秒，原因读数不可辨**；无故障码、`emergencyState=OK`、本实验此时无任何写请求 |
+  | 16:15:48～16:15:54 | 直道 | 不变 | `PAUSE` | 自停约 6 秒 |
+- `controlState` 从 16:08:31 订单开始执行起一直是 `CONTROL_STATE_ERR`，到 16:16:13 到站才回 `OK`；它**早于**急停出现，不能把上述停顿归因于急停。`paused` 字段在基线空闲时也是 `true`，不能单独用。
+- 已请用户回忆 16:15 前后车前方是否有人或物（避障）。
+
+#### A8 `final`（`phase=A-final`）— `MATCH`
+
+16:16:15：名下无未完成订单，`OK`，`IDLE`，静止，`currentStation=155`。
+
 ### 运行 B
 
-未执行。
+#### B0 `baseline` + `routecheck`（`phase=B-baseline` / `B-routecheck`）— `MATCH`
+
+- B0：`currentStation=155`，26 号图，已定位，`OK`，`IDLE`，名下无单。
+- 16:17:08 `getRouteCostsBy` `{"mapId":26,"stationId":151,...}` → `costs=32060`、`ok`。自算 31060，差 1000 mm（阈值 ≤2000）；155→151 在路网上只有一条路（去掉其上任一条边即不可达），判为同一路线。
 
 ## 本轮结论
 
