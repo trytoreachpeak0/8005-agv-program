@@ -25,6 +25,8 @@ param(
     [int]$ObserveSeconds = 60,
     [double]$Speed = 0,
     [switch]$HoldOnMotion,
+    # The single on-site operator's "就位" (at the vehicle, hand on the physical e-stop), relayed by the coordinator.
+    [switch]$Ready,
     [switch]$ExpectResumeAfterRelease
 )
 
@@ -185,6 +187,12 @@ function Test-Precondition($s) {
 function Get-OpenOrdersForVehicle {
     $r = Invoke-Riot GET '/api/order/v1/orderRecord?pageNum=1&pageSize=200&filterByState=1&filterByState=3&filterByState=7&filterByState=9'
     return @($r.parsed.result.records | Where-Object { $_.appointVehicleKey -eq $Key -or $_.executeVehicleKey -eq $Key })
+}
+
+# Phases that can make the vehicle move refuse to run without the relayed "就位".
+if ($Phase -in 'create', 'release', 'continue', 'continue-in-emergency' -and -not $Ready) {
+    Write-Host "REFUSED phase '$Phase' can move the vehicle: wait for the operator's relayed 就位, then pass -Ready"
+    exit 4
 }
 
 $st = Read-State
