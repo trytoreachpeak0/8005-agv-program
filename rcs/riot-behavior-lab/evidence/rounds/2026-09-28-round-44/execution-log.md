@@ -83,8 +83,8 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 
 #### A4 `release`（`phase=A-release`，经调度转来「就位」后带 `-Ready`）— `MATCH`
 
-- 16:10:53 `POST /api/device/v1/command/sync/service/BROKERX-7daca4ee…1127/cancelEmergency`（body 形状同 A3）→ `code=0`。
-- 16:10:54、16:10:55、16:10:56 回读仍 `CAN_RECOVER`；16:10:57 读到 `OK`（发出到解开约 4 秒）。其间 `orderState=7`、车速 0、位移 0。
+- 16:10:52 `POST /api/device/v1/command/sync/service/BROKERX-7daca4ee…1127/cancelEmergency`（body 形状同 A3，`messageId=801016`），474 ms → `code=0`。
+- 16:10:54、16:10:55、16:10:56 回读仍 `CAN_RECOVER`；16:10:57 读到 `OK`（发出到解开约 5 秒）。其间 `orderState=7`、车速 0、位移 0。
 
 #### A5 `observe`（`phase=A-observe`）— `MATCH`
 
