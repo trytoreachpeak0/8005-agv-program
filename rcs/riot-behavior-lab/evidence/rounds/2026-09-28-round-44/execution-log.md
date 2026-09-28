@@ -71,6 +71,16 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:08:35 位移 3 mm；16:08:37～16:08:40 位移均为 0，车速 0。稳定 ≥5 秒，判 `MATCH`。
 - 附带发现：mission 的 `speed` 字段**生效**——下单 0.3，行驶中读到的车速就是 0.3（此前仅 `SCHEMA`）。
 
+#### A2'（约 16:09，经调度）
+
+用户口头报：车停稳了，没有蠕动。
+
+#### A3 `trigger`（`phase=A-trigger`）— `MATCH`
+
+- 16:09:36 `POST /api/device/v1/command/sync/service/BROKERX-7daca4ee…1127/triggerEmergency`，body `{"messageId":768210,"mqCallback":{"tag":"string","topic":"string"},"thingsProperties":{}}`，213 ms → `code=0`，`data.responseState=RESPONSE_OK`。
+- 16:09:37 首次回读即 `emergencyState=CAN_RECOVER`。
+- 16:09:37～16:09:48 共 8 次采样：`orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0、位移 0，全程不变。
+
 ### 运行 B
 
 未执行。
