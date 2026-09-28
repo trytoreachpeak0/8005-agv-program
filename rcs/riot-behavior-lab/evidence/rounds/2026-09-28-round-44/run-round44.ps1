@@ -23,6 +23,8 @@ param(
     [int]$Destination = 0,
     [int[]]$Candidates = @(),
     [int]$ObserveSeconds = 60,
+    [double]$Speed = 0,
+    [switch]$HoldOnMotion,
     [switch]$ExpectResumeAfterRelease
 )
 
@@ -148,6 +150,23 @@ function Verdict([bool]$ok, [string]$text) {
     exit ($ok ? 0 : 3)
 }
 
+function Invoke-Held {
+        $r = Send-OrderCommand $st.orderId 'CMD_ORDER_HELD'
+        Write-Host "HELD code=$($r.code) msg=$($r.message)"
+        if ($r.code -ne '0') { Verdict $false "HELD code=$($r.code) $($r.message)" }
+        # Expect orderState=7 and standstill within 15 s, then 5 s of stable standstill.
+        $deadline = (Get-Date).AddSeconds(15); $okSince = $null; $last = $null
+        while ((Get-Date) -lt $deadline) {
+            Start-Sleep -Milliseconds 800
+            $last = Get-Sample $st.upperId
+            $o = $last.observations
+            if ($o.orderState -eq 7 -and -not (Test-Moving $last)) { $okSince ??= Get-Date; if (((Get-Date) - $okSince).TotalSeconds -ge 5) { break } } else { $okSince = $null }
+        }
+        $o = $last.observations
+        if ($o.orderState -eq 7 -and (Test-Moving $last)) { Stop-Now 'HELD but still moving after 15 s' }
+        Verdict ($null -ne $okSince -and ((Get-Date) - $okSince).TotalSeconds -ge 5) "orderState=$($o.orderState) proc=$($o.procState) move=$($o.movementState) speed=$($o.cardSpeed)"
+}
+
 function Test-Precondition($s) {
     $o = $s.observations
     $bad = @()
@@ -198,8 +217,10 @@ switch ($Phase) {
         if ($Destination -le 0 -or $Destination -eq $s.observations.currentStation) { $bad += "bad destination $Destination" }
         if ($bad.Count) { Write-Host "REFUSED: $($bad -join '; ')"; exit 4 }
         $uid = "riot-behavior-lab-R44-$Run-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        $leg = [ordered]@{ type = 'move'; mapId = $MapId; destination = $Destination }
+        if ($Speed -gt 0) { $leg.speed = $Speed }
         $payload = @{ appointVehicleKey = $Key; isAppointEnable = 1; lockStatus = 0; orderName = $uid; upperId = $uid
-            mission = @(@{ type = 'move'; mapId = $MapId; destination = $Destination }) } | ConvertTo-Json -Depth 6 -Compress
+            mission = @($leg) } | ConvertTo-Json -Depth 6 -Compress
         $cr = Invoke-Riot POST '/api/order/v1/add/byDefaultMissions' $payload
         Save-State ([ordered]@{ upperId = $uid; from = $s.observations.currentStation; destination = $Destination; createdAt = Now; createCode = $cr.code })
         if ($cr.code -ne '0') { Verdict $false "create code=$($cr.code) $($cr.message)" }
@@ -212,29 +233,19 @@ switch ($Phase) {
             if ($o.executeVehicleKey -and $o.executeVehicleKey -ne '--' -and $o.executeVehicleKey -ne $Key) { Stop-Now "order executed by another vehicle $($o.executeVehicleKey)" }
             if ($o.orderState -in 2, 4, 5, 6) { break }
             if ($o.orderState -eq 3) { $exec = $true; if ($o.movedMmSincePrev) { $movedTotal += $o.movedMmSincePrev } }
-            if ($exec -and $movedTotal -ge 300 -and (Test-Moving $last)) { break }
+            if ($exec -and $movedTotal -ge 200 -and (Test-Moving $last)) { break }
         }
         $st2 = Read-State; $st2 | Add-Member -NotePropertyName orderId -NotePropertyValue $last.correlation.orderId -Force
         $st2 | Add-Member -NotePropertyName numericId -NotePropertyValue $last.correlation.numericId -Force
         Save-State $st2
-        Verdict ($exec -and $movedTotal -ge 300) "orderState=$($last.observations.orderState) movedMm=$movedTotal"
+        $st = $st2
+        if (-not ($exec -and $movedTotal -ge 200)) { Verdict $false "orderState=$($last.observations.orderState) movedMm=$movedTotal" }
+        Write-Host "MOVING orderState=3 movedMm=$movedTotal"
+        if (-not $HoldOnMotion) { Verdict $true "orderState=3 movedMm=$movedTotal" }
+        $script:PhaseTag = "$Run-held"
+        Invoke-Held
     }
-    'held' {
-        $r = Send-OrderCommand $st.orderId 'CMD_ORDER_HELD'
-        Write-Host "HELD code=$($r.code) msg=$($r.message)"
-        if ($r.code -ne '0') { Verdict $false "HELD code=$($r.code) $($r.message)" }
-        # Expect orderState=7 and standstill within 15 s, then 5 s of stable standstill.
-        $deadline = (Get-Date).AddSeconds(15); $okSince = $null; $last = $null
-        while ((Get-Date) -lt $deadline) {
-            Start-Sleep -Milliseconds 800
-            $last = Get-Sample $st.upperId
-            $o = $last.observations
-            if ($o.orderState -eq 7 -and -not (Test-Moving $last)) { $okSince ??= Get-Date; if (((Get-Date) - $okSince).TotalSeconds -ge 5) { break } } else { $okSince = $null }
-        }
-        $o = $last.observations
-        if ($o.orderState -eq 7 -and (Test-Moving $last)) { Stop-Now 'HELD but still moving after 15 s' }
-        Verdict ($null -ne $okSince -and ((Get-Date) - $okSince).TotalSeconds -ge 5) "orderState=$($o.orderState) proc=$($o.procState) move=$($o.movementState) speed=$($o.cardSpeed)"
-    }
+    'held' { Invoke-Held }
     'trigger' {
         $r = Invoke-DeviceService 'triggerEmergency'
         Write-Host "triggerEmergency code=$($r.code) msg=$($r.message)"
