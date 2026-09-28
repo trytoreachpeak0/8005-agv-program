@@ -137,6 +137,15 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:20:08 `orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0（该采样位移 166 mm，制动过程）；16:20:09～16:20:15 位移 0。
 - 判据要求 HELD `code=0` 且 `orderState=7` 且静止 5 秒，避障停车（订单仍 3）不会满足。
 
+#### B1'（约 16:20，经调度）
+
+用户确认车停稳、没有蠕动。
+
+#### B2 `trigger`（`phase=B-trigger`）— `MATCH`
+
+- 16:20:58 `triggerEmergency`（messageId=867375），129ms → `code=0`。
+- 16:21:00 首次回读即 `CAN_RECOVER`；16:21:00～16:21:10 共 10 次采样：`orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0、位移 0。
+
 ## 本轮结论
 
 未执行。
