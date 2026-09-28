@@ -146,6 +146,12 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:20:58 `triggerEmergency`（messageId=867375），129ms → `code=0`。
 - 16:21:00 首次回读即 `CAN_RECOVER`；16:21:00～16:21:10 共 10 次采样：`orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0、位移 0。
 
+#### B3 `continue-in-emergency`（`phase=B-continue-in-emergency`，经调度转来「就位」后带 `-Ready`）— 无事先预期，记为发现
+
+- 16:24:06.888 `POST /api/task/v1/order/command/order-2104486291436601344` `{"commandType":"CMD_ORDER_CONTINUE_FROM_HELD",...}`，173 ms → HTTP 200、**`code=0`**。
+- 16:24:08～16:24:27 共 17 次采样：**`orderState=3`、`PROCESSING_ORDER`**，`emergencyState=CAN_RECOVER`，`movementState=MT_PAUSED`，车速 0，位移 0。
+- 即：急停锁住期间 `CONTINUE_FROM_HELD` 被接受，订单立即由 `HELD(7)` 回到 `EXECUTING(3)`；此后让车停着的只有急停。
+
 ## 本轮结论
 
 未执行。

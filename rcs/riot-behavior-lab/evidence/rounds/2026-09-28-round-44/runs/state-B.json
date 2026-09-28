@@ -5,5 +5,10 @@
   "createdAt": "2026-09-28T16:20:00.803+08:00",
   "createCode": "0",
   "orderId": "order-2104486291436601344",
-  "numericId": 1733838
+  "numericId": 1733838,
+  "continueInEmergency": {
+    "code": "0",
+    "message": "成功",
+    "orderStateAfter": 3
+  }
 }
