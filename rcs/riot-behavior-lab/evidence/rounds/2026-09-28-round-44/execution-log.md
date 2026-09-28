@@ -108,12 +108,12 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 行驶中车速为 0 的停顿（`orderState` 始终 3，`movementState` 始终 `MT_RUNNING`）：
   | 时间 | 位置 | 朝向 | `state` | 解读 |
   | --- | --- | --- | --- | --- |
-  | 16:13:45～16:13:52 | 拐角 `(-56630, -35670)` | 12 → 1572 | 先 `PAUSE` 约 2 秒，后 `EXECUTING` | 原地转向（朝向在变） |
+  | 16:13:45～16:13:52 | 拐角 `(-56630, -35670)` | 12 → 1572 | 先 `PAUSE` 约 2 秒，后 `EXECUTING` | 原地转向（朝向在变）；其前约 2 秒的 `PAUSE` 原因未明（未询问） |
   | 16:14:08～16:14:13 | 拐角 `(-56634, -31256)` | 1575 → 3140 | `EXECUTING` | 原地转向 |
-  | **16:14:53～16:15:29** | **直道中段 `(-65590, -31227)`，站 159/160 附近** | **3140 不变** | **`PAUSE`，`paused=true`** | **车自停 36 秒，原因读数不可辨**；无故障码、`emergencyState=OK`、本实验此时无任何写请求 |
-  | 16:15:48～16:15:54 | 直道 | 不变 | `PAUSE` | 自停约 6 秒 |
+  | **16:14:53～16:15:29** | **直道中段 `(-65590, -31227)`，站 159/160 附近** | **3140 不变** | **`PAUSE`，`paused=true`** | **现场人员靠近导致避障暂停**（用户口述，经调度转达），`sysState=PAUSE`，无故障码，`emergencyState=OK`，本实验此时无任何写请求 |
+  | 16:15:48～16:15:54 | 直道 | 不变 | `PAUSE` | 自停约 6 秒，原因未明（未询问） |
 - `controlState` 从 16:08:31 订单开始执行起一直是 `CONTROL_STATE_ERR`，到 16:16:13 到站才回 `OK`；它**早于**急停出现，不能把上述停顿归因于急停。`paused` 字段在基线空闲时也是 `true`，不能单独用。
-- 已请用户回忆 16:15 前后车前方是否有人或物（避障）。
+- 以上停顿中 `movementState` 始终是 `MT_RUNNING`，显示暂停的是 `state`/`sysState`。
 
 #### A8 `final`（`phase=A-final`）— `MATCH`
 
@@ -125,6 +125,17 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 
 - B0：`currentStation=155`，26 号图，已定位，`OK`，`IDLE`，名下无单。
 - 16:17:08 `getRouteCostsBy` `{"mapId":26,"stationId":151,...}` → `costs=32060`、`ok`。自算 31060，差 1000 mm（阈值 ≤2000）；155→151 在路网上只有一条路（去掉其上任一条边即不可达），判为同一路线。
+
+#### 授权（约 16:19，经调度）
+
+运行 B 建单的「就位」：用户在车旁。
+
+#### B1 `create` + 自动 `held`（`phase=B-create` / `B-held`）— `MATCH`
+
+- 16:20:00 建单 155→151，`speed=0.3` → `code=0`（`orderId`/`upperId` 见 `runs/state-B.json`）。
+- 16:20:05 `orderState=3`；16:20:07 车速 0.3、累计位移 315 mm → 自动 `CMD_ORDER_HELD` → `code=0`。
+- 16:20:08 `orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0（该采样位移 166 mm，制动过程）；16:20:09～16:20:15 位移 0。
+- 判据要求 HELD `code=0` 且 `orderState=7` 且静止 5 秒，避障停车（订单仍 3）不会满足。
 
 ## 本轮结论
 
