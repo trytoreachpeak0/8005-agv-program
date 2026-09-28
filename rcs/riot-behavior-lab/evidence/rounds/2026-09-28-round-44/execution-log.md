@@ -162,8 +162,44 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:25:53 `orderState=2`、`IDLE`、`MT_FINISHED`、`emergencyState=CAN_RECOVER`、车速 0；`currentStation=0`（两站之间）。
 - 16:25:54 以 `final` 阶段只读复读一次（`phase=B-final`，此时急停仍锁，故该阶段判 `MISMATCH` 是预期的，不是异常）：名下无未完成订单，读数同上。
 - 附带：急停锁住时 `CMD_ORDER_CANCEL` 可用。
-- 脚本改动：`release`/`observe` 原写死「订单保持 7，否则再急停」；增加 `-ExpectOrderState`（默认 7），B4-2 传 2。运动判据不变。
+- 脚本改动（**本轮临时加的，原计划没有**）：`release`/`observe` 原写死「订单保持 7，否则立即再急停」。订单已取消成 2 后照原样跑会误触发急停，所以增加 `-ExpectOrderState`（默认 7），B4-2 传 2。运动判据（车速 >0.005 或位移 >50 mm 即再急停）不变。调度确认过这个改动。
+
+#### B4-2 `release` + `observe`（`phase=B-release` / `B-observe`，经调度转来「就位」后带 `-Ready`，`-ExpectOrderState 2`，不带 `-ExpectResumeAfterRelease`）— `MATCH`
+
+- 16:26:57.963 `cancelEmergency`（`messageId=346496`），161 ms → `code=0`。16:26:59～16:27:01 仍 `CAN_RECOVER`，16:27:02 读到 `OK`。
+- 16:27:04～16:28:03 共 50 次采样：`orderState=2`、`IDLE`、`MT_FINISHED`、`emergencyState=OK`、车速 0，位移全部为 0。
+
+#### B5 `final`（`phase=B-end-final`）— `MATCH`
+
+16:28:05：agv03 名下无未完成订单，`OK`，`IDLE`，静止，`currentStation=0`（站 155 与 151 之间）。车回原位由用户手动处理，本轮不再发单。
+
+### 旁证与核对
+
+- **没有任何请求发给 agv01**：`runs/http.ndjson` 中 agv01 的 `deviceKey` 只出现在两次全场未完成订单列表 GET 的**响应**里（`A-baseline` 16:06:15、`A-create` 16:08:25），是 agv01 自己的在途单 `order-2104482765746601984`（25 号图，目的站 81 `N15-1_N16-1`，坐标约 `(-33360, 32980)`，与本轮的环在 y 方向相距 60 米以上）。
+- 凭据：959 次调用的认证头全部写作 `<redacted>`；以密钥中段 12 与 20 字符子串检索本目录所有文件均 0 命中。
+- 全部写请求：A 建单、A HELD、A 急停、A 解除、A CONTINUE；B 建单、B HELD、B 急停、B 锁住期间 CONTINUE、B 取消、B 解除。共 11 个，全部指向 agv03 的 `deviceKey` 或本轮自建的两张订单。
 
 ## 本轮结论
 
-未执行。
+每一格各观测 1 次（格 1 为 A、B 各 1 次）。RIoT 生产实例，地图 26，agv03，2026-09-28。
+
+| # | 格 | 结果 | 等级 |
+| --- | --- | --- | --- |
+| 1 | `HELD(7)` 时 `triggerEmergency` | 急停锁住 `CAN_RECOVER`；订单仍 7、`USER_FORCE_IDLE`、`MT_PAUSED`，车静止 | 读到的（A3、B2） |
+| 2 | 接着 `cancelEmergency` | 约 5 秒读到 `OK`；之后 60 秒订单一直是 7、车速 0、坐标不变，现场确认没动。**HELD 在急停解除后保持，车不会自己走** | 读到的（A4、A5） |
+| 3 | 解除后 `CONTINUE_FROM_HELD` | `code=0`，订单立即 3，跑到 `SUCCESS`；**但约 16 秒后车才起步**，其间订单 3、`MT_RUNNING`、车速 0、`state=PAUSE` | 读到的（A6、A7） |
+| 4 | 急停锁住期间 `CONTINUE_FROM_HELD` | **被接受**，`code=0`，订单 7→3；急停挡住，20 秒内车不动 | 读到的（B3） |
+| 5 | 格 4 之后解除急停，车会不会自己走 | **本轮没做**（用户决定先取消订单）。按 Round31「EXECUTING 时急停，解除后自行继续」推断会走 | 推的 |
+| 6 | 急停锁住时 `CMD_ORDER_CANCEL` | `code=0`，订单 2；之后解除急停，车不动 | 读到的（B4） |
+| 7 | mission `speed` 字段 | 下单 0.3，行驶车速读到 0.3，生效 | 读到的（A、B） |
+| 8 | `getRouteCostsBy` 与边表长度之和 | 151→155 实查 32270 / 边长和 31021；155→151 实查 32060 / 31060，均为唯一或远优于次短的同一路线 | 读到的 |
+| 9 | 行驶中的自停 | 人员靠近时避障暂停 36 秒（用户口述）：订单 3、`MT_RUNNING`，只有 `state/sysState=PAUSE`；另两次短停原因未明 | 读到的 + 用户口述 |
+| 10 | `controlState` | 订单执行期间一直 `CONTROL_STATE_ERR`（从执行开始，早于急停），到站回 `OK` | 读到的 |
+
+对 `8005-agv-control-server#335` 的推论（推的）：先 `OrderHold` 再急停，门锁恢复后自动 `cancelEmergency` 本身不会让车动；是否继续由之后是否发 `CONTINUE_FROM_HELD` 单独决定。**顺序必须是先解除急停并回读到 `OK`，再发 CONTINUE**；急停锁住期间绝不能发 CONTINUE（格 4、5）。CONTINUE 之后不能以 `orderState=3` 判定车已在走（格 3）。
+
+- 已回答问题：见上表 1～4、6～10。
+- 仍未回答问题：格 5；格 3 的 16 秒起步延迟是否与刚解除过急停有关（Round36 未记录车速/坐标，无对照）；样本量均为 1。
+- 与历史轮次差异：`BC-VEH-005` 记「`controlState` 可能短暂 `ERR` 后回 `OK`」；本轮执行期间 `ERR` 持续整个订单，与急停无关。`BC-MAP-003` 的「`Edge.cost` 与 `getRouteCostsBy` 同量纲」首次直接对比：同量纲，但后者多约 1 米（3%～4%）。
+- 新增风险：急停锁住期间 CONTINUE 被接受，会把「解除急停」变成事实上的「放车走」。
+- 建议下一实验：格 5（空载、现场确认后）；HELD→CONTINUE 无急停的起步延迟对照。
