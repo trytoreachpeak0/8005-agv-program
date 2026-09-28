@@ -83,6 +83,7 @@ knowledge + fixtures
 
 ## 7. 当前基线
 
+- Round44（2026-09-28，生产 RIoT map 26，agv03）：HELD 叠加软件急停，解除后仍 HELD、车不动；解除后 `CONTINUE_FROM_HELD` 有效（约 16 秒起步）；急停锁住期间 CONTINUE 也会被接受（`BC-ORDER-020`、Q-041）；带 mission `speed=0.3` 下单时车速为 0.3，是否字段生效缺对照（`BC-ORDER-021`）。
 - Round16：`curRemainCost` 在 EXECUTING 阶梯下降；map28 可派可跑（本轮未等到 SUCCESS）；`orderRecordPriorityExec` 插队有效（Q-026/027，BC-ROUTE-001/ORDER-014）。
 - Round15：Route GET/POST @ map28 — costs 跨图=-1；Near* 纯拓扑；动态 GET 可空。
 - 暂不测：`POST /api/task/v1/order/route/{vehicleKey}`、`POST .../currentMapExistNotFinalOrderTask/{mapId}`（已入「以后可能需要」）。
@@ -90,6 +91,7 @@ knowledge + fixtures
 
 快速入口：
 
+- [`evidence/rounds/2026-09-28-round-44/`](./evidence/rounds/2026-09-28-round-44/) — HELD 叠加软件急停与解除
 - [`evidence/rounds/2026-07-20-round-16/`](./evidence/rounds/2026-07-20-round-16/) — remain / map28 / 优先执行
 - [`evidence/rounds/2026-07-20-round-15/`](./evidence/rounds/2026-07-20-round-15/) — Route Controller
 - [`knowledge/behavioral-contracts.md`](./knowledge/behavioral-contracts.md)

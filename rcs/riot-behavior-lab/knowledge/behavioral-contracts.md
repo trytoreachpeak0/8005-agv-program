@@ -202,8 +202,9 @@
   3. **命令配对**：EXECUTING 时 `CONTINUE_FROM_HELD` → `100020`；HELD 时 `CONTINUE_FROM_HANG` → `100021`（Round36 P3）。
   4. **HELD 占用中**同车再建单 → 新单长期 **QUEUEING**，`execute=--`（Round36 P4）。
   5. **单机暂停 ≠ RIoT HELD**（Round37）：单机点暂停 → 车 `MT_PAUSED`，订单可仍 `EXECUTING(3)`；`CONTINUE_FROM_HELD/HANG` 无效（`100020`/`100021`）。**仅单机恢复即可自行回 `MT_RUNNING` 并 SUCCESS**（Round37 B）。若订单已被打成 RIoT HELD(7)，则需单机恢复后再 `CONTINUE_FROM_HELD`。
+  6. **HELD 叠加软件急停**（Round44）：见 `BC-ORDER-020`——解除急停后仍 HELD；急停锁住期间 `CONTINUE_FROM_HELD` 也会被接受。
 - 证据等级：`OBSERVED`
-- 证据：Round10；Round36 [`../evidence/rounds/2026-07-22-round-36/`](../evidence/rounds/2026-07-22-round-36/)；单机暂停 Round37 [`../evidence/rounds/2026-07-22-round-37/`](../evidence/rounds/2026-07-22-round-37/)
+- 证据：Round10；Round36 [`../evidence/rounds/2026-07-22-round-36/`](../evidence/rounds/2026-07-22-round-36/)；单机暂停 Round37 [`../evidence/rounds/2026-07-22-round-37/`](../evidence/rounds/2026-07-22-round-37/)；第 6 条 [Round 44](../evidence/rounds/2026-09-28-round-44/)
 - 消费影响：暂停用 HELD/CONTINUE_FROM_HELD；勿与 HANG 混用；单机暂停要看 `movementState`，不能只看 `orderState==7`。
 
 ## BC-ORDER-007 建单反例：假/缺 appointVehicleKey 会进 QUEUEING
@@ -318,7 +319,8 @@
   7. `GET /api/imap/v1/mapEdgeGroup/all` 非空，外层 key 是**边组合名称**（如 `老厂电梯`），
      且**该接口用 camelCase**（`edgeId`／`gmtCreate`），与同一 RIoT 的 `edges`／`stations`
      的 snake_case 不同。同一服务混用两套序列化风格。
-- 证据：Round 43（生产 RIoT `172.19.206.222:8888`，mapId 25）
+  8. **Round44 首次直接对比**（map 26，车停在起点站上）：`getRouteCostsBy` 151→155 为 `32270`、边表最短路 `cost` 之和 `31021`；155→151 为 `32060`、`31060`。两者同量纲（mm），但前者**多约 1 米（3%～4%）**；两个方向的次短路要么远长于此（151→155 次短 84795）、要么不存在（155→151 删去任一条边即不可达），所以是同一路线。多出的部分未知（该路线含两处 90° 转向），自算值不能与 `getRouteCostsBy` 逐毫米对账。边表与站点表原始响应在 Round 44 的 `runs/static/`。
+- 证据：Round 43（生产 RIoT `172.19.206.222:8888`，mapId 25）；第 8 条 Round 44（mapId 26）
 - 消费影响：调度客户端可以自建路网图算任意站到站代价，结果与 RIoT 规划一致；
   但必须自定义反序列化、按有向图处理、并按接口区分命名风格。边组合约束与非空动态代价
   是否改变结果**未测**。
@@ -359,8 +361,9 @@
   5. **反例**：body `{}` → sync **`00002` NPE**。
   6. 以车态为准：触发后应见 `CAN_RECOVER`；解除后 `emergencyState=OK`（`controlState` 可能短暂 `ERR` 后回 `OK`）。
   7. Round19：**S4** `callApiKey` 完整 trigger→cancel 往返均为业务 **`code=0`**；**S3** 解除后可再派至 `SUCCESS`。
+  8. Round44（生产 RIoT）：`cancelEmergency` 到读到 `OK` 约 4～5 秒（两次）。**订单执行期间 `controlState` 一直是 `CONTROL_STATE_ERR`**，从订单进入 `3` 就开始、早于任何急停；到站 `IDLE` 才回 `OK` 只在一单（运行 A）里观测到，另一单被取消未到站，样本共 2 单——不能把 `CONTROL_STATE_ERR` 当成急停或故障信号。急停期间 `faultCodesList` 非空、解除后残留约 3～4 秒；HELD 叠加急停见 `BC-ORDER-020`。
 - 证据等级：`OBSERVED`
-- 证据：[`../evidence/rounds/2026-07-20-round-19/`](../evidence/rounds/2026-07-20-round-19/)（`S2d-*`、`S4-*`）
+- 证据：[`../evidence/rounds/2026-07-20-round-19/`](../evidence/rounds/2026-07-20-round-19/)（`S2d-*`、`S4-*`）；第 8 条 [Round 44](../evidence/rounds/2026-09-28-round-44/)
 - 消费影响：调用方可软件急停/解除；body 勿发空对象；成功以车态确认。
 
 ## BC-ORDER-015 执行中异常进入 HANG 与 CONTINUE 判别（Round27；Round31 修订）
@@ -423,6 +426,27 @@
 - 证据等级：`OBSERVED`，仅 `RIOT-CROSS-PROJECT-TEST` / build `2.2.0.30`；不是 `RIOT-8005-RUNTIME v2.2.0.14` 实测。
 - 证据：[Round 42](../evidence/rounds/2026-08-04-round-42/)
 - 消费影响：该接口可辅助证明“已经占用”，不能把未见本地预占解释为“空闲且无人正前往”；外部目标不可确认时必须 fail-closed，等待专用订阅、物理占用/人工确认或目标环境补证。
+
+## BC-ORDER-020 HELD 叠加软件急停：解除后仍 HELD；锁住期间 CONTINUE 会被接受（Round44）
+
+- 结论（生产 RIoT `172.19.206.222:8888`，map 26，agv03 空载；每格各 1 次观测，格 1 两次）：
+  1. **HELD 时下软件急停**：订单已由 `CMD_ORDER_HELD` 打成 `7`（`USER_FORCE_IDLE`、`MT_PAUSED`）后 `triggerEmergency` → `CAN_RECOVER`；订单**仍是 `7`**，不进 HANG、不取消、不回 `3`，车静止。
+  2. **解除后 HELD 保持（60 秒观察窗 + 现场确认，1 次观测）**：`cancelEmergency` 约 5 秒读到 `OK`；随后 60 秒订单一直 `7`、车速 0、坐标不变，现场人员确认没动。在这个窗口里 HELD 的单没有自行继续。
+  3. **解除后 `CMD_ORDER_CONTINUE_FROM_HELD` 仍有效**：`code=0`，订单立即 `3`，跑到 `SUCCESS`。但**约 16 秒后车才起步**：其间订单 `3`、`PROCESSING_ORDER`、`MT_RUNNING`，车速 0，车辆 `state`/`sysState=PAUSE`。
+  4. **急停锁住期间 `CMD_ORDER_CONTINUE_FROM_HELD` 被接受**：`code=0`，约 1 秒后首次回读订单为 `3`、`PROCESSING_ORDER`；急停仍 `CAN_RECOVER`，20 秒内车不动（急停挡住）。发 CONTINUE 前约 3 分钟无采样，「7→3 由 CONTINUE 造成」是推的（依据：第 2 条里 HELD 60 秒内不自行变化）。
+  5. **格 4 之后解除急停车会不会自行走：未测**（本轮先取消了订单）。推断会走，依据只有第 4 条订单已回 `3`；**没有任何轮次观测过「EXECUTING 时解除急停后自行继续」**——Round31 执行日志里那句只是建议，那一轮清场是先取消再解除。证据等级 `INFERRED`。
+  6. 急停锁住时 `CMD_ORDER_CANCEL` 可用：`code=0` → `2`；之后解除急停，60 秒车不动。
+  7. **急停期间 `getVehicleInfo.vehicle.faultCodesList` 非空**（A：`[11323, 211499, 268435521, 212499, 268435521, 11327, 11329]`；B：`[11323, 211416, 212416, 11327, 11329]`，急停前均为 `[]`）；读到 `emergencyState=OK` 的那次采样仍残留一部分（`2114xx`/`2124xx` 等），约 3～4 秒后的下一次采样清空。
+- 证据等级：第 1～4、6、7 条 `OBSERVED`（第 4 条的因果归因为推断）；第 5 条 `INFERRED`
+- 证据：[Round 44](../evidence/rounds/2026-09-28-round-44/)（`execution-log.md` 的 A3～A7、B2～B4）
+- 消费影响：先 HELD 再急停时，在观测到的窗口里自动解除急停本身没有放车走；**必须先 `cancelEmergency` 并回读到 `OK`，再发 `CONTINUE_FROM_HELD`**，急停锁住期间绝不发 CONTINUE，否则「解除急停」很可能在事实上等于「放车走」（第 5 条，未测）。CONTINUE 后不能以 `orderState=3` 或 `MT_RUNNING` 判定车已在走，要看车速/位置，并容忍十几秒起步延迟。故障监看不能把急停期间与刚解除后数秒内的 `faultCodesList` 当作独立故障。服务对象 `8005-agv-control-server#335`。
+
+## BC-ORDER-021 mission 带 `speed` 下单时车速等于该值（因果缺对照，Round44）
+
+- 结论：`byDefaultMissions` 的 `move` 段带 `"speed":0.3`（swagger：「当前任务指定速度m/s」）→ 建单 `code=0`，回显 mission 含 `speed:0.3`；行驶中 `getVehicleInfo.vehicle.speed` 与车辆卡片 `speed` 均稳定在 `0.3`，两次订单一致。map 26 全部 415 条边 `limit_v=0`，地图层没有限速档位。**本轮没有不带 `speed` 的行驶作对照**，区分不了是这个字段起了作用，还是这台车在这张图上默认就跑 0.3。
+- 证据等级：读数 `OBSERVED`；「字段生效」`INFERRED`（此前仅 `SCHEMA`）
+- 证据：[Round 44](../evidence/rounds/2026-09-28-round-44/)（A2、B1）
+- 消费影响：不能据此断定订单层可以限速；要用同车同图、带与不带 `speed`（或带不同值）的对照来确认。未测上限、`0` 或缺省时的含义、多段各自不同速度。
 
 ## 待晋升条件
 
