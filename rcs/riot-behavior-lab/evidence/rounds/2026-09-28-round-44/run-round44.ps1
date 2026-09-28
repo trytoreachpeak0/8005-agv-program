@@ -24,6 +24,8 @@ param(
     [int[]]$Candidates = @(),
     [int]$ObserveSeconds = 60,
     [double]$Speed = 0,
+    # Order state that must hold through 'release' and 'observe' (7 = HELD; 2 after an abort-path cancel).
+    [int]$ExpectOrderState = 7,
     [switch]$HoldOnMotion,
     # The single on-site operator's "就位" (at the vehicle, hand on the physical e-stop), relayed by the coordinator.
     [switch]$Ready,
@@ -289,7 +291,7 @@ switch ($Phase) {
             $last = Get-Sample $st.upperId
             if (-not $ExpectResumeAfterRelease) {
                 if (Test-Moving $last) { Stop-Now 'HELD order moved after cancelEmergency' }
-                if ($null -ne $last.observations.orderState -and $last.observations.orderState -ne 7) { Stop-Now "orderState left 7 after cancelEmergency: $($last.observations.orderState)" }
+                if ($null -ne $last.observations.orderState -and $last.observations.orderState -ne $ExpectOrderState) { Stop-Now "orderState left $ExpectOrderState after cancelEmergency: $($last.observations.orderState)" }
             }
             if ($last.observations.emergencyState -eq 'OK') { $okAt = Now; break }
         }
@@ -304,7 +306,7 @@ switch ($Phase) {
             $last = Get-Sample $st.upperId 'observe'; $n++
             $states["$($last.observations.orderState)"] = 1 + ($states["$($last.observations.orderState)"] ?? 0)
             if (Test-Moving $last) { Stop-Now 'HELD order moved during post-release observation' }
-            if ($last.observations.orderState -ne 7) { Stop-Now "orderState left 7 during observation: $($last.observations.orderState)" }
+            if ($last.observations.orderState -ne $ExpectOrderState) { Stop-Now "orderState left $ExpectOrderState during observation: $($last.observations.orderState)" }
             if ($last.observations.emergencyState -ne 'OK') { Verdict $false "emergencyState=$($last.observations.emergencyState)" }
         }
         Verdict $true "samples=$n orderStates=$(($states.GetEnumerator() | ForEach-Object { "$($_.Key):$($_.Value)" }) -join ',') all still"

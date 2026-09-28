@@ -152,6 +152,18 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 16:24:08～16:24:27 共 17 次采样：**`orderState=3`、`PROCESSING_ORDER`**，`emergencyState=CAN_RECOVER`，`movementState=MT_PAUSED`，车速 0，位移 0。
 - 即：急停锁住期间 `CONTINUE_FROM_HELD` 被接受，订单立即由 `HELD(7)` 回到 `EXECUTING(3)`；此后让车停着的只有急停。
 
+#### B4 改做法（约 16:25，经调度）
+
+原方案 B4 是「解除急停，允许车自己沿原路走完」。用户改为**先取消这张单、再解除急停，不让车自己走**，按 `round-plan.md` §9 的中止收尾顺序。因此「B3 被接受后解除急停，车会不会自己走」这一格**本轮没有做**。
+
+#### B4-1 `cancel-order`（`phase=B-cancel-order`）— `MATCH`
+
+- 16:25:49.940 `POST /api/task/v1/order/command/order-2104486291436601344` `{"commandType":"CMD_ORDER_CANCEL",...}`，93 ms → `code=0`。
+- 16:25:53 `orderState=2`、`IDLE`、`MT_FINISHED`、`emergencyState=CAN_RECOVER`、车速 0；`currentStation=0`（两站之间）。
+- 16:25:54 以 `final` 阶段只读复读一次（`phase=B-final`，此时急停仍锁，故该阶段判 `MISMATCH` 是预期的，不是异常）：名下无未完成订单，读数同上。
+- 附带：急停锁住时 `CMD_ORDER_CANCEL` 可用。
+- 脚本改动：`release`/`observe` 原写死「订单保持 7，否则再急停」；增加 `-ExpectOrderState`（默认 7），B4-2 传 2。运动判据不变。
+
 ## 本轮结论
 
 未执行。
