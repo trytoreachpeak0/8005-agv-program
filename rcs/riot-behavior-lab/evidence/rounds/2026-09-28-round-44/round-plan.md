@@ -7,7 +7,7 @@
   1. 订单已被 `CMD_ORDER_HELD` 打成 `HELD(7)`、车已停稳时，再 `triggerEmergency` → `cancelEmergency`，订单是否仍是 `7`、车是否仍保持静止（60 秒观察窗口）。
   2. 解除之后 `CMD_ORDER_CONTINUE_FROM_HELD` 是否仍然有效（回到 `EXECUTING(3)` 并跑到 `SUCCESS(5)`）。
   3. （第二格，用户单独确认后才做）急停锁住期间发 `CMD_ORDER_CONTINUE_FROM_HELD`，是否被接受；接受的话，解除急停后车会不会自己走。
-- 已有知识为什么不够：`BC-ORDER-006` 只覆盖「HELD ↔ CONTINUE_FROM_HELD」，没有急停；`BC-ORDER-015` / Round31 只覆盖「EXECUTING 时急停」，那种情况下单一直是 `EXECUTING`，**`cancelEmergency` 之后车会自己接着走**。HELD 叠加急停这个组合没有任何轮次测过。
+- 已有知识为什么不够：`BC-ORDER-006` 只覆盖「HELD ↔ CONTINUE_FROM_HELD」，没有急停；`BC-ORDER-015` / Round31 只覆盖「EXECUTING 时急停」，那种情况下单一直是 `EXECUTING`。Round31 的执行日志建议「`cancelEmergency` 后订单仍在 EXECUTING 时继续走即可」，但那一轮清场时先取消了订单、再解除急停（`run-round31.ps1` 的 cleanup 段），**并没有观测到解除后车自行继续**——这一点是建议，不是观测（2026-09-28 审查指出，本段据此更正）。HELD 叠加急停这个组合没有任何轮次测过。
 - 明确不回答：硬件急停（`CAN_NOT_RECOVER`）；HANG；多段单；车载端与服务端行为（本轮不起任何 ControlServer 实例）。
 
 ## 2. 环境元数据

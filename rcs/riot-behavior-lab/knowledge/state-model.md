@@ -117,7 +117,7 @@ order=2 + IDLE + MT_FINISHED + emergency=CAN_RECOVER
 order=2 + IDLE + emergency=OK，车不动
 ```
 
-未测：`order=3 + CAN_RECOVER` 直接 `cancelEmergency` 之后车是否自行继续。另：订单执行期间 `controlState` 始终 `CONTROL_STATE_ERR`，与急停无关；行驶中避障暂停时订单仍 `3`、`MT_RUNNING`，只有车辆 `state/sysState=PAUSE`。
+未测：`order=3 + CAN_RECOVER` 直接 `cancelEmergency` 之后车是否自行继续（EXECUTING 时急停再解除的这一步，任何轮次都没有观测过）。解除后 HELD 保持是 60 秒观察窗、1 次观测。另：订单执行期间 `controlState` 始终 `CONTROL_STATE_ERR`，与急停无关；急停期间 `faultCodesList` 非空，解除后残留约 3～4 秒。行驶中有一次 36 秒暂停，读数上订单仍 `3`、`MT_RUNNING`，只有车辆 `state/sysState=PAUSE`；原因「人员靠近导致避障」是现场用户口述。
 
 证据：[`../evidence/rounds/2026-09-28-round-44/`](../evidence/rounds/2026-09-28-round-44/)；契约 `BC-ORDER-020`
 

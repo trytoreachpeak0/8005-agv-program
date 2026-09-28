@@ -434,9 +434,9 @@ flowchart TB
 
 - **测试意图**：订单已 `HELD(7)` 时再 `triggerEmergency` → `cancelEmergency`，订单是否保持 `7`、车是否保持静止；解除后 `CONTINUE_FROM_HELD` 是否仍有效；急停锁住期间 CONTINUE 是否被接受。
 - **前置条件**：测试车在目标地图上、已定位、在站上、空闲、名下无未完成订单、不在车组；路段双向可达，且不与生产车可能经过的路段重合；车空载，现场有人、物理急停可按。
-- **测试程序**（写）：单段 `move` 建单（可带 `speed` 限速）→ 车确实在走后立即 `CMD_ORDER_HELD` → 静止稳定 → `triggerEmergency` → `cancelEmergency` → 观察 60 秒 → `CMD_ORDER_CONTINUE_FROM_HELD` → 跑到 `SUCCESS`。第二格：锁住期间发 `CONTINUE_FROM_HELD`。
+- **测试程序**（写）：单段 `move` 建单（Round44 带了 `speed=0.3`，是否生效见 `BC-ORDER-021`）→ 车确实在走后立即 `CMD_ORDER_HELD` → 静止稳定 → `triggerEmergency` → `cancelEmergency` → 观察 60 秒 → `CMD_ORDER_CONTINUE_FROM_HELD` → 跑到 `SUCCESS`。第二格：锁住期间发 `CONTINUE_FROM_HELD`。
 - **预期结果**：见 `BC-ORDER-020`（Round44 首测）。
-- **反例/边界**：锁住期间 CONTINUE 被接受后再解除急停，车可能自行继续（Round44 未测，`INFERRED`）；做这一格要事先确认路段与现场。
+- **反例/边界**：锁住期间 CONTINUE 被接受后再解除急停，车可能自行继续（Round44 未测，`INFERRED`；也没有任何轮次观测过 EXECUTING 时解除急停后自行继续）；做这一格要事先确认路段与现场。
 - **风险等级**：写-会动车、会发急停。每次运行单独授权；任何「不该动时动了」立即再 `triggerEmergency`。
 - **人工干预**：会让车动的命令（建单、解除急停、CONTINUE）之前等现场人员「就位」；读数给不了的「有没有蠕动」由现场口头报告。
 - **执行器**：[`../evidence/rounds/2026-09-28-round-44/run-round44.ps1`](../evidence/rounds/2026-09-28-round-44/run-round44.ps1)（一次一个阶段；会让车动的阶段不带 `-Ready` 即拒绝）。
