@@ -58,6 +58,19 @@ agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 6
 - 推的：这不是另一条路线——去掉最短路上任一条边后，151→155 的最短路是 84795 mm，与 32270 相去甚远。差值更像是 RIoT 的代价比纯边长多计了一部分（这条路有两处 90° 拐角）。`BC-MAP-003` 里「`Edge.cost` 与 `getRouteCostsBy` 同量纲」原本就标为推断、没在同一对起终点上直接对比过；本次是第一次对比，差 4%。
 - 阈值是本轮自定的，用来发现「RIoT 规划了另一条路」；是否在这个解释下继续，交用户决定。
 
+#### 授权（约 16:07，经调度）
+
+用户同意在上述解释下按 32270 继续；运行 B 的 D→S 阈值改为「差值 ≤2000 mm 且不超过次短路径」。调度转来 `用户已确认，可以开始` 与第一个「就位」（用户在车旁，手能碰到物理急停）。
+
+#### A2 `create` + 自动 `held`（`phase=A-create` / `A-held`）— `MATCH`
+
+- 16:08:26 `POST /api/order/v1/add/byDefaultMissions`，body `{"appointVehicleKey":"BROKERX-7daca4ee…1127","mission":[{"type":"move","mapId":26,"destination":155,"speed":0.3}],"orderName"/"upperId":"riot-behavior-lab-R44-A-20260928-160825","isAppointEnable":1,"lockStatus":0}` → `code=0`，`orderId=order-2104483377808801792`，数值 `id=1733821`；回显的 mission 带 `"speed":0.3`。
+- 16:08:31 `orderState=3`、`PROCESSING_ORDER`、`MT_RUNNING`，车速 0.019。
+- 16:08:33 两个接口车速均 **0.3**，累计位移 301 mm → 脚本自动 `POST /api/task/v1/order/command/order-2104483377808801792` `{"commandType":"CMD_ORDER_HELD",...}` → `code=0`。
+- 16:08:34 `orderState=7`、`USER_FORCE_IDLE`、`MT_PAUSED`、车速 0；该采样与上一采样间位移 316 mm（制动过程）。
+- 16:08:35 位移 3 mm；16:08:37～16:08:40 位移均为 0，车速 0。稳定 ≥5 秒，判 `MATCH`。
+- 附带发现：mission 的 `speed` 字段**生效**——下单 0.3，行驶中读到的车速就是 0.3（此前仅 `SCHEMA`）。
+
 ### 运行 B
 
 未执行。
