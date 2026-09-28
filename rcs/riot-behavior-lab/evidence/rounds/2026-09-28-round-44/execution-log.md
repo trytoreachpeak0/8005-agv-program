@@ -44,7 +44,19 @@
 
 ### 运行 A
 
-未执行。
+#### A0 `baseline`（16:06:15，`phase=A-baseline`）— `MATCH`
+
+agv03：`currentMap=老厂前线new_wk`，`LOCATION_STATE_RUNNING`（置信度 63%），`currentStation=151`（`T05-06`），坐标 `(-63559, -35704)`，`emergencyState=OK`，`breakSwitchState=MOVABLE`，`controlState=CONTROL_STATE_OK`，`status=1`，`procState=IDLE`，`processingOrder=false`，`movementState=MT_FINISHED`，两个接口车速均 `0.0`，电量 92%，`loadState=0`，`existedInGroup=[]`，名下未完成订单 0。
+
+#### A1 `routecheck`（16:06:18，`phase=A-routecheck`）— 超出事先阈值，停
+
+请求 `POST /api/task/v1/route/getRouteCostsBy` `{"mapId":26,"stationId":155,"deviceKeys":["BROKERX-7daca4ee…1127"]}`，返回 `costs=32270`、`message=ok`。
+
+事先写的判据是「与自算 31021 相差 ≤1000」，实查多 **1249 mm**，超出，按计划停下报调度，未建单。
+
+- 读到的：自算值是路网边表上 151→155 最短路 14 条边的 `cost` 之和，等于这些边的欧氏长度之和（31021 mm）。
+- 推的：这不是另一条路线——去掉最短路上任一条边后，151→155 的最短路是 84795 mm，与 32270 相去甚远。差值更像是 RIoT 的代价比纯边长多计了一部分（这条路有两处 90° 拐角）。`BC-MAP-003` 里「`Edge.cost` 与 `getRouteCostsBy` 同量纲」原本就标为推断、没在同一对起终点上直接对比过；本次是第一次对比，差 4%。
+- 阈值是本轮自定的，用来发现「RIoT 规划了另一条路」；是否在这个解释下继续，交用户决定。
 
 ### 运行 B
 
