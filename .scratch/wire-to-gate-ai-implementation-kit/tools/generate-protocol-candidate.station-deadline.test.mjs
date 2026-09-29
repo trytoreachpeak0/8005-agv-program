@@ -14,6 +14,20 @@ import { fileURLToPath } from "node:url";
 const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const generatorPath = path.join(toolsDirectory, "generate-protocol-candidate.mjs");
 
+// The 33 vectorIds protocol-v2.0.0 released (protocol commit 86575456). Later releases add vectors, so the
+// check is that none of these is lost, not that the set keeps its size (8005-agv-program#146).
+const V2_RELEASED_VECTOR_IDS = [
+  "CV-AUTOMATIC-CHARGING-CYCLE", "CV-CONNECTION-LOSS-SAFE-FINISH", "CV-DEMAND-ACCEPT-TO-PICKUP", "CV-DESTINATION-UNLOAD-ALL-EMPTY",
+  "CV-EXCEPTION-COMPENSATE", "CV-EXCEPTION-RESUME", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY",
+  "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-LOAD-CORRECTION", "CV-MANUAL-CHARGING-RETURN",
+  "CV-MANUAL-STATION-CLEARANCE", "CV-MULTI-STOP-PLAN-NINE-LEGS", "CV-ONBOARD-ALARM-SNAPSHOT", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE",
+  "CV-PICKUP-SUBLOT-LOAD", "CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-RELIABLE-RETRY-DIFFERENT-CONTENT", "CV-RELIABLE-RETRY-SAME-CONTENT",
+  "CV-REQUEST-FIRST-RESULT-REPLAY", "CV-REVERSED-DIRECTION-JOURNEY", "CV-SESSION-RECONNECT-DURING-RECOVERY", "CV-SESSION-RECOVERY-HAPPY",
+  "CV-SLOT-CONFIGURATION-ACTIVATION", "CV-SNAPSHOT-REPLACE-AND-ACK", "CV-SNAPSHOT-SAME-REVISION-CONFLICT", "CV-SUBLOT-REJECTED-AFTER-ENTRY",
+  "CV-TASK-TYPE-ADMISSION-FAIL-CLOSED", "CV-UNABLE-TO-CHARGE-FIELD-CONFIRMATION", "CV-WAITING-POINT-IDLE-RETURN", "CV-WORKLIST-SELECTION-ACCEPTED",
+  "CV-WORKLIST-SELECTION-STALE-REVISION",
+];
+
 const MESSAGE = "CurrentStopWorklistSnapshot";
 const FIELD = "stationDepartureDeadlineAt";
 
@@ -94,12 +108,12 @@ test("OPERATOR_TIMEOUT is appended after the codes registered before it, narrowe
   assert.doesNotMatch(entry.meaning, /\b(will|shall)\b/i);
 });
 
-test("OPERATOR_TIMEOUT gets no vector and the trajectory set is unchanged", () => {
+test("OPERATOR_TIMEOUT gets no vector and every protocol-v2.0.0 vector is still present and bound to a slice", () => {
   const ids = fs.readdirSync(path.join(tree, "vectors"));
-  assert.equal(ids.length, 33);
+  assert.equal(V2_RELEASED_VECTOR_IDS.length, 33);
+  assert.deepEqual(V2_RELEASED_VECTOR_IDS.filter((id) => !ids.includes(id)), []);
   const stableCodes = ids.map((id) => readJson(`vectors/${id}/expected.json`).stableErrorCode);
   assert.equal(stableCodes.includes("OPERATOR_TIMEOUT"), false);
-  const references = readJson("integration-slices/index.json").slices.flatMap((slice) => slice.vectorIds);
-  assert.equal(references.length, 36);
-  assert.equal(new Set(references).size, 33);
+  const references = new Set(readJson("integration-slices/index.json").slices.flatMap((slice) => slice.vectorIds));
+  assert.deepEqual(V2_RELEASED_VECTOR_IDS.filter((id) => !references.has(id)), []);
 });

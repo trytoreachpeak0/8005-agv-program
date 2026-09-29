@@ -233,7 +233,7 @@ _Avoid_: TCP 握手、首次连接快捷通道、重连后直接接业务
 _Avoid_: 每种消息自定义顶层元数据、裸 payload、用 slotOperationAttemptId 代替 messageId
 
 **ProtocolVersion（车载通信协议版本）**:
-ProtocolEnvelope 中标识完整通信契约的整数，只在同一 `profileId` 内单调递增，不同协议剖面可以取到同一个整数：`WIRE_TO_GATE_MVP` 0.2.0 与 `AGV_FULL_PRODUCT` 1.0.0 都是 2，`WIRE_TO_GATE_MVP` 0.3.0 与 `AGV_FULL_PRODUCT` 2.0.0 都是 3。因此比较身份一律用完整的 ProtocolReleaseIdentity，不单比整数；证据与日志总是成对写 `(profileId, ProtocolVersion)`。在同一 `profileId` 内，同版本只能增加接收方可忽略的可选字段，任何必填字段、字段语义或强制流程的破坏性变更都必须升级版本。
+ProtocolEnvelope 中标识完整通信契约的整数，只在同一 `profileId` 内单调递增，不同协议剖面可以取到同一个整数：`WIRE_TO_GATE_MVP` 0.2.0 与 `AGV_FULL_PRODUCT` 1.0.0 都是 2，`WIRE_TO_GATE_MVP` 0.3.0 与 `AGV_FULL_PRODUCT` 2.0.0 都是 3；`AGV_FULL_PRODUCT` 3.0.0 为 4。因此比较身份一律用完整的 ProtocolReleaseIdentity，不单比整数；证据与日志总是成对写 `(profileId, ProtocolVersion)`。在同一 `profileId` 内，同版本只能增加接收方可忽略的可选字段，任何必填字段、字段语义或强制流程的破坏性变更都必须升级版本。
 _Avoid_: 软件版本号、按消息独立版本、运行时猜测兼容、脱离 profileId 单写整数、只比整数判定同一契约
 
 **ProtocolRelease（协议发布包）**:
@@ -294,7 +294,7 @@ _Avoid_: 实现全部长期协议能力、另建专用协议版本、未声明�
 _Note_: 它是 **`WIRE_TO_GATE_MVP` 这个 profileId 的剖面**，定义里的限定词（单 Demand 双移动段）在完整产品下不成立；完整产品由 AgvFullProductProtocolProfile 承载。两者**不是同一个剖面的两个版本**，而是两个剖面，各自在自己的 profileId 内递增 ProtocolVersion，整数可以相同（见 ProtocolVersion）。（2026-09-04，完整产品图票 06；2026-09-15 按 ProtocolVersion 作用域改写，program#90）
 
 **AgvFullProductProtocolProfile（完整产品协议剖面）**:
-为 8005 完整产品明确列出的必需且允许消息集合，覆盖六类运输任务、多车、多 Demand 多停靠、自动充电、等待点、仓位配置激活与告警上报；它复用同一协议外壳和既有语义，剖面外消息在该 release 中必须稳定拒绝。其 profileId 字面值为 `AGV_FULL_PRODUCT`——与 WIRE_TO_GATE_MVP 同构，是阶段名而不带版本号，版本活在 ProtocolVersion 与 ProtocolReleaseVersion 里：1.0.0 为 ProtocolVersion 2，2.0.0 为 ProtocolVersion 3。
+为 8005 完整产品明确列出的必需且允许消息集合，覆盖六类运输任务、多车、多 Demand 多停靠、自动充电、等待点、仓位配置激活与告警上报；它复用同一协议外壳和既有语义，剖面外消息在该 release 中必须稳定拒绝。其 profileId 字面值为 `AGV_FULL_PRODUCT`——与 WIRE_TO_GATE_MVP 同构，是阶段名而不带版本号，版本活在 ProtocolVersion 与 ProtocolReleaseVersion 里：1.0.0 为 ProtocolVersion 2，2.0.0 为 ProtocolVersion 3，3.0.0 为 ProtocolVersion 4。
 _Avoid_: WireToGateMvpProtocolProfile、另建第三个协议剖面、把 profileId 当版本号、未声明消息也尽量接受
 
 **MessageId（消息编号）**:
