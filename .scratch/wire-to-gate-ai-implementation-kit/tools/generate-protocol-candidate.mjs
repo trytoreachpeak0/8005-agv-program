@@ -249,7 +249,7 @@ const requiredErrorCodes = [
   // same slot: the slot leaves only through an exception recovery session, never by a retry.
   ["SLOT_FAULT_DECLARED", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
     allowedMessageTypes: ["OperationResult"],
-    meaning: "An administrator declared the slot faulty on the control server and the onboard HMI applied the declaration, so the slot is reported UNKNOWN in SlotResult.reasonCodes of OperationResult and the slot operation leaves only through an exception recovery session (REQ-0359, CP-0005 section 4.3 item 3).",
+    meaning: "An administrator declared the slot faulty on the control server and the onboard HMI applied the declaration, so the slot's SlotResult in OperationResult has outcome UNKNOWN and carries this code in its reasonCodes, and the slot operation leaves only through an exception recovery session (REQ-0359, CP-0005 section 4.3 item 3).",
     introducedInRelease: "3.0.0",
   }],
 ];
@@ -908,28 +908,34 @@ const trajectories = {
   },
 
   // --- 3.0.0 additions ---
-  // REQ-0359. The vehicle writes its APPLIED result at the moment it decides to abort, then settles
-  // the operation, so SlotFaultDeclarationResult precedes OperationResult. Both implementations
-  // follow this order. The side effects list the six defaults and the two a declaration must never have.
+  // REQ-0359. The vehicle journals the declaration, then writes and sends its APPLIED result at the
+  // moment it decides to abort, then settles the operation, so SlotFaultDeclarationResult precedes
+  // OperationResult and each RELIABLE message gets its own DurableAck. Both implementations follow
+  // this order. The side effects list the six defaults and the three a declaration must never have.
   "CV-SLOT-FAULT-DECLARATION-APPLIED": {
-    messages: wire("SlotFaultDeclarationCommand", "SlotFaultDeclarationResult", "OperationResult", "DurableAck"),
+    messages: wire("SlotFaultDeclarationCommand", "SlotFaultDeclarationResult", "DurableAck", "OperationResult", "DurableAck"),
     stableErrorCode: "SLOT_FAULT_DECLARED",
-    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unlock-after-declaration", "declaration-settles-business-or-cancels-demand"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "declaration-marks-slot-inoperable"],
     productAssertions: {
       controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "BLOCK_JOURNEY_ON_DECLARED_UNKNOWN"],
-      onboardHmi: ["APPLY_ONLY_TO_SAME_ATTEMPT_AND_SLOT_STILL_AWAITING", "NEVER_UNLOCK_AFTER_DECLARATION_APPLIED", "REPORT_DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED", "SEND_DECLARATION_RESULT_BEFORE_OPERATION_RESULT"],
+      // A crash between the APPLIED result and the settlement must not let the restart's live-reading
+      // settlement report the declared slot COMPLETED: the declaration is journaled first and survives.
+      onboardHmi: ["APPLY_ONLY_TO_SAME_ATTEMPT_AND_SLOT_STILL_AWAITING", "JOURNAL_DECLARATION_BEFORE_APPLIED_RESULT", "KEEP_DECLARED_SLOT_UNKNOWN_ACROSS_RESTART", "NEVER_UNLOCK_AFTER_DECLARATION_APPLIED", "REPORT_DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED", "REPORT_COMPLETED_SLOTS_FROM_LIVE_READINGS", "SEND_DECLARATION_RESULT_BEFORE_OPERATION_RESULT"],
     },
     finalState: { readiness: "RECOVERY_REQUIRED", business: "JOURNEY_BLOCKED_DEMAND_NOT_SETTLED", physical: "DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED" },
   },
   // The declaration lost a race: the slot had closed, was already UNKNOWN, or the attempt had been
   // superseded (CP-0005 new item two note 5). The vehicle refuses, the control server withdraws it.
+  // An attempt the vehicle does not know is refused the same way: a ProtocolProblem would leave the
+  // RELIABLE command without a result for ever. A pending declaration never stops the control server
+  // from settling the operation result that closed the slot.
   "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE": {
     messages: wire("SlotFaultDeclarationCommand", "SlotFaultDeclarationResult", "DurableAck"),
     stableErrorCode: "ACTION_NOT_ALLOWED_IN_STATE",
-    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "business-state-changed-by-rejected-declaration"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "declaration-marks-slot-inoperable", "business-state-changed-by-rejected-declaration"],
     productAssertions: {
-      controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "WITHDRAW_DECLARATION_WITHOUT_BUSINESS_CHANGE"],
-      onboardHmi: ["REJECT_DECLARATION_ON_SETTLED_UNKNOWN_OR_SUPERSEDED_ATTEMPT", "NEVER_APPLY_DECLARATION_TO_ANOTHER_ATTEMPT_OR_SLOT"],
+      controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "WITHDRAW_DECLARATION_WITHOUT_BUSINESS_CHANGE", "SETTLE_OPERATION_RESULT_NORMALLY_WHILE_DECLARATION_PENDING"],
+      onboardHmi: ["REJECT_DECLARATION_ON_SETTLED_UNKNOWN_OR_SUPERSEDED_ATTEMPT", "ANSWER_UNKNOWN_ATTEMPT_WITH_NOT_APPLICABLE", "NEVER_APPLY_DECLARATION_TO_ANOTHER_ATTEMPT_OR_SLOT"],
     },
     finalState: { readiness: "UNCHANGED", business: "UNCHANGED_DECLARATION_WITHDRAWN", physical: "UNCHANGED" },
   },
@@ -1015,7 +1021,7 @@ const slices = [
   ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE"], {
     scope: "EXCEPTION_RECOVERY_AND_MANUAL_RETURN",
     requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT"],
-    authorityModel: { controlServerFact: "ExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
     ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING"] },
   }],
   ["FP-IS-08", 8, ["FP-IS-04"], ["CV-MULTI-STOP-PLAN-NINE-LEGS"], {

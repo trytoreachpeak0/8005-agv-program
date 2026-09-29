@@ -153,7 +153,8 @@ test("SLOT_FAULT_DECLARED is appended after the 2.0.0 codes, introduced in 3.0.0
   assert.deepEqual(entry.allowedMessageTypes, ["OperationResult"]);
   assert.equal(entry.category, "SAFETY_RECOVERY");
   assert.equal(entry.retryDisposition, "MANUAL_REVIEW");
-  assert.match(entry.meaning, /SlotResult\.reasonCodes/);
+  // The outcome and the code sit in different fields of SlotResult; the meaning must not merge them.
+  assert.match(entry.meaning, /SlotResult in OperationResult has outcome UNKNOWN and carries this code in its reasonCodes/);
   assert.match(entry.meaning, /\(REQ-0359[^)]*\)\.$/);
   assert.ok(readJson("schemas/common/types.schema.json").$defs.ErrorCode.enum.includes("SLOT_FAULT_DECLARED"));
 });
@@ -162,19 +163,20 @@ test("SLOT_FAULT_DECLARED is appended after the 2.0.0 codes, introduced in 3.0.0
 const vectors = {
   "CV-SLOT-FAULT-DECLARATION-APPLIED": {
     // The vehicle records and sends its APPLIED result at the moment it decides to abort, then settles
-    // the operation: SlotFaultDeclarationResult strictly before OperationResult.
-    messages: [COMMAND, RESULT, "OperationResult", "DurableAck"],
+    // the operation: SlotFaultDeclarationResult strictly before OperationResult, each RELIABLE message
+    // acknowledged by its own DurableAck.
+    messages: [COMMAND, RESULT, "DurableAck", "OperationResult", "DurableAck"],
     stableErrorCode: "SLOT_FAULT_DECLARED",
     controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "BLOCK_JOURNEY_ON_DECLARED_UNKNOWN"],
-    onboardHmi: ["APPLY_ONLY_TO_SAME_ATTEMPT_AND_SLOT_STILL_AWAITING", "NEVER_UNLOCK_AFTER_DECLARATION_APPLIED", "REPORT_DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED", "SEND_DECLARATION_RESULT_BEFORE_OPERATION_RESULT"],
-    forbidden: ["unlock-after-declaration", "declaration-settles-business-or-cancels-demand"],
+    onboardHmi: ["APPLY_ONLY_TO_SAME_ATTEMPT_AND_SLOT_STILL_AWAITING", "JOURNAL_DECLARATION_BEFORE_APPLIED_RESULT", "KEEP_DECLARED_SLOT_UNKNOWN_ACROSS_RESTART", "NEVER_UNLOCK_AFTER_DECLARATION_APPLIED", "REPORT_DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED", "REPORT_COMPLETED_SLOTS_FROM_LIVE_READINGS", "SEND_DECLARATION_RESULT_BEFORE_OPERATION_RESULT"],
+    forbidden: ["unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "declaration-marks-slot-inoperable"],
   },
   "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE": {
     messages: [COMMAND, RESULT, "DurableAck"],
     stableErrorCode: "ACTION_NOT_ALLOWED_IN_STATE",
-    controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "WITHDRAW_DECLARATION_WITHOUT_BUSINESS_CHANGE"],
-    onboardHmi: ["REJECT_DECLARATION_ON_SETTLED_UNKNOWN_OR_SUPERSEDED_ATTEMPT", "NEVER_APPLY_DECLARATION_TO_ANOTHER_ATTEMPT_OR_SLOT"],
-    forbidden: ["unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "business-state-changed-by-rejected-declaration"],
+    controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "WITHDRAW_DECLARATION_WITHOUT_BUSINESS_CHANGE", "SETTLE_OPERATION_RESULT_NORMALLY_WHILE_DECLARATION_PENDING"],
+    onboardHmi: ["REJECT_DECLARATION_ON_SETTLED_UNKNOWN_OR_SUPERSEDED_ATTEMPT", "ANSWER_UNKNOWN_ATTEMPT_WITH_NOT_APPLICABLE", "NEVER_APPLY_DECLARATION_TO_ANOTHER_ATTEMPT_OR_SLOT"],
+    forbidden: ["unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "declaration-marks-slot-inoperable", "business-state-changed-by-rejected-declaration"],
   },
 };
 
@@ -197,9 +199,13 @@ for (const [vectorId, expectation] of Object.entries(vectors)) {
   });
 }
 
-test("FP-IS-07 binds both declaration vectors and names SlotFaultDeclarationCommand among its wire messages", () => {
+test("FP-IS-07 binds both declaration vectors and names the declaration among its facts, wire messages, outcomes and responsibilities", () => {
   const slice = readJson("integration-slices/index.json").slices.find((entry) => entry.integrationSliceId === "FP-IS-07");
   for (const vectorId of Object.keys(vectors)) assert.ok(slice.vectorIds.includes(vectorId), `${vectorId} not bound to FP-IS-07`);
   assert.ok(slice.definition.authorityModel.wireMessages.includes(COMMAND));
   assert.ok(slice.definition.requiredOutcomes.includes("SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT"));
+  // The declaration happens before any recovery session exists, so the fact names both.
+  assert.equal(slice.definition.authorityModel.controlServerFact, "SlotFaultDeclarationAndExceptionRecoverySession");
+  assert.ok(slice.definition.ownerResponsibilities.controlServer.includes("DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT"));
+  assert.ok(slice.definition.ownerResponsibilities.onboardHmi.includes("VERIFY_DECLARATION_BEFORE_ABORTING"));
 });
