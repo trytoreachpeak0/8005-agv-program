@@ -14,6 +14,29 @@ import { fileURLToPath } from "node:url";
 const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const generatorPath = path.join(toolsDirectory, "generate-protocol-candidate.mjs");
 
+// The 36 (slice, vector) bindings protocol-v2.0.0 released (integration-slices/index.json at protocol commit
+// 86575456), 33 distinct vectorIds. Later releases add vectors and bindings, so the check is that none of
+// these is lost, not that the sets keep their size (8005-agv-program#146).
+const V2_RELEASED_SLICE_BINDINGS = {
+  "FP-IS-00": ["CV-SESSION-RECOVERY-HAPPY", "CV-SESSION-RECONNECT-DURING-RECOVERY", "CV-SNAPSHOT-REPLACE-AND-ACK", "CV-SNAPSHOT-SAME-REVISION-CONFLICT"],
+  "FP-IS-01": ["CV-DEMAND-ACCEPT-TO-PICKUP"],
+  "FP-IS-02": ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY"],
+  "FP-IS-03": ["CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"],
+  "FP-IS-04": ["CV-DESTINATION-UNLOAD-ALL-EMPTY"],
+  "FP-IS-05": ["CV-CONNECTION-LOSS-SAFE-FINISH", "CV-SESSION-RECONNECT-DURING-RECOVERY"],
+  "FP-IS-06": ["CV-RELIABLE-RETRY-SAME-CONTENT", "CV-RELIABLE-RETRY-DIFFERENT-CONTENT", "CV-REQUEST-FIRST-RESULT-REPLAY"],
+  "FP-IS-07": ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN"],
+  "FP-IS-08": ["CV-MULTI-STOP-PLAN-NINE-LEGS"],
+  "FP-IS-09": ["CV-WORKLIST-SELECTION-ACCEPTED", "CV-WORKLIST-SELECTION-STALE-REVISION"],
+  "FP-IS-10": ["CV-TASK-TYPE-ADMISSION-FAIL-CLOSED"],
+  "FP-IS-11": ["CV-REVERSED-DIRECTION-JOURNEY"],
+  "FP-IS-12": ["CV-WAITING-POINT-IDLE-RETURN"],
+  "FP-IS-13": ["CV-AUTOMATIC-CHARGING-CYCLE", "CV-UNABLE-TO-CHARGE-FIELD-CONFIRMATION", "CV-MANUAL-STATION-CLEARANCE", "CV-MANUAL-CHARGING-RETURN"],
+  "FP-IS-14": ["CV-SLOT-CONFIGURATION-ACTIVATION"],
+  "FP-IS-15": ["CV-ONBOARD-ALARM-SNAPSHOT"],
+};
+const V2_RELEASED_VECTOR_IDS = [...new Set(Object.values(V2_RELEASED_SLICE_BINDINGS).flat())];
+
 const MESSAGE = "CurrentStopWorklistSnapshot";
 const FIELD = "stationDepartureDeadlineAt";
 
@@ -94,12 +117,21 @@ test("OPERATOR_TIMEOUT is appended after the codes registered before it, narrowe
   assert.doesNotMatch(entry.meaning, /\b(will|shall)\b/i);
 });
 
-test("OPERATOR_TIMEOUT gets no vector and the trajectory set is unchanged", () => {
+test("OPERATOR_TIMEOUT gets no vector and every protocol-v2.0.0 vector keeps every slice binding it had", () => {
   const ids = fs.readdirSync(path.join(tree, "vectors"));
-  assert.equal(ids.length, 33);
+  // A typo guard on the fixture above, not on the tree: it holds whatever the generator does.
+  assert.equal(V2_RELEASED_VECTOR_IDS.length, 33);
+  assert.deepEqual(V2_RELEASED_VECTOR_IDS.filter((id) => !ids.includes(id)), []);
   const stableCodes = ids.map((id) => readJson(`vectors/${id}/expected.json`).stableErrorCode);
   assert.equal(stableCodes.includes("OPERATOR_TIMEOUT"), false);
-  const references = readJson("integration-slices/index.json").slices.flatMap((slice) => slice.vectorIds);
-  assert.equal(references.length, 36);
-  assert.equal(new Set(references).size, 33);
+  const slices = readJson("integration-slices/index.json").slices;
+  const bound = new Set(slices.flatMap((slice) => slice.vectorIds.map((id) => `${slice.integrationSliceId} ${id}`)));
+  const lost = Object.entries(V2_RELEASED_SLICE_BINDINGS).flatMap(([sliceId, vectorIds]) => vectorIds.map((id) => `${sliceId} ${id}`)).filter((pair) => !bound.has(pair));
+  assert.deepEqual(lost, []);
+});
+
+test("the slices reference exactly the vectors the tree carries, no more and no fewer", () => {
+  const ids = fs.readdirSync(path.join(tree, "vectors")).sort();
+  const referenced = [...new Set(readJson("integration-slices/index.json").slices.flatMap((slice) => slice.vectorIds))].sort();
+  assert.deepEqual(referenced, ids);
 });
