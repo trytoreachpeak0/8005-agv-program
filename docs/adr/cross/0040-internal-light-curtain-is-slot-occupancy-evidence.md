@@ -4,6 +4,8 @@
 
 > *2026-09-18：本文讲批量开锁（BatchUnlock）的部分由 [ADR-cross-0061](0061-one-slot-door-unlocked-at-a-time.md) 取代——业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开；已随 `CP-0004` 批准生效（2026-09-18，需求基线 `v1.4.0`），具体取代哪几句见该文 Consequences。其余正文不变。*
 
+> *2026-09-29：「LoadCompensationRecovery 只有在 EMPTY、锁闭、输出复位后才算物理完成」的定义不变；[ADR-cross-0063](0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) 改的是业务结清不再以物理完成为前提——光幕明确 `EMPTY` 而锁闭不能证明时照常结清货物业务，物理完成改由车辆放行来要求（`CP-0009`，需求基线 `v1.8.0`）。其余正文不变。*
+
 同事初稿 §4.2 为每个仓位配置光幕 DI，§8 将光幕纳入逐仓操作序列。项目实际光幕安装在仓位内部，能够检测产品是否留在仓内，而不只是检测门口临时遮挡。因此车载端以仓内光幕及其数据有效性形成 SlotOccupancyState：
 
 - 光幕在线、数据有效且稳定遮挡：`OCCUPIED`。

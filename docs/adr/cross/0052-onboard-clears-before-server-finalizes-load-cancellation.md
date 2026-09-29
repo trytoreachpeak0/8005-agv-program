@@ -2,6 +2,8 @@
 
 > *2026-09-18：本文讲批量开锁（BatchUnlock）的部分由 [ADR-cross-0061](0061-one-slot-door-unlocked-at-a-time.md) 取代——业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开；已随 `CP-0004` 批准生效（2026-09-18，需求基线 `v1.4.0`），具体取代哪几句见该文 Consequences。其余正文不变。*
 
+> *2026-09-29：光幕明确 `EMPTY`、而锁闭或开锁输出复位不能证明的那一格，由 [ADR-cross-0063](0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) 取代本文以锁闭与输出复位为取消结清条件的部分——货物业务照常结清，锁闭证明改为车辆放行条件；已随 `CP-0009` 批准生效（2026-09-29，需求基线 `v1.8.0`），具体见该文 Consequences。其余正文不变。*
+
 同事初稿 §2.3 将实时 IO、逐仓门序列和安全互锁归车载端，§23 的通用 OperationCancelCommand 又无法表达“必须先取出全部产品”的现场规则。装货取消采用“服务端授权开始、车载端完成物理清空、服务端终结业务任务”的交互。
 
 车载界面将操作显示为“清空并取消”。已核验操作员确认后，车载端发送 `LoadCancellationStartRequested`，至少包含 demandId。服务端根据当前权威业务状态返回 LoadCancellationAuthorization：

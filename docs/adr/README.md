@@ -49,20 +49,20 @@
 | [ADR-cross-0036](cross/0036-load-batch-commit-and-hardware-fault-hold.md) | 装货整批成功才提交，硬件故障暂停等待人工处置 |
 | [ADR-cross-0037](cross/0037-unload-batch-clears-business-state-only-after-all-empty.md) | 8005 卸货跨 Sublot 批量开锁，按仓位独立清空业务状态（批量开锁部分由 ADR-cross-0061 取代） |
 | [ADR-cross-0038](cross/0038-new-slot-operation-attempt-id-after-compensated-load-retry.md) | 装货补偿后重试使用新的仓位操作尝试编号（已由 ADR-cross-0039 废止） |
-| [ADR-cross-0039](cross/0039-operator-starts-server-authorized-load-compensation.md) | 操作员发起、服务端授权装货补偿 |
+| [ADR-cross-0039](cross/0039-operator-starts-server-authorized-load-compensation.md) | 操作员发起、服务端授权装货补偿（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0040](cross/0040-internal-light-curtain-is-slot-occupancy-evidence.md) | 仓内光幕作为仓位有货与空仓的物理证据 |
 | [ADR-cross-0041](cross/0041-one-basket-per-physical-slot.md) | 每个物理仓位最多存放一个花篮（部分由 ADR-cross-0059 修订） |
 | [ADR-cross-0042](cross/0042-sublot-is-load-input-and-server-resolves-task.md) | 装货输入是 SUBLOT，服务端解析任务和花篮数 |
 | [ADR-cross-0043](cross/0043-server-enforces-global-sublot-reservation.md) | 服务端保证 SUBLOT 的全局唯一占用 |
 | [ADR-cross-0044](cross/0044-baskets-have-no-individual-identity.md) | 花篮没有独立身份，只追踪 SUBLOT 与仓位 |
 | [ADR-cross-0045](cross/0045-load-final-confirmation-and-precommit-correction.md) | 装货正式提交前允许原操作内纠错 |
-| [ADR-cross-0046](cross/0046-load-task-cancellable-until-departure-after-full-clearance.md) | 装货任务离站前可取消，但必须整批清空 |
+| [ADR-cross-0046](cross/0046-load-task-cancellable-until-departure-after-full-clearance.md) | 装货任务离站前可取消，但必须整批清空（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0047](cross/0047-demand-id-identifies-station-task-and-cancellation.md) | DemandId 标识站点任务，TransportDemandKey 负责取消抑制 |
 | [ADR-cross-0048](cross/0048-versioned-current-stop-worklist-snapshot.md) | 当前停靠作业清单使用带版本的完整快照 |
 | [ADR-cross-0049](cross/0049-station-task-type-many-to-many-admission.md) | 站点与任务类型采用多对多准入关系 |
 | [ADR-cross-0050](cross/0050-admission-policy-frozen-at-operation-commit.md) | 任务类型准入规则在操作承诺点冻结 |
 | [ADR-cross-0051](cross/0051-admission-policy-stored-in-server-db-no-v1-ui.md) | 任务准入关系存服务端数据库，第一版不做配置界面 |
-| [ADR-cross-0052](cross/0052-onboard-clears-before-server-finalizes-load-cancellation.md) | 车载端清空全部目标仓位后服务端才完成取消 |
+| [ADR-cross-0052](cross/0052-onboard-clears-before-server-finalizes-load-cancellation.md) | 车载端清空全部目标仓位后服务端才完成取消（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0053](cross/0053-onboard-upcoming-stop-plan-and-vehicle-overview.md) | 车载端展示后续停靠计划与四维车辆概览 |
 | [ADR-cross-0054](cross/0054-auto-load-commit-with-pre-departure-correction.md) | 装货物理闭环后自动提交，整站结束前仍可纠错 |
 | [ADR-cross-0055](cross/0055-server-owned-station-departure-wait-timeout.md) | 服务端掌握装货站离站等待超时并原子结束本站 |
@@ -71,5 +71,6 @@
 | [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复 |
 | [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
 | [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除 |
-| [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开 |
+| [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0062](cross/0062-server-side-slot-fault-declaration-enters-recovery.md) | 仓位卡住但读数有效时，车载端上报超时，由管理员在服务端判为 UNKNOWN 进入恢复 |
+| [ADR-cross-0063](cross/0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) | 光幕证明取空即结清装货侧的货物业务，仓门锁闭证明改为车辆放行条件 |
