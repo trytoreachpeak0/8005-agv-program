@@ -1046,7 +1046,7 @@ _Avoid_: FaultCargoRecoveryDecision、审批、逐动作二次认证、故障隔
 _Avoid_: MaintenanceDoorAccessMode、审批、故障隔离即停稳、DispatchDisable 即停稳、RIoT 结果未知且未物理隔离仍开仓、顺便开启其它仓位
 
 **故障载货补救记录（FaultCargoRecoveryRecord）**:
-正常受控取货时，故障车载货全部按原任务目标仓位达到 `EMPTY + 锁闭 + 开锁输出复位`，并由具名人员接管产品后由系统自动形成不可变交接记录；ForcedMechanicalCargoRecovery 时，可由具名的 ForcedCargoHandoffRecord 代替电子空仓证明来关闭货物取出与交接的业务问题，但不能证明仓门、传感器或车辆恢复。记录绑定异常处置会话、取出选择、原 DemandId、TransportDemandKey、车辆、仓位、产品/Sublot、现场位置、处置人与接管人及时间；身份明确的完整交接与原任务 `TERMINATED_BY_FAULT_CARGO_HANDOFF` 终态及 TransportDemandSuppression 原子提交，产品身份未知时相关任务保持待盘点。
+正常受控取货时，故障车载货全部按原任务目标仓位达到 `EMPTY + 锁闭 + 开锁输出复位`，并由具名人员接管产品后由系统自动形成不可变交接记录；ForcedMechanicalCargoRecovery 时，可由具名的 ForcedCargoHandoffRecord 代替电子空仓证明来关闭货物取出与交接的业务问题，但不能证明仓门、传感器或车辆恢复。记录绑定异常处置会话、取出选择、原 DemandId、TransportDemandKey、车辆、仓位、产品/Sublot、现场位置、处置人与接管人及时间；身份明确的完整交接与原任务 `TERMINATED_BY_FAULT_CARGO_HANDOFF` 终态及 TransportDemandSuppression 原子提交；强制取出的产品在现场都能识别身份，不设身份未知时待盘点的分支。
 _Avoid_: 人工运输任务、成功送达、MES 完工、部分任务终止、无接管人取出、取出后等待 MES 扫码
 
 **强制机械取出（ForcedMechanicalCargoRecovery）**:
@@ -1058,7 +1058,7 @@ ForcedMechanicalCargoRecovery 开始时建立的车辆恢复边界；它使此�
 _Avoid_: 继续沿用旧 SlotOperationAttemptId、迟到成功覆盖强制处置、从旧快照猜恢复状态、删除历史证据
 
 **强制取出交接记录（ForcedCargoHandoffRecord）**:
-强制机械取出后，由异常处置人员记录并由具名接管人确认的产品身份、原车辆/仓位、原 DemandId/TransportDemandKey、取出方式、处置人与时间；身份明确时它证明货物已经救出并完成责任交接，允许关闭对应货物业务，但不证明电子空仓、仓门安全或设备恢复。产品身份不明时只形成实物记录并保持相关任务待盘点。
+强制机械取出后，由异常处置人员记录并由具名接管人确认的产品身份、原车辆/仓位、原 DemandId/TransportDemandKey、取出方式、处置人与时间；身份明确时它证明货物已经救出并完成责任交接，关闭对应货物业务并写入抑制，但不证明电子空仓、仓门安全或设备恢复。强制取出的产品在现场都能识别身份，不设身份不明时只形成实物记录的分支。
 _Avoid_: 仓位恢复确认、车辆恢复确认、未知产品猜绑定、人工运输成功、MES 完工
 
 **EmergencyStop**:
