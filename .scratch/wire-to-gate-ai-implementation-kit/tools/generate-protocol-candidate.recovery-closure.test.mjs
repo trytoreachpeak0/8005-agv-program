@@ -287,12 +287,24 @@ test(`${FORCED_VECTOR} keeps its messages and asserts the named handoff and a wa
   assert.deepEqual(expected.orderedExpectedMessages, ["RecoveryActionSubmitted", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", RESULT]);
   assert.deepEqual(expected.productAssertions, {
     controlServer: ["FENCE_FORCED_RECOVERY_BY_GENERATION", "SETTLE_DEMAND_ONLY_ON_NAMED_HANDOFF", "NEVER_REFUSE_AN_ISOLATION_RESULT_OVER_ITS_RECORD", "KEEP_DEMAND_BLOCKED_AND_ACCEPT_NEW_SESSION_ON_FAILED_OR_UNKNOWN", "NEVER_TREAT_HANDOFF_AS_EMPTY_SLOT_OR_READY_VEHICLE"],
-    onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME", "REPORT_CARGO_HANDOFF_RECORD_IN_RESULT", "COPY_COMMAND_DEMAND_INTO_RESULT", "CONFIRM_SUBLOT_AGAINST_DEMAND_BEFORE_SENDING", "REPLAY_SAME_HANDOFF_RECORD_AFTER_RESTART", "KEEP_RECOVERY_CONTEXT_UNLESS_ISOLATION_ACKNOWLEDGED"],
+    onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME", "REPORT_CARGO_HANDOFF_RECORD_IN_RESULT", "COPY_COMMAND_DEMAND_INTO_RESULT", "CONFIRM_SUBLOT_AGAINST_DEMAND_BEFORE_SENDING", "REPLAY_SAME_HANDOFF_RECORD_AFTER_RESTART", "KEEP_RECOVERY_CONTEXT_UNLESS_ISOLATION_ACKNOWLEDGED", "ANSWER_FORCED_RECOVERY_COMMAND_WITHOUT_DEMAND"],
   });
   assert.deepEqual(expected.forbiddenSideEffects, [...DEFAULT_SIDE_EFFECTS, "isolation-on-a-demand-without-handoff-record", "handoff-record-proves-empty-slot-or-ready-vehicle", "demand-left-blocked-after-acknowledged-isolation", "recovery-context-cleared-on-failed-or-unknown-forced-recovery"]);
   // The G3 claim review maps a server check onto this vector's released final state; it does not move.
   assert.deepEqual(expected.finalState, { readiness: "RECOVERY_REQUIRED_OR_UNIQUELY_RECONCILED", business: "NO_DUPLICATE_COMMIT", physical: "NO_UNPROVEN_STATE" });
   assert.equal(expected.stableErrorCode, null);
+});
+
+// The identity test anchors this sentence only on its two names; these pin what it says, so it cannot drift back to the
+// unidentified branch or to a record that does not depend on the demand.
+test("compatibility report sentence 3 states the record rule of this release", () => {
+  const sentence = readJson("compatibility/report.json").changeSummary[2];
+  assert.match(sentence, /^ForcedMechanicalRecoveryResult gains a required, nullable demandId copied from its command/);
+  assert.match(sentence, /cargoHandoff record naming the SUBLOT of the removed cargo, the person it was handed to and when/);
+  assert.match(sentence, /present exactly when the outcome is MECHANICALLY_ISOLATED on a session with a demand/);
+  assert.match(sentence, /electronicEmptyProven and vehicleReadyProven stay false/);
+  assert.match(sentence, /unidentified-cargo branch this release leaves out/);
+  assert.doesNotMatch(sentence, /pending inventory|described physically/);
 });
 
 test("FP-IS-07 binds the new vector and names the close reason and the handoff record in its outcomes and responsibilities", () => {

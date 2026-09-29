@@ -880,9 +880,10 @@ const trajectories = {
   // Revised in 3.0.0 (REQ-0242): the result carries the cargo handoff record, and every outcome has a way out that needs
   // no database edit. Isolated on a demand: the record is required and the control server settles the demand on it, never
   // refusing the result over what the record says -- the vehicle drops its recovery context once the result is
-  // acknowledged, so a refused settlement would leave the demand nothing to recover through. FAILED or UNKNOWN: the vehicle
-  // keeps its context, the session closes and the blocked demand takes a new session. The messages and the final state are
-  // the released ones.
+  // acknowledged, so a refused settlement would leave the demand nothing to recover through. That covers the content of
+  // cargoHandoff only: a demandId other than the session's is a business identity conflict and is refused as today.
+  // FAILED: the vehicle keeps its context, the session closes and the blocked demand takes a new session. A command with
+  // no demand is answered too, or the session would stay EXECUTING. The messages and the final state are the released ones.
   "CV-FORCED-MECHANICAL-RECOVERY": {
     messages: wire("RecoveryActionSubmitted", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult"),
     forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "isolation-on-a-demand-without-handoff-record", "handoff-record-proves-empty-slot-or-ready-vehicle", "demand-left-blocked-after-acknowledged-isolation", "recovery-context-cleared-on-failed-or-unknown-forced-recovery"],
@@ -890,8 +891,10 @@ const trajectories = {
       controlServer: ["FENCE_FORCED_RECOVERY_BY_GENERATION", "SETTLE_DEMAND_ONLY_ON_NAMED_HANDOFF", "NEVER_REFUSE_AN_ISOLATION_RESULT_OVER_ITS_RECORD", "KEEP_DEMAND_BLOCKED_AND_ACCEPT_NEW_SESSION_ON_FAILED_OR_UNKNOWN", "NEVER_TREAT_HANDOFF_AS_EMPTY_SLOT_OR_READY_VEHICLE"],
       // demandId is copied from the command, never left null on a demand, or the record requirement would not apply. The
       // SUBLOT is checked against the demand before the result goes out, because the control server will not refuse it
-      // afterwards. The record is part of the durable result, so a result replayed after a restart carries the same record.
-      onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME", "REPORT_CARGO_HANDOFF_RECORD_IN_RESULT", "COPY_COMMAND_DEMAND_INTO_RESULT", "CONFIRM_SUBLOT_AGAINST_DEMAND_BEFORE_SENDING", "REPLAY_SAME_HANDOFF_RECORD_AFTER_RESTART", "KEEP_RECOVERY_CONTEXT_UNLESS_ISOLATION_ACKNOWLEDGED"],
+      // afterwards; a mismatch warns and asks the operator to confirm again, then sends -- the slot is already physically
+      // isolated, so the check never holds the result back for good. The record is part of the durable result, so a result
+      // replayed after a restart carries the same record. A command without a demand is answered like any other.
+      onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME", "REPORT_CARGO_HANDOFF_RECORD_IN_RESULT", "COPY_COMMAND_DEMAND_INTO_RESULT", "CONFIRM_SUBLOT_AGAINST_DEMAND_BEFORE_SENDING", "REPLAY_SAME_HANDOFF_RECORD_AFTER_RESTART", "KEEP_RECOVERY_CONTEXT_UNLESS_ISOLATION_ACKNOWLEDGED", "ANSWER_FORCED_RECOVERY_COMMAND_WITHOUT_DEMAND"],
     },
   },
   "CV-MANUAL-CHARGING-RETURN": {
