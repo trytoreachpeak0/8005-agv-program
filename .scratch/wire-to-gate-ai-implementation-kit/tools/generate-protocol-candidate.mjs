@@ -261,8 +261,27 @@ const requiredErrorCodes = [
     meaning: "The exception recovery session closed because its recovery action will not reconcile: the result reported FAILED or UNKNOWN, the result reported success that its per-slot results do not bear out, or the vehicle refused the SlotOperationResumeCommand with SlotOperationCommandRejected so no result will come; the demand stays blocked and an administrator opens a new exception recovery session to choose the next action.",
     introducedInRelease: "3.0.0",
   }],
+  // Release 3.0.0: the onboard fatal-fault latch (onboard-hmi#191, #197), which until now borrowed DEPARTURE_UNSAFE in the
+  // safety summary and VEHICLE_NOT_READY on a refused slot, so a log could not tell a latch from either. The allowed
+  // messages are every place the onboard HMI writes the latch today: SafetySummary.reasonCodes in the three safety
+  // messages, and the refused slot's SlotResult in OperationResult and in the four results of the shared recovery vector
+  // executor. Listing a message permits the code there and obliges nobody to send it. MANUAL_REVIEW because only a person
+  // lifts the latch.
+  ["ONBOARD_FATAL_FAULT_LATCHED", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["SafetyStateChanged", "SafetyStateSnapshot", "PreDepartureSafetyCheckResult", "OperationResult", "LoadCorrectionResult", "LoadCancellationResult", "LoadCompensationResult", "FaultCargoRecoveryResult"],
+    meaning: "The onboard HMI has latched a fatal safety fault: it reports departure unsafe and refuses to open any slot until a person reviews and resets the latch. It is not VEHICLE_NOT_READY, not a vehicle that has not come to a stop, and not an unsafe state caused by the slot operation in progress, so it is never forgiven as operation-induced unsafety.",
+    introducedInRelease: "3.0.0",
+  }],
+  // Release 3.0.0 (CP-0009, REQ-0364, ADR-cross-0063): a cleared slot whose light curtain proves it empty while its door is
+  // not proven locked. It travels on that slot's SlotResult in the two clearing results, beside overallOutcome
+  // ALL_EMPTY_DOOR_UNPROVEN. MANUAL_REVIEW because the vehicle leaves the hold only through a repair.
+  ["SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["LoadCancellationResult", "LoadCompensationResult"],
+    meaning: "The slot's light curtain reads EMPTY but its sensors cannot prove the door locked or the unlock output reset: the cargo business settles the slot as empty and the result carries overallOutcome ALL_EMPTY_DOOR_UNPROVEN, never ALL_EMPTY, which still means every slot EMPTY, LOCKED and RESET; no further slot is opened, and the vehicle is held until a HardwareRecoveryRecord and fresh LOCKED, RESET and EMPTY readings of the slot with a passed PreDepartureSafetyCheck (REQ-0364, CP-0009).",
+    introducedInRelease: "3.0.0",
+  }],
 ];
-const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
+const errorCodes =requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
   category,
   meaning: overrides.meaning ?? `${code} is the stable ${category.toLowerCase()} failure defined by the accepted ${profileDisplayName} governance decision.`,
@@ -411,7 +430,11 @@ add("PreDepartureSafetyCheckResult", { preDepartureSafetyCheckId: R("Id"), outco
 // ticket 06's B5 table. loadingPhase is null without a transport journey, and carries a closedReason
 // exactly when its state is CLOSED.
 add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN", "MANDATORY_CHARGE"), chargingCycleState: E("NOT_CHARGING", "ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE", "UNKNOWN"), loadingPhase: Nullable(O({ state: E("LOADING", "CARGO_HOLDING_WAIT", "VEHICLE_FULL", "CLOSED"), cargoHoldingDeadlineAt: Nullable(R("Instant")), closedReason: Nullable(E("VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE")) }, { if: { properties: { state: { const: "CLOSED" } }, required: ["state"] }, then: { properties: { closedReason: { type: "string" } } }, else: { properties: { closedReason: { type: "null" } } } })), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
-add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }) }, { businessDedupKeys: ["worklistRevision"] });
+// Release 3.0.0 (program#86, #150): stopEndedReason says why the stop ended, so the vehicle can tell the operator more than
+// "nothing pending". Null while the worklist has items; required once it is empty, because the control server sends an
+// empty worklist from exactly two places (JourneyClosure, StopEndWorklist) and every caller of either knows why. The
+// reasons are the operator's, one per way a stop ends, not the demands' terminal codes. The item shape is 2.0.0's.
+add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }), stopEndedReason: Nullable(E("COMPLETED", "STATION_DEADLINE_EXPIRED", "LOAD_CANCELLED", "LOAD_COMPENSATED", "CARGO_HANDED_OFF", "DEMAND_RELEASED", "TRIP_TERMINATED")) }, { businessDedupKeys: ["worklistRevision"] });
 add("UpcomingStopPlanSnapshot", { planRevision: R("Revision"), legs: A(O({ movementLegId: R("Id"), legType: Nullable(E("TO_PICKUP", "TO_DROPOFF")), stopPurposeCategory: R("StopPurposeCategory"), demandId: Nullable(R("Id")), publicStationFunction: Nullable(R("PublicStationFunction")), sequence: I({ minimum: 1, maximum: 9 }), stationId: S(), mapId: S(), state: E("PLANNED", "ACTIVE", "ARRIVED", "COMPLETED", "BLOCKED") }), { maxItems: 9, uniqueItems: true, "x-sortedBy": "sequence" }) }, { businessDedupKeys: ["planRevision"] });
 // Release 2.0.0: sublot entry is scoped to the dispatch. The control server offers every SUBLOT in
 // scope, the vehicle reports only what was scanned, and the control server resolves the demand
@@ -420,7 +443,11 @@ add("UpcomingStopPlanSnapshot", { planRevision: R("Revision"), legs: A(O({ movem
 // of the same SUBLOT may differ in entryMethod, operator and revalidated reason, so any key short of
 // the whole payload would call it a conflict. Each entry is its own messageId, and SublotRejected
 // points back at it through correlationId.
-add("SublotEntryRequested", { operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), expectedSublots: StringArray({ minItems: 1, maxItems: 8, uniqueItems: true }), entryMethods: A(S(), { const: ["SCANNER", "KEYBOARD"] }), expiresOnRevisionChange: B({ const: true }) }, { businessDedupKeys: ["operationSessionId", "worklistRevision"] });
+// expiresOnRevisionChange stays const true (program#150): both ends implement specification 23.5, and the literal name read
+// alone suggests any revision advance withdraws the request. Its description is the definition the wire notes carry, the
+// same string, so the two cannot drift apart.
+const revisionChangeDefinition = "`true` means the entry request expires on a revision change, and a revision change is: the stop ended, the operation session or the station changed (a worklist for another operation session or station with a strictly higher revision), the worklist became empty (a worklist no older than the entry request with empty `items`), or the control server rejected the submission with `WORKLIST_REVISION_STALE`. A worklist revision advancing within the same operation session at the same station is not a revision change, and the entry request stays open.";
+add("SublotEntryRequested", { operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), expectedSublots: StringArray({ minItems: 1, maxItems: 8, uniqueItems: true }), entryMethods: A(S(), { const: ["SCANNER", "KEYBOARD"] }), expiresOnRevisionChange: B({ const: true, description: revisionChangeDefinition }) }, { businessDedupKeys: ["operationSessionId", "worklistRevision"] });
 add("SublotSubmitted", { operationSessionId: R("Id"), stationId: S(), worklistRevision: R("Revision"), sublot: S(), entryMethod: E("SCANNER", "KEYBOARD"), operator: R("OperatorContext") });
 add("SublotRejected", { demandId: Nullable(R("Id")), operationSessionId: R("Id"), problem: R("Problem"), currentWorklistRevision: R("Revision"), rejectedSublot: S() });
 add("SlotOperationCommand", { demandId: R("Id"), operationSessionId: R("Id"), slotOperationAttemptId: R("Id"), operationType: E("LOAD", "UNLOAD"), slots: Slots(), expectedBasketCount: I({ minimum: 1, maximum: 8 }), expectedFinalPhysicalState: E("OCCUPIED", "EMPTY"), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["demandId", "slotOperationAttemptId"], recoveryRole: "SLOT_OPERATION" });
@@ -435,11 +462,14 @@ add("LoadCorrectionCommand", { correctionId: R("Id"), demandId: R("Id"), slotOpe
 add("LoadCorrectionResult", { correctionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("COMPLETED", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["correctionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("LoadCancellationStartRequested", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["cancellationId", "demandId"] });
 add("LoadCancellationAuthorization", { cancellationId: R("Id"), decision: E("AUTHORIZED", "REJECTED"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), slots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }), problem: Nullable(R("Problem")) }, { businessDedupKeys: ["cancellationId", "demandId"] });
-add("LoadCancellationResult", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 0, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["cancellationId", "demandId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+add("LoadCancellationResult", { cancellationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN", "ALL_EMPTY_DOOR_UNPROVEN"), slotResults: A(R("SlotResult"), { minItems: 0, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["cancellationId", "demandId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("LoadCompensationRequested", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), operator: R("OperatorContext") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "demandId", "slotOperationAttemptId"] });
 add("LoadCompensationRejected", { recoveryActionId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["recoveryActionId"] });
 add("LoadCompensationCommand", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), slots: Slots(), expectedFinalPhysicalState: S({ const: "EMPTY" }), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "demandId", "slotOperationAttemptId"], recoveryRole: "LOAD_COMPENSATION" });
-add("LoadCompensationResult", { recoveryActionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+// Release 3.0.0 (CP-0009): ALL_EMPTY_DOOR_UNPROVEN on both clearing results -- every slot EMPTY by its light curtain, some
+// door not proven locked or its output not proven reset. ALL_EMPTY keeps meaning EMPTY, LOCKED and RESET on every slot, so an
+// end that reads only overallOutcome never takes an unproven door for a closed operation and lets the vehicle go.
+add("LoadCompensationResult", { recoveryActionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN", "ALL_EMPTY_DOOR_UNPROVEN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("ExceptionRecoverySessionRequested", { requestId: R("Id"), administrator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), reason: S(), authenticationProof: S({ examples: ["INVALID-PLACEHOLDER-NOT-A-SECRET"] }) }, { businessDedupKeys: ["requestId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionOpened", { requestId: R("Id"), exceptionRecoverySessionId: R("Id"), openedAt: R("Instant"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["requestId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionRejected", { requestId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["requestId"] });
@@ -566,6 +596,14 @@ for (const spec of Object.values(specs)) {
       else: { properties: { cargoHandoff: { type: "null" } } },
     });
   }
+  // A worklist with items has not ended its stop, so it carries no reason; an empty one always says why the stop ended.
+  if (spec.name === "CurrentStopWorklistSnapshot") {
+    Object.assign(schema.properties.payload, {
+      if: { properties: { items: { minItems: 1 } }, required: ["items"] },
+      then: { properties: { stopEndedReason: { type: "null" } } },
+      else: { properties: { stopEndedReason: { type: "string" } } },
+    });
+  }
   // A session states why it closed only once it has: every earlier state carries null. A CLOSED session carries null on a
   // normal close, so there is no then-branch.
   if (spec.name === "ExceptionRecoverySessionSnapshot") {
@@ -659,6 +697,8 @@ const envelopeFor = (spec) => {
   if (spec.name === "SlotFaultDeclarationResult") value.payload.problem = null;
   // The sampler takes OPEN and an ErrorCode, but only a CLOSED session states why it closed.
   if (spec.name === "ExceptionRecoverySessionSnapshot") value.payload.closedReason = null;
+  // The sampler takes one item and a reason, but a worklist with items has not ended its stop.
+  if (spec.name === "CurrentStopWorklistSnapshot") value.payload.stopEndedReason = null;
   return value;
 };
 
@@ -759,6 +799,11 @@ for (const spec of Object.values(specs)) {
   // A reason on each state before CLOSED.
   if (spec.name === "ExceptionRecoverySessionSnapshot") {
     for (const state of ["OPEN", "ACTION_SELECTED", "EXECUTING"]) payloadNegative(`IF-THEN-closedReason-${state}`, "/payload/closedReason", "if-then", (payload) => { payload.state = state; payload.closedReason = "RECOVERY_ACTION_RESULT_NOT_RECONCILED"; });
+  }
+  // Both sides of the stop-end correspondence: a reason on a worklist with items, an empty worklist without one.
+  if (spec.name === "CurrentStopWorklistSnapshot") {
+    payloadNegative("IF-THEN-stopEndedReason-ITEMS", "/payload/stopEndedReason", "if-then", (payload) => { payload.stopEndedReason = "STATION_DEADLINE_EXPIRED"; });
+    payloadNegative("IF-THEN-stopEndedReason-EMPTY", "/payload/stopEndedReason", "if-then", (payload) => { payload.items = []; });
   }
   if (correlationRuleFor(spec) === "REQUIRED_ORIGINAL_MESSAGE_ID") {
     const broken = clone(valid); broken.correlationId = null;
@@ -938,10 +983,12 @@ const trajectories = {
     stableErrorCode: "WORKLIST_REVISION_STALE",
     productAssertions: { controlServer: ["REJECT_STALE_WORKLIST_REVISION", "RETURN_CURRENT_WORKLIST_REVISION"], onboardHmi: ["ADOPT_RETURNED_WORKLIST_REVISION", "NEVER_PROCEED_ON_REJECTED_SELECTION"] },
   },
+  // 3.0.0 dropped the onboard DISPLAY_ADMISSION_BLOCK_REASON (program#125): an admission block reason stays on the control
+  // server and its dashboard and is never sent to the vehicle (specification 5.3), so no implementation could produce it.
   "CV-TASK-TYPE-ADMISSION-FAIL-CLOSED": {
     messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
     stableErrorCode: "ACTION_NOT_ALLOWED_IN_STATE",
-    productAssertions: { controlServer: ["ADMIT_ONLY_BOUND_TASK_TYPES", "FAIL_CLOSED_ON_MISSING_BINDING"], onboardHmi: ["NEVER_INFER_UNBOUND_TASK_TYPE", "DISPLAY_ADMISSION_BLOCK_REASON"] },
+    productAssertions: { controlServer: ["ADMIT_ONLY_BOUND_TASK_TYPES", "FAIL_CLOSED_ON_MISSING_BINDING"], onboardHmi: ["NEVER_INFER_UNBOUND_TASK_TYPE"] },
   },
   "CV-REVERSED-DIRECTION-JOURNEY": {
     messages: wire("UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "CurrentStopWorklistSnapshot", "SnapshotAppliedAck"),
@@ -1019,6 +1066,24 @@ const trajectories = {
       onboardHmi: ["DISPLAY_SESSION_CLOSED_REASON", "ALLOW_REOPENING_AFTER_SESSION_CLOSED", "NEVER_TREAT_UNRECONCILED_CLOSE_AS_RECOVERED"],
     },
     finalState: { readiness: "RECOVERY_REQUIRED", business: "DEMAND_BLOCKED_SESSION_CLOSED_NEW_SESSION_ALLOWED", physical: "AS_REPORTED_BY_UNRECONCILED_RESULT" },
+  },
+  // CP-0009 (REQ-0364): a compensation whose light curtains prove every slot empty while a door is not proven locked. The
+  // demand ends as a compensation proven all empty does, with the same suppression; the door proof moves to the vehicle's
+  // release. The way out needs no database edit: the administrator submits a HardwareRecoveryRecord against this session and
+  // this compensation action, which the control server accepts after the result settled the session, as it already does
+  // after a forced mechanical recovery (control-server#137), and the vehicle goes once fresh LOCKED, RESET and EMPTY readings
+  // and a passed PreDepartureSafetyCheck follow. The record alone never releases it. The result gets its DurableAck.
+  "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN": {
+    messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "LoadCompensationRequested", "LoadCompensationCommand", "LoadCompensationResult", "DurableAck"),
+    stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "hardware-record-refused-after-compensation-settled"],
+    productAssertions: {
+      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "ACCEPT_HARDWARE_RECORD_FOR_SETTLED_COMPENSATION", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+      // The result is journaled before it is sent, so a result replayed after a restart is the same DOOR_UNPROVEN one and
+      // never a live re-reading that might now say ALL_EMPTY or UNKNOWN.
+      onboardHmi: ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"],
+    },
+    finalState: { readiness: "RECOVERY_REQUIRED", business: "DEMAND_TERMINATED_AS_ALL_EMPTY_VEHICLE_HELD_FOR_REPAIR", physical: "SLOTS_EMPTY_DOOR_UNPROVEN_VEHICLE_HELD" },
   },
 };
 for (const [vectorId, trajectory] of Object.entries(trajectories)) {
@@ -1099,11 +1164,11 @@ const slices = [
     authorityModel: { controlServerFact: "DurableAcceptance", wireMessages: ["DurableAck", "ProtocolProblem"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
     ownerResponsibilities: { controlServer: ["ACK_WITHOUT_DUPLICATE_EFFECT", "REPLAY_NOT_RECOMPUTE"], onboardHmi: ["RETRY_WITH_IDENTICAL_CONTENT", "ADOPT_REPLAYED_RESULT"] },
   }],
-  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE", "CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED"], {
+  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE", "CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED", "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN"], {
     scope: "EXCEPTION_RECOVERY_AND_MANUAL_RETURN",
-    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT", "FORCED_ISOLATION_ON_A_DEMAND_SETTLES_ON_A_NAMED_HANDOFF", "UNRECONCILED_SESSION_CLOSE_STATES_ITS_REASON"],
+    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT", "FORCED_ISOLATION_ON_A_DEMAND_SETTLES_ON_A_NAMED_HANDOFF", "UNRECONCILED_SESSION_CLOSE_STATES_ITS_REASON", "EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE"],
     authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand", "ExceptionRecoverySessionSnapshot"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
-    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT", "CLOSE_UNRECONCILED_SESSION_WITH_REASON"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING", "RECORD_FORCED_REMOVAL_HANDOFF"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT", "CLOSE_UNRECONCILED_SESSION_WITH_REASON", "HOLD_VEHICLE_ON_UNPROVEN_DOOR"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING", "RECORD_FORCED_REMOVAL_HANDOFF", "REPORT_UNPROVEN_DOOR_AFTER_EMPTY"] },
   }],
   ["FP-IS-08", 8, ["FP-IS-04"], ["CV-MULTI-STOP-PLAN-NINE-LEGS"], {
     scope: "MULTI_STOP_JOURNEY_PLAN",
@@ -1121,7 +1186,7 @@ const slices = [
     scope: "TASK_TYPE_ADMISSION_FAIL_CLOSED",
     requiredOutcomes: ["ONLY_BOUND_TASK_TYPES_ADMITTED", "MISSING_BINDING_FAILS_CLOSED"],
     authorityModel: { controlServerFact: "TaskTypePublicStationRuleVersion", wireMessages: ["VehicleBusinessStateSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
-    ownerResponsibilities: { controlServer: ["ADMIT_ON_BINDING_ONLY", "BLOCK_ON_MISSING_BINDING"], onboardHmi: ["DISPLAY_ADMISSION_BLOCK_REASON", "NEVER_INFER_UNBOUND_TASK_TYPE"] },
+    ownerResponsibilities: { controlServer: ["ADMIT_ON_BINDING_ONLY", "BLOCK_ON_MISSING_BINDING"], onboardHmi: ["NEVER_INFER_UNBOUND_TASK_TYPE"] },
   }],
   ["FP-IS-11", 11, ["FP-IS-10"], ["CV-REVERSED-DIRECTION-JOURNEY"], {
     scope: "REVERSED_DIRECTION_JOURNEY",
@@ -1335,9 +1400,10 @@ writeJson("compatibility/report.json", {
     "ForcedMechanicalRecoveryResult gains a required, nullable demandId copied from its command and a required, nullable cargoHandoff record naming the SUBLOT of the removed cargo, the person it was handed to and when, present exactly when the outcome is MECHANICALLY_ISOLATED on a session with a demand, so the control server settles that demand on a named handoff while electronicEmptyProven and vehicleReadyProven stay false (REQ-0242, whose unidentified-cargo branch this release leaves out because site staff always identify the cargo), and vector CV-FORCED-MECHANICAL-RECOVERY is revised to assert it.",
     "ExceptionRecoverySessionSnapshot gains a required, nullable closedReason that is null unless the session is CLOSED and is RECOVERY_ACTION_RESULT_NOT_RECONCILED when it closed on a recovery result that did not reconcile, that error code joins the registry narrowed to the snapshot, and vector CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED bound to FP-IS-07 covers it.",
     "Vector CV-TASK-TYPE-ADMISSION-FAIL-CLOSED and slice FP-IS-10 drop the onboard assertion DISPLAY_ADMISSION_BLOCK_REASON, which contradicts specification 5.3: an admission block reason stays on the control server and its dashboard and is never sent to the vehicle (8005-agv-program#125).",
-    "Error code ONBOARD_FATAL_FAULT_LATCHED states that the onboard HMI has latched a fatal safety fault, a reason the latch previously expressed by borrowing VEHICLE_NOT_READY.",
-    "CurrentStopWorklistSnapshot gains a required, nullable reason the current stop ended, so the onboard HMI can tell the operator why the worklist closed instead of only that nothing is pending.",
+    "Error code ONBOARD_FATAL_FAULT_LATCHED states that the onboard HMI has latched a fatal safety fault, which the latch previously expressed by borrowing DEPARTURE_UNSAFE in the safety summary and VEHICLE_NOT_READY on a refused slot.",
+    "CurrentStopWorklistSnapshot gains a required, nullable stopEndedReason, null while the worklist has items and naming why the stop ended once it is empty, so the onboard HMI can tell the operator why the worklist closed instead of only that nothing is pending.",
     "SublotEntryRequested.expiresOnRevisionChange gains a description of what a revision change is, and its value and type are unchanged (specification 23.5).",
+    "LoadCancellationResult and LoadCompensationResult gain overallOutcome ALL_EMPTY_DOOR_UNPROVEN for slots their light curtains prove empty while a door is not proven locked or its unlock output not proven reset, ALL_EMPTY keeps its meaning of every slot EMPTY, LOCKED and RESET, error code SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY marks such a slot, and vector CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN bound to FP-IS-07 settles the demand and holds the vehicle until a HardwareRecoveryRecord and fresh lock proof (CP-0009, REQ-0364).",
   ],
   runtimeRule: "Exact ProtocolVersion and exact materialized ProtocolReleaseIdentity required; no negotiation.",
   optionalFieldPolicy: "No optional payload fields exist in this candidate. Future optional fields require proof that omission and ignore preserve safety and business conclusions.",
@@ -1373,7 +1439,7 @@ writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis 
 writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- ProtocolVersion is scoped to a \`profileId\`: the integer increases monotonically only within one \`profileId\`, and two profiles can carry the same integer. \`WIRE_TO_GATE_MVP\` 0.2.0 and \`AGV_FULL_PRODUCT\` 1.0.0 are both ProtocolVersion 2; \`WIRE_TO_GATE_MVP\` 0.3.0 and \`AGV_FULL_PRODUCT\` 2.0.0 are both ProtocolVersion 3. \`AGV_FULL_PRODUCT\` 3.0.0 is ProtocolVersion 4. Identity is therefore compared only as the complete \`ProtocolReleaseIdentity\`, never by the integer alone, and evidence and logs always write the pair \`(profileId, ProtocolVersion)\`.\n- \`manifest/release.json\` is an approval-neutral content snapshot. It hashes all governed protocol content except itself, \`attestations/\`, \`.git/\`, \`node_modules/\`, generated \`evidence/\` and \`.github/\`.\n- \`attestations/release-approval.template.json\` is a tracked, blank template governed by its JSON Schema and excluded from the content manifest. A completed \`release-approval.json\` must remain external to Git and be uploaded as a GitHub Release Asset. This prevents the approval record from changing either the manifest hash or the commit it approves.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, content manifest hash, approval-attestation hash, schema bundle hash and vectors hash.\n- Exactly one approval of the exact commit and content manifest hash must be recorded in the attestation before an immutable tag/release is created. The approver is the product owner or, since 2026-09-12, an AI agent the product owner has authorized for that release; the attestation records which (\`approverKind\`) and, for an AI agent, who authorized it (\`authorizedBy\`). CI cannot approve.\n- This required **two** distinct product owners until 2026-09-08. The second signature was the counterpart maintainer of the onboard HMI and simulator repositories; that role ended when the project was taken over, and a rule demanding a signature nobody can give is a rule that gets worked around. \`WIRE_TO_GATE_MVP\` releases from 0.2.0 onward and every \`AGV_FULL_PRODUCT\` release carry exactly one approval. On 2026-09-12 the product owner also allowed an AI agent to approve: requiring the owner to perform every release by hand added a step without adding a decision. What still holds: CI cannot approve, and the attestation records who approved — the product owner by name, or an AI agent together with the owner who authorized it — at a stated time.\n- G1 validates the content manifest and attestation independently, verifies an approved attestation points at the current content manifest, requires exactly one approval, and reports both hashes. Candidate G1 uses the tracked blank template. Release G1 sets \`PROTOCOL_APPROVAL_ATTESTATION\` to the external completed asset. The annotated tag message and GitHub release metadata must record both reported hashes.\n- The attestation never contains its own hash. Its SHA-256 is computed from its final bytes and bound externally by the annotated tag and release metadata, avoiding another self-reference.\n- Release order is fixed: freeze and push the content commit; generate the external attestation against that commit and manifest; run G1 with \`PROTOCOL_APPROVAL_ATTESTATION\`; create annotated \`protocol-v<SemVer>\` tag pointing at the frozen content commit with both hashes in its message; then publish the same attestation as a release asset.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- A conformance-index or trajectory correction may use a patch release only when it restores an already approved responsibility boundary, changes no message Schema or wire semantics, and the release approver approves that compatibility classification. It still changes the manifest/vector identity and invalidates affected G1/G2/G3 evidence.\n- Historical red evidence and released identities are immutable.\n`);
 // Wire semantics JSON Schema cannot carry. Each section is fixed by its source (CP-0005 section 4.1,
 // specification 23.5); a later description keyword on the same field must say the same thing.
-writeText("docs/wire-notes.md", `# Wire notes\n\nExplanatory notes on wire semantics that JSON Schema cannot carry. Machine-readable JSON Schema, errors, examples and vectors remain authoritative: where a note and a Schema disagree, the Schema wins and the note is a defect.\n\n## Alarm code \`SLOT_EXPECTED_ACTION_OVERDUE\`\n\nSource: CP-0005 section 4.1 (REQ-0358).\n\n- \`AlarmEntry.code\` is an open set of strings, not an enum, so registering this code changes no schema.\n- The onboard HMI raises it in \`OnboardAlarmSnapshot\` when the current slot of a slot operation has waited for the operator beyond the configured threshold.\n- \`subjectType\` is \`SLOT\` and \`subjectId\` is the slot number.\n- \`raisedAt\` is the instant the wait crossed the threshold.\n- \`displayMessage\` is the action the vehicle expects.\n- The time already waited is derived from \`raisedAt\` and the threshold. \`OperationProgress\` (\`phase\` \`WAITING_OPERATOR\`, \`activeUnlockSlots\`) may help, but it is \`TELEMETRY\` and can be lost, so it is never the basis.\n- The slot readings (\`lockState\`, \`physicalState\`, \`unlockOutputState\`) are taken from \`SafetyStateSnapshot\`.\n- This alarm is the precondition of \`SlotFaultDeclarationCommand\`: an administrator can declare a fault only on a current slot that has reported it (REQ-0359).\n\n## \`SublotEntryRequested.expiresOnRevisionChange\`\n\nSource: specification 23.5.\n\n- The field stays \`const: true\`; neither its value nor its type changes.\n- \`true\` means the entry request expires on a revision change, and a revision change is: the stop ended, the operation session or the station changed (a worklist for another operation session or station with a strictly higher revision), the worklist became empty (a worklist no older than the entry request with empty \`items\`), or the control server rejected the submission with \`WORKLIST_REVISION_STALE\`. A worklist revision advancing within the same operation session at the same station is not a revision change, and the entry request stays open.\n- Separately from expiry, a \`LOAD\` \`SlotOperationCommand\` of the same operation session answers the entry request and so ends it.\n`);
+writeText("docs/wire-notes.md", `# Wire notes\n\nExplanatory notes on wire semantics that JSON Schema cannot carry. Machine-readable JSON Schema, errors, examples and vectors remain authoritative: where a note and a Schema disagree, the Schema wins and the note is a defect.\n\n## Alarm code \`SLOT_EXPECTED_ACTION_OVERDUE\`\n\nSource: CP-0005 section 4.1 (REQ-0358).\n\n- \`AlarmEntry.code\` is an open set of strings, not an enum, so registering this code changes no schema.\n- The onboard HMI raises it in \`OnboardAlarmSnapshot\` when the current slot of a slot operation has waited for the operator beyond the configured threshold.\n- \`subjectType\` is \`SLOT\` and \`subjectId\` is the slot number.\n- \`raisedAt\` is the instant the wait crossed the threshold.\n- \`displayMessage\` is the action the vehicle expects.\n- The time already waited is derived from \`raisedAt\` and the threshold. \`OperationProgress\` (\`phase\` \`WAITING_OPERATOR\`, \`activeUnlockSlots\`) may help, but it is \`TELEMETRY\` and can be lost, so it is never the basis.\n- The slot readings (\`lockState\`, \`physicalState\`, \`unlockOutputState\`) are taken from \`SafetyStateSnapshot\`.\n- This alarm is the precondition of \`SlotFaultDeclarationCommand\`: an administrator can declare a fault only on a current slot that has reported it (REQ-0359).\n\n## \`SublotEntryRequested.expiresOnRevisionChange\`\n\nSource: specification 23.5.\n\n- The field stays \`const: true\`; neither its value nor its type changes.\n- ${revisionChangeDefinition}\n- Separately from expiry, a \`LOAD\` \`SlotOperationCommand\` of the same operation session answers the entry request and so ends it.\n`);
 writeText("docs/candidate-limitations.md", `# Candidate limitations and release finalization\n\nThe candidate intentionally uses structurally valid synthetic zero hashes inside envelope examples. Examples are schema fixtures, not evidence of a materialized release identity.\n\nThe manifest/approval circularity is resolved by the owner-approved governance separation recorded on 2026-08-25. \`manifest/release.json\` is an approval-neutral content snapshot and excludes \`attestations/\`; a completed external \`release-approval.json\` GitHub Release Asset binds the final immutable candidate commit and content manifest hash. The repository tracks only its blank Schema-governed template. G1 validates both artifacts and reports both hashes for the annotated tag and GitHub release metadata.\n\n**Conformance vectors are a weak binding.** No assertion executor has ever read \`input.ndjson\` or \`expected.json\`: all five were searched and every \`vectorId\` reference is a label written by a human. The \`runner/\` contracts were dropped in 1.0.0 rather than keeping a promise of an executor that does not exist. What replaces them is an architecture test in each implementation repository asserting that every \`vectorId\` has an identically named test. G2's "the vector is the criterion" is consequently a permanent weak binding: what is mechanically guaranteed is that a vector has a corresponding test, not that its bytes were executed.\n\n\`${baseReleaseTag}\` remains immutable. The current \`${candidateVersion}\` candidate is a breaking ProtocolVersion increase to ${protocolVersion} under profile \`${profileId}\`: message payloads, the error registry and the conformance index all change, and no negotiation or downgrade path exists. Its attestation remains \`PENDING\`; its release approval — by the product owner or an AI agent the product owner authorized — must cover the new exact commit, content manifest hash, vectors hash and breaking classification before \`protocol-v${candidateVersion}\` can be created.\n`);
 
 writeJson("package.json", {
