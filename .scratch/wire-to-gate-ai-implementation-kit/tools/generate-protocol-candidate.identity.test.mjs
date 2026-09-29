@@ -181,7 +181,7 @@ test("candidate limitations describe the 3.0.0 candidate against protocol-v2.0.0
   assert.doesNotMatch(limitations, /0\.1\.1/);
 });
 
-test("compatibility report is based on protocol-v2.0.0 and summarises the nine changes", () => {
+test("compatibility report is based on protocol-v2.0.0 and summarises the ten changes", () => {
   const report = readJson("compatibility/report.json");
   assert.equal(report.candidateVersion, "3.0.0");
   assert.equal(report.protocolVersion, 4);
@@ -190,7 +190,7 @@ test("compatibility report is based on protocol-v2.0.0 and summarises the nine c
   assert.equal(report.classification, "BREAKING_PROTOCOL_VERSION_INCREASE");
   assert.equal(report.wireCompatibility, "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED");
   // The eight rows of the change table in 8005-agv-program#146, in that order, each named by what it touches, then
-  // CP-0009 (8005-agv-program#150), which that table predates.
+  // CP-0009 and the check purpose its release needs (8005-agv-program#150), which that table predates.
   const anchors = [
     /SlotFaultDeclarationCommand.*SlotFaultDeclarationResult.*SLOT_FAULT_DECLARED/,
     /supportsBatchUnlock.*FP-IS-04/,
@@ -201,6 +201,7 @@ test("compatibility report is based on protocol-v2.0.0 and summarises the nine c
     /CurrentStopWorklistSnapshot/,
     /SublotEntryRequested\.expiresOnRevisionChange/,
     /LoadCancellationResult.*LoadCompensationResult.*ALL_EMPTY_DOOR_UNPROVEN/,
+    /PreDepartureSafetyCheck.*checkPurpose/,
   ];
   assert.ok(Array.isArray(report.changeSummary), "changeSummary is not a list");
   assert.equal(report.changeSummary.length, anchors.length);
