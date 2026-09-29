@@ -241,6 +241,11 @@ test("the wire notes carry the same definition as the schema description, word f
 const DOOR_UNPROVEN = "ALL_EMPTY_DOOR_UNPROVEN";
 const DOOR_CODE = "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY";
 const DOOR_VECTOR = "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN";
+const CANCEL_VECTOR = "CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN";
+const RELEASE_VECTOR = "CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE";
+// Shared by the two clearing vectors: the same hold, the same single way out.
+const DOOR_SIDE_EFFECTS = [...DEFAULT_SIDE_EFFECTS, "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "vehicle-held-without-a-repair-release-path"];
+const DOOR_ONBOARD = ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"];
 
 for (const message of ["LoadCancellationResult", "LoadCompensationResult"]) {
   test(`${message}.overallOutcome gains exactly ${DOOR_UNPROVEN} after its three released values`, () => {
@@ -255,11 +260,12 @@ for (const message of ["LoadCancellationResult", "LoadCompensationResult"]) {
   });
 }
 
-test(`${DOOR_CODE} is appended after the 2.0.0 codes, introduced in 3.0.0 and narrowed to the two clearing results`, () => {
+test(`${DOOR_CODE} is appended after the 2.0.0 codes, introduced in 3.0.0 and allowed on the two clearing results and the hold`, () => {
   const { index, entry } = codeOf(DOOR_CODE);
   assert.ok(index >= RELEASED_CODE_COUNT, `${DOOR_CODE} at ${index}`);
   assert.equal(entry.introducedInRelease, "3.0.0");
-  assert.deepEqual(entry.allowedMessageTypes, ["LoadCancellationResult", "LoadCompensationResult"]);
+  // The slot's result, and the vehicle's blocking facts for as long as the hold lasts.
+  assert.deepEqual(entry.allowedMessageTypes, ["LoadCancellationResult", "LoadCompensationResult", "VehicleBusinessStateSnapshot"]);
   assert.equal(entry.category, "SAFETY_RECOVERY");
   assert.equal(entry.retryDisposition, "MANUAL_REVIEW");
   assert.ok(readJson("schemas/common/types.schema.json").$defs.ErrorCode.enum.includes(DOOR_CODE));
@@ -274,6 +280,100 @@ test(`${DOOR_CODE} says the cargo settles as empty, the door proof moves to the 
   assert.match(meaning, /no further slot is opened/);
   assert.match(meaning, /HardwareRecoveryRecord and fresh LOCKED, RESET and EMPTY readings of the slot with a passed PreDepartureSafetyCheck/);
   assert.match(meaning, /REQ-0364, CP-0009/);
+  assert.match(meaning, /blockingFacts of VehicleBusinessStateSnapshot for as long as the vehicle is held/);
+  assert.match(meaning, /released only through a HARDWARE_REPAIR_RELEASE recovery action/);
+});
+
+test(`a VehicleBusinessStateSnapshot names the held slot with ${DOOR_CODE} in its blocking facts`, () => {
+  const base = validOf("VehicleBusinessStateSnapshot").payload;
+  const held = { reasonCode: DOOR_CODE, subjectType: "SLOT", subjectId: "3" };
+  assert.equal(accepts("VehicleBusinessStateSnapshot", { ...base, readiness: "RECOVERY_REQUIRED", blockingFacts: [held] }), true);
+});
+
+// --- the release: one way out of the hold for both clearing paths ---
+
+const RELEASE = "HARDWARE_REPAIR_RELEASE";
+const ACTIONS = ["RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY", RELEASE];
+const actionSites = [
+  ["RecoveryActionSubmitted", (payload) => payload.properties.action],
+  ["RecoveryActionAccepted", (payload) => payload.properties.acceptedAction],
+  ["ExceptionRecoverySessionSnapshot", (payload) => payload.properties.selectedAction.anyOf[0]],
+  ["ExceptionRecoverySessionSnapshot", (payload) => payload.properties.allowedActions.items],
+];
+
+test(`the recovery action enum gains ${RELEASE} after its four released values, the same in all four places`, () => {
+  for (const [message, site] of actionSites) assert.deepEqual(site(payloadSchemaOf(message)), { type: "string", enum: ACTIONS }, message);
+});
+
+test(`${RELEASE} is a recovery action a session may offer, select and accept`, () => {
+  const snapshot = validOf("ExceptionRecoverySessionSnapshot").payload;
+  assert.equal(accepts("ExceptionRecoverySessionSnapshot", { ...snapshot, state: "OPEN", demandId: null, allowedActions: [RELEASE], selectedAction: null }), true);
+  assert.equal(accepts("ExceptionRecoverySessionSnapshot", { ...snapshot, state: "ACTION_SELECTED", demandId: null, allowedActions: [], selectedAction: RELEASE }), true);
+  const submitted = validOf("RecoveryActionSubmitted").payload;
+  assert.equal(accepts("RecoveryActionSubmitted", { ...submitted, action: RELEASE, demandId: null }), true);
+  const acceptedAction = validOf("RecoveryActionAccepted").payload;
+  assert.equal(accepts("RecoveryActionAccepted", { ...acceptedAction, acceptedAction: RELEASE, slotOperationAttemptId: null }), true);
+});
+
+test("the hardware recovery record keeps its released shape: both ids required and non-null", () => {
+  const payload = payloadSchemaOf("HardwareRecoveryRecordSubmitted");
+  assert.match(payload.properties.exceptionRecoverySessionId.$ref ?? "", /\$defs\/Id$/);
+  assert.match(payload.properties.recoveryActionId.$ref ?? "", /\$defs\/Id$/);
+  assert.ok(payload.required.includes("exceptionRecoverySessionId") && payload.required.includes("recoveryActionId"));
+});
+
+
+test(`${CANCEL_VECTOR} runs CV-LOAD-CANCELLATION-ALL-EMPTY to a door-unproven result, acknowledged, with the same hold`, () => {
+  const expected = expectedOf(CANCEL_VECTOR);
+  assert.deepEqual(expected.orderedExpectedMessages, expectedOf("CV-LOAD-CANCELLATION-ALL-EMPTY").orderedExpectedMessages);
+  assert.deepEqual(expected.orderedExpectedMessages, ["LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"]);
+  assert.equal(expected.stableErrorCode, DOOR_CODE);
+  assert.deepEqual(expected.finalState, { readiness: "RECOVERY_REQUIRED", business: "DEMAND_TERMINATED_AS_ALL_EMPTY_VEHICLE_HELD_FOR_REPAIR", physical: "SLOTS_EMPTY_DOOR_UNPROVEN_VEHICLE_HELD" });
+  assert.deepEqual(expected.productAssertions, {
+    controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_CANCELLATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+    onboardHmi: DOOR_ONBOARD,
+  });
+  assert.deepEqual(expected.forbiddenSideEffects, DOOR_SIDE_EFFECTS);
+});
+
+test(`${RELEASE_VECTOR} releases a held vehicle through a session, a repair record, fresh readings and a passed check`, () => {
+  const expected = expectedOf(RELEASE_VECTOR);
+  assert.deepEqual(expected.orderedExpectedMessages, [
+    "ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted",
+    "HardwareRecoveryRecordSubmitted", "HardwareRecoveryRecordResult", "ExceptionRecoverySessionSnapshot", "SnapshotAppliedAck",
+    "SafetyStateSnapshotRequested", "SafetyStateSnapshot", "SnapshotAppliedAck", "PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult",
+    "VehicleBusinessStateSnapshot", "SnapshotAppliedAck",
+  ]);
+  // No slot IO: nothing in the trace opens a door.
+  assert.deepEqual(expected.orderedExpectedMessages.filter((type) => /Command$/.test(type)), []);
+  assert.equal(expected.stableErrorCode, DOOR_CODE);
+  assert.deepEqual(expected.finalState, { readiness: "READY", business: "DOOR_HOLD_LIFTED_RELEASE_SESSION_CLOSED", physical: "HELD_SLOTS_LOCKED_RESET_EMPTY" });
+});
+
+test(`${RELEASE_VECTOR} states the product assertions of both sides and forbids a hold with no way out`, () => {
+  const expected = expectedOf(RELEASE_VECTOR);
+  assert.deepEqual(expected.productAssertions, {
+    controlServer: ["OFFER_REPAIR_RELEASE_ONLY_WHILE_HELD_FOR_UNPROVEN_DOOR", "ACCEPT_RECORD_ONLY_ON_THIS_SESSIONS_RELEASE_ACTION", "CLOSE_RELEASE_SESSION_ON_RECORDED", "RELEASE_ONLY_ON_READINGS_AFTER_RECORD_AND_SAFE_CHECK", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "KEEP_HOLD_AND_ACCEPT_NEW_SESSION_WHEN_READINGS_STILL_UNPROVEN"],
+    onboardHmi: ["NEVER_SLOT_IO_FOR_REPAIR_RELEASE", "SUBMIT_HARDWARE_RECORD_ON_RELEASE_ACTION", "REPORT_FRESH_SLOT_READINGS_ON_REQUEST", "DISPLAY_HOLD_FROM_BLOCKING_FACTS"],
+  });
+  assert.deepEqual(expected.forbiddenSideEffects, [...DEFAULT_SIDE_EFFECTS, "slot-opened-for-repair-release", "vehicle-released-on-record-alone", "vehicle-released-on-readings-older-than-record", "repair-release-offered-without-door-hold", "vehicle-held-without-a-repair-release-path"]);
+});
+
+test(`FP-IS-02 binds ${CANCEL_VECTOR} and names the held vehicle in its outcomes and responsibilities`, () => {
+  const slice = sliceOf("FP-IS-02");
+  assert.ok(slice.vectorIds.includes(CANCEL_VECTOR));
+  assert.ok(slice.definition.requiredOutcomes.includes("EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE"));
+  assert.ok(slice.definition.ownerResponsibilities.controlServer.includes("HOLD_VEHICLE_ON_UNPROVEN_DOOR"));
+  assert.ok(slice.definition.ownerResponsibilities.onboardHmi.includes("REPORT_UNPROVEN_DOOR_AFTER_EMPTY"));
+});
+
+test(`FP-IS-07 binds ${RELEASE_VECTOR} and names the release in its outcomes, messages and responsibilities`, () => {
+  const slice = sliceOf("FP-IS-07");
+  assert.ok(slice.vectorIds.includes(RELEASE_VECTOR));
+  assert.ok(slice.definition.requiredOutcomes.includes("HELD_VEHICLE_RELEASED_ONLY_BY_REPAIR_RECORD_AND_FRESH_PROOF"));
+  assert.ok(slice.definition.authorityModel.wireMessages.includes("HardwareRecoveryRecordSubmitted"));
+  assert.ok(slice.definition.ownerResponsibilities.controlServer.includes("RELEASE_HELD_VEHICLE_ONLY_ON_FRESH_PROOF"));
+  assert.ok(slice.definition.ownerResponsibilities.onboardHmi.includes("SUBMIT_REPAIR_RECORD_WITHOUT_SLOT_IO"));
 });
 
 test(`${DOOR_VECTOR} runs the compensation of CV-EXCEPTION-COMPENSATE and acknowledges the vehicle's result`, () => {
@@ -294,10 +394,10 @@ test(`${DOOR_VECTOR} ends with the demand settled, the vehicle held and the door
 test(`${DOOR_VECTOR} states the product assertions of both sides and a way out that needs no database edit`, () => {
   const expected = expectedOf(DOOR_VECTOR);
   assert.deepEqual(expected.productAssertions, {
-    controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "ACCEPT_HARDWARE_RECORD_FOR_SETTLED_COMPENSATION", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
-    onboardHmi: ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"],
+    controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+    onboardHmi: DOOR_ONBOARD,
   });
-  assert.deepEqual(expected.forbiddenSideEffects, [...DEFAULT_SIDE_EFFECTS, "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "hardware-record-refused-after-compensation-settled"]);
+  assert.deepEqual(expected.forbiddenSideEffects, DOOR_SIDE_EFFECTS);
 });
 
 test(`FP-IS-07 binds ${DOOR_VECTOR} and names the held vehicle in its outcomes and responsibilities`, () => {
@@ -324,5 +424,8 @@ test("compatibility report sentences 5 to 9 state this ticket's changes in their
   assert.match(summary[8], /ALL_EMPTY keeps its meaning/);
   assert.match(summary[8], /SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY/);
   assert.match(summary[8], /CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN/);
+  assert.match(summary[8], /CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN/);
+  assert.match(summary[8], /HARDWARE_REPAIR_RELEASE/);
+  assert.match(summary[8], /CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE/);
   assert.match(summary[8], /CP-0009/);
 });

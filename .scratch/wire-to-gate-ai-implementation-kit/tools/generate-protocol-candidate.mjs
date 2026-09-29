@@ -274,10 +274,11 @@ const requiredErrorCodes = [
   }],
   // Release 3.0.0 (CP-0009, REQ-0364, ADR-cross-0063): a cleared slot whose light curtain proves it empty while its door is
   // not proven locked. It travels on that slot's SlotResult in the two clearing results, beside overallOutcome
-  // ALL_EMPTY_DOOR_UNPROVEN. MANUAL_REVIEW because the vehicle leaves the hold only through a repair.
+  // ALL_EMPTY_DOOR_UNPROVEN, and in VehicleBusinessStateSnapshot.blockingFacts for as long as the hold lasts, so the vehicle
+  // can say why it is held after a restart. MANUAL_REVIEW because the vehicle leaves the hold only through a repair.
   ["SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
-    allowedMessageTypes: ["LoadCancellationResult", "LoadCompensationResult"],
-    meaning: "The slot's light curtain reads EMPTY but its sensors cannot prove the door locked or the unlock output reset: the cargo business settles the slot as empty and the result carries overallOutcome ALL_EMPTY_DOOR_UNPROVEN, never ALL_EMPTY, which still means every slot EMPTY, LOCKED and RESET; no further slot is opened, and the vehicle is held until a HardwareRecoveryRecord and fresh LOCKED, RESET and EMPTY readings of the slot with a passed PreDepartureSafetyCheck (REQ-0364, CP-0009).",
+    allowedMessageTypes: ["LoadCancellationResult", "LoadCompensationResult", "VehicleBusinessStateSnapshot"],
+    meaning: "The slot's light curtain reads EMPTY but its sensors cannot prove the door locked or the unlock output reset: the cargo business settles the slot as empty and the result carries overallOutcome ALL_EMPTY_DOOR_UNPROVEN, never ALL_EMPTY, which still means every slot EMPTY, LOCKED and RESET; no further slot is opened, and the vehicle is held until a HardwareRecoveryRecord and fresh LOCKED, RESET and EMPTY readings of the slot with a passed PreDepartureSafetyCheck (REQ-0364, CP-0009); the code stands in the blockingFacts of VehicleBusinessStateSnapshot for as long as the vehicle is held, and the vehicle is released only through a HARDWARE_REPAIR_RELEASE recovery action, whether a cancellation or a compensation left it held.",
     introducedInRelease: "3.0.0",
   }],
 ];
@@ -470,14 +471,19 @@ add("LoadCompensationCommand", { recoveryActionId: R("Id"), exceptionRecoverySes
 // door not proven locked or its output not proven reset. ALL_EMPTY keeps meaning EMPTY, LOCKED and RESET on every slot, so an
 // end that reads only overallOutcome never takes an unproven door for a closed operation and lets the vehicle go.
 add("LoadCompensationResult", { recoveryActionId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), overallOutcome: E("ALL_EMPTY", "FAILED", "UNKNOWN", "ALL_EMPTY_DOOR_UNPROVEN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), observedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "demandId", "slotOperationAttemptId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+// The recovery actions, written once for the four places that carry them. Release 3.0.0 (CP-0009, program#150) appends
+// HARDWARE_REPAIR_RELEASE: the way out of the hold an unproven door leaves after a clearing proved the slots empty. It commands
+// no slot IO; its only effect is that a HardwareRecoveryRecord can be bound to it, and the control server offers it only while
+// the vehicle is held for an unproven door. Appended, so the released four keep their order.
+const recoveryActions = ["RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY", "HARDWARE_REPAIR_RELEASE"];
 add("ExceptionRecoverySessionRequested", { requestId: R("Id"), administrator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), reason: S(), authenticationProof: S({ examples: ["INVALID-PLACEHOLDER-NOT-A-SECRET"] }) }, { businessDedupKeys: ["requestId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionOpened", { requestId: R("Id"), exceptionRecoverySessionId: R("Id"), openedAt: R("Instant"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["requestId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionRejected", { requestId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["requestId"] });
 // Release 3.0.0 (control-server#169): closedReason says why a CLOSED session closed, null on a normal close and on every
 // state before CLOSED. blockingFacts cannot carry it: they are empty once the session is CLOSED.
-add("ExceptionRecoverySessionSnapshot", { exceptionRecoverySessionId: R("Id"), recoverySessionRevision: R("Revision"), state: E("OPEN", "ACTION_SELECTED", "EXECUTING", "CLOSED"), administratorId: S(), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), selectedAction: Nullable(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY")), allowedActions: A(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), { uniqueItems: true }), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), closedReason: Nullable(R("ErrorCode")) }, { businessDedupKeys: ["exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
-add("RecoveryActionSubmitted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), action: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "RECOVERY_ACTION" });
-add("RecoveryActionAccepted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), acceptedAction: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), recoverySessionRevision: R("Revision"), acceptedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"], recoveryRole: "RECOVERY_ACTION" });
+add("ExceptionRecoverySessionSnapshot", { exceptionRecoverySessionId: R("Id"), recoverySessionRevision: R("Revision"), state: E("OPEN", "ACTION_SELECTED", "EXECUTING", "CLOSED"), administratorId: S(), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), selectedAction: Nullable(E(...recoveryActions)), allowedActions: A(E(...recoveryActions), { uniqueItems: true }), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), closedReason: Nullable(R("ErrorCode")) }, { businessDedupKeys: ["exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
+add("RecoveryActionSubmitted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), action: E(...recoveryActions), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "RECOVERY_ACTION" });
+add("RecoveryActionAccepted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), acceptedAction: E(...recoveryActions), recoverySessionRevision: R("Revision"), acceptedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"], recoveryRole: "RECOVERY_ACTION" });
 add("RecoveryActionRejected", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), problem: R("Problem"), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"] });
 add("HardwareRecoveryRecordSubmitted", { recordId: R("Id"), exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), operator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), slots: Slots(), checksPerformed: StringArray({ minItems: 1, uniqueItems: true }), actionsPerformed: StringArray({ minItems: 1, uniqueItems: true }), observations: StringArray({ minItems: 1 }), observedAt: R("Instant") }, { businessDedupKeys: ["recordId", "exceptionRecoverySessionId", "recoveryActionId"], recoveryRole: "HARDWARE_RECORD" });
 add("HardwareRecoveryRecordResult", { recordId: R("Id"), outcome: E("RECORDED", "REJECTED"), problem: Nullable(R("Problem")), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["recordId"] });
@@ -1069,21 +1075,48 @@ const trajectories = {
   },
   // CP-0009 (REQ-0364): a compensation whose light curtains prove every slot empty while a door is not proven locked. The
   // demand ends as a compensation proven all empty does, with the same suppression; the door proof moves to the vehicle's
-  // release. The way out needs no database edit: the administrator submits a HardwareRecoveryRecord against this session and
-  // this compensation action, which the control server accepts after the result settled the session, as it already does
-  // after a forced mechanical recovery (control-server#137), and the vehicle goes once fresh LOCKED, RESET and EMPTY readings
-  // and a passed PreDepartureSafetyCheck follow. The record alone never releases it. The result gets its DurableAck.
+  // release. The way out needs no database edit and is the same for a cancellation: CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE. The
+  // result gets its DurableAck.
   "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN": {
     messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "LoadCompensationRequested", "LoadCompensationCommand", "LoadCompensationResult", "DurableAck"),
     stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
-    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "hardware-record-refused-after-compensation-settled"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "vehicle-held-without-a-repair-release-path"],
     productAssertions: {
-      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "ACCEPT_HARDWARE_RECORD_FOR_SETTLED_COMPENSATION", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
       // The result is journaled before it is sent, so a result replayed after a restart is the same DOOR_UNPROVEN one and
       // never a live re-reading that might now say ALL_EMPTY or UNKNOWN.
       onboardHmi: ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"],
     },
     finalState: { readiness: "RECOVERY_REQUIRED", business: "DEMAND_TERMINATED_AS_ALL_EMPTY_VEHICLE_HELD_FOR_REPAIR", physical: "SLOTS_EMPTY_DOOR_UNPROVEN_VEHICLE_HELD" },
+  },
+  // CP-0009 on the cancellation path: the lock fails during a cancellation already authorized, so no exception recovery
+  // session is open. The demand ends as a cancellation proven all empty does (CANCELLED_BY_OPERATOR, same suppression) and the
+  // vehicle is held exactly as after the compensation, with the same way out. Same messages as CV-LOAD-CANCELLATION-ALL-EMPTY.
+  "CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN": {
+    messages: wire("LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"),
+    stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "vehicle-held-without-a-repair-release-path"],
+    productAssertions: {
+      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_CANCELLATION", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+      onboardHmi: ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"],
+    },
+    finalState: { readiness: "RECOVERY_REQUIRED", business: "DEMAND_TERMINATED_AS_ALL_EMPTY_VEHICLE_HELD_FOR_REPAIR", physical: "SLOTS_EMPTY_DOOR_UNPROVEN_VEHICLE_HELD" },
+  },
+  // CP-0009 (REQ-0364): the one way out of the hold, after a cancellation or a compensation alike. The administrator opens a
+  // session without a demand over the held slots, selects HARDWARE_REPAIR_RELEASE -- offered only while the vehicle is held
+  // for an unproven door -- and submits the repair record against that action. RECORDED closes the session. The hold lifts
+  // only on safety readings observed after the record that show every held slot LOCKED, RESET and EMPTY and a SAFE
+  // PreDepartureSafetyCheck after them; the record alone never releases the vehicle. If the readings still do not prove the
+  // door, the hold stays and a new session is accepted, so no step needs a database edit. Nothing commands slot IO.
+  "CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE": {
+    messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "HardwareRecoveryRecordSubmitted", "HardwareRecoveryRecordResult", "ExceptionRecoverySessionSnapshot", "SnapshotAppliedAck", "SafetyStateSnapshotRequested", "SafetyStateSnapshot", "SnapshotAppliedAck", "PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
+    stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "slot-opened-for-repair-release", "vehicle-released-on-record-alone", "vehicle-released-on-readings-older-than-record", "repair-release-offered-without-door-hold", "vehicle-held-without-a-repair-release-path"],
+    productAssertions: {
+      controlServer: ["OFFER_REPAIR_RELEASE_ONLY_WHILE_HELD_FOR_UNPROVEN_DOOR", "ACCEPT_RECORD_ONLY_ON_THIS_SESSIONS_RELEASE_ACTION", "CLOSE_RELEASE_SESSION_ON_RECORDED", "RELEASE_ONLY_ON_READINGS_AFTER_RECORD_AND_SAFE_CHECK", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "KEEP_HOLD_AND_ACCEPT_NEW_SESSION_WHEN_READINGS_STILL_UNPROVEN"],
+      onboardHmi: ["NEVER_SLOT_IO_FOR_REPAIR_RELEASE", "SUBMIT_HARDWARE_RECORD_ON_RELEASE_ACTION", "REPORT_FRESH_SLOT_READINGS_ON_REQUEST", "DISPLAY_HOLD_FROM_BLOCKING_FACTS"],
+    },
+    finalState: { readiness: "READY", business: "DOOR_HOLD_LIFTED_RELEASE_SESSION_CLOSED", physical: "HELD_SLOTS_LOCKED_RESET_EMPTY" },
   },
 };
 for (const [vectorId, trajectory] of Object.entries(trajectories)) {
@@ -1134,11 +1167,11 @@ const slices = [
     authorityModel: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
     ownerResponsibilities: { controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"], onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"] },
   }],
-  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY"], {
+  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY", "CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN"], {
     scope: "STATION_PICKUP_AND_MULTI_SLOT_LOAD",
-    requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED"],
+    requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED", "EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE"],
     authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SublotEntryRequested", "SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
-    ownerResponsibilities: { controlServer: ["AUTHORIZE_SLOT_SET", "RECONCILE_LOAD_OUTCOME"], onboardHmi: ["SUBMIT_SCANNED_SUBLOT", "LOAD_ONLY_AUTHORIZED_SLOTS"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_SLOT_SET", "RECONCILE_LOAD_OUTCOME", "HOLD_VEHICLE_ON_UNPROVEN_DOOR"], onboardHmi: ["SUBMIT_SCANNED_SUBLOT", "LOAD_ONLY_AUTHORIZED_SLOTS", "REPORT_UNPROVEN_DOOR_AFTER_EMPTY"] },
   }],
   ["FP-IS-03", 3, ["FP-IS-02"], ["CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"], {
     scope: "PREDEPARTURE_SAFETY_AND_RESULT_RECONCILE",
@@ -1164,11 +1197,11 @@ const slices = [
     authorityModel: { controlServerFact: "DurableAcceptance", wireMessages: ["DurableAck", "ProtocolProblem"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
     ownerResponsibilities: { controlServer: ["ACK_WITHOUT_DUPLICATE_EFFECT", "REPLAY_NOT_RECOMPUTE"], onboardHmi: ["RETRY_WITH_IDENTICAL_CONTENT", "ADOPT_REPLAYED_RESULT"] },
   }],
-  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE", "CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED", "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN"], {
+  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE", "CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED", "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN", "CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE"], {
     scope: "EXCEPTION_RECOVERY_AND_MANUAL_RETURN",
-    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT", "FORCED_ISOLATION_ON_A_DEMAND_SETTLES_ON_A_NAMED_HANDOFF", "UNRECONCILED_SESSION_CLOSE_STATES_ITS_REASON", "EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE"],
-    authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand", "ExceptionRecoverySessionSnapshot"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
-    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT", "CLOSE_UNRECONCILED_SESSION_WITH_REASON", "HOLD_VEHICLE_ON_UNPROVEN_DOOR"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING", "RECORD_FORCED_REMOVAL_HANDOFF", "REPORT_UNPROVEN_DOOR_AFTER_EMPTY"] },
+    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT", "FORCED_ISOLATION_ON_A_DEMAND_SETTLES_ON_A_NAMED_HANDOFF", "UNRECONCILED_SESSION_CLOSE_STATES_ITS_REASON", "EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE", "HELD_VEHICLE_RELEASED_ONLY_BY_REPAIR_RECORD_AND_FRESH_PROOF"],
+    authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand", "ExceptionRecoverySessionSnapshot", "HardwareRecoveryRecordSubmitted"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT", "CLOSE_UNRECONCILED_SESSION_WITH_REASON", "HOLD_VEHICLE_ON_UNPROVEN_DOOR", "RELEASE_HELD_VEHICLE_ONLY_ON_FRESH_PROOF"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING", "RECORD_FORCED_REMOVAL_HANDOFF", "REPORT_UNPROVEN_DOOR_AFTER_EMPTY", "SUBMIT_REPAIR_RECORD_WITHOUT_SLOT_IO"] },
   }],
   ["FP-IS-08", 8, ["FP-IS-04"], ["CV-MULTI-STOP-PLAN-NINE-LEGS"], {
     scope: "MULTI_STOP_JOURNEY_PLAN",
@@ -1403,7 +1436,7 @@ writeJson("compatibility/report.json", {
     "Error code ONBOARD_FATAL_FAULT_LATCHED states that the onboard HMI has latched a fatal safety fault, which the latch previously expressed by borrowing DEPARTURE_UNSAFE in the safety summary and VEHICLE_NOT_READY on a refused slot.",
     "CurrentStopWorklistSnapshot gains a required, nullable stopEndedReason, null while the worklist has items and naming why the stop ended once it is empty, so the onboard HMI can tell the operator why the worklist closed instead of only that nothing is pending.",
     "SublotEntryRequested.expiresOnRevisionChange gains a description of what a revision change is, and its value and type are unchanged (specification 23.5).",
-    "LoadCancellationResult and LoadCompensationResult gain overallOutcome ALL_EMPTY_DOOR_UNPROVEN for slots their light curtains prove empty while a door is not proven locked or its unlock output not proven reset, ALL_EMPTY keeps its meaning of every slot EMPTY, LOCKED and RESET, error code SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY marks such a slot, and vector CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN bound to FP-IS-07 settles the demand and holds the vehicle until a HardwareRecoveryRecord and fresh lock proof (CP-0009, REQ-0364).",
+    "LoadCancellationResult and LoadCompensationResult gain overallOutcome ALL_EMPTY_DOOR_UNPROVEN for slots their light curtains prove empty while a door is not proven locked or its unlock output not proven reset, ALL_EMPTY keeps its meaning of every slot EMPTY, LOCKED and RESET, error code SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY marks such a slot and the vehicle's hold, vectors CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN bound to FP-IS-02 and CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN bound to FP-IS-07 settle the demand and hold the vehicle, and the new recovery action HARDWARE_REPAIR_RELEASE with vector CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE bound to FP-IS-07 is the one way out, releasing the vehicle only on a HardwareRecoveryRecord followed by fresh LOCKED, RESET and EMPTY readings and a passed PreDepartureSafetyCheck (CP-0009, REQ-0364).",
   ],
   runtimeRule: "Exact ProtocolVersion and exact materialized ProtocolReleaseIdentity required; no negotiation.",
   optionalFieldPolicy: "No optional payload fields exist in this candidate. Future optional fields require proof that omission and ignore preserve safety and business conclusions.",
