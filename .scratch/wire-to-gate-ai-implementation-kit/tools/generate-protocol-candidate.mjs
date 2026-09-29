@@ -388,7 +388,9 @@ add("SessionRejected", { problem: R("Problem"), expectedProtocolVersion: I({ con
 add("Heartbeat", { capabilityVersion: R("Revision"), safetyStateVersion: R("Revision") });
 add("HeartbeatAck", { receivedHeartbeatMessageId: R("Id"), serverTime: R("Instant") });
 add("CapabilitySnapshotRequested", { requestedCapabilityVersion: Nullable(R("Revision")), reason: E("HANDSHAKE", "VERSION_GAP", "EXPLICIT_RECONCILIATION") }, { recoveryRole: "CAPABILITY_RECONCILIATION" });
-add("CapabilitySnapshot", { capabilityVersion: R("Revision"), observedAt: R("Instant"), slotModelVersion: S(), activeSlotConfigurationVersion: S(), activeSlotConfigurationFingerprint: R("Sha256"), slotStates: A(R("SlotState"), { minItems: 8, maxItems: 8, uniqueItems: true }), supportsBatchUnlock: B(), onboardJournalFormatVersion: I({ minimum: 1 }) }, { recoveryRole: "CAPABILITY_RECONCILIATION" });
+// 3.0.0 dropped supportsBatchUnlock: with one slot door open at a time (REQ-0357) it was always false,
+// it never carried meaning, and neither end decided anything on it. Leaving it out is deliberate.
+add("CapabilitySnapshot", { capabilityVersion: R("Revision"), observedAt: R("Instant"), slotModelVersion: S(), activeSlotConfigurationVersion: S(), activeSlotConfigurationFingerprint: R("Sha256"), slotStates: A(R("SlotState"), { minItems: 8, maxItems: 8, uniqueItems: true }), onboardJournalFormatVersion: I({ minimum: 1 }) }, { recoveryRole: "CAPABILITY_RECONCILIATION" });
 add("RecoveryStateReport", { reportId: R("Id"), observedAt: R("Instant"), unsettledSlotOperationAttemptId: Nullable(R("Id")), provenRecoveryCheckpoint: E("NONE", "PREPARED", "ACTIVE_UNLOCK_SET", "SAFE_FINISH_REACHED", "RESULT_RECORDED"), activeUnlockSlots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }), forcedRecoveryGeneration: R("Generation"), pendingResults: A(R("PendingResultRef"), { uniqueItems: true }), journalContentSha256: R("Sha256") }, { businessDedupKeys: ["reportId"], recoveryRole: "JOURNAL_RECONCILIATION" });
 add("SessionReadiness", { readiness: E("READY", "RECOVERY_REQUIRED"), decidedAt: R("Instant"), reasonCodes: A(R("ErrorCode"), { uniqueItems: true }), acceptedCapabilityVersion: R("Revision"), acceptedSafetyStateVersion: R("Revision"), vehicleBusinessStateRevision: R("Revision") }, { recoveryRole: "HANDSHAKE_DECISION" });
 add("SafetyStateChanged", { safetyStateVersion: R("Revision"), observedAt: R("Instant"), safety: R("SafetySummary"), affectedSlots: A(R("SlotNo"), { maxItems: 8, uniqueItems: true, "x-sortedAscending": true }) }, { recoveryRole: "SAFETY_RECONCILIATION" });
@@ -1001,7 +1003,7 @@ const slices = [
     ownerResponsibilities: { controlServer: ["EXPIRE_CHECK_ON_STATE_CHANGE", "RECONCILE_FROM_REPORTED_JOURNAL"], onboardHmi: ["REPORT_SAFETY_STATE_PROMPTLY", "REPORT_UNKNOWN_AS_UNKNOWN"] },
   }],
   ["FP-IS-04", 4, ["FP-IS-03"], ["CV-DESTINATION-UNLOAD-ALL-EMPTY"], {
-    scope: "DESTINATION_BATCH_UNLOAD",
+    scope: "DESTINATION_UNLOAD",
     requiredOutcomes: ["UNLOAD_COMMITTED_ONCE", "FINAL_PHYSICAL_STATE_PROVEN_EMPTY"],
     authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
     ownerResponsibilities: { controlServer: ["COMMIT_UNLOAD_ONCE"], onboardHmi: ["UNLOAD_AUTHORIZED_SLOTS_ONLY", "REPORT_FINAL_PHYSICAL_STATE"] },
