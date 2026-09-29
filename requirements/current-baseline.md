@@ -1,11 +1,11 @@
 # 当前需求基线
 
-- Version: `v1.7.0`
-- Baseline: [current-requirements-v1.7.0.md](baselines/current-requirements-v1.7.0.md)
-- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0008.md](change-proposals/CP-0008.md)
-- Baseline SHA-256: `7d31475360c3ef5480baac8b34e4644c35967d24b4341f09b5d556e025035be3`
-- Content Git Commit: `b1ce7b562aaab8cd9c36b7fa6dde86942eb6c9bf`
-- Annotated Git Tag: `requirements-baseline-v1.7.0`
+- Version: `v1.8.0`
+- Baseline: [current-requirements-v1.8.0.md](baselines/current-requirements-v1.8.0.md)
+- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0009.md](change-proposals/CP-0009.md)
+- Baseline SHA-256: `1addf6a108ec18a55e466427f180cf5fb2ca078411f3b3dd037b3f76255e9bf8`
+- Content Git Commit: `fb851a2306a6dfea408e81fa3c88b22637412aeb`
+- Annotated Git Tag: `requirements-baseline-v1.8.0`
 
 本文件是唯一当前版本指针。候选版本在正式批准、提交并创建发布 tag 前不得替换此指针。
 
@@ -15,6 +15,7 @@
 
 | 版本 | 文件 | Baseline SHA-256 | Content Git Commit | Annotated Tag |
 | --- | --- | --- | --- | --- |
+| `v1.8.0` | [current-requirements-v1.8.0.md](baselines/current-requirements-v1.8.0.md) | `1addf6a108ec18a55e466427f180cf5fb2ca078411f3b3dd037b3f76255e9bf8` | `fb851a2306a6dfea408e81fa3c88b22637412aeb` | `requirements-baseline-v1.8.0` |
 | `v1.7.0` | [current-requirements-v1.7.0.md](baselines/current-requirements-v1.7.0.md) | `7d31475360c3ef5480baac8b34e4644c35967d24b4341f09b5d556e025035be3` | `b1ce7b562aaab8cd9c36b7fa6dde86942eb6c9bf` | `requirements-baseline-v1.7.0` |
 | `v1.6.0` | [current-requirements-v1.6.0.md](baselines/current-requirements-v1.6.0.md) | `57c76e40e3253a53878cb3d1d1aeeb87b10fe642989feb684de38989115a8cf8` | `a7cf51b7707adb3989b5af819db56c52fff26fcd` | `requirements-baseline-v1.6.0` |
 | `v1.5.0` | [current-requirements-v1.5.0.md](baselines/current-requirements-v1.5.0.md) | `b8a64e7477732fbcd2aa80f3807a3555d45e5263e1b000cf67a7e01ef8ddf66f` | `087eebed24d7b72aed573c85b3c8131a75b9cf64` | `requirements-baseline-v1.5.0` |
@@ -36,6 +37,7 @@ git cat-file blob <tag>:requirements/baselines/current-requirements-<版本>.md 
 
 | 版本 | 日期 | 变更提案 | 内容 |
 | --- | --- | --- | --- |
+| `v1.8.0` | 2026-09-29 | [`CP-0009`](change-proposals/CP-0009.md) | 光幕证明取空即结清装货侧货物业务，仓门锁闭证明改为车辆放行条件：修订 `REQ-0357`（取消清空与补偿清空中光幕明确 `EMPTY`、仓门不能证明锁闭的仓位业务按 `EMPTY` 结清，仓门不算闭环，此后不再开门）、`REQ-0238`（双路径只管车上有货或可能有货的情形）；新增 `REQ-0364`（按全空结局终结需求、终态与抑制同正常全空取消或补偿；整车扣到维修记录加新鲜锁闭证明，换硬件按 `REQ-0263` 重核）。新建 ADR-cross-0063。共 364 条 |
 | `v1.7.0` | 2026-09-29 | [`CP-0008`](change-proposals/CP-0008.md) | 故障货物交接也写抑制，强制取出不设待盘点分支：修订 `REQ-0156`（以 `TERMINATED_BY_FAULT_CARGO_HANDOFF` 终止的任务同样与终态原子写入 `TransportDemandSuppression`；人员放弃已停止的自动重建、车上没有该任务货物时终止的不写，因为货物从未离开原取货位置）、`REQ-0242`（强制取出完成具名交接即终止任务并写入抑制；强制取出的产品在现场都能识别身份，去掉身份不明只记实物、任务待盘点的分支）。`CONTEXT.md` 两个词条随之改写。共 363 条 |
 | `v1.6.0` | 2026-09-27 | [`CP-0007`](change-proposals/CP-0007.md) | 取消来源的重建先证明货在原仓位：修订 `REQ-0360`（本服务端的在途单在 RIoT 被取消后同车重建时，车上有货还须满足 `REQ-0238` 修复续行的条件，以车载端 `SafetyStateSnapshot` 的逐仓结论为证；只认晚于发现取消、并晚于最近一次从急停／手动／故障恢复的快照，以重建前最近一份为准；原仓位为空时不重建、阻断告警由人员处理，证明不了时等待）。`REQ-0361` 三条护栏不变。共 363 条 |
 | `v1.5.0` | 2026-09-23 | [`CP-0006`](change-proposals/CP-0006.md) | 故障恢复与订单重建：修订 `REQ-0148`（取消另可作用于按 `REQ-0164` 认定的已证明外来运行订单，对其只允许取消）、`REQ-0164`（0/1 门禁不变；订单已进入运行态、执行车辆属于 8005 当前有效的 `RiotVehicleBinding`、对照 `OrderIntent` 与订单命令审计证明不是 8005 创建的外来订单可以在 RIoT 取消，认不准只阻断告警，终结前这辆车不接新活）；新增 `REQ-0360`（本服务端的在途单在 RIoT 被取消＝误操作，同车自动重建）、`REQ-0361`（自动重建先等可配置延迟，同一需求短时间内再出问题即停并告警）、`REQ-0362`（人工清除 `FAILED` 故障后有货无货都留本车重建）、`REQ-0363`（收尾或本站结束后撤掉车载端仍挂着的站，重连后补发）。共 363 条 |
