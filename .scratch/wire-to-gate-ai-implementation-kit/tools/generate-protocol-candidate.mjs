@@ -252,6 +252,15 @@ const requiredErrorCodes = [
     meaning: "An administrator declared the slot faulty on the control server and the onboard HMI applied the declaration, so the slot's SlotResult in OperationResult has outcome UNKNOWN and carries this code in its reasonCodes, and the slot operation leaves only through an exception recovery session (REQ-0359, CP-0005 section 4.3 item 3).",
     introducedInRelease: "3.0.0",
   }],
+  // Release 3.0.0: why an exception recovery session closed (control-server#169, #187). Like RECOVERY_ACTION_REQUIRED
+  // and RECOVERY_RESULT_REQUIRED it is a state, not a rejection, so it travels in one place only:
+  // ExceptionRecoverySessionSnapshot.closedReason of a CLOSED session. MANUAL_REVIEW because the way on is a
+  // person's: an administrator looks at what the result left behind and opens a new session.
+  ["RECOVERY_ACTION_RESULT_NOT_RECONCILED", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["ExceptionRecoverySessionSnapshot"],
+    meaning: "The exception recovery session closed because its recovery action will not reconcile: the result reported FAILED or UNKNOWN, the result reported success that its per-slot results do not bear out, or the vehicle refused the SlotOperationResumeCommand with SlotOperationCommandRejected so no result will come; the demand stays blocked and an administrator opens a new exception recovery session to choose the next action.",
+    introducedInRelease: "3.0.0",
+  }],
 ];
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
@@ -434,7 +443,9 @@ add("LoadCompensationResult", { recoveryActionId: R("Id"), demandId: R("Id"), sl
 add("ExceptionRecoverySessionRequested", { requestId: R("Id"), administrator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), reason: S(), authenticationProof: S({ examples: ["INVALID-PLACEHOLDER-NOT-A-SECRET"] }) }, { businessDedupKeys: ["requestId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionOpened", { requestId: R("Id"), exceptionRecoverySessionId: R("Id"), openedAt: R("Instant"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["requestId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("ExceptionRecoverySessionRejected", { requestId: R("Id"), problem: R("Problem") }, { businessDedupKeys: ["requestId"] });
-add("ExceptionRecoverySessionSnapshot", { exceptionRecoverySessionId: R("Id"), recoverySessionRevision: R("Revision"), state: E("OPEN", "ACTION_SELECTED", "EXECUTING", "CLOSED"), administratorId: S(), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), selectedAction: Nullable(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY")), allowedActions: A(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), { uniqueItems: true }), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }) }, { businessDedupKeys: ["exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
+// Release 3.0.0 (control-server#169): closedReason says why a CLOSED session closed, null on a normal close and on every
+// state before CLOSED. blockingFacts cannot carry it: they are empty once the session is CLOSED.
+add("ExceptionRecoverySessionSnapshot", { exceptionRecoverySessionId: R("Id"), recoverySessionRevision: R("Revision"), state: E("OPEN", "ACTION_SELECTED", "EXECUTING", "CLOSED"), administratorId: S(), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), eventId: R("Id"), demandId: Nullable(R("Id")), slotOperationAttemptId: Nullable(R("Id")), slots: Slots(), selectedAction: Nullable(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY")), allowedActions: A(E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), { uniqueItems: true }), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), closedReason: Nullable(R("ErrorCode")) }, { businessDedupKeys: ["exceptionRecoverySessionId", "eventId"], recoveryRole: "EXCEPTION_SESSION" });
 add("RecoveryActionSubmitted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), action: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), eventId: R("Id"), demandId: Nullable(R("Id")), slots: Slots(), operator: R("OperatorContext"), reason: S() }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId", "eventId"], recoveryRole: "RECOVERY_ACTION" });
 add("RecoveryActionAccepted", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), slotOperationAttemptId: Nullable(R("Id")), acceptedAction: E("RESUME_AFTER_REPAIR", "COMPENSATE_LOAD_ALL_EMPTY", "FAULT_CARGO_HANDOFF", "FORCED_MECHANICAL_RECOVERY"), recoverySessionRevision: R("Revision"), acceptedAt: R("Instant") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"], recoveryRole: "RECOVERY_ACTION" });
 add("RecoveryActionRejected", { recoveryActionId: R("Id"), exceptionRecoverySessionId: R("Id"), problem: R("Problem"), recoverySessionRevision: R("Revision") }, { businessDedupKeys: ["recoveryActionId", "exceptionRecoverySessionId"] });
@@ -444,7 +455,14 @@ add("SlotOperationResumeCommand", { exceptionRecoverySessionId: R("Id"), recover
 add("FaultCargoRecoveryCommand", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), demandId: R("Id"), slots: Slots(), handoffId: R("Id"), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "demandId", "handoffId"], recoveryRole: "FAULT_CARGO_HANDOFF" });
 add("FaultCargoRecoveryResult", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), demandId: R("Id"), handoffId: R("Id"), overallOutcome: E("HANDED_OFF", "FAILED", "UNKNOWN"), slotResults: A(R("SlotResult"), { minItems: 1, maxItems: 8, uniqueItems: true }), operator: R("OperatorContext"), observedAt: R("Instant") }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "demandId", "handoffId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("ForcedMechanicalRecoveryCommand", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), demandId: Nullable(R("Id")), forcedRecoveryGeneration: R("Generation"), slots: Slots(), commandContentSha256: R("Sha256") }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "forcedRecoveryGeneration"], recoveryRole: "FORCED_MECHANICAL_RECOVERY" });
-add("ForcedMechanicalRecoveryResult", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), forcedRecoveryGeneration: R("Generation"), outcome: E("MECHANICALLY_ISOLATED", "FAILED", "UNKNOWN"), slots: Slots(), operator: R("OperatorContext"), observedAt: R("Instant"), electronicEmptyProven: B({ const: false }), vehicleReadyProven: B({ const: false }) }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "forcedRecoveryGeneration"], recoveryRole: "PENDING_RESULT_REPLAY" });
+// Release 3.0.0 (REQ-0242, control-server#137): cargoHandoff is the forced-removal cargo handoff record: the product
+// identified by its SUBLOT, the named person it was handed to and when. demandId copies ForcedMechanicalRecoveryCommand.demandId.
+// The record is non-null exactly when the vehicle was MECHANICALLY_ISOLATED on a session with a demand: once that result is
+// acknowledged the vehicle drops its recovery context for the demand, so the record is the only thing the control server can
+// settle the demand on, and without it the demand could never leave RecoveryRequired. There is no unidentified branch: by the
+// user's site fact of 2026-09-29 staff always identify what they take out. The receiver is a name, not an OperatorContext:
+// the person taking the cargo need not have been verified on the vehicle. The two proofs stay false.
+add("ForcedMechanicalRecoveryResult", { exceptionRecoverySessionId: R("Id"), recoveryActionId: R("Id"), forcedRecoveryGeneration: R("Generation"), outcome: E("MECHANICALLY_ISOLATED", "FAILED", "UNKNOWN"), slots: Slots(), operator: R("OperatorContext"), observedAt: R("Instant"), electronicEmptyProven: B({ const: false }), vehicleReadyProven: B({ const: false }), demandId: Nullable(R("Id")), cargoHandoff: Nullable(O({ sublot: S(), receiverName: S(), handedOverAt: R("Instant") })) }, { businessDedupKeys: ["exceptionRecoverySessionId", "recoveryActionId", "forcedRecoveryGeneration"], recoveryRole: "PENDING_RESULT_REPLAY" });
 add("DurableAck", { acceptedMessageId: R("Id"), acceptedMessageType: S(), acceptedContentSha256: R("Sha256"), durablyAcceptedAt: R("Instant") }, { businessDedupKeys: ["acceptedMessageId"], recoveryRole: "DURABLE_ACCEPTANCE" });
 add("SnapshotAppliedAck", { snapshotMessageId: R("Id"), snapshotKind: E("CAPABILITY", "SAFETY_STATE", "VEHICLE_BUSINESS_STATE", "CURRENT_STOP_WORKLIST", "UPCOMING_STOP_PLAN", "EXCEPTION_RECOVERY_SESSION", "ONBOARD_ALARM"), appliedRevision: R("Revision"), appliedContentSha256: R("Sha256") }, { businessDedupKeys: ["snapshotMessageId"], recoveryRole: "SNAPSHOT_ADOPTION" });
 add("ProtocolProblem", { rejectedMessageId: R("Id"), rejectedMessageType: Nullable(S()), problem: R("Problem"), expectedProtocolVersion: I({ const: protocolVersion }), expectedProfileId: S({ const: profileId }), expectedProtocolReleaseManifestSha256: R("Sha256") });
@@ -539,6 +557,23 @@ for (const spec of Object.values(specs)) {
       else: { properties: { problem: { type: "null" } } },
     });
   }
+  // A handoff record exactly when the vehicle was isolated on a session with a demand: that result settles the demand. A
+  // FAILED or UNKNOWN result and an isolation without a demand settle nothing and carry none.
+  if (spec.name === "ForcedMechanicalRecoveryResult") {
+    Object.assign(schema.properties.payload, {
+      if: { properties: { outcome: { const: "MECHANICALLY_ISOLATED" }, demandId: { type: "string" } }, required: ["outcome", "demandId"] },
+      then: { properties: { cargoHandoff: { type: "object" } } },
+      else: { properties: { cargoHandoff: { type: "null" } } },
+    });
+  }
+  // A session states why it closed only once it has: every earlier state carries null. A CLOSED session carries null on a
+  // normal close, so there is no then-branch.
+  if (spec.name === "ExceptionRecoverySessionSnapshot") {
+    Object.assign(schema.properties.payload, {
+      if: { properties: { state: { const: "CLOSED" } }, required: ["state"] },
+      else: { properties: { closedReason: { type: "null" } } },
+    });
+  }
   writeJson(`schemas/messages/${spec.name}.schema.json`, schema);
 }
 writeJson("schemas/bundle/protocol.schema.json", {
@@ -622,6 +657,8 @@ const envelopeFor = (spec) => {
   if (spec.name === "VehicleBusinessStateSnapshot") value.payload.loadingPhase.closedReason = null;
   // The sampler takes APPLIED and a Problem object, but an applied declaration carries no problem.
   if (spec.name === "SlotFaultDeclarationResult") value.payload.problem = null;
+  // The sampler takes OPEN and an ErrorCode, but only a CLOSED session states why it closed.
+  if (spec.name === "ExceptionRecoverySessionSnapshot") value.payload.closedReason = null;
   return value;
 };
 
@@ -711,6 +748,17 @@ for (const spec of Object.values(specs)) {
   if (spec.name === "SlotFaultDeclarationResult") {
     payloadNegative("IF-THEN-problem-NOT_APPLICABLE", "/payload/problem", "if-then", (payload) => { payload.outcome = "NOT_APPLICABLE"; });
     payloadNegative("IF-THEN-problem-APPLIED", "/payload/problem", "if-then", (payload) => { payload.problem = { reasonCode: "ACTION_NOT_ALLOWED_IN_STATE", fieldPath: null, displayMessage: null }; });
+  }
+  // Both sides of the record correspondence: isolated on a demand without a record, a record without a demand, and a record
+  // on a FAILED and on an UNKNOWN result.
+  if (spec.name === "ForcedMechanicalRecoveryResult") {
+    payloadNegative("IF-THEN-cargoHandoff-MECHANICALLY_ISOLATED", "/payload/cargoHandoff", "if-then", (payload) => { payload.cargoHandoff = null; });
+    payloadNegative("IF-THEN-cargoHandoff-NO_DEMAND", "/payload/cargoHandoff", "if-then", (payload) => { payload.demandId = null; });
+    for (const outcome of ["FAILED", "UNKNOWN"]) payloadNegative(`IF-THEN-cargoHandoff-${outcome}`, "/payload/cargoHandoff", "if-then", (payload) => { payload.outcome = outcome; });
+  }
+  // A reason on each state before CLOSED.
+  if (spec.name === "ExceptionRecoverySessionSnapshot") {
+    for (const state of ["OPEN", "ACTION_SELECTED", "EXECUTING"]) payloadNegative(`IF-THEN-closedReason-${state}`, "/payload/closedReason", "if-then", (payload) => { payload.state = state; payload.closedReason = "RECOVERY_ACTION_RESULT_NOT_RECONCILED"; });
   }
   if (correlationRuleFor(spec) === "REQUIRED_ORIGINAL_MESSAGE_ID") {
     const broken = clone(valid); broken.correlationId = null;
@@ -829,9 +877,25 @@ const trajectories = {
     messages: wire("RecoveryActionSubmitted", "RecoveryActionAccepted", "FaultCargoRecoveryCommand", "FaultCargoRecoveryResult"),
     productAssertions: { controlServer: ["RECORD_FAULT_CARGO_HANDOFF"], onboardHmi: ["HANDOFF_ONLY_ON_AUTHORIZED_COMMAND", "REPORT_HANDOFF_OUTCOME"] },
   },
+  // Revised in 3.0.0 (REQ-0242): the result carries the cargo handoff record, and every outcome has a way out that needs
+  // no database edit. Isolated on a demand: the record is required and the control server settles the demand on it, never
+  // refusing the result over what the record says -- the vehicle drops its recovery context once the result is
+  // acknowledged, so a refused settlement would leave the demand nothing to recover through. That covers the content of
+  // cargoHandoff only: a demandId other than the session's is a business identity conflict and is refused as today.
+  // FAILED: the vehicle keeps its context, the session closes and the blocked demand takes a new session. A command with
+  // no demand is answered too, or the session would stay EXECUTING. The messages and the final state are the released ones.
   "CV-FORCED-MECHANICAL-RECOVERY": {
     messages: wire("RecoveryActionSubmitted", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult"),
-    productAssertions: { controlServer: ["FENCE_FORCED_RECOVERY_BY_GENERATION"], onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME"] },
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "isolation-on-a-demand-without-handoff-record", "handoff-record-proves-empty-slot-or-ready-vehicle", "demand-left-blocked-after-acknowledged-isolation", "recovery-context-cleared-on-failed-or-unknown-forced-recovery"],
+    productAssertions: {
+      controlServer: ["FENCE_FORCED_RECOVERY_BY_GENERATION", "SETTLE_DEMAND_ONLY_ON_NAMED_HANDOFF", "NEVER_REFUSE_AN_ISOLATION_RESULT_OVER_ITS_RECORD", "KEEP_DEMAND_BLOCKED_AND_ACCEPT_NEW_SESSION_ON_FAILED_OR_UNKNOWN", "NEVER_TREAT_HANDOFF_AS_EMPTY_SLOT_OR_READY_VEHICLE"],
+      // demandId is copied from the command, never left null on a demand, or the record requirement would not apply. The
+      // SUBLOT is checked against the demand before the result goes out, because the control server will not refuse it
+      // afterwards; a mismatch warns and asks the operator to confirm again, then sends -- the slot is already physically
+      // isolated, so the check never holds the result back for good. The record is part of the durable result, so a result
+      // replayed after a restart carries the same record. A command without a demand is answered like any other.
+      onboardHmi: ["REFUSE_STALE_FORCED_RECOVERY_GENERATION", "REPORT_FORCED_RECOVERY_OUTCOME", "REPORT_CARGO_HANDOFF_RECORD_IN_RESULT", "COPY_COMMAND_DEMAND_INTO_RESULT", "CONFIRM_SUBLOT_AGAINST_DEMAND_BEFORE_SENDING", "REPLAY_SAME_HANDOFF_RECORD_AFTER_RESTART", "KEEP_RECOVERY_CONTEXT_UNLESS_ISOLATION_ACKNOWLEDGED", "ANSWER_FORCED_RECOVERY_COMMAND_WITHOUT_DEMAND"],
+    },
   },
   "CV-MANUAL-CHARGING-RETURN": {
     messages: wire("ManualChargingReturnToServiceRequested", "ManualChargingReturnToServiceResult"),
@@ -941,6 +1005,21 @@ const trajectories = {
     },
     finalState: { readiness: "UNCHANGED", business: "UNCHANGED_DECLARATION_WITHDRAWN", physical: "UNCHANGED" },
   },
+  // control-server#169: a recovery result that does not reconcile -- here a compensation reporting FAILED -- closes the
+  // session with RECOVERY_ACTION_RESULT_NOT_RECONCILED, so the vehicle sees why. The session closes rather than staying
+  // EXECUTING, which refused a second action and a new session; the demand stays blocked and a new session is accepted,
+  // so the close is never a state only a database edit can leave. The result gets its DurableAck, the snapshot its ack.
+  "CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED": {
+    messages: wire("RecoveryActionSubmitted", "RecoveryActionAccepted", "LoadCompensationRequested", "LoadCompensationCommand", "LoadCompensationResult", "DurableAck", "ExceptionRecoverySessionSnapshot", "SnapshotAppliedAck"),
+    stableErrorCode: "RECOVERY_ACTION_RESULT_NOT_RECONCILED",
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unreconciled-result-settles-demand", "session-left-open-after-final-result", "new-session-refused-after-unreconciled-close"],
+    productAssertions: {
+      // The reason is part of the session, not of one message: a CLOSED snapshot sent again after a reconnect carries it too.
+      controlServer: ["CLOSE_SESSION_WITH_REASON_ON_UNRECONCILED_RESULT", "KEEP_DEMAND_BLOCKED_AFTER_UNRECONCILED_CLOSE", "ACCEPT_NEW_SESSION_AFTER_UNRECONCILED_CLOSE", "RESEND_CLOSED_REASON_AFTER_RECONNECT"],
+      onboardHmi: ["DISPLAY_SESSION_CLOSED_REASON", "ALLOW_REOPENING_AFTER_SESSION_CLOSED", "NEVER_TREAT_UNRECONCILED_CLOSE_AS_RECOVERED"],
+    },
+    finalState: { readiness: "RECOVERY_REQUIRED", business: "DEMAND_BLOCKED_SESSION_CLOSED_NEW_SESSION_ALLOWED", physical: "AS_REPORTED_BY_UNRECONCILED_RESULT" },
+  },
 };
 for (const [vectorId, trajectory] of Object.entries(trajectories)) {
   const steps = trajectory.steps
@@ -1020,11 +1099,11 @@ const slices = [
     authorityModel: { controlServerFact: "DurableAcceptance", wireMessages: ["DurableAck", "ProtocolProblem"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
     ownerResponsibilities: { controlServer: ["ACK_WITHOUT_DUPLICATE_EFFECT", "REPLAY_NOT_RECOMPUTE"], onboardHmi: ["RETRY_WITH_IDENTICAL_CONTENT", "ADOPT_REPLAYED_RESULT"] },
   }],
-  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE"], {
+  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE", "CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED"], {
     scope: "EXCEPTION_RECOVERY_AND_MANUAL_RETURN",
-    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT"],
-    authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
-    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING"] },
+    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT", "FORCED_ISOLATION_ON_A_DEMAND_SETTLES_ON_A_NAMED_HANDOFF", "UNRECONCILED_SESSION_CLOSE_STATES_ITS_REASON"],
+    authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand", "ExceptionRecoverySessionSnapshot"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT", "CLOSE_UNRECONCILED_SESSION_WITH_REASON"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING", "RECORD_FORCED_REMOVAL_HANDOFF"] },
   }],
   ["FP-IS-08", 8, ["FP-IS-04"], ["CV-MULTI-STOP-PLAN-NINE-LEGS"], {
     scope: "MULTI_STOP_JOURNEY_PLAN",
@@ -1253,8 +1332,8 @@ writeJson("compatibility/report.json", {
   changeSummary: [
     "SlotFaultDeclarationCommand carries to the vehicle a slot fault an administrator holding ExceptionRecoveryPermission declared on the control server, the vehicle answers with SlotFaultDeclarationResult, APPLIED or NOT_APPLICABLE with ACTION_NOT_ALLOWED_IN_STATE, and when it applies the declaration reports the slot UNKNOWN in OperationResult itself with error code SLOT_FAULT_DECLARED, and two vectors bound to FP-IS-07 cover it (REQ-0359, ADR-cross-0062).",
     "CapabilitySnapshot no longer carries supportsBatchUnlock, which one slot door at a time (REQ-0357) left always false, and the FP-IS-04 slice scope drops the word batch.",
-    "ForcedMechanicalRecoveryResult carries a forced-removal cargo handoff record that states whether the removed cargo was identified and handed over or is of unknown identity (REQ-0242), and vector CV-FORCED-MECHANICAL-RECOVERY is revised to exercise it.",
-    "ExceptionRecoverySessionSnapshot gains a required, nullable reason the session closed, error code RECOVERY_ACTION_RESULT_NOT_RECONCILED joins the registry for a session closed on an unreconciled recovery result, and one vector covers it.",
+    "ForcedMechanicalRecoveryResult gains a required, nullable demandId copied from its command and a required, nullable cargoHandoff record naming the SUBLOT of the removed cargo, the person it was handed to and when, present exactly when the outcome is MECHANICALLY_ISOLATED on a session with a demand, so the control server settles that demand on a named handoff while electronicEmptyProven and vehicleReadyProven stay false (REQ-0242, whose unidentified-cargo branch this release leaves out because site staff always identify the cargo), and vector CV-FORCED-MECHANICAL-RECOVERY is revised to assert it.",
+    "ExceptionRecoverySessionSnapshot gains a required, nullable closedReason that is null unless the session is CLOSED and is RECOVERY_ACTION_RESULT_NOT_RECONCILED when it closed on a recovery result that did not reconcile, that error code joins the registry narrowed to the snapshot, and vector CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED bound to FP-IS-07 covers it.",
     "Vector CV-TASK-TYPE-ADMISSION-FAIL-CLOSED and slice FP-IS-10 drop the onboard assertion DISPLAY_ADMISSION_BLOCK_REASON, which contradicts specification 5.3: an admission block reason stays on the control server and its dashboard and is never sent to the vehicle (8005-agv-program#125).",
     "Error code ONBOARD_FATAL_FAULT_LATCHED states that the onboard HMI has latched a fatal safety fault, a reason the latch previously expressed by borrowing VEHICLE_NOT_READY.",
     "CurrentStopWorklistSnapshot gains a required, nullable reason the current stop ended, so the onboard HMI can tell the operator why the worklist closed instead of only that nothing is pending.",
