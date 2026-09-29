@@ -69,7 +69,7 @@ Evidence 段落按 `Snapshot SHA-256 = 205a1c4bd5760e3f5a50de3eec050d5d8e99eec4a
 
 | 方法 | 路径 | Facade | 用 |
 | --- | --- | --- | --- |
-| GET | `/api/imap/v1/mapInfo/getALLMapInfoExcludeMapJson` | `ListMapsAsync` | 否 |
+| GET | `/api/imap/v1/mapInfo/getALLMapInfoExcludeMapJson` | `ListMapsAsync` | **是** |
 | GET | `/api/task/vehicles/getAllVehicleSimpleInfo` | `GetDispatchableVehiclesAsync` | 否 |
 | GET | `/api/task/vehicles/getVehicleInfoByDeviceKey` | `GetVehicleCardAsync` | **是** |
 | GET | `/api/order/v1/orderRecord/detailByUpperId/{upperId}` | `GetOrderByUpperIdAsync`／`FindOrderByUpperIdAsync` | **是** |
