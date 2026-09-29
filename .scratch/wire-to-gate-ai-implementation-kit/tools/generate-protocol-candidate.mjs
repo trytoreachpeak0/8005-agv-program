@@ -242,6 +242,16 @@ const requiredErrorCodes = [
     meaning: "The operator did not complete the slot operation before the station departure deadline; the slot door is closed and the unlock output reset, so the slot is settled as a determinate failure rather than an unknown outcome (ADR-cross-0058 decision 5). The WIRE_TO_GATE_MVP line introduced a code of the same name and meaning in protocol-v0.3.0.",
     introducedInRelease: "2.0.0",
   }],
+  // Release 3.0.0: the reason code of a slot an administrator declared faulty (CP-0005 section 4.3
+  // item 3). It travels in one place, SlotResult.reasonCodes of the declared UNKNOWN slot in
+  // OperationResult, so the result itself says it came from a declaration. SAFETY_RECOVERY and
+  // MANUAL_REVIEW match RECOVERY_CHECKPOINT_NOT_UNIQUE, the code the restart workaround leaves on the
+  // same slot: the slot leaves only through an exception recovery session, never by a retry.
+  ["SLOT_FAULT_DECLARED", "SAFETY_RECOVERY", "MANUAL_REVIEW", {
+    allowedMessageTypes: ["OperationResult"],
+    meaning: "An administrator declared the slot faulty on the control server and the onboard HMI applied the declaration, so the slot's SlotResult in OperationResult has outcome UNKNOWN and carries this code in its reasonCodes, and the slot operation leaves only through an exception recovery session (REQ-0359, CP-0005 section 4.3 item 3).",
+    introducedInRelease: "3.0.0",
+  }],
 ];
 const errorCodes = requiredErrorCodes.map(([code, category, retryDisposition, overrides = {}]) => ({
   code,
@@ -342,6 +352,7 @@ const reliableNames = new Set([
   "LoadCancellationResult", "LoadCompensationCommand", "LoadCompensationResult", "SlotOperationResumeCommand", "FaultCargoRecoveryCommand", "FaultCargoRecoveryResult",
   "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult",
   "SlotConfigurationActivationCommand", "SlotConfigurationActivationResult",
+  "SlotFaultDeclarationCommand", "SlotFaultDeclarationResult",
 ]);
 
 const directions = {
@@ -362,6 +373,7 @@ const directions = {
   ManualStationClearanceConfirmationRequested: "O_TO_C", ManualStationClearanceConfirmationResult: "C_TO_O",
   SlotConfigurationActivationCommand: "C_TO_O", SlotConfigurationActivationResult: "O_TO_C",
   OnboardAlarmSnapshot: "O_TO_C",
+  SlotFaultDeclarationCommand: "C_TO_O", SlotFaultDeclarationResult: "O_TO_C",
 };
 
 const specs = {};
@@ -464,6 +476,15 @@ add("SlotConfigurationActivationResult", { activationId: R("Id"), outcome: E("AC
 // ErrorCode.
 add("OnboardAlarmSnapshot", { alarmSnapshotRevision: R("Revision"), observedAt: R("Instant"), alarms: A(R("AlarmEntry"), { uniqueItems: true }) }, { recoveryRole: "SNAPSHOT_ADOPTION" });
 
+// Release 3.0.0 (REQ-0359, CP-0005 section 4.3 items 1-2): an administrator declares on the control
+// server that the slot an operation is waiting on is faulty. Both messages are RELIABLE, so a
+// declaration survives a disconnect and its result is replayed; neither is a response, so
+// correlationId stays null and declarationId alone ties the result to the declaration. The result
+// comes first and OperationResult (UNKNOWN for the declared slot) follows, as CV-SLOT-FAULT-DECLARATION-APPLIED
+// fixes. NOT_APPLICABLE carries ACTION_NOT_ALLOWED_IN_STATE and changes no business state.
+add("SlotFaultDeclarationCommand", { declarationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), slotNo: R("SlotNo"), administrator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), faultCategory: E("LOCK", "LIGHT_CURTAIN", "DOOR_MECHANISM", "IO_MODULE"), note: S(), declaredAt: R("Instant") }, { businessDedupKeys: ["declarationId"], recoveryRole: "SLOT_FAULT_DECLARATION" });
+add("SlotFaultDeclarationResult", { declarationId: R("Id"), slotOperationAttemptId: R("Id"), outcome: E("APPLIED", "NOT_APPLICABLE"), problem: Nullable(R("Problem")) }, { businessDedupKeys: ["declarationId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+
 const denylist = ["OperationCancelCommand", "LoadCancellationCommand", "LoadFinalConfirmation", "UnloadCommand", "SublotAccepted", "OperationCommandAck", "OperationResultAck", "LoadCompensationCommandAck", "WireToGateExecutionSnapshot", "DepartureSafetyRevoked", "OnboardCapabilitySnapshot"];
 
 const commonSchema = { $schema: SCHEMA, $id: `${BASE_ID}/common/types.schema.json`, title: `${profileDisplayName} common types`, $defs: defs };
@@ -506,6 +527,15 @@ for (const spec of Object.values(specs)) {
       { if: { properties: { payload: { properties: { operationType: { const: "LOAD" } }, required: ["operationType"] } } }, then: { properties: { correlationId: R("Id") } } },
       { if: { properties: { payload: { properties: { operationType: { const: "UNLOAD" } }, required: ["operationType"] } } }, then: { properties: { correlationId: { type: "null" } } } },
     ];
+  }
+  // A declaration the vehicle refused says why; an applied one has nothing to explain. Same if/then/else
+  // form as loadingPhase's closedReason, on the payload object itself.
+  if (spec.name === "SlotFaultDeclarationResult") {
+    Object.assign(schema.properties.payload, {
+      if: { properties: { outcome: { const: "NOT_APPLICABLE" } }, required: ["outcome"] },
+      then: { properties: { problem: { type: "object" } } },
+      else: { properties: { problem: { type: "null" } } },
+    });
   }
   writeJson(`schemas/messages/${spec.name}.schema.json`, schema);
 }
@@ -588,6 +618,8 @@ const envelopeFor = (spec) => {
   // The sampler takes the first enum value for closedReason, but loadingPhase allows a reason only
   // once the phase is CLOSED.
   if (spec.name === "VehicleBusinessStateSnapshot") value.payload.loadingPhase.closedReason = null;
+  // The sampler takes APPLIED and a Problem object, but an applied declaration carries no problem.
+  if (spec.name === "SlotFaultDeclarationResult") value.payload.problem = null;
   return value;
 };
 
@@ -672,6 +704,11 @@ for (const spec of Object.values(specs)) {
   if (spec.name === "VehicleBusinessStateSnapshot") {
     payloadNegative("IF-THEN-loadingPhase-closedReason-CLOSED", "/payload/loadingPhase/closedReason", "if-then", (payload) => { payload.loadingPhase.state = "CLOSED"; });
     payloadNegative("IF-THEN-loadingPhase-closedReason-OPEN", "/payload/loadingPhase/closedReason", "if-then", (payload) => { payload.loadingPhase.closedReason = "PLANNED_LOADING_COMPLETE"; });
+  }
+  // Both sides of the declaration result's correspondence: a refusal without a reason, an applied one with a problem.
+  if (spec.name === "SlotFaultDeclarationResult") {
+    payloadNegative("IF-THEN-problem-NOT_APPLICABLE", "/payload/problem", "if-then", (payload) => { payload.outcome = "NOT_APPLICABLE"; });
+    payloadNegative("IF-THEN-problem-APPLIED", "/payload/problem", "if-then", (payload) => { payload.problem = { reasonCode: "ACTION_NOT_ALLOWED_IN_STATE", fieldPath: null, displayMessage: null }; });
   }
   if (correlationRuleFor(spec) === "REQUIRED_ORIGINAL_MESSAGE_ID") {
     const broken = clone(valid); broken.correlationId = null;
@@ -869,6 +906,39 @@ const trajectories = {
     messages: wire("OnboardAlarmSnapshot", "SnapshotAppliedAck", "OnboardAlarmSnapshot", "SnapshotAppliedAck"),
     productAssertions: { controlServer: ["ADOPT_ALARM_SNAPSHOT_BY_REVISION"], onboardHmi: ["PUBLISH_COMPLETE_ALARM_SET", "NEVER_PUBLISH_STALE_ALARM_STATE"] },
   },
+
+  // --- 3.0.0 additions ---
+  // REQ-0359. The vehicle journals the declaration, then writes and sends its APPLIED result at the
+  // moment it decides to abort, then settles the operation, so SlotFaultDeclarationResult precedes
+  // OperationResult and each RELIABLE message gets its own DurableAck. Both implementations follow
+  // this order. The side effects list the six defaults and the three a declaration must never have.
+  "CV-SLOT-FAULT-DECLARATION-APPLIED": {
+    messages: wire("SlotFaultDeclarationCommand", "SlotFaultDeclarationResult", "DurableAck", "OperationResult", "DurableAck"),
+    stableErrorCode: "SLOT_FAULT_DECLARED",
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "declaration-marks-slot-inoperable"],
+    productAssertions: {
+      controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "BLOCK_JOURNEY_ON_DECLARED_UNKNOWN"],
+      // A crash between the APPLIED result and the settlement must not let the restart's live-reading
+      // settlement report the declared slot COMPLETED: the declaration is journaled first and survives.
+      onboardHmi: ["APPLY_ONLY_TO_SAME_ATTEMPT_AND_SLOT_STILL_AWAITING", "JOURNAL_DECLARATION_BEFORE_APPLIED_RESULT", "KEEP_DECLARED_SLOT_UNKNOWN_ACROSS_RESTART", "NEVER_UNLOCK_AFTER_DECLARATION_APPLIED", "REPORT_DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED", "REPORT_COMPLETED_SLOTS_FROM_LIVE_READINGS", "SEND_DECLARATION_RESULT_BEFORE_OPERATION_RESULT"],
+    },
+    finalState: { readiness: "RECOVERY_REQUIRED", business: "JOURNEY_BLOCKED_DEMAND_NOT_SETTLED", physical: "DECLARED_SLOT_UNKNOWN_LATER_SLOTS_NOT_STARTED" },
+  },
+  // The declaration lost a race: the slot had closed, was already UNKNOWN, or the attempt had been
+  // superseded (CP-0005 new item two note 5). The vehicle refuses, the control server withdraws it.
+  // An attempt the vehicle does not know is refused the same way: a ProtocolProblem would leave the
+  // RELIABLE command without a result for ever. A pending declaration never stops the control server
+  // from settling the operation result that closed the slot.
+  "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE": {
+    messages: wire("SlotFaultDeclarationCommand", "SlotFaultDeclarationResult", "DurableAck"),
+    stableErrorCode: "ACTION_NOT_ALLOWED_IN_STATE",
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "unlock-after-declaration", "declaration-settles-business-or-cancels-demand", "declaration-marks-slot-inoperable", "business-state-changed-by-rejected-declaration"],
+    productAssertions: {
+      controlServer: ["DECLARE_ONLY_ON_OVERDUE_SLOT_AWAITING_OPERATOR", "AUDIT_DECLARATION_AND_VEHICLE_RESULT", "WITHDRAW_DECLARATION_WITHOUT_BUSINESS_CHANGE", "SETTLE_OPERATION_RESULT_NORMALLY_WHILE_DECLARATION_PENDING"],
+      onboardHmi: ["REJECT_DECLARATION_ON_SETTLED_UNKNOWN_OR_SUPERSEDED_ATTEMPT", "ANSWER_UNKNOWN_ATTEMPT_WITH_NOT_APPLICABLE", "NEVER_APPLY_DECLARATION_TO_ANOTHER_ATTEMPT_OR_SLOT"],
+    },
+    finalState: { readiness: "UNCHANGED", business: "UNCHANGED_DECLARATION_WITHDRAWN", physical: "UNCHANGED" },
+  },
 };
 for (const [vectorId, trajectory] of Object.entries(trajectories)) {
   const steps = trajectory.steps
@@ -948,11 +1018,11 @@ const slices = [
     authorityModel: { controlServerFact: "DurableAcceptance", wireMessages: ["DurableAck", "ProtocolProblem"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY"] },
     ownerResponsibilities: { controlServer: ["ACK_WITHOUT_DUPLICATE_EFFECT", "REPLAY_NOT_RECOMPUTE"], onboardHmi: ["RETRY_WITH_IDENTICAL_CONTENT", "ADOPT_REPLAYED_RESULT"] },
   }],
-  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN"], {
+  ["FP-IS-07", 7, ["FP-IS-00"], ["CV-OPERATION-RESULT-UNKNOWN-RECONCILE", "CV-EXCEPTION-RESUME", "CV-EXCEPTION-COMPENSATE", "CV-FAULT-CARGO-HANDOFF", "CV-FORCED-MECHANICAL-RECOVERY", "CV-MANUAL-CHARGING-RETURN", "CV-SLOT-FAULT-DECLARATION-APPLIED", "CV-SLOT-FAULT-DECLARATION-NOT-APPLICABLE"], {
     scope: "EXCEPTION_RECOVERY_AND_MANUAL_RETURN",
-    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION"],
-    authorityModel: { controlServerFact: "ExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
-    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME"] },
+    requiredOutcomes: ["RECOVERY_SESSION_REQUIRES_VERIFIED_ADMINISTRATOR", "EVERY_RECOVERY_ACTION_AUTHORIZED", "FORCED_RECOVERY_FENCED_BY_GENERATION", "SLOT_FAULT_DECLARATION_APPLIED_ONLY_TO_AWAITING_SLOT"],
+    authorityModel: { controlServerFact: "SlotFaultDeclarationAndExceptionRecoverySession", wireMessages: ["ExceptionRecoverySessionOpened", "RecoveryActionAccepted", "ForcedMechanicalRecoveryCommand", "SlotFaultDeclarationCommand"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_EVERY_RECOVERY_ACTION", "FENCE_BY_GENERATION", "DECLARE_SLOT_FAULT_ONLY_ON_OVERDUE_SLOT"], onboardHmi: ["ACT_ONLY_ON_AUTHORIZED_SCOPE", "REPORT_RECOVERY_OUTCOME", "VERIFY_DECLARATION_BEFORE_ABORTING"] },
   }],
   ["FP-IS-08", 8, ["FP-IS-04"], ["CV-MULTI-STOP-PLAN-NINE-LEGS"], {
     scope: "MULTI_STOP_JOURNEY_PLAN",
@@ -1179,7 +1249,7 @@ writeJson("compatibility/report.json", {
   // lands a change rewrites its own sentence if the final shape differs; the candidate-package ticket
   // checks all eight last.
   changeSummary: [
-    "SlotFaultDeclarationCommand carries to the vehicle a slot fault an administrator holding ExceptionRecoveryPermission declared on the control server, the vehicle answers with SlotFaultDeclarationResult and reports the slot UNKNOWN itself with error code SLOT_FAULT_DECLARED, and two vectors cover it (REQ-0359, ADR-cross-0062).",
+    "SlotFaultDeclarationCommand carries to the vehicle a slot fault an administrator holding ExceptionRecoveryPermission declared on the control server, the vehicle answers with SlotFaultDeclarationResult, APPLIED or NOT_APPLICABLE with ACTION_NOT_ALLOWED_IN_STATE, and when it applies the declaration reports the slot UNKNOWN in OperationResult itself with error code SLOT_FAULT_DECLARED, and two vectors bound to FP-IS-07 cover it (REQ-0359, ADR-cross-0062).",
     "CapabilitySnapshot no longer carries supportsBatchUnlock, which one slot door at a time (REQ-0357) left always false, and the FP-IS-04 slice scope drops the word batch.",
     "ForcedMechanicalRecoveryResult carries a forced-removal cargo handoff record that states whether the removed cargo was identified and handed over or is of unknown identity (REQ-0242), and vector CV-FORCED-MECHANICAL-RECOVERY is revised to exercise it.",
     "ExceptionRecoverySessionSnapshot gains a required, nullable reason the session closed, error code RECOVERY_ACTION_RESULT_NOT_RECONCILED joins the registry for a session closed on an unreconciled recovery result, and one vector covers it.",
