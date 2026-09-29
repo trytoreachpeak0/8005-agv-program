@@ -59,8 +59,9 @@ test("expiresOnRevisionChange keeps its value and says what a revision change is
   const entry = section("`SublotEntryRequested.expiresOnRevisionChange`");
   assert.match(entry, /stays `const: true`/);
   assert.match(entry, /neither its value nor its type changes/);
-  // The four events that are a revision change, in one sentence.
-  assert.match(entry, /a revision change is: the stop ended, the operation session or the station changed, the worklist became empty, or the control server rejected the submission with `WORKLIST_REVISION_STALE`\./);
+  // The four events that are a revision change, in one sentence, with the two qualifiers of specification
+  // 23.5 that keep an older empty worklist or a lower-revision one from another session from withdrawing it.
+  assert.match(entry, /a revision change is: the stop ended, the operation session or the station changed \(a worklist for another operation session or station with a strictly higher revision\), the worklist became empty \(a worklist no older than the entry request with empty `items`\), or the control server rejected the submission with `WORKLIST_REVISION_STALE`\./);
   // And the one that is not.
   assert.match(entry, /A worklist revision advancing within the same operation session at the same station is not a revision change/);
   assert.match(entry, /specification 23\.5/);

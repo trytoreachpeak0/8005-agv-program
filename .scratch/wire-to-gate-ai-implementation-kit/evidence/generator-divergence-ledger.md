@@ -300,9 +300,9 @@ diff -rq <repo-tree> <generator-out>
 | `pnpm g1` | **PASS**，failures 为空；manifest `4ac095ad371d3aaa60d7c2e0198cfd64cff5f3068230fc3420e9cdf5616422a7`，与 `86575456` 的 `manifest/release.json` 相同 |
 | `--verify-determinism` | 1781 个文件，**0 divergent** |
 
-**结论：没有差异需要归类，前提成立。**票面预期「只有 `manifest/release.json` 不同」，实测连它也相同：
-`86575456` 是候选冻结提交，批准记录在 tag 与 Release Asset 里、不在树里（第 6 节第 1 步那条边界），
-而生成器用固定的 `candidateTimestamp`，所以 finalize 出来的 content snapshot 与冻结时逐字节一致。
+**结论：没有差异需要归类，前提成立。**`manifest/release.json` 在 finalize 之前与 `86575456` 不同——生成器写的是
+种子（`status: CANDIDATE_UNFINALIZED`），协议仓里是 content snapshot（`CONTENT_SNAPSHOT`），这是设计上就该不同的那一处；
+finalize 之后相同，因为生成器用固定的 `candidateTimestamp`，批准记录又不在树里。与 program#96 的独立复核结果一致。
 
 与第 8.1 节的做法差别只有一处：候选树不放在临时目录，而是放进协议仓的**普通克隆**里——检出
 `86575456`，删掉全部跟踪文件，拷入生成器输出，`git checkout 86575456 -- <七个元文件>` 放回元文件，

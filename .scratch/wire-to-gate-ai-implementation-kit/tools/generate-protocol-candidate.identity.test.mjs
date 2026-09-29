@@ -124,6 +124,21 @@ test("the 58 codes released in 2.0.0 stay byte-for-byte at the head of the regis
   );
 });
 
+test("every code appended after the 58 released in 2.0.0 is introduced in 3.0.0", () => {
+  // Empty under 8005-agv-program#146, which adds no code; it bites from 8005-agv-program#147 on, when a new
+  // code is appended without its override or with a stale one.
+  const appended = readJson("errors/error-codes.json").codes.slice(V2_RELEASED_CODE_COUNT);
+  assert.deepEqual(appended.filter((entry) => entry.introducedInRelease !== "3.0.0").map((entry) => `${entry.code}@${entry.introducedInRelease}`), []);
+});
+
+test("the rendered finalize tool stamps the content snapshot with the 3.0.0 identity", () => {
+  // finalize-manifest.mjs is rendered from a template; the snapshot it writes is what G1 and both products
+  // compare, so its identity is checked where it is rendered, not in the template.
+  const finalize = read("tools/finalize-manifest.mjs");
+  assert.match(finalize, /releaseVersion:"3\.0\.0",protocolVersion:4,profileId:"AGV_FULL_PRODUCT"/);
+  assert.doesNotMatch(finalize, /__[A-Z0-9_]+__/);
+});
+
 test("an introducedInRelease override on an existing code reaches the registry", () => {
   // A throwaway copy of the generator with one override added, as an uncommitted edit would.
   const patchedTools = path.join(scratch, "patched-tools");
