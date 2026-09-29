@@ -246,7 +246,12 @@ const CANCEL_VECTOR = "CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN";
 const RELEASE_VECTOR = "CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE";
 // Shared by the two clearing vectors: the same settlement rule, the same hold, the same single way out.
 const DOOR_SIDE_EFFECTS = [...DEFAULT_SIDE_EFFECTS, "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "door-unproven-settles-with-a-slot-not-proven-empty", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "vehicle-held-without-a-repair-release-path"];
-const DOOR_SERVER = (settle) => [settle, "SETTLE_DOOR_UNPROVEN_ONLY_ON_THE_EXACT_TARGET_SLOTS_ALL_EMPTY", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "PUBLISH_HOLD_IN_VEHICLE_BUSINESS_STATE", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"];
+// The demand settles the way an all-empty clearing does (SETTLE_DEMAND_AS_ALL_EMPTY_*); the doors do not count as proven locked
+// and the vehicle does not become ready (NEVER_TAKE_DOOR_UNPROVEN_FOR_DOORS_PROVEN_LOCKED). Two different things, two names.
+const DOOR_SERVER = (settle) => [settle, "SETTLE_DOOR_UNPROVEN_ONLY_ON_THE_EXACT_TARGET_SLOTS_ALL_EMPTY", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "PUBLISH_HOLD_IN_VEHICLE_BUSINESS_STATE", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TAKE_DOOR_UNPROVEN_FOR_DOORS_PROVEN_LOCKED"];
+// Every new vector keeps the four default persistence checkpoints: the vehicle journals before it sends and before any
+// irreversible IO, the control server persists before it acknowledges, and a result is on file before it is replayed.
+const DEFAULT_CHECKPOINTS = ["durable-before-send", "durable-before-ack", "journal-before-irreversible-io", "result-before-replay"];
 const DOOR_ONBOARD = ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"];
 const HELD_FINAL_STATE = { readiness: "RECOVERY_REQUIRED", business: "DEMAND_TERMINATED_AS_ALL_EMPTY_VEHICLE_HELD_FOR_REPAIR", physical: "SLOTS_EMPTY_DOOR_UNPROVEN_VEHICLE_HELD" };
 // After the result is acknowledged the control server publishes the hold outside any journey, so the vehicle can show it.
@@ -352,11 +357,45 @@ test(`${RELEASE} is a recovery action a session may offer, select and accept`, (
   assert.equal(accepts("RecoveryActionAccepted", { ...acceptedAction, acceptedAction: RELEASE, slotOperationAttemptId: null }), true);
 });
 
-test("the hardware recovery record keeps its released shape: both ids required and non-null", () => {
-  const payload = payloadSchemaOf("HardwareRecoveryRecordSubmitted");
-  assert.match(payload.properties.exceptionRecoverySessionId.$ref ?? "", /\$defs\/Id$/);
-  assert.match(payload.properties.recoveryActionId.$ref ?? "", /\$defs\/Id$/);
-  assert.ok(payload.required.includes("exceptionRecoverySessionId") && payload.required.includes("recoveryActionId"));
+// The release reuses the hardware recovery record exactly as 2.0.0 released it: both messages are pinned whole, so a field made
+// nullable or dropped on either side turns this red.
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v4/common/types.schema.json#/$defs/";
+const ref = (name) => ({ $ref: `${TYPES}${name}` });
+const nonEmptyStrings = { type: "array", items: { type: "string", minLength: 1 }, minItems: 1 };
+
+test("HardwareRecoveryRecordSubmitted keeps its released shape: both ids required and non-null", () => {
+  assert.deepEqual(payloadSchemaOf("HardwareRecoveryRecordSubmitted"), {
+    type: "object",
+    properties: {
+      recordId: ref("Id"),
+      exceptionRecoverySessionId: ref("Id"),
+      recoveryActionId: ref("Id"),
+      operator: ref("OperatorContext"),
+      administratorRole: { type: "string", enum: ["MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"] },
+      slots: { type: "array", items: ref("SlotNo"), minItems: 1, maxItems: 8, uniqueItems: true, "x-sortedAscending": true },
+      checksPerformed: { ...nonEmptyStrings, uniqueItems: true },
+      actionsPerformed: { ...nonEmptyStrings, uniqueItems: true },
+      observations: nonEmptyStrings,
+      observedAt: ref("Instant"),
+    },
+    required: ["recordId", "exceptionRecoverySessionId", "recoveryActionId", "operator", "administratorRole", "slots", "checksPerformed", "actionsPerformed", "observations", "observedAt"],
+    additionalProperties: false,
+  });
+});
+
+test("HardwareRecoveryRecordResult keeps its released shape: a real session revision, never null", () => {
+  const payload = payloadSchemaOf("HardwareRecoveryRecordResult");
+  assert.deepEqual(payload, {
+    type: "object",
+    properties: {
+      recordId: ref("Id"),
+      outcome: { type: "string", enum: ["RECORDED", "REJECTED"] },
+      problem: { anyOf: [ref("Problem"), { type: "null" }] },
+      recoverySessionRevision: ref("Revision"),
+    },
+    required: ["recordId", "outcome", "problem", "recoverySessionRevision"],
+    additionalProperties: false,
+  });
 });
 
 // --- PreDepartureSafetyCheck: a check with or without a demand (ADR-cross-0009, REQ-0364) ---
@@ -467,11 +506,19 @@ test(`${RELEASE_VECTOR} releases a held vehicle through a session, a repair reco
     "SafetyStateSnapshotRequested", "SafetyStateSnapshot", "SnapshotAppliedAck", CHECK, CHECK_RESULT,
     "VehicleBusinessStateSnapshot", "SnapshotAppliedAck",
   ]);
-  // No slot IO: nothing in the trace opens a door.
+  // The exact list above is what keeps a slot command out of the trace; this line only says so in words, and would miss a
+  // door-opening message not named *Command.
   assert.deepEqual(expected.orderedExpectedMessages.filter((type) => /Command$/.test(type)), []);
-  assert.equal(expected.stableErrorCode, DOOR_CODE);
+  // The vector ends READY, so no error code stands at its end: the door code belongs to the two clearing vectors.
+  assert.equal(expected.stableErrorCode, null);
   assert.deepEqual(expected.finalState, { readiness: "READY", business: "DOOR_HOLD_LIFTED_RELEASE_SESSION_CLOSED", physical: "HELD_SLOTS_LOCKED_RESET_EMPTY" });
 });
+
+for (const vectorId of [DOOR_VECTOR, CANCEL_VECTOR, RELEASE_VECTOR]) {
+  test(`${vectorId} keeps the four default persistence checkpoints`, () => {
+    assert.deepEqual(expectedOf(vectorId).persistenceCheckpoints, DEFAULT_CHECKPOINTS);
+  });
+}
 
 test(`${RELEASE_VECTOR} states the product assertions of both sides and forbids a hold with no way out`, () => {
   const expected = expectedOf(RELEASE_VECTOR);

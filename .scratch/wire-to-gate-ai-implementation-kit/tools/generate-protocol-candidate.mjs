@@ -1121,12 +1121,14 @@ const trajectories = {
   // of them EMPTY; anything else stays unreconciled and the demand stays blocked for a new session. The result gets its
   // DurableAck, and the control server then publishes the hold in VehicleBusinessStateSnapshot outside any journey. The way out
   // needs no database edit and is the same for a cancellation: CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE.
+  // The demand settles the way an all-empty compensation does (SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION); the doors never count
+  // as proven locked and the vehicle never becomes ready on this result (NEVER_TAKE_DOOR_UNPROVEN_FOR_DOORS_PROVEN_LOCKED).
   "CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN": {
     messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "LoadCompensationRequested", "LoadCompensationCommand", "LoadCompensationResult", "DurableAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
     stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
     forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "door-unproven-settles-with-a-slot-not-proven-empty", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "vehicle-held-without-a-repair-release-path"],
     productAssertions: {
-      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "SETTLE_DOOR_UNPROVEN_ONLY_ON_THE_EXACT_TARGET_SLOTS_ALL_EMPTY", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "PUBLISH_HOLD_IN_VEHICLE_BUSINESS_STATE", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_COMPENSATION", "SETTLE_DOOR_UNPROVEN_ONLY_ON_THE_EXACT_TARGET_SLOTS_ALL_EMPTY", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "PUBLISH_HOLD_IN_VEHICLE_BUSINESS_STATE", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TAKE_DOOR_UNPROVEN_FOR_DOORS_PROVEN_LOCKED"],
       // The result is journaled before it is sent, so a result replayed after a restart is the same DOOR_UNPROVEN one and
       // never a live re-reading that might now say ALL_EMPTY or UNKNOWN.
       onboardHmi: ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"],
@@ -1141,7 +1143,7 @@ const trajectories = {
     stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
     forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "door-unproven-reported-as-all-empty", "slot-opened-after-door-unproven", "door-unproven-settles-with-a-slot-not-proven-empty", "vehicle-released-without-fresh-lock-proof", "demand-left-blocked-after-door-unproven-empty", "vehicle-held-without-a-repair-release-path"],
     productAssertions: {
-      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_CANCELLATION", "SETTLE_DOOR_UNPROVEN_ONLY_ON_THE_EXACT_TARGET_SLOTS_ALL_EMPTY", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "PUBLISH_HOLD_IN_VEHICLE_BUSINESS_STATE", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TREAT_DOOR_UNPROVEN_AS_ALL_EMPTY"],
+      controlServer: ["SETTLE_DEMAND_AS_ALL_EMPTY_CANCELLATION", "SETTLE_DOOR_UNPROVEN_ONLY_ON_THE_EXACT_TARGET_SLOTS_ALL_EMPTY", "HOLD_VEHICLE_UNTIL_HARDWARE_RECORD_AND_FRESH_LOCK_PROOF", "PUBLISH_HOLD_IN_VEHICLE_BUSINESS_STATE", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "RELEASE_ONLY_THROUGH_HARDWARE_REPAIR_RELEASE", "NEVER_TAKE_DOOR_UNPROVEN_FOR_DOORS_PROVEN_LOCKED"],
       onboardHmi: ["REPORT_LOCK_AND_OUTPUT_STATE_AS_READ", "NEVER_OPEN_ANY_SLOT_AFTER_DOOR_UNPROVEN", "DISPLAY_REPAIR_REQUIRED_NOTICE", "JOURNAL_DOOR_UNPROVEN_RESULT_BEFORE_SENDING", "REPLAY_SAME_DOOR_UNPROVEN_RESULT_AFTER_RESTART"],
     },
     finalState: { readiness: "RECOVERY_REQUIRED", business: "DEMAND_TERMINATED_AS_ALL_EMPTY_VEHICLE_HELD_FOR_REPAIR", physical: "SLOTS_EMPTY_DOOR_UNPROVEN_VEHICLE_HELD" },
@@ -1158,7 +1160,7 @@ const trajectories = {
   // Only a record on a release action lifts this hold; nothing in the trace commands slot IO.
   "CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE": {
     messages: wire("ExceptionRecoverySessionRequested", "ExceptionRecoverySessionOpened", "RecoveryActionSubmitted", "RecoveryActionAccepted", "HardwareRecoveryRecordSubmitted", "HardwareRecoveryRecordResult", "ExceptionRecoverySessionSnapshot", "SnapshotAppliedAck", "SafetyStateSnapshotRequested", "SafetyStateSnapshot", "SnapshotAppliedAck", "PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"),
-    stableErrorCode: "SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY",
+    // No stable error code: the vector ends READY, and the door code belongs to the two clearing vectors that hold the vehicle.
     forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "slot-opened-for-repair-release", "vehicle-released-on-record-alone", "vehicle-released-on-readings-received-before-record", "repair-release-offered-without-door-hold", "hardware-record-on-a-non-release-action-lifts-door-hold", "release-session-stuck-after-onboard-restart", "vehicle-held-without-a-repair-release-path"],
     productAssertions: {
       controlServer: ["OFFER_REPAIR_RELEASE_ONLY_WHILE_HELD_FOR_UNPROVEN_DOOR", "LIFT_DOOR_HOLD_ONLY_ON_A_RECORD_OF_THE_RELEASE_ACTION", "CLOSE_RELEASE_SESSION_ON_RECORDED", "REQUEST_SAFETY_SNAPSHOT_ON_RECORD_AND_AFTER_RECONNECT", "RELEASE_ONLY_ON_READINGS_RECEIVED_AFTER_RECORD_AND_A_SAFE_HOLD_RELEASE_CHECK", "NEVER_RELEASE_ON_HARDWARE_RECORD_ALONE", "VOID_RECORD_AND_ACCEPT_NEW_SESSION_WHEN_FIRST_READINGS_UNPROVEN", "PUBLISH_RELEASE_IN_VEHICLE_BUSINESS_STATE"],
