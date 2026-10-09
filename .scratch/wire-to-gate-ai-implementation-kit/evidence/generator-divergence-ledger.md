@@ -278,3 +278,51 @@ diff -rq <repo-tree> <generator-out>
 
 没有写协议仓，没有改任何 schema、向量、错误码、切片或身份常量。协议仓的这两处变化由 program#96
 （批次5-21）随 v2.0.0 候选包一并落地。
+
+---
+
+## 9. 批次 8（v3.0.0）起点复核
+
+协议批 v3.0.0 的生成器票（program#146～#150）都默认「生成器就是 `protocol-v2.0.0` 的机械来源」。本节在
+`batch-p3/protocol-generator` 的分出点上实测这个前提，做法与第 8.1 节相同，只换了对照与克隆方式。
+
+### 9.1 起点复核（program#146）
+
+| 项 | 值 |
+| --- | --- |
+| 复核日期 | 2026-09-29 |
+| 机器 | 控制端 `LAB-WIN-01`，Windows 11 Pro 10.0.26200，node v24.20.0，pnpm 11.25.0 |
+| 生成器 | `batch-p3/protocol-generator` 的分出点 `18c30b14`（创建该分支时的 `origin/main`）。生成器 blob `9f23bfe4`，`templates/g1-validate.mjs` `49e9ba69`，`templates/finalize-manifest.mjs` `4eaef0e4` |
+| 对照 | 协议仓 `86575456`（`protocol-v2.0.0`，注释 tag；`origin/fp/v2-candidate` 顶端，之后无未发布提交），1789 个跟踪文件 |
+| 生成器输出 | **1781** 个文件 |
+| 放回七个元文件、finalize、G1 之后 | **1789** 个文件（`node_modules/` 不计） |
+| 逐字节相同／不同／缺失／多余 | **1789／0／0／0** |
+| `pnpm g1` | **PASS**，failures 为空；manifest `4ac095ad371d3aaa60d7c2e0198cfd64cff5f3068230fc3420e9cdf5616422a7`，与 `86575456` 的 `manifest/release.json` 相同 |
+| `--verify-determinism` | 1781 个文件，**0 divergent** |
+
+**结论：没有差异需要归类，前提成立。**`manifest/release.json` 在 finalize 之前与 `86575456` 不同——生成器写的是
+种子（`status: CANDIDATE_UNFINALIZED`），协议仓里是 content snapshot（`CONTENT_SNAPSHOT`），这是设计上就该不同的那一处；
+finalize 之后相同，因为生成器用固定的 `candidateTimestamp`，批准记录又不在树里。与 program#96 的独立复核结果一致。
+
+与第 8.1 节的做法差别只有一处：候选树不放在临时目录，而是放进协议仓的**普通克隆**里——检出
+`86575456`，删掉全部跟踪文件，拷入生成器输出，`git checkout 86575456 -- <七个元文件>` 放回元文件，
+再跑三条 pnpm 命令。这样 `git status` 本身就是一次比对；另用第 8.1 节的进程内 blob id 办法独立复算，
+两边结果一致。克隆放在工作区 `scratch/b801/proto`（短路径，`core.longpaths=true`）。
+
+### 9.2 worktree 陷阱：三条 pnpm 命令不能在 git worktree 里跑
+
+`finalize-manifest.mjs` 与 `g1-validate.mjs` 排除 `.git` 的判据都是 `p.startsWith(".git/")`，只挡得住
+**目录**。git worktree 的 `.git` 是一个约 110 字节的文本文件（`gitdir: …`），于是被当成受管内容算进
+content manifest 的文件表：本地 G1 自洽地 PASS，CI 上 `actions/checkout` 拿到的是真目录，文件数少一条，
+以 `manifest file count` 变红。
+
+批次 5 撞过一次（program#96，2026-09-16 实测）：worktree 里 1786 条、manifest `3072dff6…`；短路径普通克隆里
+1785 条、`4ac095ad…`。差异只有 `.git` 那一条，`schemaBundleSha256`／`examplesSha256`／`vectorsSha256`／
+`errorRegistrySha256` 全不变。当时决定不为这一条注记单开票，等下一张改生成器的票顺手补上，即本节。
+
+**做法**：生成候选树可以在任何地方做（包括 program 仓的 worktree），但 `pnpm install --frozen-lockfile` →
+`pnpm manifest:finalize` → `pnpm g1` 这三步要在协议仓的**普通克隆**里、或一个没有 `.git` 的临时目录里跑，
+并且路径要短：协议仓最长的负例相对路径约 159 个字符，会话 scratchpad（`%TEMP%\claude\…`）那种前缀会越过
+Windows 的 MAX_PATH，检出时满屏 `D` 而 `git clone` 只打一句提示。
+
+模板里的两个判据本票不改（票面「不改 G1 与 finalize 模板」）。
