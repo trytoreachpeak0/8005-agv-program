@@ -613,7 +613,7 @@ WIRE_TO_GATE）与旧 schema 把切片数锁死在 8 个；这两条这次都不
 | `FP-IS-01` | 1 | 00 | `DEMAND_ACCEPTANCE_AND_TO_PICKUP` | FP-B0 | 2 轨 A（5 重证） |
 | `FP-IS-02` | 2 | 01 | `STATION_PICKUP_AND_MULTI_SLOT_LOAD` | FP-B0 | 2 轨 A（5 重证） |
 | `FP-IS-03` | 3 | 02 | `PREDEPARTURE_SAFETY_AND_RESULT_RECONCILE` | FP-B0 | 2 轨 A（5 重证） |
-| `FP-IS-04` | 4 | 03 | `DESTINATION_BATCH_UNLOAD` | FP-B0 | 2 轨 A（5 重证） |
+| `FP-IS-04` | 4 | 03 | `DESTINATION_UNLOAD`（`v3.0.0` 起，原名 `DESTINATION_BATCH_UNLOAD`，见第 24.3 节） | FP-B0 | 2 轨 A（5 重证） |
 | `FP-IS-05` | 5 | 00 | `CONNECTION_LOSS_SAFE_FINISH` | FP-B0 | 2 轨 A（5 重证） |
 | `FP-IS-06` | 6 | 00 | `RELIABLE_DELIVERY_AND_RESULT_REPLAY` | FP-B0 | 2 轨 A（5 重证） |
 | `FP-IS-07` | 7 | 00 | `EXCEPTION_RECOVERY_AND_MANUAL_RETURN` | FP-B0 | 2 轨 A（5 重证） |
@@ -721,7 +721,7 @@ L2 有合成与真装置两套，不可互换：合成对端没有 IO、journal�
 2. `CP-0002` 已批准，需求基线为 `v1.2.0`。
 3. program#61 的 B 类修复全部合入 v2 集成分支，其 Q4～Q6 有结论。
 4. 批次 2 票 19 急停演练完成（2026-09-14 晚改为在备用车 agv02 上做缩减版，可以在切换之前任何时候做；「8005 侧只发一次」与停稳组合证据仍以 L2 为准）。
-5. control-server#44：已批准硬件事实里的光幕极性常量与生产库对齐（有物为低），改后 `FP-IS-14` 的 G2／G3 在发布身份上重跑。
+5. control-server#44：已批准硬件事实里的光幕极性常量与生产库对齐（有物为低），改后 `FP-IS-14` 的 G2／G3 在发布身份上重跑（现行发布身份见第 24.2 节）。
 6. 现场前置与投运参数全部就绪：分区归属表（含开门侧列）；派工待送取货站点绑定；`REQ-0198`、`REQ-0203`；等待点测绘与 `REQ-0289` 登记（不少于 3 个）；
    名册登记 211；`REQ-0282` 充电策略版本；`REQ-0302` 两个值。
 7. 切换数据方案已定（第 14 节第 6 项）。
@@ -1302,7 +1302,7 @@ control-server#46～#57、onboard-hmi#53 于 2026-09-14 以 `not planned` 关闭
 - **第 2 条**：需求基线为 `v1.3.0`（`CP-0002`、`CP-0003` 均已批准）。
 - **第 3 条**：program#61 的 B 类中，并入批次 5 的随批次 5 出口；其余 B 类合入 v2 集成分支。Q4～Q6 已在 program#61 的 2026-09-15 评论给出结论，其中 Q4 的出站门禁由批次 5 承担。
 - **第 4 条**：批次 2 票 19 急停演练**已完成**（program#84）。「8005 侧只发一次」以 L2 为准；停稳按 `v1.3.0` 的 `REQ-0247`，急停锁住即视为已停稳，不再要求组合证据。
-- **新增第 8 条**：control-server#63 已合入 v2 集成分支，且 `emergency-stop-single-trigger`、`command-surface-order-hold` 两个 L2 场景在 `protocol-v2.0.0` 身份上按新判据各连续三次通过。
+- **新增第 8 条**：control-server#63 已合入 v2 集成分支，且 `emergency-stop-single-trigger`、`command-surface-order-hold` 两个 L2 场景在 `protocol-v2.0.0` 身份上按新判据各连续三次通过。**2026-10-09 起读作现行发布身份 `protocol-v3.0.0`，见第 24.2 节。**
 
 ### 19.6 急停修复与批次 5 出口的先后（决策 11）
 
@@ -1391,7 +1391,7 @@ control-server#63 要改的地方，批次 4、5 都不碰：
 | --- | --- |
 | 需求基线 | `CP-0004` 与 `CP-0005` 合并批准后升到 `v1.4.0`：`CP-0004` 新增 `REQ-0357`，修订 `REQ-0223`、`REQ-0353`、`REQ-0226`（维护开门的进入条件，program#113 补入），`CP-0005` 另新增 `REQ-0358`（期待动作超时上报）、`REQ-0359`（人工判故障），共 359 条。**已于 2026-09-18 批准**，基线文件 `requirements/baselines/current-requirements-v1.4.0.md`，Baseline SHA-256 与 content commit 见 `requirements/current-baseline.md`（program#116）；tag `requirements-baseline-v1.4.0` 合入后由调度会话打 |
 | 第 5.1 节第 4 条 | 「为各需求分别开各自那一组」仍成立，但两组仓门同样一次一扇、先前侧后后侧 |
-| 协议 `v2.0.0` | 不改。`supportsBatchUnlock` 恒为 `false`、`FP-IS-04` 的 scope 名 `DESTINATION_BATCH_UNLOAD` 两处措辞留到下一次破坏性发布 |
+| 协议 `v2.0.0` | 不改。`supportsBatchUnlock` 恒为 `false`、`FP-IS-04` 的 scope 名 `DESTINATION_BATCH_UNLOAD` 两处措辞留到下一次破坏性发布。**已在 `protocol-v3.0.0` 处理，见第 24.3 节** |
 | v2 车载端 | 已基本是一次一扇；装货途中取消时有一处两扇同开的缺陷，实现票在解冻后第一批开（program#111 评论） |
 | v2 服务端 | 不依赖批量开锁，不改 |
 | L2／G3 场景 | 没有断言多扇同开的场景，不改；实现票补「一次一扇」的回归用例 |
@@ -1733,3 +1733,40 @@ control-server#330 落地后改由服务端做。
 - 9 `HANG` 仍按「看得见、会告警、不接新单」处理，不进两级故障模型（control-server#316）；把它纳入完整故障模型，记在 control-server#319。
 
 *追溯：program#135；control-server#318 评论（issuecomment-5779187694、-5780408158、-5787511271）、#316（PR #321）、#330 票面与评论（issuecomment-5779312842）、#299（PR #326）的用户决定评论、#323（PR #329）、#324；onboard-hmi#199（PR #200）与其评论（issuecomment-5778088454、-5779025283）；program#86、#133；需求基线 `v1.4.0`；`protocol-v2.0.0` 的 `SublotEntryRequested.schema.json`。*
+
+## 24. 补记：2026-10-09 `protocol-v3.0.0` 发布与批次 8 出口
+
+**本节记录 `protocol-v3.0.0` 发布（program#152）与批次 8 合并出口（control-server#393）带来的措辞变化。正文不改；正文与本节不一致处，以本节为准。**
+正文只在第 7.2 节切片表、第 8.4.2 节第 5 条、第 19.5 节第 8 条、第 20.2 节表各加了一处指向本节的话；第 7.2 节 `FP-IS-04` 的 scope 名直接改了，理由见第 24.3 节。
+
+### 24.1 现行发布身份
+
+`protocol-v3.0.0` 于 2026-10-09 发布：注释 tag 对象 `e08c362e`，指向 `8005-agv-protocol` 提交 `3f091cb2eae7c58cec54a95dd9389c9180bc7b4c`，
+`(AGV_FULL_PRODUCT, 4)`，`releaseVersion 3.0.0`，manifest `d5e1a53f…` 与 program#151 冻结的候选相同；一名批准，由用户授权的 AI agent 给出（第 6.4 节）。
+按第 6.5 节，自发布起绑定 `protocol-v2.0.0` 的门禁与 L2 证据不再是现行证据，全部已实现切片由 control-server#393 在 `v3.0.0` 上重证，
+证据与结论在 control-server 仓 `docs/batch-8-v2-exit-report.md`。
+
+### 24.2 切生产门槛的两处措辞（第 19.5 节第 8 条、第 8.4.2 节第 5 条）
+
+- **第 19.5 节新增的第 8 条**写的是两个急停 L2 场景「在 `protocol-v2.0.0` 身份上」各连续三次通过。`v2.0.0` 已不是现行身份，
+  所以这一条改读为：`emergency-stop-single-trigger`、`command-surface-order-hold` 两个 L2 场景**在现行发布身份 `protocol-v3.0.0` 上**按新判据各连续三次通过。
+  control-server#63 已合入 v2 集成分支这一半不变。两个场景在 `v3.0.0` 上的三连证据由 control-server#393 的 CI `consecutive-all` 一轮给出，目录写在上面那份出口报告里。
+- **第 8.4.2 节第 5 条**原文是「改后 `FP-IS-14` 的 G2／G3 在发布身份上重跑」，没有点名 `v2.0.0`，本身没有过期。这里只补一句：
+  现行发布身份为 `protocol-v3.0.0`，`FP-IS-14` 的 G2／G3 在它上面由 control-server#393 重跑。
+
+### 24.3 `FP-IS-04` 的 scope 名与 `supportsBatchUnlock`（第 7.2 节、第 20.2 节）
+
+第 20.2 节把两处措辞留到下一次破坏性发布。`protocol-v3.0.0` 就是那一次（program#148）：
+
+- `FP-IS-04` 的 `definition.scope` 由 `DESTINATION_BATCH_UNLOAD` 改为 `DESTINATION_UNLOAD`，与该切片唯一的向量 `CV-DESTINATION-UNLOAD-ALL-EMPTY` 同名，
+  去掉 `REQ-0357`（一次一扇）之后已不成立的「批量」。第 7.2 节切片表这一格照协议直接改了：它抄的是协议里的标识符，不是本规格的口径，留着旧名只会让人去协议里找一个不存在的值。
+- `CapabilitySnapshot.supportsBatchUnlock` 在 `v3.0.0` 删除。
+- `CP-0004` 第五节与 ADR-cross-0061 里的旧名是历史叙述，不改。
+
+### 24.4 `REQ-0242` 的「身份不明、待盘点」分支
+
+用户 2026-09-29 给的现场事实：强制取出的货，现场人员一定能识别，不会出现身份不明。据此 `CP-0008`（用户 2026-09-29 批准，需求基线 `v1.7.0`）
+修订了 `REQ-0242`，`protocol-v3.0.0` 也去掉了 `UNIDENTIFIED` 交接记录与「待盘点」路径（program#149）。本规格正文没有展开这一分支，所以不改正文；
+以基线 `v1.7.0` 起的 `REQ-0242` 为准。若将来现场条件变化、需要恢复这一分支，先要有一个不改库的收尾出口（例如看板受控的盘点确认），再走变更提案。
+
+*追溯：program#152（发布）、program#148、program#149、program#151；control-server#393 票面与评论。*
