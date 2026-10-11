@@ -443,7 +443,7 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
 - 要回答：
   1. 其它没有 `upperId` 的订单（不同终态：`SUCCESS`、`CANCELLED`；以及非终态）是不是同样回空串，有没有回 `null` 或缺字段的。
   2. 订单列表 `GET /api/order/v1/orderRecord` 里同一张单的 `upperId` 是什么形状（`ListUnfinishedOrders` 那条路径用的是列表）。
-- 字段语义提醒（`OBSERVED`）：订单记录里的 `startStationNo`／`startStationName` 不是车建单时所在的站，读数与第一段任务的目的站一致。这张网页单记录为 `N1-1 > N1-1`，但建单前后（15:04、15:16:17）agv02 都在站 216，15:16:07 读到 `MT_RUNNING`；晚段充电单 `order-2109203643214462976` 建单前车在 216，记录里 `startStationNo=212`（第一段 move 的目的站）。所以它不是一张「目的站就是当前站」的单，这种单在本实验室的样本数是 0。证据：同分支 `evidence/field/20261011-W3-S1-charging/05-after-manual-move-to-216.txt`、`10-car-moving-1516.txt`，`evidence/field/20261011-W3-S1-charging-cs616/01-riot-3cars-before-window.txt`、`14-riot-order-records-charge-idle.txt`。
+- 字段语义提醒（`OBSERVED`）：订单记录里的 `startStationNo`／`startStationName` 不是车建单时所在的站，读数与第一段 `move` 的目的站一致（晚段空闲返回单第一段是 act 78，`startStationNo=216` 是其后那段 move 的目的站）。这张网页单记录为 `N1-1 > N1-1`，但建单前后（15:04、15:16:17）agv02 都在站 216，15:16:07 读到 `MT_RUNNING`；晚段充电单 `order-2109203643214462976` 建单前车在 216，记录里 `startStationNo=212`（第一段 `move` 的目的站）。所以它不是一张「目的站就是当前站」的单，这种单在本实验室的样本数是 0。证据：同分支 `evidence/field/20261011-W3-S1-charging/05-after-manual-move-to-216.txt`、`10-car-moving-1516.txt`，`evidence/field/20261011-W3-S1-charging-cs616/01-riot-3cars-before-window.txt`、`14-riot-order-records-charge-idle.txt`。
 
 ## P2：多仓位与物模型
 

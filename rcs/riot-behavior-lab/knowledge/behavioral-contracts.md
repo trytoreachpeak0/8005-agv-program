@@ -450,7 +450,7 @@
 
 ## BC-ORDER-022 upperId 长 69～71 的建单回 HTTP 200＋`00002`、不建单（现场观测，非实验轮）
 
-- 结论：在 8005 生产 RIoT 上，`POST /api/order/v1/add/byDefaultMissions` 建单（空闲返回、充电两种形状），`upperId`（`orderName` 传同一串）长 69、69、71 字符时，三次都回 HTTP 200＋业务码 `00002`，之后按 `upperId` 一直查不到这张单，订单列表里也没有出现 `upperId` 超过 52 的单（以上 `OBSERVED`）。同一天晚些时候，改图之后、去同样目的站 211／216、`upperId` 缩短到 39／37 的两张单都建成并完成（`OBSERVED`），「改图」「目的站」两个因素因此被排除。「失败由 `upperId`／`orderName` 的长度引起」是 `INFERRED`（强支持）：对照没有控制住服务端包，也没有控制住串的内容（三条失败串都含完整 `BROKERX-<32 位十六进制>`，所有成功串都不含），见下文「混杂因素与对照」。确切长度上限、是 `upperId` 还是 `orderName` 触发，仍未证实（Q-042）。
+- 结论：在 8005 生产 RIoT 上，`POST /api/order/v1/add/byDefaultMissions` 建单（空闲返回、充电两种形状），`upperId`（`orderName` 传同一串）长 69、69、71 字符时，三次都回 HTTP 200＋业务码 `00002`，之后按 `upperId` 一直查不到这张单，订单列表里也没有出现 `upperId` 超过 52 的单（以上 `OBSERVED`）。同一天晚些时候，改图之后、去同样目的站 211／216、`upperId` 缩短到 39／37 的两张单都建成并完成（`OBSERVED`），「改图」「目的站」两个因素因此被排除。「失败由 `upperId`／`orderName` 的长度引起」是 `INFERRED`（强支持）：对照没有控制住服务端包，也没有控制住串的内容（三条失败串都含完整 `BROKERX-<32 位十六进制>`，已列出的成功串都不含），见下文「混杂因素与对照」。确切长度上限、是 `upperId` 还是 `orderName` 触发，仍未证实（Q-042）。
 - 证据等级：下面「已观测」各条 `OBSERVED`；「推断」各条 `INFERRED`；标了 `UNKNOWN` 的只原样记录。
 - 来源：不是本实验室的实验轮，是 `8005-agv-control-server#566` 现场续场二（2026-10-11，factory01 上的 v2 并行实例，包 `da6e40e2`，RIoT `172.19.206.222:8888`，map 26 `老厂前线new_wk`，agv02 = RIoT `id=59`）。证据在 `8005-agv-control-server` 的证据 PR #618，分支 `evidence/cs566b-resume2`（读于提交 `edf3ff1f`，合入后路径不变）：
   - `evidence/field/20261011-00002-investigation/01-order-details.txt`、`02-riot-upperid-lengths.txt`
@@ -481,7 +481,7 @@
      对照失败单：充电 71 字符去 211、空闲返回 69 字符去 216，都是 `00002`。
   3. **这组对照没有控制住的**：
      - **服务端包**：从 `da6e40e2` 换成了 `0c396ba7`，中间 79 个提交（`git rev-list --count da6e40e2..0c396ba7`）。读两者的源码差异：`HttpRiotMovementGateway.cs` 没有变化（建单参数在这里构造），`Directory.Packages.props` 里 riot-sdk 版本没有变化；RIoT 相关只改了 `RiotSdkRegistration.cs`／`RiotHttpTrafficLogger.cs` 的日志记录器（cs#587），以及 upperId 的生成（新增 `RiotUpperIds.cs`，cs#616）。据此推断请求体除 `upperId`／`orderName` 外相同，但两边都没有抓包，标 `INFERRED`。
-     - **串的内容**：三条失败串都含完整的 `BROKERX-` 加 32 位十六进制 `deviceKey`，所有成功串（37、39、47、49、52 字符）都不含。现有样本分不开「长度」与「内容」。
+     - **串的内容**：三条失败串都含完整的 `BROKERX-` 加 32 位十六进制 `deviceKey`，已列出的成功串（37、39、47、49、52 字符）都不含。现有样本分不开「长度」与「内容」。
      - 车的起点也不同。表里「RIoT 存下的任务」是 RIoT 展开后的形状（进出点 212 与结束充电 act 78 参数 2 由 RIoT 自动插入，见 Q-033），不等于请求原文。
   4. 所以「失败由长度引起」是 `INFERRED`（强支持）：69／71 被拒，37／39／47／52 被接受，改图与目的站已被对照排除；剩下没排除的是上面的服务端包与串内容。确切上限 L 仍然未知，52 与 69 之间没有任何样本。
 - 推断（`INFERRED`）：
