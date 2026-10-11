@@ -4,6 +4,8 @@
 
 现场只有**一台**可用于验证的测试车（key 见 [`environment.local.json`](../environment.local.json)），其余车辆正在正常运行。任何一轮测试都必须收敛到这一台车，不能影响其它车。
 
+**测试车现状（2026-10-11 按工作区 `remote-ops/fleet.md` 核对）**：上面那句写于 Round 1～42，当时用的是跨项目测试环境 RIoT 上的「新基测试300c协作1」。Round 43 起本实验室也在 8005 生产 RIoT（`172.19.206.222:8888`）上做，那里可用作测试车的只有 **`agv02`（RIoT `id=59`）和 `agv03`（`id=60`）**，`deviceKey` 见 `fleet.md`；**`agv01`（`id=58`）在跑生产，任何轮次都不碰**。「每轮收敛到一台车」不变：每轮只选其中一台，在 `round-plan.md` 写明是哪台，执行器按 `deviceKey` 拒绝其它所有车。车的身份只认 `deviceKey`／`id`，不认 `deviceName`（同名前缀的车不止这三台）。会让车动的轮次按工作区 `Ask first` 第 1 类逐轮授权。
+
 ## 硬性规则
 
 1. **写操作必须显式带测试车的 key**（`appointVehicleKey` / path 上的 `deviceKey` / `vehicleKey`），禁止「让系统随便派车」。
