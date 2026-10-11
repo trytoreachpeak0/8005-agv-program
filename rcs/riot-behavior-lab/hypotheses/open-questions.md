@@ -427,13 +427,13 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
 - 状态：`OPEN`
 - 来源：`8005-agv-control-server#566` 现场续场二（2026-10-11）三次建单回 HTTP 200＋`00002`、不建单，`upperId` 长 69、69、71；产品侧已按保守值 52 收紧（`8005-agv-control-server#616`，PR #619）。现有事实与混杂因素见 `BC-ORDER-022`。实验卡 `E6`。
 - 要回答：
-  1. **是不是长度引起的。**现有样本里「长度 ≥ 69」与「26 号图约 12:47 改名之后」「目的站 216／211」完全重合，没有对照。要在同一时段、同一目的站、只改长度的条件下复现。
-  2. **确切上限 L**：长度 ≤ L 被接受、L+1 被拒。目前只知道 52 被接受、69 被拒（前提是第 1 条成立）。「大概率 64」是 `INFERRED`，依据只是库表宽度的常见取值，没有证据指向 64。
+  1. **是不是长度引起的**：已有对照支持（`OBSERVED`）。下午的失败样本里，「长度 ≥ 69」与「26 号图约 12:47 改名之后」「目的站 216／211」重合；晚段同一车 agv02、改图之后、同目的站 211／216、`upperId` 缩短到 39／37 的两张单都建成并完成（`8005-agv-control-server` 分支 `evidence/cs566b-resume2` 提交 `3e6d5c22`，`evidence/field/20261011-W3-S1-charging-cs616/14-riot-order-records-charge-idle.txt`）。没有控制住的只有服务端包不同（请求其余字段相同的依据是 PR #619 的代码说明，未抓包）。E6 的 C0／R69 在同一时刻、同一目的站下再做一次，就能把这一点也补上。
+  2. **确切上限 L**：长度 ≤ L 被接受、L+1 被拒。目前只知道 52 被接受、69 被拒，53～68 没有任何样本。「大概率 64」是 `INFERRED`，依据只是库表宽度的常见取值，没有证据指向 64。
   3. **是 `upperId` 还是 `orderName` 触发**，还是两者各有上限（两者上限可能不同）。现场三次两者是同一串，分不开。
   4. **超长时的完整响应**：`message`、`msgDetail` 原文。推断 `message=内部错误`、`msgDetail` 为 Java 异常栈（`INFERRED`，依据是本实验室其它接口上的 `00002` 都是这个形状，例如 Round 7 `E0-online-attempt-*.json`）；这三次原文没有保留（`UNKNOWN`）。栈帧能直接说明失败点在哪里（例如入库时字段超长，还是校验时空指针）。
   5. **失败的建单是否留下任何记录**：已观测按 `upperId` 回查不存在、订单列表里没有超过 52 的单（`BC-ORDER-022`）。还没有排除的是：按截断后的 `upperId`、空 `upperId`，或只按车查得到的残留记录。
 - 不在本题：`upperId` 里出现 `[A-Za-z0-9-]` 以外的字符；多字节字符（长度按字符还是字节）。需要时另开问题。
-- 证据：`8005-agv-control-server` 证据 PR #618（分支 `evidence/cs566b-resume2`，`evidence/field/20261011-00002-investigation/`、`20261011-W2-idle-return/`、`20261011-W3-S1-charging/`）；知识 `BC-ORDER-022`。
+- 证据：`8005-agv-control-server` 证据 PR #618（分支 `evidence/cs566b-resume2`，`evidence/field/20261011-00002-investigation/`、`20261011-W2-idle-return/`、`20261011-W3-S1-charging/`，对照 `20261011-W3-S1-charging-cs616/`）；知识 `BC-ORDER-022`。
 
 ### Q-043 没有 `upperId` 的订单，`detailByOrderId` 回读是什么形状
 

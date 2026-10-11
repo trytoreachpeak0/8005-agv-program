@@ -18,7 +18,7 @@
 | 唯一性 | 同一 `upperId` 再次建单回 `0610008`「订单已存在」（BC-ORDER-004） | `OBSERVED`（Round 10，跨项目测试环境） |
 | 已知被接受的最大长度 | 52（`upperId` 与 `orderName` 都是）：生产 RIoT 上 2026-10-10～10-11 的 3000 张订单中最长的一张 | `OBSERVED`（BC-ORDER-022） |
 | 已知被拒的长度 | 69、69、71（`orderName` 传同一串）：HTTP 200＋`00002`，不建单 | `OBSERVED`（BC-ORDER-022） |
-| 确切上限 | 介于 52 与 68 之间，是推断，前提是失败确实由长度引起；「64」只是猜测 | `INFERRED`／`UNKNOWN`（Q-042） |
+| 确切上限 | 介于 52 与 68 之间（失败由长度引起已有对照支持，见 BC-ORDER-022）；53～68 没有样本，「64」只是猜测 | `INFERRED`／`UNKNOWN`（Q-042） |
 | 由哪个字段触发 | `upperId`、`orderName` 还是两者都会 | `UNKNOWN`（Q-042） |
 | 字符集 | 已观测的成功单与失败单都只含 `[A-Za-z0-9-]`；其它字符没有测过 | `OBSERVED`（仅限这一点） |
 | 可以为空 | RIoT 网页手动派的单 `upperId` 为空串 `""`（不是 `null`），`detailByOrderId` 照常回 HTTP 200、`code=0`、`result` 完整；本身就不存在按 `upperId` 回查的途径 | `OBSERVED`，1 个样本（Q-043） |

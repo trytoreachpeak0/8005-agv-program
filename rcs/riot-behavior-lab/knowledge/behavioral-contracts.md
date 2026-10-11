@@ -450,12 +450,13 @@
 
 ## BC-ORDER-022 upperId 长 69～71 的建单回 HTTP 200＋`00002`、不建单（现场观测，非实验轮）
 
-- 结论：在 8005 生产 RIoT 上，`POST /api/order/v1/add/byDefaultMissions` 的单段 `move` 建单，`upperId`（`orderName` 传同一串）长 69、69、71 字符时，三次都回 HTTP 200＋业务码 `00002`，之后按 `upperId` 一直查不到这张单，订单列表里也没有出现 `upperId` 超过 52 的单。**不能**把它当成「结果未知」等 RIoT 慢慢落库。确切长度上限、是 `upperId` 还是 `orderName` 触发、以及「长度」是不是唯一原因，都还没有证实（Q-042）。
+- 结论：在 8005 生产 RIoT 上，`POST /api/order/v1/add/byDefaultMissions` 建单（空闲返回、充电两种形状），`upperId`（`orderName` 传同一串）长 69、69、71 字符时，三次都回 HTTP 200＋业务码 `00002`，之后按 `upperId` 一直查不到这张单，订单列表里也没有出现 `upperId` 超过 52 的单。**不能**把它当成「结果未知」等 RIoT 慢慢落库。同一天晚些时候，改图之后、去同样目的站 211／216、只把 `upperId` 缩短到 39／37 的两张单都建成并完成，所以「改图」「目的站」这两个混杂因素已被排除，失败归到 `upperId`／`orderName` 的长度上。确切长度上限、是 `upperId` 还是 `orderName` 触发，仍未证实（Q-042）。
 - 证据等级：下面「已观测」各条 `OBSERVED`；「推断」各条 `INFERRED`；标了 `UNKNOWN` 的只原样记录。
 - 来源：不是本实验室的实验轮，是 `8005-agv-control-server#566` 现场续场二（2026-10-11，factory01 上的 v2 并行实例，包 `da6e40e2`，RIoT `172.19.206.222:8888`，map 26 `老厂前线new_wk`，agv02 = RIoT `id=59`）。证据在 `8005-agv-control-server` 的证据 PR #618，分支 `evidence/cs566b-resume2`（读于提交 `edf3ff1f`，合入后路径不变）：
   - `evidence/field/20261011-00002-investigation/01-order-details.txt`、`02-riot-upperid-lengths.txt`
   - `evidence/field/20261011-W2-idle-return/05-idle-create-result-unknown.txt`、`06-admission-drift-and-user-answers.md`、`09-not-investigated-cs611.md`
   - `evidence/field/20261011-W3-S1-charging/04-idle-create-00002-again.txt`、`05-after-manual-move-to-216.txt`、`09-charge-create-result-unknown.txt`、`17-final-state.txt`
+  - 对照（同一分支，读于提交 `3e6d5c22`）：`evidence/field/20261011-W3-S1-charging-cs616/14-riot-order-records-charge-idle.txt`、`SUMMARY.md`。服务端换成 `8005-agv-control-server#616` 的包 `0c396ba7`（upperId 改短），车载端 `eced7c16`，车仍是 agv02。
 - 已观测（`OBSERVED`）：
   1. 三次失败的建单，都来自 v2 实例自己的审计表 `RiotDispatchAuditEvents`（`Phase=CREATE_RESPONSE`、`HttpStatusCode=200`、`BusinessCode=00002`）：
 
@@ -468,16 +469,24 @@
   2. 失败后按 `upperId` 对账一直是「不存在」：第一次 12:50:09～12:53:27 每 2 秒一次、全部 `AbsentAtObservation`；充电那次 07:13:52Z～07:14:34Z 22 次全部 `AbsentAtObservation`。15:28:30 读 agv02 名下 `W2G-` 前缀的非终态单为 0。
   3. 只读拉取 RIoT 上 2026-10-10 02:19:59～2026-10-11 15:17:15 的 3000 张订单（覆盖三次失败的时刻）：215 张带 `upperId`，`upperId` 与 `orderName` 最长都是 52；没有一张长度在 53 以上，也就是说没有以截断后的 `upperId` 落库的单。最长那张 `W2G-a1000566-0000-0000-0000-000000000001-REBUILD-1-1`（52）于 10-10 20:00:49 建成。
   4. 同一实例当天 12:35:54 的关卡单 `W2G-c1000566-0000-0000-0000-000000000001-GATE-1`（47）建成并完成（`order-2109140910217494528`）。三次失败的 `upperId` 与成功单都只含 `[A-Za-z0-9-]`。
-- 没有排除的混杂因素（`OBSERVED` 的时间线，原因未定）：
-  1. **改图**：用户约 12:47 在 26 号图上改了 T 站点的名字并发布（`06-admission-drift-and-user-answers.md`）。47 字符的成功单在改图之前；三次失败都在改图之后；本次现场材料里，改图之后没有任何一张带 `upperId` 的单建成。
-  2. **目的站**：失败单去 216、211，成功单去 210。旁证是改图之后 15:0x 用户在 RIoT 网页上把 agv02 从 210 派到 216 成功了（`05-after-manual-move-to-216.txt`），但那是网页派单，不带 `upperId`，不一定走同一条代码路径。
-  3. 所以「长度」与「改图之后」「目的站」三个变量在这批样本里是重合的，**现有证据不足以单独归因到长度**。长度是最强的线索（成功单最长 52、失败单最短 69，3000 张里没有一张超过 52），但这是相关，不是对照。
+- 混杂因素与对照：
+  1. **下午的样本里，长度与另外两个变量重合**（`OBSERVED` 的时间线）：用户约 12:47 在 26 号图上改了 T 站点的名字并发布（`06-admission-drift-and-user-answers.md`）。47 字符的成功单在改图之前、去 210；三次失败都在改图之后、去 216／211。只看下午，失败既可以归到长度，也可以归到「改图之后」或「目的站」。
+  2. **晚段的对照把那两个变量排除了**（`OBSERVED`）：同一车 agv02、改图之后、目的站与失败单相同，只有 `upperId`（`orderName` 同串）变短。2026-10-11 18:30 只读 `GET /api/order/v1/orderRecord/detailByOrderId/{orderId}` 的原始记录：
+
+     | `orderId` | 创建（CST） | `upperId`（= `orderName`） | 长度 | RIoT 存下的任务 | `orderState` |
+     | --- | --- | --- | --- | --- | --- |
+     | `order-2109203643214462976` | 16:45:10 | `W2G-CHARGE-62d6bd7c-20261011T084508103Z` | 39 | move 26/212 → move 26/211 → act 78（`actionParam1=1`） | 5 |
+     | `order-2109205118850301952` | 16:51:02 | `W2G-IDLE-62d6bd7c-20261011T085100113Z` | 37 | act 78（`actionParam1=2`）→ move 26/216 | 5 |
+
+     对照失败单：充电 71 字符去 211、空闲返回 69 字符去 216，都是 `00002`。
+  3. **这组对照没有控制住的**：服务端包从 `da6e40e2` 换成了 `0c396ba7`，请求体除 `upperId`／`orderName` 外是否完全相同，依据只是 PR #619 的说明（改动只涉及 upperId 的生成），两边都没有抓包，标 `INFERRED`。车的起点也不同。表里「RIoT 存下的任务」是 RIoT 展开后的形状（进出点 212 与结束充电 act 78 参数 2 由 RIoT 自动插入，见 Q-033），不等于请求原文。
+  4. 所以「失败由长度引起」现在有对照支撑：69／71 被拒、37／39／47／52 被接受，其余条件在可见范围内相同。确切上限 L 仍然未知：52 与 69 之间没有任何样本。
 - 推断（`INFERRED`）：
   1. 上限在 52～68 之间，「大概率是 64（例如 `varchar(64)`）」——这是对常见库表宽度的猜测，**没有任何证据指向 64 本身**。
   2. 这三次响应的 `message` 是「内部错误」、`msgDetail` 里是 Java 异常栈。依据只是本实验室在其它接口上见过的 `00002` 都是这个形状（例如 Round 7 `E0-online-attempt-*.json`：`message=内部错误`，`msgDetail` 为 `java.lang.NullPointerException` 栈），这三次的原文没有保留。
 - 未知（`UNKNOWN`）：
   1. 这三次的响应正文（`message`、`msgDetail`、`tid`）：v2 经 `riot-sdk` 调用，`RiotBusinessResponse.EnsureSuccess` 抛出的异常不带 `msgDetail`，审计里只剩业务码（`8005-agv-control-server#611` 要求以后记录失败正文）。
-  2. 请求原文：审计行的 `RequestSemanticSha256` 为空，请求体没有保存。「`orderName` 与 `upperId` 是同一串」「其余字段与成功单同形（单段 `move`、`mapId=26`、`destination` 为站号）」是 `8005-agv-control-server#616` 与 PR #619 读 `da6e40e2` 代码得出的（`HttpRiotMovementGateway` 建单时 `orderName = intent.UpperId`），不是抓包。
+  2. 请求原文：审计行的 `RequestSemanticSha256` 为空，请求体没有保存。「`orderName` 与 `upperId` 是同一串」是 `8005-agv-control-server#616` 与 PR #619 读 `da6e40e2` 代码得出的（`HttpRiotMovementGateway` 建单时 `orderName = intent.UpperId`），不是抓包；晚段两张成功单在 RIoT 记录里 `orderName` 与 `upperId` 确实相同（`OBSERVED`），与这一点一致。请求形状也只来自代码：空闲返回是单段 `move`；充电单在 v2 审计里是 `OrderShape=CHARGE`，不是单段 `move`，晚段成功的充电单在 RIoT 里存成 move→move→act 78。
   3. 是 `upperId` 超长、`orderName` 超长，还是两者都会触发。
 - 消费影响：
   1. 调用方生成的 `upperId`／`orderName` 必须有长度上限，并用生产形态的输入（40 字符 `deviceKey`，例如 `BROKERX-` 加 32 位十六进制）断言。上限证实之前，取已知被接受过的最大长度 52 作保守值（`8005-agv-control-server#616`，PR #619 的 `RiotUpperIds.MaxLength = 52`）。

@@ -463,7 +463,7 @@ flowchart TB
   1. **只读前置快照**：`getVehicleInfo`；非终态单全集（`GET /api/order/v1/orderRecord?pageNum=…&pageSize=100&filterByState=1&filterByState=3&filterByState=7&filterByState=8&filterByState=9&filterByState=10`，翻完所有页），客户端按 `appointVehicleKey`／`executeVehicleKey` 收敛到本车（BC-ORDER-013）；记下本轮开始时刻 T0。再用一页不带状态过滤的订单列表确认它按 `createTime` 怎样排序，供后面扫描新记录用。
   2. **下线**（上面第 1 层）。
   3. **C0 对照单**：`upperId`、`orderName` 都是 47 字符（与现场成功单同长），目的站为当前站。期望 `code=0`、`QUEUEING`、`executeVehicleKey="--"`。观察 10 秒：订单仍是 `1`，车速 0、坐标不变、`procState=IDLE`。然后取消，回读 `orderState=2`。
-  4. **R69 复现**：`upperId`、`orderName` 都是 69 字符（现场形状），其余与 C0 一模一样。这一步回答 Q-042 第 1 条：C0 成功而 R69 回 `00002`，就排除了「改图」「目的站」这两个混杂因素，失败归到长度上。
+  4. **R69 复现**：`upperId`、`orderName` 都是 69 字符（现场形状），其余与 C0 一模一样。现场晚段的对照已经排除了「改图」「目的站」（Q-042 第 1 条），只剩服务端包不同这一点没控制住。C0 成功而 R69 回 `00002`，就在同一时刻、同一请求构造下把这一点也补上。
   5. **只改 `upperId`**（`orderName` 固定 30 字符）：依次 52、60、64、65、70。翻转点不在 64／65 之间时，在翻转的区间里二分，最多再补 3 次，直到找到「L 被接受、L+1 被拒」。
   6. **只改 `orderName`**（`upperId` 固定 30 字符）：同第 5 步的长度序列与二分规则。
   7. **C1 收尾对照**：与 C0 同长同形（新的 `upperId`）。C1 仍被接受，说明本轮条件从头到尾没变；C1 也失败就整轮作废，记为发现。
