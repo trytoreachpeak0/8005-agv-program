@@ -427,11 +427,11 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
 - 状态：`OPEN`
 - 来源：`8005-agv-control-server#566` 现场续场二（2026-10-11）三次建单回 HTTP 200＋`00002`、不建单，`upperId` 长 69、69、71；产品侧已按保守值 52 收紧（`8005-agv-control-server#616`，PR #619）。现有事实与混杂因素见 `BC-ORDER-022`。实验卡 `E6`。
 - 要回答：
-  1. **是不是长度引起的**：已有对照支持（`OBSERVED`）。下午的失败样本里，「长度 ≥ 69」与「26 号图约 12:47 改名之后」「目的站 216／211」重合；晚段同一车 agv02、改图之后、同目的站 211／216、`upperId` 缩短到 39／37 的两张单都建成并完成（`8005-agv-control-server` 分支 `evidence/cs566b-resume2` 提交 `3e6d5c22`，`evidence/field/20261011-W3-S1-charging-cs616/14-riot-order-records-charge-idle.txt`）。没有控制住的只有服务端包不同（请求其余字段相同的依据是 PR #619 的代码说明，未抓包）。E6 的 C0／R69 在同一时刻、同一目的站下再做一次，就能把这一点也补上。
+  1. **是不是长度引起的**：`INFERRED`（强支持），未证实。读数（`OBSERVED`）：下午的失败样本里，「长度 ≥ 69」与「26 号图约 12:47 改名之后」「目的站 216／211」重合；晚段同一车 agv02、改图之后、同目的站 211／216、`upperId` 缩短到 39／37 的两张单都建成并完成（`8005-agv-control-server` 分支 `evidence/cs566b-resume2` 提交 `3e6d5c22`，`evidence/field/20261011-W3-S1-charging-cs616/14-riot-order-records-charge-idle.txt`），改图与目的站因此被排除。还没排除的有两个：服务端包不同（`da6e40e2`→`0c396ba7` 隔 79 个提交；读源码差异，建单网关与 riot-sdk 版本没变，推断请求其余字段相同，未抓包）；串的内容不同（失败串都含完整 `BROKERX-<32 位十六进制>`，成功串都不含）。E6 的 C0、R69a（只复现长度）、R69b（复现长度和内容）在同一时刻、同一请求构造下把这两点分开。
   2. **确切上限 L**：长度 ≤ L 被接受、L+1 被拒。目前只知道 52 被接受、69 被拒，53～68 没有任何样本。「大概率 64」是 `INFERRED`，依据只是库表宽度的常见取值，没有证据指向 64。
   3. **是 `upperId` 还是 `orderName` 触发**，还是两者各有上限（两者上限可能不同）。现场三次两者是同一串，分不开。
-  4. **超长时的完整响应**：`message`、`msgDetail` 原文。推断 `message=内部错误`、`msgDetail` 为 Java 异常栈（`INFERRED`，依据是本实验室其它接口上的 `00002` 都是这个形状，例如 Round 7 `E0-online-attempt-*.json`）；这三次原文没有保留（`UNKNOWN`）。栈帧能直接说明失败点在哪里（例如入库时字段超长，还是校验时空指针）。
-  5. **失败的建单是否留下任何记录**：已观测按 `upperId` 回查不存在、订单列表里没有超过 52 的单（`BC-ORDER-022`）。还没有排除的是：按截断后的 `upperId`、空 `upperId`，或只按车查得到的残留记录。
+  4. **超长时的完整响应**：`message`、`msgDetail` 原文。推断 `message=内部错误`、`msgDetail` 为 Java 异常类名加栈（`INFERRED`，依据是本实验室见过的 `00002` 都是这个形状；异常不止空指针一种，Round 7 里也有 Spring 的 `HttpMessageNotReadableException`、`HttpMediaTypeNotSupportedException`）；这三次原文没有保留（`UNKNOWN`）。异常类与栈帧能直接说明失败点在哪里（例如入库时字段超长，还是校验时出错）。
+  5. **失败的建单是否留下任何记录**：已观测按 `upperId` 回查不存在、订单列表里没有长度 53 以上的 `upperId`（`BC-ORDER-022`），这排除了「截断到 53～68 后落库」。还没有排除的是：截断到 52 以下后落库、`upperId` 被清空后落库，以及只按车查得到的残留记录。
 - 不在本题：`upperId` 里出现 `[A-Za-z0-9-]` 以外的字符；多字节字符（长度按字符还是字节）。需要时另开问题。
 - 证据：`8005-agv-control-server` 证据 PR #618（分支 `evidence/cs566b-resume2`，`evidence/field/20261011-00002-investigation/`、`20261011-W2-idle-return/`、`20261011-W3-S1-charging/`，对照 `20261011-W3-S1-charging-cs616/`）；知识 `BC-ORDER-022`。
 
@@ -439,11 +439,11 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
 
 - 状态：`OPEN`（1 个样本）
 - 来源：`8005-agv-control-server#617`。`riot-sdk` 的 `OrderClient.ToOrderRef` 要求 `upperId` 非空，否则抛 `order-ref-missing`；v2 因此读不出网页手动单的结束，车被一直按住。
-- 已观测（`OBSERVED`，1 个样本）：2026-10-11 15:23:21 只读 `GET /api/order/v1/orderRecord/detailByOrderId/order-2109181133127286784`（用户 15:15:43 在 RIoT 网页给 agv02 派的单，`createdBy=admin`，`source=FMS`，`orderName=iiii`，起终点都是 `N1-1`）：HTTP 200，`code=0`，`result` 完整，`orderState=2`，`upperId` 是空串 `""`（不是 `null`，也没有缺字段）。同一张单 `GET .../orderRecord/detail/{orderId}` 回 HTTP 404。证据：`8005-agv-control-server` 分支 `evidence/cs566b-resume2` 的 `evidence/field/20261011-W3-S1-charging/13-foreign-order-readback.txt`、`evidence/field/20261011-00002-investigation/01-order-details.txt`。
+- 已观测（`OBSERVED`，1 个样本）：2026-10-11 15:23:21 只读 `GET /api/order/v1/orderRecord/detailByOrderId/order-2109181133127286784`（用户 15:15:43 在 RIoT 网页给 agv02 派的单，`createdBy=admin`，`source=FMS`，`orderName=iiii`，目的站 `N1-1`（站 1））：HTTP 200，`code=0`，`result` 完整，`orderState=2`，`upperId` 是空串 `""`（不是 `null`，也没有缺字段）。同一张单 `GET .../orderRecord/detail/{orderId}` 回 HTTP 404。证据：`8005-agv-control-server` 分支 `evidence/cs566b-resume2` 的 `evidence/field/20261011-W3-S1-charging/13-foreign-order-readback.txt`、`evidence/field/20261011-00002-investigation/01-order-details.txt`。
 - 要回答：
   1. 其它没有 `upperId` 的订单（不同终态：`SUCCESS`、`CANCELLED`；以及非终态）是不是同样回空串，有没有回 `null` 或缺字段的。
   2. 订单列表 `GET /api/order/v1/orderRecord` 里同一张单的 `upperId` 是什么形状（`ListUnfinishedOrders` 那条路径用的是列表）。
-- 顺带记下、未展开（`UNKNOWN`）：这张单起终点是同一站，5 秒内结束，`orderState=2`（`CANCELLED`）、`missionState=4`、`modifiedBy=internal`。是 RIoT 自己把「目的站就是当前站」的单取消了，还是有人取消的，不知道。`E6` 选目的站时用到这一点，见那张卡。
+- 字段语义提醒（`OBSERVED`）：订单记录里的 `startStationNo`／`startStationName` 不是车建单时所在的站，读数与第一段任务的目的站一致。这张网页单记录为 `N1-1 > N1-1`，但建单前后（15:04、15:16:17）agv02 都在站 216，15:16:07 读到 `MT_RUNNING`；晚段充电单 `order-2109203643214462976` 建单前车在 216，记录里 `startStationNo=212`（第一段 move 的目的站）。所以它不是一张「目的站就是当前站」的单，这种单在本实验室的样本数是 0。证据：同分支 `evidence/field/20261011-W3-S1-charging/05-after-manual-move-to-216.txt`、`10-car-moving-1516.txt`，`evidence/field/20261011-W3-S1-charging-cs616/01-riot-3cars-before-window.txt`、`14-riot-order-records-charge-idle.txt`。
 
 ## P2：多仓位与物模型
 

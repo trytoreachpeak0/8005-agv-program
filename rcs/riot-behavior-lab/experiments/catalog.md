@@ -448,26 +448,30 @@ flowchart TB
 
 - **测试意图**：回答 Q-042：超长时回 `00002` 是不是长度引起的；确切上限 L；由 `upperId` 还是 `orderName` 触发；超长时 `message`／`msgDetail` 原文；失败的建单是否留下任何记录。附带只读部分 E6-R 回答 Q-043（没有 `upperId` 的订单回读形状）。已知事实与混杂因素见 `BC-ORDER-022`。
 - **前置条件**：
-  1. **授权**：每一轮先把本卡和当轮 `round-plan.md` 给用户，用户在对话里明确同意后才发第一条写请求。建单会让车有动起来的可能，属于工作区 `Ask first` 第 1 类，授权不跨轮。只读部分 E6-R 不需要这一步。
+  1. **授权**：每一轮先把本卡和当轮 `round-plan.md` 给用户，用户在对话里明确同意后才发第一条写请求。建单会让车有动起来的可能，属于工作区 `Ask first` 第 1 类，授权不跨轮。授权话术里要明说：「车下线后建单只排队不执行」只在测试环境验证过；如果这一层在生产 RIoT 上失效，车会在建单后约 3 秒开始执行（10-11 网页单 `order-2109181133127286784` 从建单 15:15:43 到 `executeTime` 15:15:46 用了 3 秒）。只读部分 E6-R 不需要这一步。
   2. **测试车只能是 `agv02` 或 `agv03`**（`remote-ops/fleet.md`：`agv02` = RIoT `id=59`、`BROKERX-f38975561adf46ccb1d2f23833c7d0e4`；`agv03` = `id=60`、`BROKERX-7daca4ee91da498d8026c68b7b941127`）。按 `deviceKey` 识别，不按 `deviceName`。RIoT 上名字带「老厂前线」「多仓位」的车不止这三台。每轮只用其中一台，在 `round-plan.md` 写明是哪台、为什么选它（通常选当时没有 v2 现场工作的那台）。执行器对 `agv01`（`BROKERX-0c20ff0600d644869a6a80c186065d85`）按值硬拒绝，对两台测试车以外的任何 key 也拒绝。
   3. **没有别的调度方在管这台车**：v2 并行实例与任何 ControlServer 都不把这台车放在派单范围内，或者它们的派单闸门是关的。否则本轮的探测单会被当成外来单，车会被按住（`8005-agv-control-server#617`），v2 也可能在探测中途给这台车派单。当轮记录各实例的闸门状态。
-  4. **车态**：在 26 号图上，已定位，停在一个普通站点上（`currentStation` 为正整数）；不在充电桩 211 和它的进出点 212 上，也不在关卡 210 上。`IDLE`，名下（`appointVehicleKey` 或 `executeVehicleKey` 是本车）没有非终态单，`emergencyState=OK`，`breakSwitchState=MOVABLE`，空载。车不在合适的站上时，由现场人员手动（单机／遥控）挪过去，不用 RIoT 派单挪。
-  5. **现场有人**，人在车旁、手能碰到物理急停。用户回「就位」之后才开始建单。
-  6. **直接发 HTTP，不经 `riot-sdk`**：`RiotBusinessResponse.EnsureSuccess` 不带 `msgDetail`，用它就得不到 Q-042 第 4 条要的原文。每次请求保存时间、脱敏后的请求体、HTTP 状态和完整响应正文。
-  7. 凭据走环境变量，不落文件。执行器启动时用 `Find-NetRoute` 核对到 `172.19.206.222` 不经 Clash 虚拟网卡。
+  4. **车态**：在 26 号图上（`getVehicleInfo` 读到 `currentMap=老厂前线new_wk`，即 mapId 26），已定位，停在一个普通站点上（`currentStation` 为正整数，`noStation=false`）；不在充电桩 211 和它的进出点 212 上，也不在关卡 210 上。`IDLE`，名下（`appointVehicleKey` 或 `executeVehicleKey` 是本车）没有非终态单，`emergencyState=OK`，`breakSwitchState=MOVABLE`，空载。车不在合适的站上时，由现场人员手动（单机／遥控）挪过去，不用 RIoT 派单挪。
+  5. **map 26 上没有别的可接单的车**：只读拉全部车辆，除测试车外，`currentMap` 是 26 号图的车都必须是 `OFF_LINE`（或不在线）。原因：探测单万一落库时丢了 `appointVehicleKey`，RIoT 会把它派给同图上空闲的在线车（BC-ORDER-008）。有别的车在线时本轮不开始，由用户决定怎么处理；执行器不对测试车以外的车发任何写请求。
+  6. **现场有人**，人在车旁、手能碰到物理急停。用户回「就位」之后才开始建单。
+  7. **直接发 HTTP，不经 `riot-sdk`**：`RiotBusinessResponse.EnsureSuccess` 不带 `msgDetail`，用它就得不到 Q-042 第 4 条要的原文。每次请求保存时间、脱敏后的请求体、HTTP 状态和完整响应正文。
+  8. 凭据走环境变量，不落文件。执行器启动时用 `Find-NetRoute` 核对到 `172.19.206.222` 不经 Clash 虚拟网卡。
 - **怎样让车不动（三层，缺一不可）**：
   1. **先把车下线**：`POST /api/task/vehicles/updateVehicleIntegrationLevel`，body `{"deviceKeys":["<测试车>"],"serviceId":"disable"}`（BC-VEH-003），回读 `enable=false`、`integrationLevel=OFF_LINE`。依据是 BC-VEH-004：下线后建单仍成功，但只进 `QUEUEING`、不执行。**那是在跨项目测试环境（Round 13）观测的，生产 RIoT 上没有验证过**，所以第 2 步的对照单 C0 本身就在验证这一层。
-  2. **目的站就是车当前所在的站**：`mission=[{"type":"move","mapId":26,"destination":<currentStation>}]`。万一单被执行，车也没有路要走。注意这种「原站单」在 RIoT 上的处理只见过 1 个样本（网页单 N1-1→N1-1，5 秒内 `orderState=2`、`modifiedBy=internal`，原因不明，Q-043 末条），所以这一层只是兜底，不是依据。
-  3. **建单成功就立刻取消**：只要回 `code=0`，确认仍是 `QUEUEING` 后马上 `CMD_ORDER_CANCEL`，不让单在队列里停留超过一次观察窗（10 秒）。
+  2. **目的站就是车当前所在的站**：`mission=[{"type":"move","mapId":26,"destination":<currentStation>}]`。设想是万一单被执行，车也没有路要走。但「目的站就是当前站」的单在 RIoT 上怎么处理，**没有样本，也没有依据**（Q-043 的字段语义提醒：之前当成样本的网页单其实是从 216 开往站 1 的单）。RIoT 也可能先让车离站再回来，所以这一层不能当成安全依据。
+  3. **建单成功就立刻取消，期间每秒回读**：只要回 `code=0`，从拿到响应起每秒至少一次 `detailByOrderId`，同时读 `getVehicleInfo`。`orderState` 不再是 `1`，或 `executeVehicleKey` 不再是 `"--"`，就立即 `CMD_ORDER_CANCEL`，不等观察窗结束。正常情况下确认仍是 `QUEUEING` 后马上取消，单在队列里停留不超过 10 秒。
 - **测试程序**（写；每一步 `MATCH` 才进下一步）：
-  1. **只读前置快照**：`getVehicleInfo`；非终态单全集（`GET /api/order/v1/orderRecord?pageNum=…&pageSize=100&filterByState=1&filterByState=3&filterByState=7&filterByState=8&filterByState=9&filterByState=10`，翻完所有页），客户端按 `appointVehicleKey`／`executeVehicleKey` 收敛到本车（BC-ORDER-013）；记下本轮开始时刻 T0。再用一页不带状态过滤的订单列表确认它按 `createTime` 怎样排序，供后面扫描新记录用。
+  1. **只读前置快照**：`getVehicleInfo`；非终态单全集（`GET /api/order/v1/orderRecord?pageNum=…&pageSize=100&filterByState=1&filterByState=3&filterByState=7&filterByState=8&filterByState=9&filterByState=10`，翻完所有页），客户端按 `appointVehicleKey`／`executeVehicleKey` 收敛到本车（BC-ORDER-013）；记下测试车原来的 `vehicleTaskInfo.enable` 与 `integrationLevel`，第 8 步按它恢复；记下本轮开始时刻 T0。再用一页不带状态过滤的订单列表确认它按 `createTime` 怎样排序，供后面扫描新记录用。
   2. **下线**（上面第 1 层）。
-  3. **C0 对照单**：`upperId`、`orderName` 都是 47 字符（与现场成功单同长），目的站为当前站。期望 `code=0`、`QUEUEING`、`executeVehicleKey="--"`。观察 10 秒：订单仍是 `1`，车速 0、坐标不变、`procState=IDLE`。然后取消，回读 `orderState=2`。
-  4. **R69 复现**：`upperId`、`orderName` 都是 69 字符（现场形状），其余与 C0 一模一样。现场晚段的对照已经排除了「改图」「目的站」（Q-042 第 1 条），只剩服务端包不同这一点没控制住。C0 成功而 R69 回 `00002`，就在同一时刻、同一请求构造下把这一点也补上。
+  3. **C0 对照单**：`upperId`、`orderName` 都是 47 字符（与现场成功单同长），目的站为当前站。期望 `code=0`、`QUEUEING`、`executeVehicleKey="--"`。按第 3 层每秒回读，最多 10 秒：订单仍是 `1`，车速 0、坐标不变、`procState=IDLE`。然后取消，回读 `orderState=2`。
+  4. **R69 复现，分两张**：其余与 C0 一模一样。现场晚段的对照已经排除了「改图」「目的站」（Q-042 第 1 条），还没控制住的是服务端包与串的内容。
+     - **R69a（只复现长度）**：`upperId`、`orderName` 都是 69 字符，按下面的命名规则补 `0`，不含 `deviceKey`。
+     - **R69b（复现长度和内容）**：`upperId`、`orderName` 都是 69 字符，中间含本测试车完整的 `BROKERX-<32 位十六进制>`，形如 `rbl-E6-BROKERX-<32 位>-<yyyyMMddHHmmss>-<两位序号>-` 再补 `0` 到 69（前缀 66 字符）。不用 `W2G-` 开头，免得被 v2 当成自己的单。
+     - C0 被接受、R69a 与 R69b 都回 `00002`：失败归到长度，服务端包与内容都被排除。只有 R69b 被拒：失败与内容有关，第 5、6 步的长度序列不再有意义，停下来报告。
   5. **只改 `upperId`**（`orderName` 固定 30 字符）：依次 52、60、64、65、70。翻转点不在 64／65 之间时，在翻转的区间里二分，最多再补 3 次，直到找到「L 被接受、L+1 被拒」。
   6. **只改 `orderName`**（`upperId` 固定 30 字符）：同第 5 步的长度序列与二分规则。
   7. **C1 收尾对照**：与 C0 同长同形（新的 `upperId`）。C1 仍被接受，说明本轮条件从头到尾没变；C1 也失败就整轮作废，记为发现。
-  8. **核对没有留下单，再上线**：非终态单全集里本车为 0，之后才发 `serviceId=enable`；回读 `ON_LINE`，再观察 30 秒，车保持 `IDLE`、不出现新单。
+  8. **核对没有留下单，再恢复原状**：非终态单全集里本车为 0，之后才按第 1 步记下的原状恢复：原来是 `ON_LINE`／`enable=true` 才发 `serviceId=enable`，原来就是下线的保持下线，不无条件上线。回读与原状一致；若恢复为在线，再观察 30 秒，车保持 `IDLE`、不出现新单。
   - **命名**：所有探测串只用 `[A-Za-z0-9-]`，形如 `rbl-E6-<yyyyMMddHHmmss>-<两位序号>-` 后面补 `0` 到目标长度（前缀 25 字符）。不用实验室惯例的 `riot-behavior-lab-` 前缀，因为它加时间戳就超过 30，装不进第 5、6 步固定为 30 的那个字段。每个串只用一次（同一 `upperId` 再发会回 `0610008`，BC-ORDER-004）。长度在执行器里用代码算出并断言，执行日志里每一行写明实际长度。
   - **每次建单后怎样确认 RIoT 上没留下单**：
     - 回 `code=0`：按返回的字符串 `orderId` 发 `CMD_ORDER_CANCEL`，`detailByOrderId` 回读到 `orderState=2`。
@@ -475,10 +479,10 @@ flowchart TB
     - 这两种回读都留原文，进 `runs/`。
 - **E6-R 只读部分**（回答 Q-043，可以单独做，不需要车；只读，不属于 `Ask first`）：从订单列表里挑至少 3 张 `upperId` 为空的订单，尽量覆盖 `SUCCESS`、`CANCELLED` 和一张非终态的；对每张记录列表项里的 `upperId` 原样形状，再 `GET .../detailByOrderId/{orderId}` 记录 `upperId` 是 `""`、`null` 还是缺字段。不发任何写请求。
 - **预期结果**：
-  - 结构预期（用来判断执行是否正常）：C0、C1 回 `code=0` 且停在 `QUEUEING`；每张被接受的单都能取消到 `2`；收尾时本车非终态单为 0、`ON_LINE`。
-  - 待验证的行为假设：R69 回 `00002` 且不落库；存在某个 L（52 ≤ L ≤ 68）使 `upperId` 长 L 被接受、L+1 被拒；`00002` 的 `msgDetail` 是能指明失败点的 Java 异常栈。这些都可能被推翻，推翻就如实记录，不调整程序去迎合。
+  - 结构预期（用来判断执行是否正常）：C0、C1 回 `code=0` 且停在 `QUEUEING`；每张被接受的单都能取消到 `2`；收尾时本车非终态单为 0，上下线状态与第 1 步记下的原状一致。
+  - 待验证的行为假设：R69a、R69b 都回 `00002` 且不落库；存在某个 L（52 ≤ L ≤ 68）使 `upperId` 长 L 被接受、L+1 被拒；`00002` 的 `msgDetail` 是能指明失败点的 Java 异常栈。这些都可能被推翻，推翻就如实记录，不调整程序去迎合。
 - **反例/边界**：
-  1. R69 被接受（`code=0`）：说明在「下线、原站」这个条件下长度不是充分条件，可能现场失败还依赖在线派车、目的站或改图。取消它、做完第 7、8 步就结束本轮，不临场改成在线建单或换目的站。那样做车会动，要按新设计另行授权。
+  1. R69a 或 R69b 被接受（`code=0`）：取消它、做完第 7、8 步就结束本轮。可能的解释要按两张的结果分开写：只有 R69a 被接受、R69b 被拒，说明失败与串的内容（完整 `deviceKey`）有关，不只是长度；两张都被接受，说明在「下线、原站」这个条件下 69 字符本身不足以失败，现场失败还可能依赖在线派车、服务端包或别的没控制住的条件。不临场改成在线建单或换目的站，那样做车会动，要按新设计另行授权。
   2. 长度序列里出现不单调的结果（例如 64 被拒、65 被接受）：停下，记为发现，不再二分。
   3. 不测 `[A-Za-z0-9-]` 以外的字符、多字节字符、空串 `upperId` 建单。
 - **风险等级**：写-需人工复核。按设计车不会动，但「下线即不执行」在生产 RIoT 上没有验证过，所以按会动车对待：逐轮授权，现场有人。
@@ -490,7 +494,9 @@ flowchart TB
   4. 某次回 `00002` 之后，按上面的回读找到了这张单（任何形状）。
   5. 出现 `upperId` 以 `rbl-E6-` 开头、执行车却不是本车的单：严重发现，按 [`safety-boundaries.md`](../governance/safety-boundaries.md) 的反例处理流程。
   6. `CMD_ORDER_CANCEL` 或 `enable` 回非 `0`：不再重试，转人工。在本车非终态单回到 0 之前不上线。
-- **允许的写请求（只有这些）**：对测试车 `updateVehicleIntegrationLevel`（`disable`／`enable`，`deviceKeys` 只含这一台）；`byDefaultMissions`（`appointVehicleKey` 为测试车、`isAppointEnable=1`、单段 `move`、目的站为当前站）；对本轮建的单 `CMD_ORDER_CANCEL`。其余写接口一律不用。
+  7. T0 之后出现任何一张由测试车以外的车执行（`executeVehicleKey` 不是本车、也不是 `"--"`）、且不能确认与本轮无关的新单：一律停。按第 5 条处理，先只读查清它是不是本轮探测单丢了 `appointVehicleKey` 之后被派走的。
+  8. 每秒回读期间（第 3 层），被接受的探测单 `orderState` 离开 `1`，或 `executeVehicleKey` 离开 `"--"`：先取消，再整轮结束，与第 2 条同样处理。
+- **允许的写请求（只有这些）**：对测试车 `updateVehicleIntegrationLevel`（`disable`；`enable` 只在第 1 步记下的原状是在线时用于恢复；`deviceKeys` 只含这一台）；`byDefaultMissions`（`appointVehicleKey` 为测试车、`isAppointEnable=1`、单段 `move`、目的站为当前站）；对本轮建的单 `CMD_ORDER_CANCEL`。其余写接口一律不用。
 - **证据与晋升**：进 `evidence/rounds/<日期>-round-<N>/`，`execution-log.md` 逐次记录长度、业务码、`message`、`msgDetail` 摘要和回读结果，完整响应进 `runs/`。L 坐实后更新 `BC-ORDER-022`、`catalog/identifiers.md` 与 Q-042；超长失败的响应原文晋升为 `fixtures/` 时，消费方是 `riot-sdk`（建单失败响应要保留 `msgDetail` 的测试）与 `8005-agv-control-server` 的替身 RIoT（`tools/ControlServer.FakeRiot`、`FleetRiot` 现在按 52 回 `00002`，PR #619），L 坐实后它们的阈值随之调整。
 
 ---
