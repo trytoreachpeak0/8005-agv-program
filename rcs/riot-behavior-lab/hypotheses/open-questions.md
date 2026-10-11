@@ -422,6 +422,29 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
 - 登记冲突（2026-09-28 审查指出）：Q-035 表格 B 行与 `BC-ORDER-015` 消费影响里的「`cancelEmergency` 后订单可继续」来自 Round31 执行日志的一句建议；Round31 清场时先取消订单再解除急停（`run-round31.ps1` cleanup 段，`E9-cleanup-before`→`E9-final`），**没有观测到**解除后自行继续。那两处原文不改，按本条理解为未验证。
 - 证据：[`../evidence/rounds/2026-09-28-round-44/`](../evidence/rounds/2026-09-28-round-44/)；知识 `BC-ORDER-020`
 
+### Q-042 `byDefaultMissions` 的 `upperId`／`orderName` 长度上限是多少，超长时 RIoT 回什么
+
+- 状态：`OPEN`
+- 来源：`8005-agv-control-server#566` 现场续场二（2026-10-11）三次建单回 HTTP 200＋`00002`、不建单，`upperId` 长 69、69、71；产品侧已按保守值 52 收紧（`8005-agv-control-server#616`，PR #619）。现有事实与混杂因素见 `BC-ORDER-022`。实验卡 `E6`。
+- 要回答：
+  1. **是不是长度引起的。**现有样本里「长度 ≥ 69」与「26 号图约 12:47 改名之后」「目的站 216／211」完全重合，没有对照。要在同一时段、同一目的站、只改长度的条件下复现。
+  2. **确切上限 L**：长度 ≤ L 被接受、L+1 被拒。目前只知道 52 被接受、69 被拒（前提是第 1 条成立）。「大概率 64」是 `INFERRED`，依据只是库表宽度的常见取值，没有证据指向 64。
+  3. **是 `upperId` 还是 `orderName` 触发**，还是两者各有上限（两者上限可能不同）。现场三次两者是同一串，分不开。
+  4. **超长时的完整响应**：`message`、`msgDetail` 原文。推断 `message=内部错误`、`msgDetail` 为 Java 异常栈（`INFERRED`，依据是本实验室其它接口上的 `00002` 都是这个形状，例如 Round 7 `E0-online-attempt-*.json`）；这三次原文没有保留（`UNKNOWN`）。栈帧能直接说明失败点在哪里（例如入库时字段超长，还是校验时空指针）。
+  5. **失败的建单是否留下任何记录**：已观测按 `upperId` 回查不存在、订单列表里没有超过 52 的单（`BC-ORDER-022`）。还没有排除的是：按截断后的 `upperId`、空 `upperId`，或只按车查得到的残留记录。
+- 不在本题：`upperId` 里出现 `[A-Za-z0-9-]` 以外的字符；多字节字符（长度按字符还是字节）。需要时另开问题。
+- 证据：`8005-agv-control-server` 证据 PR #618（分支 `evidence/cs566b-resume2`，`evidence/field/20261011-00002-investigation/`、`20261011-W2-idle-return/`、`20261011-W3-S1-charging/`）；知识 `BC-ORDER-022`。
+
+### Q-043 没有 `upperId` 的订单，`detailByOrderId` 回读是什么形状
+
+- 状态：`OPEN`（1 个样本）
+- 来源：`8005-agv-control-server#617`。`riot-sdk` 的 `OrderClient.ToOrderRef` 要求 `upperId` 非空，否则抛 `order-ref-missing`；v2 因此读不出网页手动单的结束，车被一直按住。
+- 已观测（`OBSERVED`，1 个样本）：2026-10-11 15:23:21 只读 `GET /api/order/v1/orderRecord/detailByOrderId/order-2109181133127286784`（用户 15:15:43 在 RIoT 网页给 agv02 派的单，`createdBy=admin`，`source=FMS`，`orderName=iiii`，起终点都是 `N1-1`）：HTTP 200，`code=0`，`result` 完整，`orderState=2`，`upperId` 是空串 `""`（不是 `null`，也没有缺字段）。同一张单 `GET .../orderRecord/detail/{orderId}` 回 HTTP 404。证据：`8005-agv-control-server` 分支 `evidence/cs566b-resume2` 的 `evidence/field/20261011-W3-S1-charging/13-foreign-order-readback.txt`、`evidence/field/20261011-00002-investigation/01-order-details.txt`。
+- 要回答：
+  1. 其它没有 `upperId` 的订单（不同终态：`SUCCESS`、`CANCELLED`；以及非终态）是不是同样回空串，有没有回 `null` 或缺字段的。
+  2. 订单列表 `GET /api/order/v1/orderRecord` 里同一张单的 `upperId` 是什么形状（`ListUnfinishedOrders` 那条路径用的是列表）。
+- 顺带记下、未展开（`UNKNOWN`）：这张单起终点是同一站，5 秒内结束，`orderState=2`（`CANCELLED`）、`missionState=4`、`modifiedBy=internal`。是 RIoT 自己把「目的站就是当前站」的单取消了，还是有人取消的，不知道。`E6` 选目的站时用到这一点，见那张卡。
+
 ## P2：多仓位与物模型
 
 ### Q-008 `multiLoadState` 的实际取值与变化条件

@@ -448,6 +448,42 @@
 - 证据：[Round 44](../evidence/rounds/2026-09-28-round-44/)（A2、B1）
 - 消费影响：不能据此断定订单层可以限速；要用同车同图、带与不带 `speed`（或带不同值）的对照来确认。未测上限、`0` 或缺省时的含义、多段各自不同速度。
 
+## BC-ORDER-022 upperId 长 69～71 的建单回 HTTP 200＋`00002`、不建单（现场观测，非实验轮）
+
+- 结论：在 8005 生产 RIoT 上，`POST /api/order/v1/add/byDefaultMissions` 的单段 `move` 建单，`upperId`（`orderName` 传同一串）长 69、69、71 字符时，三次都回 HTTP 200＋业务码 `00002`，之后按 `upperId` 一直查不到这张单，订单列表里也没有出现 `upperId` 超过 52 的单。**不能**把它当成「结果未知」等 RIoT 慢慢落库。确切长度上限、是 `upperId` 还是 `orderName` 触发、以及「长度」是不是唯一原因，都还没有证实（Q-042）。
+- 证据等级：下面「已观测」各条 `OBSERVED`；「推断」各条 `INFERRED`；标了 `UNKNOWN` 的只原样记录。
+- 来源：不是本实验室的实验轮，是 `8005-agv-control-server#566` 现场续场二（2026-10-11，factory01 上的 v2 并行实例，包 `da6e40e2`，RIoT `172.19.206.222:8888`，map 26 `老厂前线new_wk`，agv02 = RIoT `id=59`）。证据在 `8005-agv-control-server` 的证据 PR #618，分支 `evidence/cs566b-resume2`（读于提交 `edf3ff1f`，合入后路径不变）：
+  - `evidence/field/20261011-00002-investigation/01-order-details.txt`、`02-riot-upperid-lengths.txt`
+  - `evidence/field/20261011-W2-idle-return/05-idle-create-result-unknown.txt`、`06-admission-drift-and-user-answers.md`、`09-not-investigated-cs611.md`
+  - `evidence/field/20261011-W3-S1-charging/04-idle-create-00002-again.txt`、`05-after-manual-move-to-216.txt`、`09-charge-create-result-unknown.txt`、`17-final-state.txt`
+- 已观测（`OBSERVED`）：
+  1. 三次失败的建单，都来自 v2 实例自己的审计表 `RiotDispatchAuditEvents`（`Phase=CREATE_RESPONSE`、`HttpStatusCode=200`、`BusinessCode=00002`）：
+
+     | 时刻（CST） | 用途 | `upperId` | 长度 | 目的站 |
+     | --- | --- | --- | --- | --- |
+     | 12:50:07 | 空闲返回 | `W2G-IDLE-BROKERX-f38975561adf46ccb1d2f23833c7d0e4-20261011T044415037Z` | 69 | 216 |
+     | 15:00:58 | 空闲返回 | `W2G-IDLE-BROKERX-f38975561adf46ccb1d2f23833c7d0e4-20261011T065712286Z` | 69 | 216 |
+     | 15:13:52 | 充电 | `W2G-CHARGE-BROKERX-f38975561adf46ccb1d2f23833c7d0e4-20261011T071230770Z` | 71 | 211 |
+
+  2. 失败后按 `upperId` 对账一直是「不存在」：第一次 12:50:09～12:53:27 每 2 秒一次、全部 `AbsentAtObservation`；充电那次 07:13:52Z～07:14:34Z 22 次全部 `AbsentAtObservation`。15:28:30 读 agv02 名下 `W2G-` 前缀的非终态单为 0。
+  3. 只读拉取 RIoT 上 2026-10-10 02:19:59～2026-10-11 15:17:15 的 3000 张订单（覆盖三次失败的时刻）：215 张带 `upperId`，`upperId` 与 `orderName` 最长都是 52；没有一张长度在 53 以上，也就是说没有以截断后的 `upperId` 落库的单。最长那张 `W2G-a1000566-0000-0000-0000-000000000001-REBUILD-1-1`（52）于 10-10 20:00:49 建成。
+  4. 同一实例当天 12:35:54 的关卡单 `W2G-c1000566-0000-0000-0000-000000000001-GATE-1`（47）建成并完成（`order-2109140910217494528`）。三次失败的 `upperId` 与成功单都只含 `[A-Za-z0-9-]`。
+- 没有排除的混杂因素（`OBSERVED` 的时间线，原因未定）：
+  1. **改图**：用户约 12:47 在 26 号图上改了 T 站点的名字并发布（`06-admission-drift-and-user-answers.md`）。47 字符的成功单在改图之前；三次失败都在改图之后；本次现场材料里，改图之后没有任何一张带 `upperId` 的单建成。
+  2. **目的站**：失败单去 216、211，成功单去 210。旁证是改图之后 15:0x 用户在 RIoT 网页上把 agv02 从 210 派到 216 成功了（`05-after-manual-move-to-216.txt`），但那是网页派单，不带 `upperId`，不一定走同一条代码路径。
+  3. 所以「长度」与「改图之后」「目的站」三个变量在这批样本里是重合的，**现有证据不足以单独归因到长度**。长度是最强的线索（成功单最长 52、失败单最短 69，3000 张里没有一张超过 52），但这是相关，不是对照。
+- 推断（`INFERRED`）：
+  1. 上限在 52～68 之间，「大概率是 64（例如 `varchar(64)`）」——这是对常见库表宽度的猜测，**没有任何证据指向 64 本身**。
+  2. 这三次响应的 `message` 是「内部错误」、`msgDetail` 里是 Java 异常栈。依据只是本实验室在其它接口上见过的 `00002` 都是这个形状（例如 Round 7 `E0-online-attempt-*.json`：`message=内部错误`，`msgDetail` 为 `java.lang.NullPointerException` 栈），这三次的原文没有保留。
+- 未知（`UNKNOWN`）：
+  1. 这三次的响应正文（`message`、`msgDetail`、`tid`）：v2 经 `riot-sdk` 调用，`RiotBusinessResponse.EnsureSuccess` 抛出的异常不带 `msgDetail`，审计里只剩业务码（`8005-agv-control-server#611` 要求以后记录失败正文）。
+  2. 请求原文：审计行的 `RequestSemanticSha256` 为空，请求体没有保存。「`orderName` 与 `upperId` 是同一串」「其余字段与成功单同形（单段 `move`、`mapId=26`、`destination` 为站号）」是 `8005-agv-control-server#616` 与 PR #619 读 `da6e40e2` 代码得出的（`HttpRiotMovementGateway` 建单时 `orderName = intent.UpperId`），不是抓包。
+  3. 是 `upperId` 超长、`orderName` 超长，还是两者都会触发。
+- 消费影响：
+  1. 调用方生成的 `upperId`／`orderName` 必须有长度上限，并用生产形态的输入（40 字符 `deviceKey`，例如 `BROKERX-` 加 32 位十六进制）断言。上限证实之前，取已知被接受过的最大长度 52 作保守值（`8005-agv-control-server#616`，PR #619 的 `RiotUpperIds.MaxLength = 52`）。
+  2. `00002` 不等于「RIoT 可能已建单」。但在 Q-042 回答之前，不能把「`00002` 一定没建单」写进自动判定：本条只有 3 个样本，且都来自同一种失败。
+  3. 客户端要保留失败响应的完整正文（至少 `message`、`msgDetail`），否则下一次同类失败仍然无法归因。`riot-sdk` 的 `EnsureSuccess` 目前做不到这一点。
+
 ## 待晋升条件
 
 以下内容目前不能写成已验证契约：
