@@ -32,7 +32,7 @@ ADR-cross-0058 决策 4 一并实现的 `SublotWaitTimeout` 上（`80d7c65`）�
 | StationDepartureWaiting 状态 | `JourneyRuntimeStage.AwaitingSublot`（`ControlServer.Domain/WireToGateModels.cs:210`）。不是新状态——服务端本来就有一个“到站后等操作员录 SUBLOT”的 stage，期限挂在它上面 |
 | StationDepartureWaitTimeout 选项 | `JourneyRuntimeOptions.StationDepartureWaitTimeout`（2026-09-09 时叫 `SublotWaitTimeout`），默认 5 分钟；`TimeSpan.Zero` 表示禁用，非零时校验要求至少 5 秒 |
 | 计时起点 | `JourneyRuntimeRow.StationDepartureWaitStartedAt`（2026-09-09 时是 `JourneyStopRow.SublotWaitStartedAt`，每个停靠一份；现在挂在旅程行上，一趟旅程一份，因为同一时刻只有当前停靠在等）。种下与重填的几处：到站那一段发作业清单前（`PublishPickupStateAsync`，必须早于清单发出，否则车辆第一份快照里的倒计时是空的）、装完进入离站等待时、断联后在 `AwaitingSublot` 与 `AwaitingLoadResult` 两个分支里重填 |
-| “每个 LoadBatch 闭环后从完整时长重新计时” | `TryContinueLoadingAtStopAsync` 里的硬重置 `stop.SublotWaitStartedAt = now`（`:2418`），随下一轮作业清单一起发出 |
+| “每个 LoadBatch 闭环后从完整时长重新计时” | `JourneyRuntimeEngine.AdvanceAsync` 的 `AwaitingLoadResult` 分支：装货安全闭环后，本站还有待装就把 `StationDepartureWaitStartedAt` 置为此刻、随即发出的那一版作业清单带着新期限（control-server#643，PR #651）；本站已无待装则在转入离站等待前置为此刻。两处都只对 LoadBatch 闭环重置，本站在装那一条被终结（一条都没装上）时起点不动。2026-10-12 之前这一行指向的是 MVP 线的函数，v2 从未实现，见文末核对 |
 | “断联使本轮截止失效，恢复握手与对账后重新计满” | 作废有两处：新的一代开始握手时 `WireToGateStore.BeginSessionRecoveryAsync` 把这辆车旅程行上的 `StationDepartureWaitStartedAt` 置 null；会话不在 `Ready` 的每一轮，`JourneyRuntimeEngine.AdvanceAsync` 在就绪闸门前同样置 null。重填在闸门之后——落在闸门之后即是“握手与投影对账完成之后”。**重填的期限作为新的一版清单下发到车上**（control-server#339）：排给车的那一版清单带的期限与服务端此刻判定用的不同时，清单升一版（新的修订号、新的 messageId），等录入时录入请求跟着那一版重发。在那之前重填只发生在服务端，车上留着断联之前那一版的期限 |
 | 到期判定 | `TryEndStopAtStationDeadlineAsync`（2026-09-09 时叫 `TryTimeOutSublotWaitAsync`），只在 `AwaitingSublot` 且本轮找不到匹配 SUBLOT 时调用 |
 | “只有服务端先接受装货开始或纠错请求才退出等待” | `FindMatchingSublotAsync` 返回非空即离开等待，转入重校验与发命令 |
@@ -108,3 +108,21 @@ control-server#339 按服务端 `fc3dda3c`（`fp/v2-impl`）与 v2 车载端核�
 这次**没有**核、原样留着的：`TryContinueLoadingAtStopAsync`、`CancelDemandBeforeLoadAsync`、`ConcludeLoadingStopAsync`
 三个名字在服务端 `src/` 里零命中，它们所在的三行（每个 LoadBatch 闭环后重新计时、`CANCELLED_BY_STATION_TIMEOUT`、
 `CANCELLED_BY_STOP_COMPLETE`）需要另外按现在的代码核，control-server#339 不涉及这三行。
+
+## 实现映射核对（2026-10-12）
+
+control-server#643 按服务端 `fp/v2-impl` 核了上表“每个 LoadBatch 闭环后从完整时长重新计时”那一行（2026-09-23 那一节列为未核的三行之一），
+并已在原处更正。决策没有变。
+
+1. **原行指向的是 MVP 线的代码。**`TryContinueLoadingAtStopAsync` 与它里面的 `stop.SublotWaitStartedAt = now` 只在
+   `8005-agv-control-server` 的 `ControlServer_MVP` 历史里出现（例如该仓 `0f6b42458` 的 `:2418`，正是原行引的那一处），在 `fp/v2-impl` 的历史里一次都没有出现过。
+   这张表写于 2026-09-09，当时照的是 MVP 代码。
+2. **v2 原来只在最后一批重置。**同一站还有待装的那一支，正常落定时不碰起点，于是期限一直从到站算：一站两条、等待 60 秒、装货 40 秒，
+   第一批闭环后 20 秒本站就被期限结束，还没录的那一条被终结（control-server#643 的探针用例，实跑结果）。control-server#643 起
+   中间批次也重置，口径与最后一批相同。
+3. **LoadCorrection 闭环这一半不受影响。**服务端只在 `AwaitingStationDeparture`（本站已无待装）时授权纠错，
+   中间批次开不出纠错；离站等待那一段读到纠错闭环时把起点挪到闭环时刻（`StationDepartureWaitIsOverAsync`），control-server#633
+   起随一版空清单下发。
+
+本节**没有**核、原样留着的：`CANCELLED_BY_STATION_TIMEOUT`、`CANCELLED_BY_STOP_COMPLETE` 两行，以及上一节第 3 条里
+`TryContinueLoadingAtStopAsync`、`ConcludeLoadingStopAsync` 的名字。
