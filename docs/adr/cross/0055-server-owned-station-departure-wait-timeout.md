@@ -126,3 +126,20 @@ control-server#643 按服务端 `fp/v2-impl` 核了上表“每个 LoadBatch 闭
 
 本节**没有**核、原样留着的：`CANCELLED_BY_STATION_TIMEOUT`、`CANCELLED_BY_STOP_COMPLETE` 两行，以及上一节第 3 条里
 `TryContinueLoadingAtStopAsync`、`ConcludeLoadingStopAsync` 的名字。
+
+## 实现映射核对（2026-10-12，同站追加提前结束）
+
+control-server#646（PR trytoreachpeak0/8005-agv-control-server#660）改了上表“车载端只显示服务端截止时间”那一行描述的算式。决策没有变，表格原样留着，差别记在这里。
+
+1. **期限不再只由“起点 + 超时”得出。**车停在取货站等离站，同一站追加了一条需求（REQ-0196 不许并入当前停靠，它成为紧接着的同站取货停靠）时，
+   服务端在“起点 + `SameStationAppendCorrectionGrace`”（新配置，默认 30 秒）就结束本站的离站等待，走原地离站核验与“到站”，
+   新停靠到站时拿完整时长。这是用户 2026-10-12 的决定（提前结束等待，并先留一段最短纠错宽限）。起点的口径不变：最后一批落定，纠错闭环时挪到闭环那一刻。
+2. **判定与下发仍是同一个值。**服务端新增 `JourneyRuntimeEngine.EffectiveStationDepartureDeadline`：上述条件成立时取“起点 + 宽限”与原期限中较早的那个，
+   否则就是 `StationDepartureDeadline`。离站等待那一段的判定，以及随空清单下发给车的 `stationDepartureDeadlineAt`（`RefreshDeadlineOfALoadedStopAsync`），
+   都读它，所以车载屏上的倒计时就是车真正要走的那一刻。其余读 `StationDepartureDeadline` 的地方都在当前停靠还有待做项时，那时条件不成立，两个值恒等。
+3. **为什么不算改协议语义。**协议 schema 对 `stationDepartureDeadlineAt` 只规定类型（时刻或空），没有描述文字；这层语义在本 ADR：“车载端只显示服务端截止时间”。
+   下发的仍是服务端判定本站结束的那一刻，只会比原期限早，不违反“操作员不能暂停或延长期限”。v2 车载端的读法（显示倒计时、到期显示“已到期，等待本站结束”、
+   选提示文案）一处不变。
+4. **只截短不延长。**宽限比期限长，或超时关闭（期限为空）时，与原来一样。下一个停靠是同站卸货（规划器落下的先装后卸）不在条件内，归 control-server#647。
+
+本节没有改表格里任何一行，也没有核其他行。
