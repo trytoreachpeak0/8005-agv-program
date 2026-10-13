@@ -70,7 +70,8 @@
 | [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡（「装满」部分由 ADR-cross-0059 修订；持货期限 2026-10-11 由 30 分钟改为 5 分钟） |
 | [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复 |
 | [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
-| [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除 |
+| [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除（急停分三类与有货时的受治理解除见 ADR-cross-0064） |
 | [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0062](cross/0062-server-side-slot-fault-declaration-enters-recovery.md) | 仓位卡住但读数有效时，车载端上报超时，由管理员在服务端判为 UNKNOWN 进入恢复 |
 | [ADR-cross-0063](cross/0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) | 光幕证明取空即结清装货侧的货物业务，仓门锁闭证明改为车辆放行条件 |
+| [ADR-cross-0064](cross/0064-emergency-stops-in-three-classes.md) | 急停分三类：8005 下达的三类急停只经 8005 解除，被二类入口解开时重下 |
