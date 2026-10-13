@@ -15,6 +15,7 @@
 - **硬件事实不从 MVP 库搬。**已批准的八仓硬件事实（含光幕极性新值 `UNLOCK_OUTPUT_ACTIVE_HIGH;LOCK_FEEDBACK_LOCKED_HIGH;LIGHT_CURTAIN_OBJECT_LOW`）写在 v2 代码里（`src/ControlServer.Domain/SlotConfigurationModels.cs:153`），由 `seed-approved-facts` 与 `bind-io` 写进新库；**MVP 库里的 W1 逐仓核对结果一条也不搬**，试跑段不做逐仓核对（模拟 IO 下没有意义），生产段换新库 B 后按 `REQ-0263` 每车逐仓重新核验（`verify` → `release`）。
 - **三车车载端的日志簿与发件箱在同一个文件里**（`%LOCALAPPDATA%\SQCD\8005AGV\onboard-journal.db`，车上交互用户名下），规则是「先让原主人收完，再整目录改名留存」。`agv01` 的原主人是 MVP，所以它的发件箱必须在 MVP 停服之前送完；`agv02`、`agv03` 的原主人是 v2 旧库，必须在 cs#564 第 7 步停旧库之前送完。
 - **发现一个 cs#564 方案的缺口**：它的备份清单（第 7 节）写 `agv01` 的 `C:\8005\OnboardHmi`「含日志簿、发件箱」，但读到的事实是日志簿不在安装目录里，而在 `%LOCALAPPDATA%\SQCD\8005AGV\`；而且现场线与 v2 用**同一个路径、同名的四张表**。漏改名的话，v3 车载端会直接打开 MVP 时代的日志簿：MVP 欠送的结果被 v2 当历史行确认后丢掉，旧计划快照与新库同号不同内容被拒（`SNAPSHOT_REVISION_CONTENT_CONFLICT`）。第 3 节把它写进步骤，回滚时也要把这个目录换回去。
+- **用户 2026-10-13 已定第 6 节 U1～U8 全部按建议**（https://github.com/trytoreachpeak0/8005-agv-program/issues/170#issuecomment-6138103462），`agv03` 在 S1、S2 停在站 222（第 3.4 节）。
 - 下午装机直接用的是**第 2.2 节（试跑段新库 A 的导入单）和第 3 节（三车车载端）**。
 
 ## 1. 需求与在途订单（用户已定：先排空再切，不迁移数据）
@@ -90,8 +91,8 @@ FieldOps 必须是与服务端同一提交构建的那一份（control-server `d
 | 3 | `bind-io --agv 老厂前线新多仓位2`；`bind-io --agv 老厂前线新多仓位1`；`bind-io --agv 老厂前线新多仓位3` | 各 `boundSlots=8`。三车一次绑完，换阶段时不必再回来做；绑定只是库里的行，不碰车 |
 | 4 | `activate-task-type-stations --input task-type-stations.map-26.candidate.json --catalog <目录> --dry-run`，无违例后去掉 `--dry-run` | 六类都在 `changes` 里；回读 `task-type-stations` 当前版本含六类 |
 | 5 | `import-waiting-points --input waiting-points-map26.csv --catalog <目录> --dry-run`，再正式 | `coverage.sufficient=true`，214～216 三点 |
-| 6 | `import-charger-roster --input <名册> --catalog <目录>`（用哪份由 U3 定） | 回读 `charger-roster` |
-| 7 | `import-charging-policy --input charging-policy-map26.json --fleet <当前阶段车队的 vehicleKey>` → `approve-charging-policy`（批准依据写 U4 的授权原话） → `activate-charging-policy` | `charging-policy --fleet …` 回读 `activeVersion=1`、每车 `commissioned=true`。换阶段加车后再回读一次，新车不是 `true` 就重做第 7 条 |
+| 6 | `import-charger-roster --input <名册> --catalog <目录>`。按 U3 已定：用 `charger-roster-map26-station211.json`，`approvalBasis` 改写为切换授权的原话出处 | 回读 `charger-roster`：站 211、进出 212 |
+| 7 | `import-charging-policy --input charging-policy-map26.json --fleet <当前阶段车队的 vehicleKey>` → `approve-charging-policy`（批准依据引用 U4 的授权：https://github.com/trytoreachpeak0/8005-agv-program/issues/170#issuecomment-6138103462） → `activate-charging-policy` | `charging-policy --fleet …` 回读 `activeVersion=1`、每车 `commissioned=true`。换阶段加车后再回读一次，新车不是 `true` 就重做第 7 条 |
 | 8 | `status` | 三车都是 `SLOT_CONFIGURATION_NEVER_VERIFIED`、`slotsMissingBinding=[]`。试跑段就停在这个状态（不做逐仓核对） |
 | 9 | （cs#564 第 11 步之后）`import-area-assignments --input area-assignments-N-WIRE_BONDING.csv --dry-run` | 不报 `DISPATCH_ZONE_NOT_FOUND`、`errorCount=0` |
 | 10 | 每区参数：**不导入**（第 2.1 节第 14 行） | `dispatch-zone-parameters` 回读为空 |
@@ -144,7 +145,7 @@ SELECT ContentJson FROM WireToGateRecoveryState WHERE Id = 1;
 | --- | --- | --- | --- | --- |
 | `agv01` | MVP（现场线） | MVP 闸门关、这趟 `Completed` 之后、**MVP 停服之前**：车载端仍连着 MVP，等欠送行被 MVP 确认 | MVP 停服、备份之后，部署 v3 车载端之前 | 第 3 步核为零；第 5 步备份时连同 `%LOCALAPPDATA%\SQCD\8005AGV\` 一起另存；第 9 步（S2 之前）改名后部署 |
 | `agv02` | v2 旧库（今天在跑 `STAGING_TO_WIRE`） | v2 旧库实例**停服之前**：闸门关、无在途，车载端仍连着它，等欠送行被确认 | 停栈、核为零后，cs#564 第 7 步之前 | 第 7 步之前插入；第 9 步部署 v3 车载端 |
-| `agv03` | v2 旧库（10-11 两车实验时连过；今天不在旧库的车队表里） | 同 `agv02`；若有欠送，旧库实例车队表里没有它、可能收不了，按第 6 节 U6 处理 | 同 `agv02` | 第 7 步之前核查；第 9 步（S3 之前）部署 |
+| `agv03` | v2 旧库（10-11 两车实验时连过；今天不在旧库的车队表里） | 同 `agv02`；若有欠送，按第 6 节 U6（已定）存证后改名留存、不再送 | 同 `agv02` | 第 7 步之前核查；S1、S2 期间停在站 222（第 3.4 节）；第 9 步（S3 之前）部署 |
 
 每车的步骤（`agv01` 每一步【执行前问用户】）：
 
@@ -163,6 +164,16 @@ SELECT ContentJson FROM WireToGateRecoveryState WHERE Id = 1;
 - 服务端 FieldOps `status` 里该车 `slotsMissingBinding=[]`。
 
 **试跑转生产（cs#564 第 18～20 步）再做一遍**：库 A 是试跑期车载端的原主人，所以要在第 17 步关闸、无在途之后、第 18 步换库 B 之前，按上面第 2～5 步对三车各做一次（改名后缀用 `pre-cutover-production-<日期>`）。
+
+### 3.4 `agv03` 在 S1、S2 的停放点：26 号图站 222（用户 2026-10-13 定）
+
+S1、S2 的车队表里没有 `agv03`，v2 不管它，它要停在一个不碍事的地方，直到 S3 换装三车定义。
+
+- 什么时候停过去：cs#564 第 7 步之前，`agv03` 车载端停栈、日志簿改名之后，由用户或现场在 RIoT 上把它挪到站 222 定位（会让车动，【逐次授权·现场有人】）。
+- 为什么这里不碍事（读到的）：222 不在 v2 管的任何登记里：不是等待点（214～216）、不是充电桩与进桩路径（211、212）、不是六类任务的固定站（210、217～221）。所以 v2 不会把别的车派到 222 上去。
+- **要现场核的两点（推的）**：一是 10-11 的 26 号图站点目录快照（control-server `evidence/field/20261011-B10-05-map26-task-type-stations/catalog-26.json`，216 个站）里没有 222，推测是之后新建的站。第 2.2 节第 1 条导出目录时确认 222 在目录里、名字与用户说的一致。二是 v2 不知道 222 上停着车：路网引擎只看自己车队的车，`agv02`、`agv01` 的路线若经过 222 旁的通道，RIoT 层面的避让由 RIoT 负责。请用户确认 222 停车不挡 `agv02` 去 217 与 N 区、`agv01` 去 210、219、221 与 N 区的通道。
+- S3 换装三车定义前：`agv03` 部署 v3 车载端（第 3.3 节第 6 步）、起栈、握手 `Ready`，此时它从 222 出发由 v2 调度（属于 S3 那次开闸的授权）。
+- 生产段（新库 B）若再走 S1、S2，同样停在 222。
 
 ## 4. 回滚时数据怎么办
 
@@ -190,7 +201,11 @@ SELECT ContentJson FROM WireToGateRecoveryState WHERE Id = 1;
 
 **不需要读**：MVP 库里的 W1 逐仓核对结果、硬件事实、参数。它们一律不进 v2 新库，读了也用不上。
 
-## 6. 用户未定
+## 6. 用户的决定（原「用户未定」）
+
+**2026-10-13 已定**：U1～U8 全部按下表的建议执行，用户原话「就这么推进吧」（经调度 Coordinator 10，记录在 program#170 评论 https://github.com/trytoreachpeak0/8005-agv-program/issues/170#issuecomment-6138103462）。U4 的授权即「切换期间在新库 A、B 上批准并激活与现行 v1 逐字相同的充电策略」，第 2.2 节第 7 条 `approve-charging-policy` 的批准依据两次都引用这条评论。同日用户另定 `agv03` 在 S1、S2 的停放点是 26 号图站 222（第 3.4 节）。
+
+下表保留原建议与理由，「建议」一列即已定做法。
 
 | # | 问题 | 建议 | 理由 |
 | --- | --- | --- | --- |
@@ -203,7 +218,6 @@ SELECT ContentJson FROM WireToGateRecoveryState WHERE Id = 1;
 | U7 | 排空到 v2 开运行时之间，要不要核对「MVP 最后做完的需求已离开 MES 目录」 | **要**：cs#564 第 3 步记下 MVP 最后完成的几条需求的 DemandId，第 11 步之前读一次生产 MesIngest 确认它们已不在目录里 | v2 不看 MVP 库，只要 MES 还挂着就会再送一次（第 1.3 节）；成本是一次只读查询（R4） |
 | U8 | 生产段回滚时，v2 已完成但 MES 目录里还挂着的需求怎么办 | MVP 开受理闸门前，这几条由现场人工确认实物位置，必要时请 MES 侧处理到离开目录再开闸；不改 MVP 代码 | MVP 代码不再改（规格第 8.4.2 节），MVP 库也不能手改；能挡住重复的只有「开闸前它们已不在目录里」 |
 
-用户的决定回写本节（原话出处），然后在规格第 14 节第 6 项登记「已定」。
 
 ## 7. 要开发的与缺口
 

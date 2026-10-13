@@ -953,7 +953,7 @@ control-server#46～#57、onboard-hmi#53 于 2026-09-14 以 `not planned` 关闭
 | 3 | `mapId` 25 上建派工待送取货站点并绑定 | 批次 6 投运前、W2 前 |
 | 4 | 测绘不少于 3 个等待点并登记（不得用 212） | 批次 8 投运前、W2 前 |
 | 5 | 名册登记 211；批准 `ChargingPolicyVersion` | 批次 9 投运前 |
-| 6 | **切换数据方案**：生产 v0.3.0 库里已有的 W1 逐仓核对结果、已批准硬件事实（含 control-server#44 的极性）与已批准参数，怎样进入 v2 实例的库。注意 `REQ-0263` 规定硬件相关变化要整车逐仓重新核验，不能靠搬记录冒充核验；两条线的迁移链自分叉起各有 5 个独有迁移（program#67）。**本图没有定这件事** | 切生产分票时定。2026-10-13 方案已出：`docs/site-procedures/production-cutover-data-plan.md`（program#170）；其中「用户未定」一节（U1～U8）待用户定，定了再改为「已定」 |
+| 6 | **切换数据方案**：生产 v0.3.0 库里已有的 W1 逐仓核对结果、已批准硬件事实（含 control-server#44 的极性）与已批准参数，怎样进入 v2 实例的库。注意 `REQ-0263` 规定硬件相关变化要整车逐仓重新核验，不能靠搬记录冒充核验；两条线的迁移链自分叉起各有 5 个独有迁移（program#67）。**本图没有定这件事** | **已定**（2026-10-13），见 `docs/site-procedures/production-cutover-data-plan.md`（program#170）：需求不迁移、排空后切；硬件事实由代码内置的已批准内容导入，不从 MVP 库搬，W1 结果作废、生产段每车逐仓重核。用户决定 U1～U8 全部按方案建议，原话「就这么推进吧」（https://github.com/trytoreachpeak0/8005-agv-program/issues/170#issuecomment-6138103462） |
 | 7 | 统一 `CONTEXT.md` 的 `OperationSession` 词条与票 03 Q11「每条需求一个」 | 批次 7 分票时 |
 | 8 | 焊线2 出柜捞不到的风险（第 5.3 节）：投运后若出现，请工厂 IT 补 step 条件 | 批次 6 投运后观察 |
 
