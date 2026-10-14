@@ -16,7 +16,7 @@ const COMMON = "https://schemas.8005-agv.local/agv-full-product/v5/common/types.
 const REQUEST = "CurrentStopDepartureRequested";
 const RESULT = "CurrentStopDepartureResult";
 const DEFAULT_SIDE_EFFECTS = ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"];
-const DEPARTURE_VECTORS = ["CV-CURRENT-STOP-DEPARTURE-ACCEPTED", "CV-CURRENT-STOP-DEPARTURE-STALE-REVISION", "CV-CURRENT-STOP-DEPARTURE-NOT-ALLOWED", "CV-CURRENT-STOP-DEPARTURE-DUPLICATE-REQUEST"];
+const DEPARTURE_VECTORS = ["CV-CURRENT-STOP-DEPARTURE-ACCEPTED", "CV-CURRENT-STOP-DEPARTURE-STALE-REVISION", "CV-CURRENT-STOP-DEPARTURE-NOT-ALLOWED", "CV-CURRENT-STOP-DEPARTURE-STATION-MISMATCH", "CV-CURRENT-STOP-DEPARTURE-DUPLICATE-REQUEST"];
 const CHARGING_VECTOR = "CV-TRANSPORT-CHARGING-STOP-WITH-CARGO";
 // The values protocol-v3.0.0 released for the two closed enums (3f091cb2); 4.0.0 only appends.
 const V3_CLOSED_REASONS = ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE"];
@@ -210,7 +210,7 @@ test("a transport snapshot charging with cargo and a plan with a CHARGER leg are
 
 // --- vectors and slices ---
 
-test("four departure vectors cover acceptance, a stale revision, a refused state and a duplicate request", () => {
+test("five departure vectors cover acceptance, a stale revision, a refused state, another stop and a duplicate request", () => {
   const expected = Object.fromEntries(DEPARTURE_VECTORS.map((vectorId) => [vectorId, expectedOf(vectorId)]));
   for (const [vectorId, value] of Object.entries(expected)) {
     assert.equal(value.vectorId, vectorId);
@@ -227,6 +227,8 @@ test("four departure vectors cover acceptance, a stale revision, a refused state
   assert.ok(expected["CV-CURRENT-STOP-DEPARTURE-ACCEPTED"].productAssertions.controlServer.includes("RELEASE_UNLOADED_DEMANDS_WITHOUT_CANCEL_OR_SUPPRESSION"));
   assert.equal(expected["CV-CURRENT-STOP-DEPARTURE-STALE-REVISION"].stableErrorCode, "WORKLIST_REVISION_STALE");
   assert.equal(expected["CV-CURRENT-STOP-DEPARTURE-NOT-ALLOWED"].stableErrorCode, "ACTION_NOT_ALLOWED_IN_STATE");
+  assert.equal(expected["CV-CURRENT-STOP-DEPARTURE-STATION-MISMATCH"].stableErrorCode, "STATION_MISMATCH");
+  assert.ok(expected["CV-CURRENT-STOP-DEPARTURE-STATION-MISMATCH"].productAssertions.controlServer.includes("CHECK_STATION_BEFORE_WORKLIST_REVISION"));
   const duplicate = expected["CV-CURRENT-STOP-DEPARTURE-DUPLICATE-REQUEST"];
   assert.equal(duplicate.orderedExpectedMessages.filter((type) => type === REQUEST).length, 2);
   assert.equal(duplicate.orderedExpectedMessages.filter((type) => type === RESULT).length, 2);
@@ -268,15 +270,38 @@ const section = (heading) => {
   return notes.slice(start, end < 0 ? undefined : end);
 };
 
-test("the wire notes scope the departure to the staging station and list its answers", () => {
-  const body = section("`CurrentStopDepartureRequested` and `CurrentStopDepartureResult`");
+test("the wire notes give staging pickup stops no deadlines and say how their stop ends", () => {
+  const body = section("Staging pickup stops");
   assert.match(body, /fixed origin station of `STAGING_TO_WIRE`/);
+  assert.match(body, /`CurrentStopWorklistSnapshot\.stationDepartureDeadlineAt` is always `null` at a staging pickup stop/);
+  assert.match(body, /`state` `CARGO_HOLDING_WAIT` with `cargoHoldingDeadlineAt` `null` at a staging pickup stop/);
+  assert.match(body, /`stopEndedReason` `OPERATOR_DEPARTED` or `CHARGING_REQUIRED`, never `DEMAND_RELEASED`/);
+  assert.match(body, /When every demand of the stop is loaded the vehicle leaves as before and no empty worklist is sent/);
+  assert.match(body, /if the control server sends another one after a departure, it carries `OPERATOR_DEPARTED`/);
+});
+
+test("the wire notes scope the departure to the staging station, order its checks and say how it is answered", () => {
+  const body = section("`CurrentStopDepartureRequested` and `CurrentStopDepartureResult`");
+  assert.match(body, /only at a staging pickup stop/);
   assert.match(body, /journals the request before it sends it/);
+  assert.match(body, /identifies the stop by `stationId` and `worklistRevision`/);
   assert.match(body, /`operationSessionId` is `null` when that worklist carries none/);
-  for (const code of ["WORKLIST_REVISION_STALE", "STATION_MISMATCH", "ACTION_NOT_ALLOWED_IN_STATE", "BUSINESS_ID_CONTENT_CONFLICT"]) assert.match(body, new RegExp(`\`${code}\``));
+  // The three refusals in their order: the first check that fails decides.
+  const order = ["STATION_MISMATCH", "WORKLIST_REVISION_STALE", "ACTION_NOT_ALLOWED_IN_STATE"].map((code) => body.indexOf(`\`${code}\` when`));
+  assert.ok(order.every((index) => index >= 0), `positions ${order}`);
+  assert.deepEqual([...order].sort((a, b) => a - b), order);
+  assert.match(body, /checks in this order and the first check that fails decides/);
   assert.match(body, /never cancelled or suppressed and never counted against the station-timeout release limit/);
-  assert.match(body, /`closedReason` `OPERATOR_DEPARTED`/);
-  assert.match(body, /`stopEndedReason` `OPERATOR_DEPARTED`/);
+  assert.match(body, /With at least one basket loaded, `loadingPhase` is `CLOSED` with `closedReason` `OPERATOR_DEPARTED`/);
+  assert.match(body, /With nothing loaded the journey closes, `loadingPhase` is `null`/);
+  assert.match(body, /replaying the stored result exactly as it was first decided, `currentWorklistRevision` included, never recomputed/);
+  assert.match(body, /answered with `ProtocolProblem` carrying `BUSINESS_ID_CONTENT_CONFLICT`\. No `CurrentStopDepartureResult` is sent/);
+});
+
+test("candidate limitations do not claim the error registry changed", () => {
+  const limitations = read("docs/candidate-limitations.md");
+  assert.match(limitations, /the error registry is carried over unchanged/);
+  assert.doesNotMatch(limitations, /the error registry and the conformance index all change/);
 });
 
 test("the wire notes state charging with cargo under TRANSPORT and the DEPARTURE check on the anchor demand", () => {
@@ -287,5 +312,13 @@ test("the wire notes state charging with cargo under TRANSPORT and the DEPARTURE
   assert.match(body, /`stopPurposeCategory` `CHARGER`, `legType` `null` and `demandId` `null`/);
   assert.match(body, /opens no entry and no slot/);
   assert.match(body, /does not return to the staging station/);
-  assert.match(body, /`checkPurpose` `DEPARTURE` carrying the journey's anchor demand/);
+  assert.match(body, /`checkPurpose` `DEPARTURE` carrying the journey's anchor demand after any re-anchoring, which is a loaded demand/);
+  assert.match(body, /`closedReason` `CHARGING_REQUIRED` appears only with cargo on board/);
+  // All three charging policy decisions apply under TRANSPORT; none ends the journey, and none skips charging.
+  assert.match(body, /all three values of `UnableToChargeFieldConfirmationResult\.chargingPolicyDecision` apply and none ends the journey or releases its cargo/);
+  for (const decision of ["RETRY_LATER", "REASSIGN_CHARGER", "MANUAL_CHARGING_HOLD"]) assert.match(body, new RegExp(`\`${decision}\`:`));
+  assert.match(body, /once the hold is lifted .*continues to its existing dropoff stops and does not return to the staging station/);
+  assert.match(body, /No decision skips charging and goes straight to the dropoffs/);
+  const decisions = payloadSchemaOf("UnableToChargeFieldConfirmationResult").properties.chargingPolicyDecision.anyOf[0].enum;
+  assert.deepEqual(decisions, ["RETRY_LATER", "MANUAL_CHARGING_HOLD", "REASSIGN_CHARGER"]);
 });
