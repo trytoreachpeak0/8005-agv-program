@@ -326,3 +326,26 @@ content manifest 的文件表：本地 G1 自洽地 PASS，CI 上 `actions/check
 Windows 的 MAX_PATH，检出时满屏 `D` 而 `git clone` 只打一句提示。
 
 模板里的两个判据本票不改（票面「不改 G1 与 finalize 模板」）。
+
+---
+
+## 10. v4.0.0 起点复核（8005-agv-protocol#13）
+
+v4.0.0 的生成器改动（protocol#13，program#185 CP-0012 第三节）同样默认「生成器就是 `protocol-v3.0.0` 的机械来源」。
+做法与第 9.1 节相同。
+
+| 项 | 值 |
+| --- | --- |
+| 复核日期 | 2026-10-14 |
+| 机器 | 控制端 `LAB-WIN-01`，node v24.20.0，pnpm 11.25.0 |
+| 生成器 | `origin/main` `20a82b3e` 上的 blob `17672e66`（即 `3f091cb2` 提交正文记的那一版），模板 `g1-validate.mjs` `49e9ba69`、`finalize-manifest.mjs` `4eaef0e4` |
+| 对照 | 协议仓 `3f091cb2`（`protocol-v3.0.0`；`origin/fp/v2-candidate` 顶端，之后无未发布提交），1901 个跟踪文件 |
+| 放回七个元文件、finalize、G1 之后 | 1901 个文件，`git status` 为空，逐字节相同／不同／缺失／多余 **1901／0／0／0** |
+| `pnpm g1` | **PASS**，failures 为空 |
+
+**结论：没有差异需要归类，前提成立。**克隆放在 `F:/8005-scratch/p13/proto`（普通克隆，`core.longpaths=true`），
+避开第 9.2 节的 worktree 陷阱。
+
+v4 候选在同一个克隆里重做一遍：删掉全部跟踪文件，用本分支的生成器产出，从 `3f091cb2` 放回七个元文件，`README.md`
+「Current state」一节改写为 4.0.0（第 6 节第 1 步之后唯一的手工改动），再 finalize、G1。G1 **PASS**；
+生成器 `--verify-determinism` 1952 个文件、0 divergent。
