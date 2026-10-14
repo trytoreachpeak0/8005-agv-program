@@ -349,3 +349,26 @@ v4.0.0 的生成器改动（protocol#13，program#185 CP-0012 第三节）同样
 v4 候选在同一个克隆里重做一遍：删掉全部跟踪文件，用本分支的生成器产出，从 `3f091cb2` 放回七个元文件，`README.md`
 「Current state」一节改写为 4.0.0（第 6 节第 1 步之后唯一的手工改动），再 finalize、G1。G1 **PASS**；
 生成器 `--verify-determinism` 1952 个文件、0 divergent。
+
+---
+
+## 11. v4.0.0 候选改写起点复核（8005-agv-protocol#15）
+
+protocol#15 把 v4 候选的待送点缺电语义从「带货插充电停靠」改为「先送货再充电」（program#188 CP-0013 第三节）。
+改之前先确认 program#187 合入后的生成器就是 `c6b1ff73` 的机械来源，做法与第 9.1、10 节相同。
+
+| 项 | 值 |
+| --- | --- |
+| 复核日期 | 2026-10-15 |
+| 机器 | 控制端 `LAB-WIN-01`，node v24.20.0，pnpm 11.25.0 |
+| 生成器 | `origin/main` `03d2a3b6`（program#187 合入）上的 blob `f7717f31`，模板未改 |
+| 对照 | 协议仓 `c6b1ff73`（`origin/fp/v2-candidate` 顶端，v4 候选，未打 tag），1962 个跟踪文件 |
+| 放回七个元文件、finalize、G1 之后 | `git status` 为空，**1962／0／0／0** |
+| `pnpm g1` | **PASS**，failures 为空 |
+
+**结论：没有差异需要归类，前提成立。**克隆放在 `F:/8005-scratch/p15/proto`（普通克隆，`core.longpaths=true`）。
+
+改写后的候选在同一个克隆里重做：删掉全部跟踪文件，用本分支的生成器（blob `1f518aad`）产出，从 `c6b1ff73` 放回七个元文件，
+`README.md`「Current state」里描述第三项改动的那一句改写（第 6 节第 1 步之后唯一的手工改动），再 finalize、G1。
+G1 **PASS**，manifest `38a5d2d53e1e235f7f844d991c7258ed51910d542f235ebae6768455c5511fc4`，45 条向量；生成器
+`--verify-determinism` 1954 个文件、0 divergent。

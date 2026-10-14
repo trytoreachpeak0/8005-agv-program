@@ -207,7 +207,7 @@ test("compatibility report is based on protocol-v3.0.0 and summarises the three 
   const anchors = [
     /CurrentStopDepartureRequested.*CurrentStopDepartureResult.*FP-IS-02/,
     /closedReason.*stopEndedReason.*OPERATOR_DEPARTED.*CHARGING_REQUIRED/,
-    /TRANSPORT journey.*CHARGER.*CV-TRANSPORT-CHARGING-STOP-WITH-CARGO/,
+    /mandatory charge line.*CHARGING_REQUIRED.*no CHARGER stop.*CV-STAGING-CHARGING-REQUIRED-DEPARTURE-WITH-CARGO/,
   ];
   assert.ok(Array.isArray(report.changeSummary), "changeSummary is not a list");
   assert.equal(report.changeSummary.length, anchors.length);

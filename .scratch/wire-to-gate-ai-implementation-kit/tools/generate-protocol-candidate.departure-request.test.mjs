@@ -1,5 +1,5 @@
-// Acceptance checks for the operator's departure request and charging with cargo in the protocol 4.0.0 candidate
-// (8005-agv-protocol#13, program#185 CP-0012 section 3).
+// Acceptance checks for the operator's departure request and the charging-required departure in the protocol 4.0.0
+// candidate (8005-agv-protocol#13 and #15, program#185 CP-0012 and program#188 CP-0013, section 3 of each).
 // Run: node --test .scratch/wire-to-gate-ai-implementation-kit/tools/generate-protocol-candidate.departure-request.test.mjs
 // The seam is the generator's command line: every check generates a tree and reads what was written.
 // Expected shapes come from the ticket and the released protocol-v3.0.0 tree, never from the generator's literals.
@@ -17,7 +17,7 @@ const REQUEST = "CurrentStopDepartureRequested";
 const RESULT = "CurrentStopDepartureResult";
 const DEFAULT_SIDE_EFFECTS = ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"];
 const DEPARTURE_VECTORS = ["CV-CURRENT-STOP-DEPARTURE-ACCEPTED", "CV-CURRENT-STOP-DEPARTURE-STALE-REVISION", "CV-CURRENT-STOP-DEPARTURE-NOT-ALLOWED", "CV-CURRENT-STOP-DEPARTURE-STATION-MISMATCH", "CV-CURRENT-STOP-DEPARTURE-DUPLICATE-REQUEST"];
-const CHARGING_VECTOR = "CV-TRANSPORT-CHARGING-STOP-WITH-CARGO";
+const CHARGING_VECTOR = "CV-STAGING-CHARGING-REQUIRED-DEPARTURE-WITH-CARGO";
 // The values protocol-v3.0.0 released for the two closed enums (3f091cb2); 4.0.0 only appends.
 const V3_CLOSED_REASONS = ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE"];
 const V3_STOP_ENDED_REASONS = ["COMPLETED", "STATION_DEADLINE_EXPIRED", "LOAD_CANCELLED", "LOAD_COMPENSATED", "CARGO_HANDED_OFF", "DEMAND_RELEASED", "TRIP_TERMINATED"];
@@ -188,24 +188,15 @@ test("closedReason and stopEndedReason keep their released values and append OPE
   const phase = payloadSchemaOf("VehicleBusinessStateSnapshot").properties.loadingPhase.anyOf.find((option) => option.type === "object");
   assert.deepEqual(phase.properties.closedReason.anyOf[0].enum, [...V3_CLOSED_REASONS, ...NEW_REASONS]);
   assert.deepEqual(payloadSchemaOf("CurrentStopWorklistSnapshot").properties.stopEndedReason.anyOf[0].enum, [...V3_STOP_ENDED_REASONS, ...NEW_REASONS]);
-  // activePurpose takes no new value: charging with cargo stays TRANSPORT.
+  // activePurpose takes no new value: the charging-required departure stays TRANSPORT.
   assert.deepEqual(payloadSchemaOf("VehicleBusinessStateSnapshot").properties.activePurpose.anyOf[0].enum, ["TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN"]);
 });
 
-test("a transport snapshot charging with cargo and a plan with a CHARGER leg are valid as they stand", () => {
+test("a transport snapshot below the mandatory charge line closed with CHARGING_REQUIRED is valid as it stands", () => {
+  // Deliver first, charge afterwards (protocol#15): the departing vehicle keeps TRANSPORT and is not charging yet.
   const business = validOf("VehicleBusinessStateSnapshot").payload;
-  for (const chargingCycleState of ["ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE"]) {
-    const value = { ...business, activePurpose: "TRANSPORT", chargingCycleState, loadingPhase: { state: "CLOSED", cargoHoldingDeadlineAt: null, closedReason: "CHARGING_REQUIRED" } };
-    assert.equal(accepts("VehicleBusinessStateSnapshot", value), true, chargingCycleState);
-  }
-  const plan = validOf("UpcomingStopPlanSnapshot").payload;
-  const [leg] = plan.legs;
-  const legs = [
-    { ...leg, sequence: 1, legType: "TO_PICKUP", stopPurposeCategory: "BUSINESS", state: "COMPLETED" },
-    { ...leg, movementLegId: "00000000-0000-4000-8000-0000000000a1", sequence: 2, legType: null, stopPurposeCategory: "CHARGER", demandId: null, publicStationFunction: null, state: "ACTIVE" },
-    { ...leg, movementLegId: "00000000-0000-4000-8000-0000000000a2", sequence: 3, legType: "TO_DROPOFF", stopPurposeCategory: "BUSINESS", state: "PLANNED" },
-  ];
-  assert.equal(accepts("UpcomingStopPlanSnapshot", { ...plan, legs }), true);
+  const value = { ...business, activePurpose: "TRANSPORT", batteryState: "MANDATORY_CHARGE", chargingCycleState: "NOT_CHARGING", loadingPhase: { state: "CLOSED", cargoHoldingDeadlineAt: null, closedReason: "CHARGING_REQUIRED" } };
+  assert.equal(accepts("VehicleBusinessStateSnapshot", value), true);
 });
 
 // --- vectors and slices ---
@@ -236,14 +227,17 @@ test("five departure vectors cover acceptance, a stale revision, a refused state
   assert.ok(duplicate.productAssertions.controlServer.includes("DEDUPLICATE_DEPARTURE_ON_REQUEST_ID"));
 });
 
-test("the charging-with-cargo vector keeps TRANSPORT and forbids replacing it or opening a slot at the charger", () => {
+test("the charging-required vector departs with cargo through the DEPARTURE check and puts no charger in the journey", () => {
   const expected = expectedOf(CHARGING_VECTOR);
   assert.equal(expected.stableErrorCode, null);
-  assert.ok(expected.orderedExpectedMessages.includes("UpcomingStopPlanSnapshot"));
-  assert.ok(expected.orderedExpectedMessages.filter((type) => type === "VehicleBusinessStateSnapshot").length >= 2, "the charging cycle advances across snapshots");
-  for (const effect of ["transport-purpose-replaced-by-charging", "slot-operation-at-charger", "return-to-staging-before-dropoff"]) assert.ok(expected.forbiddenSideEffects.includes(effect), effect);
-  assert.ok(expected.productAssertions.controlServer.includes("KEEP_TRANSPORT_PURPOSE_WHILE_CHARGING_WITH_CARGO"));
-  assert.ok(expected.productAssertions.onboardHmi.includes("NEVER_LOAD_OR_OPEN_SLOT_AT_CHARGER"));
+  assert.deepEqual(expected.orderedExpectedMessages.slice(-2), ["PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult"], "the vehicle leaves through the safety check");
+  assert.ok(expected.orderedExpectedMessages.includes("CurrentStopWorklistSnapshot"), "the released demands leave the worklist");
+  assert.deepEqual(expected.forbiddenSideEffects.slice(0, DEFAULT_SIDE_EFFECTS.length), DEFAULT_SIDE_EFFECTS);
+  for (const effect of ["charger-stop-in-transport-journey", "transport-purpose-replaced-by-charging", "loaded-demand-released-for-charging", "departure-cancels-or-suppresses-unloaded-demand", "return-to-staging-before-dropoff"]) assert.ok(expected.forbiddenSideEffects.includes(effect), effect);
+  for (const assertion of ["CLOSE_LOADING_PHASE_WITH_CHARGING_REQUIRED", "RELEASE_UNLOADED_DEMANDS_WITHOUT_CANCEL_OR_SUPPRESSION", "INSERT_NO_CHARGER_STOP_IN_TRANSPORT_JOURNEY", "CHARGE_THROUGH_CHARGING_ALLOCATION_AFTER_JOURNEY_ENDS"]) assert.ok(expected.productAssertions.controlServer.includes(assertion), assertion);
+  assert.ok(expected.productAssertions.onboardHmi.includes("NEVER_DEPART_LOCALLY"));
+  // The withdrawn charging-stop vector is gone, not kept beside its replacement.
+  assert.equal(fs.existsSync(path.join(tree, "vectors", "CV-TRANSPORT-CHARGING-STOP-WITH-CARGO")), false);
 });
 
 test("FP-IS-02 binds the departure vectors and messages, FP-IS-13 the charging vector, and no other slice binds them", () => {
@@ -254,7 +248,9 @@ test("FP-IS-02 binds the departure vectors and messages, FP-IS-13 the charging v
   assert.ok(is02.definition.ownerResponsibilities.onboardHmi.includes("REQUEST_STAGING_DEPARTURE_WITH_OPERATOR"));
   const is13 = sliceOf("FP-IS-13");
   assert.ok(is13.vectorIds.includes(CHARGING_VECTOR));
-  assert.ok(is13.definition.requiredOutcomes.includes("STAGING_CARGO_CHARGES_WITHIN_TRANSPORT_JOURNEY"));
+  assert.ok(is13.definition.requiredOutcomes.includes("STAGING_CARGO_DELIVERED_BEFORE_CHARGING"));
+  assert.ok(!is13.definition.requiredOutcomes.includes("STAGING_CARGO_CHARGES_WITHIN_TRANSPORT_JOURNEY"));
+  assert.ok(is13.definition.ownerResponsibilities.controlServer.includes("DELIVER_STAGING_CARGO_BEFORE_CHARGING"));
   const others = readJson("integration-slices/index.json").slices.filter((slice) => !["FP-IS-02", "FP-IS-13"].includes(slice.integrationSliceId));
   const stray = others.filter((slice) => slice.vectorIds.some((vectorId) => [...DEPARTURE_VECTORS, CHARGING_VECTOR].includes(vectorId)));
   assert.deepEqual(stray.map((slice) => slice.integrationSliceId), []);
@@ -304,21 +300,26 @@ test("candidate limitations do not claim the error registry changed", () => {
   assert.doesNotMatch(limitations, /the error registry and the conformance index all change/);
 });
 
-test("the wire notes state charging with cargo under TRANSPORT and the DEPARTURE check on the anchor demand", () => {
-  const body = section("Charging with cargo within a `TRANSPORT` journey");
-  assert.match(body, /`activePurpose` stays `TRANSPORT`; no purpose value is added/);
-  assert.match(body, /`ALLOCATED`, `EN_ROUTE`, `CHARGING`, `COMPLETE` or ends `UNABLE_TO_CHARGE`/);
-  assert.match(body, /`closedReason` `CHARGING_REQUIRED`/);
-  assert.match(body, /`stopPurposeCategory` `CHARGER`, `legType` `null` and `demandId` `null`/);
-  assert.match(body, /opens no entry and no slot/);
-  assert.match(body, /does not return to the staging station/);
-  assert.match(body, /`checkPurpose` `DEPARTURE` carrying the journey's anchor demand after any re-anchoring, which is a loaded demand/);
+test("the wire notes deliver the cargo before charging and close the loading phase with CHARGING_REQUIRED", () => {
+  const body = section("Charging required at a staging pickup stop");
+  assert.match(body, /delivers its cargo first and charges afterwards/);
+  assert.match(body, /at least one basket loaded and no slot operation running, a vehicle below the mandatory charge line departs as for an accepted departure/);
+  assert.match(body, /`loadingPhase` is `CLOSED` with `closedReason` `CHARGING_REQUIRED`, the loaded demands stay on the journey/);
+  assert.match(body, /never cancelled or suppressed and never counted against the station-timeout release limit/);
+  assert.match(body, /through the correction gate and the `DEPARTURE` safety check/);
+  assert.match(body, /gains no `CHARGER` leg, `activePurpose` stays `TRANSPORT` and `chargingCycleState` stays `NOT_CHARGING` while the journey lasts/);
+  assert.match(body, /Once the journey ends the existing charging allocation takes the vehicle/);
+  assert.match(body, /`activePurpose` becomes `CHARGING`, its moves are `NON_BUSINESS_MOVE` checks/);
+  assert.match(body, /does not return to the staging station before it charges/);
   assert.match(body, /`closedReason` `CHARGING_REQUIRED` appears only with cargo on board/);
-  // All three charging policy decisions apply under TRANSPORT; none ends the journey, and none skips charging.
-  assert.match(body, /all three values of `UnableToChargeFieldConfirmationResult\.chargingPolicyDecision` apply and none ends the journey or releases its cargo/);
-  for (const decision of ["RETRY_LATER", "REASSIGN_CHARGER", "MANUAL_CHARGING_HOLD"]) assert.match(body, new RegExp(`\`${decision}\`:`));
-  assert.match(body, /once the hold is lifted .*continues to its existing dropoff stops and does not return to the staging station/);
-  assert.match(body, /No decision skips charging and goes straight to the dropoffs/);
-  const decisions = payloadSchemaOf("UnableToChargeFieldConfirmationResult").properties.chargingPolicyDecision.anyOf[0].enum;
-  assert.deepEqual(decisions, ["RETRY_LATER", "MANUAL_CHARGING_HOLD", "REASSIGN_CHARGER"]);
+});
+
+test("the wire notes no longer charge with cargo inside a TRANSPORT journey", () => {
+  // protocol#15 withdrew the charging stop CP-0012 gave this candidate; none of its semantics may survive anywhere.
+  const notes = read("docs/wire-notes.md");
+  assert.doesNotMatch(notes, /## Charging with cargo within a `TRANSPORT` journey/);
+  assert.doesNotMatch(notes, /takes its cargo to a charger/);
+  assert.doesNotMatch(notes, /`stopPurposeCategory` `CHARGER`/);
+  assert.doesNotMatch(notes, /Under `TRANSPORT` all three values of `UnableToChargeFieldConfirmationResult/);
+  assert.doesNotMatch(notes, /runs `ALLOCATED`, `EN_ROUTE`, `CHARGING`, `COMPLETE`/);
 });
