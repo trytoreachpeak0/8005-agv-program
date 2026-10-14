@@ -34,7 +34,7 @@ LoadBatch 已经正式提交时，LoadTaskCancellation 是追加的补偿事实�
 
 车载端发起取消和显示裁决的具体消息交互遵守 ADR-cross-0052；点击取消不能直接修改本地 CurrentStopWorklist。
 
-**Status**: accepted
+**Status**: accepted（部分由 [ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md) 修订：STAGING_TO_WIRE 固定起点的取货停靠不提供未装任务的取消，清空取消完成后放回待派，2026-10-14 随 `CP-0012` 批准，见文末修订记录）
 
 **Considered Options**:
 - 仓位指令发出后完全禁止用户取消（拒绝：无法满足现场放弃任务并避免车辆再次回站的需求）
@@ -52,3 +52,13 @@ LoadBatch 已经正式提交时，LoadTaskCancellation 是追加的补偿事实�
 - 同车不同 SUBLOT 的装货、纠错、补偿和取消物理动作必须串行，不能让两个 SlotOperationAttemptId 同时拥有当前开锁集合。
 - 取消释放的仓位只在服务端完成取消并发布新版 CurrentStopWorklistSnapshot 后才可复用；车载端不能仅凭本地光幕 EMPTY 提前开始新 SUBLOT。
 - 取消必须形成服务端持久化抑制依据，不能因重启、断线或 MES 再次轮询而重新创建相同站点任务。
+
+## 修订记录
+
+- **2026-10-14，待送点取货停靠不提供未装任务的取消，清空取消改为放回待派（`CP-0012`，[ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md)）。**用户原话（经调度 C11 转达）：
+  「在staging的地方取消装货没有意义啊，我肯定要装货的」。
+  - 范围：**仅 STAGING_TO_WIRE 固定起点（`REQ-0324`）的取货停靠**。机台取货停靠照本文，一字不改。
+  - 本文首项「SlotOperationCommand 尚未发送且没有物理装载」的取消在该停靠不提供：车载端不显示，服务端拒绝（`ACTION_NOT_ALLOWED_IN_STATE`）。
+  - 第二项（正在装货、只装了一部分、已整批自动提交）的清空照本文进行，清空范围、`LoadCancelPending` 的完成条件与串行要求都不变；
+    但完成后**不**终结为 `CANCELLED_BY_OPERATOR`、**不**写取消抑制，该需求从本旅程释放、放回待派，仍为已受理（`REQ-0211` 修订文）。
+    理由：v2 对 MesIngest 只读，抑制等于这批料 v2 再也不派；在待送点，取消的意思只能是「这一篮这趟不带」。

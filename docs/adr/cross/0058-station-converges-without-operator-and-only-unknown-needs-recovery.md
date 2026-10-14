@@ -158,7 +158,7 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
 
    *2026-09-12 回写：已随 2026-09-09 的 RC 上线，2026-09-12 在真车上验收。见文末 Verification。*
 
-**Status**: accepted（2026-09-12 由 proposed 转，依据见文末 Verification）
+**Status**: accepted（2026-09-12 由 proposed 转，依据见文末 Verification；决策 7 在 STAGING_TO_WIRE 固定起点的取货停靠不触发，由 [ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md) 修订，2026-10-14 随 `CP-0012` 批准，见文末修订记录）
 
 **Considered Options**:
 - 维持现状，靠 `recoveryResumeEnabled` 打开 HMI 恢复入口（拒绝：把每一次操作员迟疑都升级为需要
@@ -363,3 +363,15 @@ PR #103）：
 - 真装置 L2：`real-onboard-load-door-closed-empty-reopens` 与 `real-onboard-cancellation-authorization-lost`
   由 control-server#86、#88 在 v2 线补跑，本节写成时还没有跑。
 - 真车现场：v2 线还没有上车，SC1-B 那一格的替代验收（期限过后空关重开、操作员按取消收口）要等备用车窗口。
+
+## 修订记录
+
+- **2026-10-14，决策 7 在待送点取货停靠不触发（`CP-0012`，[ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md)）。**
+  - 范围：**仅 STAGING_TO_WIRE 固定起点（`REQ-0324`）的取货停靠**。该停靠没有站点离站等待期限（ADR-cross-0055 修订记录），未录入
+    SUBLOT 不会超时，决策 7 的超时终结与 control-server#703 的超时放回、次数上限都不会发生。没装的需求只在操作员出发或缺电时离开
+    这一站，且是放回待派，不终结、不抑制。
+  - 决策 1、5 的 2026-09-18 改写（期限前后一样重开、放弃装货只有操作员按取消一个出口）在待送点照旧；只是装货中取消完成后放回待派，
+    不以 `CANCELLED_BY_OPERATOR` 终结（ADR-cross-0046 修订记录）。期限后的提示文案在待送点没有「已过期多久」可显示。
+  - **如实补记一句，不属于本次修订**：机台取货停靠上，决策 7 的「超时终结并按业务键永久抑制」已由 control-server#703（已关闭）在实现上
+    改为放回待派、第 3 次起终结并告警（服务端 `StationTimeoutRedispatchLimit = 2`）。本文决策 7 与 `FR-031` AC-5 的正文尚未据此改写；
+    `CP-0012` 只为待送点开例外，不替机台那一半改条文。

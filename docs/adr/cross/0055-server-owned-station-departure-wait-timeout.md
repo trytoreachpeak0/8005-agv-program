@@ -4,7 +4,7 @@
 
 StationDepartureWaiting 只适用于服务端裁定可继续装货的站点。纯卸货站卸完直接结束；装卸混合站须先完成全部卸货。部分 LoadBatch、LoadCorrectionPending、活动仓位操作、状态未知或断联均阻断倒计时离站；部分装货无进展达到同一时长时只告警。倒计时期间断联使本轮截止时间失效，恢复握手和投影对账完成后重新计满。装货开始、纠错开始与超时提交在服务端原子互斥，以先成功持久化者生效。
 
-**Status**: accepted
+**Status**: accepted（部分由 [ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md) 修订：STAGING_TO_WIRE 固定起点的取货停靠不设离站等待期限，2026-10-14 随 `CP-0012` 批准，见文末修订记录）
 
 **Considered Options**:
 - 车载端独立倒计时并直接发车（拒绝：车载端不拥有任务、调度和取消事实）
@@ -146,3 +146,15 @@ control-server#646（PR trytoreachpeak0/8005-agv-control-server#660）改了上�
 4. **只截短不延长。**宽限比期限长，或超时关闭（期限为空）时，与原来一样。下一个停靠是同站卸货（规划器落下的先装后卸）不在条件内，归 control-server#647。
 
 本节没有改表格里任何一行，也没有核其他行。
+
+## 修订记录
+
+- **2026-10-14，待送点取货停靠不设离站等待期限（`CP-0012`，[ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md)）。**用户在 v2 首次试上生产后定（经调度 C11 转达）：
+  「倒计时也没有意义，如果不装货，这个除非没电了去充电，否则这个车不应该离开取货点」。
+  - 范围：**仅 STAGING_TO_WIRE 固定起点（`REQ-0324`）的取货停靠**。机台取货停靠照本文，一字不改。
+  - 该停靠不形成 StationDepartureWaitTimeout，下发的 `stationDepartureDeadlineAt` 为空，车载端显示「无倒计时」；不到期结束本站，
+    不以 `CANCELLED_BY_STATION_TIMEOUT` 终结需求，也不走 control-server#703 的超时放回与次数上限。
+  - 离站改由装货阶段的结束驱动：全部分组无空仓、候选全部只因容量装不下、操作员在车载屏点「出发」、电量达到强制充电线、让站
+    （`REQ-0354` 修订文）。前两种立即离站，不留纠错宽限（`REQ-0237` 修订文）。
+  - 本文的「已核验操作员主动结束本站」（UC-002「本站装货完成」）在待送点上落成「出发」：没装的需求放回待派，不以
+    `CANCELLED_BY_STOP_COMPLETE` 终结、不写抑制。机台上这个入口仍未实现，仍是原文的取消语义。

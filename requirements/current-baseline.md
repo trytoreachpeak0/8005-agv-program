@@ -1,11 +1,11 @@
 # 当前需求基线
 
-- Version: `v1.10.0`
-- Baseline: [current-requirements-v1.10.0.md](baselines/current-requirements-v1.10.0.md)
-- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0011.md](change-proposals/CP-0011.md)
-- Baseline SHA-256: `f624dfdbd4d973edd06d76b7529aed16613b8eea4a53d685b2c59587c4d6fe35`
-- Content Git Commit: `b62f431e88fa8ca881296be71d92f7f3343af6be`
-- Annotated Git Tag: `requirements-baseline-v1.10.0`
+- Version: `v1.11.0`
+- Baseline: [current-requirements-v1.11.0.md](baselines/current-requirements-v1.11.0.md)
+- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0012.md](change-proposals/CP-0012.md)
+- Baseline SHA-256: `80ec474ee00ebd1865e673b3dca04abe20c9d665fc7ff361a27c31cd54b51dc6`
+- Content Git Commit: `20a863547887bf7db5594b4b13213fd9da549e9a`
+- Annotated Git Tag: `requirements-baseline-v1.11.0`
 
 本文件是唯一当前版本指针。候选版本在正式批准、提交并创建发布 tag 前不得替换此指针。
 
@@ -15,6 +15,7 @@
 
 | 版本 | 文件 | Baseline SHA-256 | Content Git Commit | Annotated Tag |
 | --- | --- | --- | --- | --- |
+| `v1.11.0` | [current-requirements-v1.11.0.md](baselines/current-requirements-v1.11.0.md) | `80ec474ee00ebd1865e673b3dca04abe20c9d665fc7ff361a27c31cd54b51dc6` | `20a863547887bf7db5594b4b13213fd9da549e9a` | `requirements-baseline-v1.11.0` |
 | `v1.10.0` | [current-requirements-v1.10.0.md](baselines/current-requirements-v1.10.0.md) | `f624dfdbd4d973edd06d76b7529aed16613b8eea4a53d685b2c59587c4d6fe35` | `b62f431e88fa8ca881296be71d92f7f3343af6be` | `requirements-baseline-v1.10.0` |
 | `v1.9.0` | [current-requirements-v1.9.0.md](baselines/current-requirements-v1.9.0.md) | `a3fb434c9fdc31a983b5e972b5ef4393e80e2ba8f163ba376d99a3d50239b986` | `00dd21f62238622adeed9d3af114315b25ba39bd` | `requirements-baseline-v1.9.0` |
 | `v1.8.0` | [current-requirements-v1.8.0.md](baselines/current-requirements-v1.8.0.md) | `1addf6a108ec18a55e466427f180cf5fb2ca078411f3b3dd037b3f76255e9bf8` | `fb851a2306a6dfea408e81fa3c88b22637412aeb` | `requirements-baseline-v1.8.0` |
@@ -39,6 +40,7 @@ git cat-file blob <tag>:requirements/baselines/current-requirements-<版本>.md 
 
 | 版本 | 日期 | 变更提案 | 内容 |
 | --- | --- | --- | --- |
+| `v1.11.0` | 2026-10-14 | [`CP-0012`](change-proposals/CP-0012.md) | 待送点取货由仓满或客户出发驱动离站，仅适用于 STAGING_TO_WIRE 固定起点的取货停靠、机台取货不变：修订 `REQ-0354`（不持货超时、恒持货等单；全部分组无空仓或候选全部只因容量装不下（含 9 段、8 条上限）时在已承诺需求装完后立即离站；操作员出发与缺电也结束装货阶段，没装的放回待派）、`REQ-0355`（不设站点离站等待期限）、`REQ-0237`（满或全部装不下时不留纠错宽限）、`REQ-0211`（不提供未装任务的取消，清空取消改为放回待派）、`REQ-0281`（缺电中断装货去充电，有货时插入充电停靠、充完直接送货）、`REQ-0290`（带货充电停靠属于原搬运用途）。`FR-031`、`UC-002`、`UC-006` 与 `CONTEXT.md` 随之改写，新建 ADR-cross-0065。共 364 条 |
 | `v1.10.0` | 2026-10-13 | [`CP-0011`](change-proposals/CP-0011.md) | 急停分三类：修订 `REQ-0248`（一类不可恢复、二类可恢复由其自身入口解除，8005 不阻拦；8005 有停车原因时不论是否已锁住都下达三类，车已处于急停时只记下、不另发；三类未经本服务端解除而回到 `OK` 时立即重触发）、`REQ-0356`（三类的人工解除入口；有货时持异常处置权限的管理员本人凭据解除，唯一的 8005 HELD 订单可不先取消，不可改写审计；叠着的二类一并解除）、`REQ-0167`（三类原因消除后自动解除，行驶中仓门未能证明锁闭的除外，车保持故障阻断、人员确认门锁检修后解除）、`REQ-0246`（订单 FAILED 形成的故障不升级急停）。RIoT 调用白名单第 1.5 节与 `CONTEXT.md` 随之改写，新建 ADR-cross-0064。共 364 条 |
 | `v1.9.0` | 2026-10-01 | [`CP-0010`](change-proposals/CP-0010.md) | 本服务端自建的充电订单可以取消，建单补上充电单形态：修订 `REQ-0148`（本服务端自建的充电订单另在两种情形下可以取消——按 `REQ-0178` 进入清桩中后旧充电订单尚未终结，或已放弃的充电订单事后在 RIoT 出现且不在非 8005 管辖车辆上执行；归属凭订单意图与充电周期记录，只发一次，结果未知对账告警，不改单不重建；追认 control-server#404 已有的取消）、`REQ-0147`（本服务端的充电订单另可在同一端点建两段式 `move(名册内的桩)` 加 `act(78, 1, 0)`，不批其它动作或参数，离桩的 `act(78, 2, 0)` 由 RIoT 自动插入）。RIoT 调用白名单第 1.2、1.3 节与 `CONTEXT.md`「受控业务终止」随之改写。共 364 条 |
 | `v1.8.0` | 2026-09-29 | [`CP-0009`](change-proposals/CP-0009.md) | 光幕证明取空即结清装货侧货物业务，仓门锁闭证明改为车辆放行条件：修订 `REQ-0357`（取消清空与补偿清空中光幕明确 `EMPTY`、仓门不能证明锁闭的仓位业务按 `EMPTY` 结清，仓门不算闭环，此后不再开门）、`REQ-0238`（双路径只管车上有货或可能有货的情形）；新增 `REQ-0364`（按全空结局终结需求、终态与抑制同正常全空取消或补偿；整车扣到维修记录加新鲜锁闭证明，换硬件按 `REQ-0263` 重核）。新建 ADR-cross-0063。共 364 条 |
