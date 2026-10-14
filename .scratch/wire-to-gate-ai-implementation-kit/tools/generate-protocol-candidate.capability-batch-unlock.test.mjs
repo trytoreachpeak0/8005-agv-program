@@ -13,12 +13,12 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const generatorPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "generate-protocol-candidate.mjs");
-const COMMON = "https://schemas.8005-agv.local/agv-full-product/v4/common/types.schema.json#/$defs/";
+const COMMON = "https://schemas.8005-agv.local/agv-full-product/v5/common/types.schema.json#/$defs/";
 const ref = (name) => ({ $ref: `${COMMON}${name}` });
 const DROPPED = "supportsBatchUnlock";
 
 // CapabilitySnapshot payload fields as protocol-v2.0.0 released them, minus supportsBatchUnlock, in
-// release order. The only other difference is the schema base, v3 there and v4 in this candidate.
+// release order. The only other difference is the schema base, v3 there and v5 in this candidate.
 const V2_FIELDS_KEPT = {
   capabilityVersion: ref("Revision"),
   observedAt: ref("Instant"),

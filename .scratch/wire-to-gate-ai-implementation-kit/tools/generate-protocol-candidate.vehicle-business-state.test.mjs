@@ -60,7 +60,8 @@ test("loadingPhase is required and nullable, and its object carries exactly stat
   assert.match(nonNull(phase.properties.cargoHoldingDeadlineAt).$ref, /\/common\/types\.schema\.json#\/\$defs\/Instant$/);
   assert.deepEqual(nonNull(phase.properties.closedReason), {
     type: "string",
-    enum: ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE"],
+    // 4.0.0 appends OPERATOR_DEPARTED and CHARGING_REQUIRED (program#185 CP-0012, protocol#13).
+    enum: ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE", "OPERATOR_DEPARTED", "CHARGING_REQUIRED"],
   });
 });
 
@@ -93,7 +94,7 @@ const withoutPointer = (value, pointer) => {
   return copy;
 };
 const STATES = ["LOADING", "CARGO_HOLDING_WAIT", "VEHICLE_FULL", "CLOSED"];
-const REASONS = ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE"];
+const REASONS = ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE", "OPERATOR_DEPARTED", "CHARGING_REQUIRED"];
 const CYCLE = ["NOT_CHARGING", "ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE", "UNKNOWN"];
 const notString = (value) => value !== undefined && typeof value !== "string";
 const notStringOrNull = (value) => value !== undefined && value !== null && typeof value !== "string";

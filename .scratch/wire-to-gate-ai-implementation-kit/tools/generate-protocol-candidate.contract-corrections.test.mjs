@@ -168,7 +168,8 @@ const WORKLIST = "CurrentStopWorklistSnapshot";
 const REASON = "stopEndedReason";
 // One operator-facing reason per way the control server sends an empty worklist (fp/v2-impl@0c0edfa5): JourneyClosure
 // and StopEndWorklist are the only two places that build one, and every caller of either names why the stop ended.
-const STOP_END_REASONS = ["COMPLETED", "STATION_DEADLINE_EXPIRED", "LOAD_CANCELLED", "LOAD_COMPENSATED", "CARGO_HANDED_OFF", "DEMAND_RELEASED", "TRIP_TERMINATED"];
+// 4.0.0 appends OPERATOR_DEPARTED and CHARGING_REQUIRED, two more ways a staging pickup stop ends (program#185 CP-0012, protocol#13).
+const STOP_END_REASONS = ["COMPLETED", "STATION_DEADLINE_EXPIRED", "LOAD_CANCELLED", "LOAD_COMPENSATED", "CARGO_HANDED_OFF", "DEMAND_RELEASED", "TRIP_TERMINATED", "OPERATOR_DEPARTED", "CHARGING_REQUIRED"];
 // The worklist item protocol-v2.0.0 released; G1 compares its required list verbatim (FP-IS-01 worklist Demand representation).
 const V2_ITEM_FIELDS = ["demandId", "transportDemandKey", "sublot", "workType", "stopRole", "expectedBasketCount"];
 const worklist = (items, reason) => ({ ...validOf(WORKLIST).payload, items, [REASON]: reason });
@@ -359,7 +360,7 @@ test(`${RELEASE} is a recovery action a session may offer, select and accept`, (
 
 // The release reuses the hardware recovery record exactly as 2.0.0 released it: both messages are pinned whole, so a field made
 // nullable or dropped on either side turns this red.
-const TYPES = "https://schemas.8005-agv.local/agv-full-product/v4/common/types.schema.json#/$defs/";
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v5/common/types.schema.json#/$defs/";
 const ref = (name) => ({ $ref: `${TYPES}${name}` });
 const nonEmptyStrings = { type: "array", items: { type: "string", minLength: 1 }, minItems: 1 };
 
@@ -550,30 +551,6 @@ test(`FP-IS-07 binds ${DOOR_VECTOR} and ${RELEASE_VECTOR} and names the hold and
   assert.ok(slice.definition.ownerResponsibilities.onboardHmi.includes("SUBMIT_REPAIR_RECORD_WITHOUT_SLOT_IO"));
 });
 
-// --- the compatibility report sentences of this ticket ---
-
-test("compatibility report sentences 5 to 10 state this ticket's changes in their final shape", () => {
-  const summary = readJson("compatibility/report.json").changeSummary;
-  assert.match(summary[4], /^Vector CV-TASK-TYPE-ADMISSION-FAIL-CLOSED and slice FP-IS-10 drop the onboard assertion DISPLAY_ADMISSION_BLOCK_REASON/);
-  // The latch borrowed two codes, not one: DEPARTURE_UNSAFE in the safety summary and VEHICLE_NOT_READY on a refused slot.
-  assert.match(summary[5], /ONBOARD_FATAL_FAULT_LATCHED/);
-  assert.match(summary[5], /DEPARTURE_UNSAFE/);
-  assert.match(summary[5], /VEHICLE_NOT_READY/);
-  assert.match(summary[6], /CurrentStopWorklistSnapshot gains a required, nullable stopEndedReason/);
-  assert.match(summary[6], /null while the worklist has items/);
-  assert.match(summary[7], /SublotEntryRequested\.expiresOnRevisionChange gains a description/);
-  assert.match(summary[8], /ALL_EMPTY_DOOR_UNPROVEN/);
-  assert.match(summary[8], /ALL_EMPTY keeps its meaning/);
-  assert.match(summary[8], /SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY/);
-  assert.match(summary[8], /CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN/);
-  assert.match(summary[8], /CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN/);
-  assert.match(summary[8], /HARDWARE_REPAIR_RELEASE/);
-  assert.match(summary[8], /CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE/);
-  assert.match(summary[8], /checkPurpose HOLD_RELEASE/);
-  assert.match(summary[8], /CP-0009/);
-  assert.match(summary[9], /^PreDepartureSafetyCheck and PreDepartureSafetyCheckResult gain a required checkPurpose/);
-  assert.match(summary[9], /DEPARTURE/);
-  assert.match(summary[9], /NON_BUSINESS_MOVE/);
-  assert.match(summary[9], /HOLD_RELEASE/);
-  assert.match(summary[9], /ADR-cross-0009/);
-});
+// The 3.0.0 compatibility report sentences this ticket wrote are released history: protocol-v3.0.0 (3f091cb2) carries them
+// in compatibility/report.json. The 4.0.0 candidate's report summarises the changes against protocol-v3.0.0 instead, and
+// the identity test anchors those.

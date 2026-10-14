@@ -295,17 +295,8 @@ test(`${FORCED_VECTOR} keeps its messages and asserts the named handoff and a wa
   assert.equal(expected.stableErrorCode, null);
 });
 
-// The identity test anchors this sentence only on its two names; these pin what it says, so it cannot drift back to the
-// unidentified branch or to a record that does not depend on the demand.
-test("compatibility report sentence 3 states the record rule of this release", () => {
-  const sentence = readJson("compatibility/report.json").changeSummary[2];
-  assert.match(sentence, /^ForcedMechanicalRecoveryResult gains a required, nullable demandId copied from its command/);
-  assert.match(sentence, /cargoHandoff record naming the SUBLOT of the removed cargo, the person it was handed to and when/);
-  assert.match(sentence, /present exactly when the outcome is MECHANICALLY_ISOLATED on a session with a demand/);
-  assert.match(sentence, /electronicEmptyProven and vehicleReadyProven stay false/);
-  assert.match(sentence, /unidentified-cargo branch this release leaves out/);
-  assert.doesNotMatch(sentence, /pending inventory|described physically/);
-});
+// The 3.0.0 report sentence on the forced-removal record is released history: protocol-v3.0.0 (3f091cb2) carries it. The
+// 4.0.0 candidate's report summarises the changes against protocol-v3.0.0.
 
 test("FP-IS-07 binds the new vector and names the close reason and the handoff record in its outcomes and responsibilities", () => {
   const slice = readJson("integration-slices/index.json").slices.find((item) => item.integrationSliceId === "FP-IS-07");

@@ -54,14 +54,14 @@ const SCHEMA = "https://json-schema.org/draft/2020-12/schema";
 // Candidate identity. Everything written below derives from these constants, so moving the
 // candidate to another protocol version, profile or release version is an edit of this block
 // alone. Never reintroduce these values as literals in the write-out region.
-const BASE_ID = "https://schemas.8005-agv.local/agv-full-product/v4";
-const candidateVersion = "3.0.0";
+const BASE_ID = "https://schemas.8005-agv.local/agv-full-product/v5";
+const candidateVersion = "4.0.0";
 const profileId = "AGV_FULL_PRODUCT";
 const profileDisplayName = "AGV_FULL_PRODUCT";
-const protocolVersion = 4;
-const baseReleaseTag = "protocol-v2.0.0";
+const protocolVersion = 5;
+const baseReleaseTag = "protocol-v3.0.0";
 // Fixed so the candidate tools stay byte-reproducible; it is a candidate stamp, not a build clock.
-const candidateTimestamp = "2026-09-29T00:00:00Z";
+const candidateTimestamp = "2026-10-14T00:00:00Z";
 
 const writeJson = (relative, value) => {
   const file = path.join(root, relative);
@@ -382,6 +382,7 @@ const reliableNames = new Set([
   "ForcedMechanicalRecoveryCommand", "ForcedMechanicalRecoveryResult",
   "SlotConfigurationActivationCommand", "SlotConfigurationActivationResult",
   "SlotFaultDeclarationCommand", "SlotFaultDeclarationResult",
+  "CurrentStopDepartureRequested", "CurrentStopDepartureResult",
 ]);
 
 const directions = {
@@ -403,6 +404,7 @@ const directions = {
   SlotConfigurationActivationCommand: "C_TO_O", SlotConfigurationActivationResult: "O_TO_C",
   OnboardAlarmSnapshot: "O_TO_C",
   SlotFaultDeclarationCommand: "C_TO_O", SlotFaultDeclarationResult: "O_TO_C",
+  CurrentStopDepartureRequested: "O_TO_C", CurrentStopDepartureResult: "C_TO_O",
 };
 
 const specs = {};
@@ -436,15 +438,22 @@ add("SafetyStateSnapshot", { safetyStateVersion: R("Revision"), observedAt: R("I
 // result echoes the purpose, so the answer says what it answers.
 add("PreDepartureSafetyCheck", { preDepartureSafetyCheckId: R("Id"), checkPurpose: E(...checkPurposes), demandId: Nullable(R("Id")), movementLegId: Nullable(R("Id")), expectedSafetyStateVersion: R("Revision"), targetStationId: Nullable(S()) }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
 add("PreDepartureSafetyCheckResult", { preDepartureSafetyCheckId: R("Id"), checkPurpose: E(...checkPurposes), outcome: E("SAFE", "UNSAFE", "UNKNOWN"), observedAt: R("Instant"), safetyStateVersion: R("Revision"), validUntil: R("Instant"), safety: R("SafetySummary") }, { businessDedupKeys: ["preDepartureSafetyCheckId"] });
+// Release 4.0.0 (program#185 CP-0012, protocol#13) appends two ways a loading phase and a stop end, to both closed enums
+// alike, so the vehicle tells the operator the same thing in the phase and on the empty worklist: OPERATOR_DEPARTED, the
+// operator pressed depart at a STAGING_TO_WIRE staging pickup stop (CurrentStopDepartureRequested); CHARGING_REQUIRED, the
+// vehicle fell below the mandatory charge line there and takes its cargo to a charger within the same TRANSPORT journey.
+// Appended, so the released values keep their order.
+const loadingClosedReasons = ["VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE", "OPERATOR_DEPARTED", "CHARGING_REQUIRED"];
+const stopEndedReasons = ["COMPLETED", "STATION_DEADLINE_EXPIRED", "LOAD_CANCELLED", "LOAD_COMPENSATED", "CARGO_HANDED_OFF", "DEMAND_RELEASED", "TRIP_TERMINATED", "OPERATOR_DEPARTED", "CHARGING_REQUIRED"];
 // Release 2.0.0 (program#94): batteryState and chargingCycleState are orthogonal, per full-product
 // ticket 06's B5 table. loadingPhase is null without a transport journey, and carries a closedReason
 // exactly when its state is CLOSED.
-add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN", "MANDATORY_CHARGE"), chargingCycleState: E("NOT_CHARGING", "ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE", "UNKNOWN"), loadingPhase: Nullable(O({ state: E("LOADING", "CARGO_HOLDING_WAIT", "VEHICLE_FULL", "CLOSED"), cargoHoldingDeadlineAt: Nullable(R("Instant")), closedReason: Nullable(E("VEHICLE_FULL", "CARGO_HOLDING_TIMEOUT", "WAITING_STATION_YIELD", "PLANNED_LOADING_COMPLETE")) }, { if: { properties: { state: { const: "CLOSED" } }, required: ["state"] }, then: { properties: { closedReason: { type: "string" } } }, else: { properties: { closedReason: { type: "null" } } } })), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
+add("VehicleBusinessStateSnapshot", { vehicleBusinessStateRevision: R("Revision"), readiness: E("READY", "RECOVERY_REQUIRED"), activePurpose: Nullable(E("TRANSPORT", "CHARGING", "CLEARING_MAINTENANCE", "IDLE_RETURN")), manualChargingHold: B(), batteryState: E("SUFFICIENT", "LOW", "UNKNOWN", "MANDATORY_CHARGE"), chargingCycleState: E("NOT_CHARGING", "ALLOCATED", "EN_ROUTE", "CHARGING", "COMPLETE", "UNABLE_TO_CHARGE", "UNKNOWN"), loadingPhase: Nullable(O({ state: E("LOADING", "CARGO_HOLDING_WAIT", "VEHICLE_FULL", "CLOSED"), cargoHoldingDeadlineAt: Nullable(R("Instant")), closedReason: Nullable(E(...loadingClosedReasons)) }, { if: { properties: { state: { const: "CLOSED" } }, required: ["state"] }, then: { properties: { closedReason: { type: "string" } } }, else: { properties: { closedReason: { type: "null" } } } })), blockingFacts: A(R("BlockingFact"), { uniqueItems: true }), observedAt: R("Instant") });
 // Release 3.0.0 (program#86, #150): stopEndedReason says why the stop ended, so the vehicle can tell the operator more than
 // "nothing pending". Null while the worklist has items; required once it is empty, because the control server sends an
 // empty worklist from exactly two places (JourneyClosure, StopEndWorklist) and every caller of either knows why. The
 // reasons are the operator's, one per way a stop ends, not the demands' terminal codes. The item shape is 2.0.0's.
-add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }), stopEndedReason: Nullable(E("COMPLETED", "STATION_DEADLINE_EXPIRED", "LOAD_CANCELLED", "LOAD_COMPENSATED", "CARGO_HANDED_OFF", "DEMAND_RELEASED", "TRIP_TERMINATED")) }, { businessDedupKeys: ["worklistRevision"] });
+add("CurrentStopWorklistSnapshot", { stationId: S(), worklistRevision: R("Revision"), operationSessionId: Nullable(R("Id")), stationDepartureDeadlineAt: Nullable(R("Instant")), items: A(O({ demandId: R("Id"), transportDemandKey: S(), sublot: S(), workType: R("TransportTaskType"), stopRole: E("PICKUP", "DROPOFF"), expectedBasketCount: I({ minimum: 1, maximum: 8 }) }), { maxItems: 8 }), stopEndedReason: Nullable(E(...stopEndedReasons)) }, { businessDedupKeys: ["worklistRevision"] });
 add("UpcomingStopPlanSnapshot", { planRevision: R("Revision"), legs: A(O({ movementLegId: R("Id"), legType: Nullable(E("TO_PICKUP", "TO_DROPOFF")), stopPurposeCategory: R("StopPurposeCategory"), demandId: Nullable(R("Id")), publicStationFunction: Nullable(R("PublicStationFunction")), sequence: I({ minimum: 1, maximum: 9 }), stationId: S(), mapId: S(), state: E("PLANNED", "ACTIVE", "ARRIVED", "COMPLETED", "BLOCKED") }), { maxItems: 9, uniqueItems: true, "x-sortedBy": "sequence" }) }, { businessDedupKeys: ["planRevision"] });
 // Release 2.0.0: sublot entry is scoped to the dispatch. The control server offers every SUBLOT in
 // scope, the vehicle reports only what was scanned, and the control server resolves the demand
@@ -550,6 +559,17 @@ add("OnboardAlarmSnapshot", { alarmSnapshotRevision: R("Revision"), observedAt: 
 add("SlotFaultDeclarationCommand", { declarationId: R("Id"), demandId: R("Id"), slotOperationAttemptId: R("Id"), slotNo: R("SlotNo"), administrator: R("OperatorContext"), administratorRole: E("MAINTENANCE_ADMINISTRATOR", "SYSTEM_ADMINISTRATOR"), faultCategory: E("LOCK", "LIGHT_CURTAIN", "DOOR_MECHANISM", "IO_MODULE"), note: S(), declaredAt: R("Instant") }, { businessDedupKeys: ["declarationId"], recoveryRole: "SLOT_FAULT_DECLARATION" });
 add("SlotFaultDeclarationResult", { declarationId: R("Id"), slotOperationAttemptId: R("Id"), outcome: E("APPLIED", "NOT_APPLICABLE"), problem: Nullable(R("Problem")) }, { businessDedupKeys: ["declarationId"], recoveryRole: "PENDING_RESULT_REPLAY" });
 
+// Release 4.0.0 (program#185 CP-0012, protocol#13): the operator asks to leave the current stop now. Both messages are RELIABLE,
+// the SlotFaultDeclaration shape: the press is journaled before it is sent and survives a disconnect, and the control
+// server's answer is durable and replayed, so a refusal is never lost behind a DurableAck that only says "received".
+// correlationId stays null and departureRequestId alone ties the result to the request; the same departureRequestId again is
+// answered with the same result and no second effect. The request echoes the worklist the vehicle shows: operationSessionId
+// is null whenever that worklist carries none, which an empty worklist always does -- and a vehicle holding cargo at the
+// staging station, where depart is pressed most, shows an empty one. ACCEPTED is followed by the snapshots that carry the
+// departure (loadingPhase CLOSED with OPERATOR_DEPARTED, the worklist, the plan); REJECTED carries why and changes nothing.
+add("CurrentStopDepartureRequested", { departureRequestId: R("Id"), operationSessionId: Nullable(R("Id")), stationId: S(), worklistRevision: R("Revision"), operator: R("OperatorContext") }, { businessDedupKeys: ["departureRequestId"], recoveryRole: "CURRENT_STOP_DEPARTURE" });
+add("CurrentStopDepartureResult", { departureRequestId: R("Id"), outcome: E("ACCEPTED", "REJECTED"), problem: Nullable(R("Problem")), currentWorklistRevision: R("Revision") }, { businessDedupKeys: ["departureRequestId"], recoveryRole: "PENDING_RESULT_REPLAY" });
+
 const denylist = ["OperationCancelCommand", "LoadCancellationCommand", "LoadFinalConfirmation", "UnloadCommand", "SublotAccepted", "OperationCommandAck", "OperationResultAck", "LoadCompensationCommandAck", "WireToGateExecutionSnapshot", "DepartureSafetyRevoked", "OnboardCapabilitySnapshot"];
 
 const commonSchema = { $schema: SCHEMA, $id: `${BASE_ID}/common/types.schema.json`, title: `${profileDisplayName} common types`, $defs: defs };
@@ -598,6 +618,14 @@ for (const spec of Object.values(specs)) {
   if (spec.name === "SlotFaultDeclarationResult") {
     Object.assign(schema.properties.payload, {
       if: { properties: { outcome: { const: "NOT_APPLICABLE" } }, required: ["outcome"] },
+      then: { properties: { problem: { type: "object" } } },
+      else: { properties: { problem: { type: "null" } } },
+    });
+  }
+  // A refused departure says why; an accepted one has nothing to explain.
+  if (spec.name === "CurrentStopDepartureResult") {
+    Object.assign(schema.properties.payload, {
+      if: { properties: { outcome: { const: "REJECTED" } }, required: ["outcome"] },
       then: { properties: { problem: { type: "object" } } },
       else: { properties: { problem: { type: "null" } } },
     });
@@ -727,6 +755,8 @@ const envelopeFor = (spec) => {
   if (spec.name === "VehicleBusinessStateSnapshot") value.payload.loadingPhase.closedReason = null;
   // The sampler takes APPLIED and a Problem object, but an applied declaration carries no problem.
   if (spec.name === "SlotFaultDeclarationResult") value.payload.problem = null;
+  // The sampler takes ACCEPTED and a Problem object, but an accepted departure carries no problem.
+  if (spec.name === "CurrentStopDepartureResult") value.payload.problem = null;
   // The sampler takes OPEN and an ErrorCode, but only a CLOSED session states why it closed.
   if (spec.name === "ExceptionRecoverySessionSnapshot") value.payload.closedReason = null;
   // The sampler takes one item and a reason, but a worklist with items has not ended its stop.
@@ -820,6 +850,11 @@ for (const spec of Object.values(specs)) {
   if (spec.name === "SlotFaultDeclarationResult") {
     payloadNegative("IF-THEN-problem-NOT_APPLICABLE", "/payload/problem", "if-then", (payload) => { payload.outcome = "NOT_APPLICABLE"; });
     payloadNegative("IF-THEN-problem-APPLIED", "/payload/problem", "if-then", (payload) => { payload.problem = { reasonCode: "ACTION_NOT_ALLOWED_IN_STATE", fieldPath: null, displayMessage: null }; });
+  }
+  // Both sides of the departure result's correspondence: a refusal without a reason, an accepted one with a problem.
+  if (spec.name === "CurrentStopDepartureResult") {
+    payloadNegative("IF-THEN-problem-REJECTED", "/payload/problem", "if-then", (payload) => { payload.outcome = "REJECTED"; });
+    payloadNegative("IF-THEN-problem-ACCEPTED", "/payload/problem", "if-then", (payload) => { payload.problem = { reasonCode: "WORKLIST_REVISION_STALE", fieldPath: null, displayMessage: null }; });
   }
   // Both sides of the record correspondence: isolated on a demand without a record, a record without a demand, and a record
   // on a FAILED and on an UNKNOWN result.
@@ -1168,6 +1203,80 @@ const trajectories = {
     },
     finalState: { readiness: "READY", business: "DOOR_HOLD_LIFTED_RELEASE_SESSION_CLOSED", physical: "HELD_SLOTS_LOCKED_RESET_EMPTY" },
   },
+
+  // --- 4.0.0 additions (program#185 CP-0012, protocol#13) ---
+  // The operator presses depart at a STAGING_TO_WIRE staging pickup stop. The request is journaled and acknowledged, the
+  // control server answers ACCEPTED, then publishes the departure: loadingPhase CLOSED with OPERATOR_DEPARTED, the worklist
+  // (empty with stopEndedReason OPERATOR_DEPARTED when the stop ends with demands not loaded), the plan, and the normal
+  // departure check. Demands not loaded are released back to dispatch -- not cancelled, not suppressed, not counted against
+  // the station-timeout release limit -- and loaded ones stay on the journey. With nothing loaded the journey closes and the
+  // vehicle stays where it is. The correction gate and the departure safety check hold the vehicle exactly as before.
+  "CV-CURRENT-STOP-DEPARTURE-ACCEPTED": {
+    messages: wire("CurrentStopDepartureRequested", "DurableAck", "CurrentStopDepartureResult", "DurableAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "CurrentStopWorklistSnapshot", "SnapshotAppliedAck", "UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult"),
+    persistenceCheckpoints: ["departure-request-journaled-before-send", "departure-request-durable-before-ack", "departure-decision-and-releases-durable-before-result", "result-before-replay", "snapshot-before-ack"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "departure-cancels-or-suppresses-unloaded-demand", "departure-counts-against-station-timeout-release-limit", "departure-bypasses-correction-gate-or-safety-check", "departure-accepted-at-a-machine-pickup-stop", "vehicle-moved-after-departure-with-nothing-loaded"],
+    productAssertions: {
+      controlServer: ["ACCEPT_DEPARTURE_ONLY_AT_STAGING_PICKUP_STOP", "RELEASE_UNLOADED_DEMANDS_WITHOUT_CANCEL_OR_SUPPRESSION", "KEEP_LOADED_DEMANDS_ON_JOURNEY", "CLOSE_LOADING_PHASE_WITH_OPERATOR_DEPARTED", "CLOSE_JOURNEY_IN_PLACE_WHEN_NOTHING_LOADED", "DEPART_THROUGH_CORRECTION_GATE_AND_SAFETY_CHECK", "AUDIT_DEPARTURE_OPERATOR"],
+      onboardHmi: ["OFFER_DEPART_ONLY_AT_STAGING_PICKUP_STOP", "NEVER_OFFER_DEPART_DURING_SLOT_OPERATION_OR_CORRECTION", "JOURNAL_DEPARTURE_REQUEST_BEFORE_SENDING", "ECHO_DISPLAYED_WORKLIST_IN_REQUEST", "DISPLAY_DEPARTURE_FROM_SNAPSHOTS", "NEVER_DEPART_LOCALLY"],
+    },
+    finalState: { readiness: "READY", business: "LOADING_PHASE_CLOSED_OPERATOR_DEPARTED_UNLOADED_DEMANDS_RELEASED", physical: "LOADED_SLOTS_OCCUPIED_LOCKED_RESET" },
+  },
+  // The worklist moved on while the operator decided -- typically a demand appended at the same stop. The control server
+  // refuses with WORKLIST_REVISION_STALE and the current revision, so the operator sees the new item before departing again.
+  "CV-CURRENT-STOP-DEPARTURE-STALE-REVISION": {
+    messages: wire("CurrentStopDepartureRequested", "DurableAck", "CurrentStopDepartureResult", "DurableAck"),
+    stableErrorCode: "WORKLIST_REVISION_STALE",
+    persistenceCheckpoints: ["departure-request-journaled-before-send", "departure-request-durable-before-ack", "result-before-replay"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "departure-on-stale-worklist-revision", "business-state-changed-by-rejected-departure"],
+    productAssertions: {
+      controlServer: ["REJECT_DEPARTURE_ON_STALE_WORKLIST_REVISION", "RETURN_CURRENT_WORKLIST_REVISION", "CHANGE_NOTHING_ON_REJECTED_DEPARTURE"],
+      onboardHmi: ["DISPLAY_DEPARTURE_REJECTION_REASON", "ADOPT_RETURNED_WORKLIST_REVISION", "NEVER_RESEND_REJECTED_DEPARTURE_UNCHANGED"],
+    },
+    finalState: { readiness: "UNCHANGED", business: "UNCHANGED_DEPARTURE_REJECTED", physical: "UNCHANGED" },
+  },
+  // Depart pressed where it does not apply: a machine pickup stop, or while a slot operation runs or a load correction is
+  // open (a stop that is not the vehicle's current one is STATION_MISMATCH instead). Refused with ACTION_NOT_ALLOWED_IN_STATE;
+  // nothing changes and the operator may press again once the state allows it.
+  "CV-CURRENT-STOP-DEPARTURE-NOT-ALLOWED": {
+    messages: wire("CurrentStopDepartureRequested", "DurableAck", "CurrentStopDepartureResult", "DurableAck"),
+    stableErrorCode: "ACTION_NOT_ALLOWED_IN_STATE",
+    persistenceCheckpoints: ["departure-request-journaled-before-send", "departure-request-durable-before-ack", "result-before-replay"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "departure-accepted-at-a-machine-pickup-stop", "departure-during-slot-operation-or-correction", "business-state-changed-by-rejected-departure"],
+    productAssertions: {
+      controlServer: ["REJECT_DEPARTURE_OUTSIDE_STAGING_PICKUP_STOP", "REJECT_DEPARTURE_DURING_SLOT_OPERATION_OR_CORRECTION", "CHANGE_NOTHING_ON_REJECTED_DEPARTURE"],
+      onboardHmi: ["DISPLAY_DEPARTURE_REJECTION_REASON", "ALLOW_NEW_DEPARTURE_REQUEST_AFTER_REJECTION"],
+    },
+    finalState: { readiness: "UNCHANGED", business: "UNCHANGED_DEPARTURE_REJECTED", physical: "UNCHANGED" },
+  },
+  // The same departureRequestId arrives again under a new messageId -- a restart resubmitting from the journal, or a double
+  // press that reuses the pending request. The control server replays the result it gave and departs once. The same
+  // departureRequestId with different content is a BUSINESS_ID_CONTENT_CONFLICT and is never applied.
+  "CV-CURRENT-STOP-DEPARTURE-DUPLICATE-REQUEST": {
+    messages: wire("CurrentStopDepartureRequested", "DurableAck", "CurrentStopDepartureResult", "DurableAck", "CurrentStopDepartureRequested", "DurableAck", "CurrentStopDepartureResult", "DurableAck"),
+    persistenceCheckpoints: ["departure-request-journaled-before-send", "departure-request-durable-before-ack", "result-before-replay"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "second-departure-on-duplicate-request", "demands-released-twice", "conflicting-duplicate-departure-applied"],
+    productAssertions: {
+      controlServer: ["DEDUPLICATE_DEPARTURE_ON_REQUEST_ID", "REPLAY_SAME_DEPARTURE_RESULT", "REJECT_SAME_REQUEST_ID_WITH_DIFFERENT_CONTENT"],
+      onboardHmi: ["REUSE_PENDING_DEPARTURE_REQUEST_ID", "ADOPT_REPLAYED_DEPARTURE_RESULT", "NEVER_MINT_NEW_REQUEST_ID_FOR_SAME_PRESS"],
+    },
+    finalState: { readiness: "UNCHANGED_OR_SPECIFIED_BY_VECTOR", business: "AT_MOST_ONE_DEPARTURE_PER_REQUEST_ID", physical: "NO_UNPROVEN_STATE" },
+  },
+  // Low battery with cargo on board at the staging station (CP-0012, REQ-0281/REQ-0290 staging exception). The journey stays
+  // TRANSPORT -- activePurpose takes no new value -- and the plan gains one CHARGER stop (legType null, demandId null)
+  // between the staging stop and the existing dropoff stops. loadingPhase closes with CHARGING_REQUIRED, chargingCycleState
+  // runs ALLOCATED, EN_ROUTE, CHARGING, COMPLETE under that purpose, and after charging the vehicle goes straight to its
+  // dropoffs without returning to the staging station. Every departure on the journey, to and from the charger, is a
+  // DEPARTURE check on the anchor demand. The vehicle never opens entry or a slot at the charger.
+  "CV-TRANSPORT-CHARGING-STOP-WITH-CARGO": {
+    messages: wire("VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult", "UpcomingStopPlanSnapshot", "SnapshotAppliedAck"),
+    persistenceCheckpoints: ["charging-stop-and-releases-durable-before-snapshot", "charger-claim-durable-before-riot-call", "projection-revision-before-send", "snapshot-before-ack"],
+    forbiddenSideEffects: ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success", "transport-purpose-replaced-by-charging", "loaded-demand-released-for-charging", "slot-operation-at-charger", "return-to-staging-before-dropoff", "charging-with-cargo-at-a-machine-pickup-stop"],
+    productAssertions: {
+      controlServer: ["KEEP_TRANSPORT_PURPOSE_WHILE_CHARGING_WITH_CARGO", "INSERT_ONE_CHARGER_STOP_BEFORE_DROPOFFS", "CLOSE_LOADING_PHASE_WITH_CHARGING_REQUIRED", "RELEASE_ONLY_UNLOADED_DEMANDS", "ADVANCE_CHARGING_CYCLE_UNDER_TRANSPORT", "GO_TO_DROPOFFS_AFTER_CHARGING", "CHECK_EVERY_JOURNEY_DEPARTURE_AS_DEPARTURE"],
+      onboardHmi: ["DISPLAY_CHARGING_WITH_CARGO", "TREAT_CHARGER_STOP_AS_NON_BUSINESS_STOP", "NEVER_LOAD_OR_OPEN_SLOT_AT_CHARGER", "DISPLAY_CHARGING_CYCLE_UNDER_TRANSPORT"],
+    },
+    finalState: { readiness: "READY", business: "TRANSPORT_JOURNEY_CHARGED_EN_ROUTE_TO_DROPOFF", physical: "LOADED_SLOTS_OCCUPIED_LOCKED_RESET" },
+  },
 };
 for (const [vectorId, trajectory] of Object.entries(trajectories)) {
   const steps = trajectory.steps
@@ -1217,11 +1326,11 @@ const slices = [
     authorityModel: { controlServerFact: "AcceptedDemandSnapshot", wireMessages: ["UpcomingStopPlanSnapshot", "CurrentStopWorklistSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
     ownerResponsibilities: { controlServer: ["MESINGEST_FINAL_REREAD", "ATOMIC_DEMAND_ACCEPTANCE", "DEDUPLICATED_TO_PICKUP_INTENT", "RIOT_ORDER_RECONCILIATION", "TRUSTED_PICKUP_ARRIVAL_ADOPTION"], onboardHmi: ["DISPLAY_COMMITTED_DEMAND_JOURNEY", "DISPLAY_CURRENT_STOP", "NEVER_DISCOVER_SELECT_OR_BIND_DEMAND"] },
   }],
-  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY", "CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN"], {
+  ["FP-IS-02", 2, ["FP-IS-01"], ["CV-PICKUP-SUBLOT-LOAD", "CV-LOAD-CORRECTION", "CV-LOAD-CANCELLATION-ALL-EMPTY", "CV-LOAD-CANCELLATION-BEFORE-LOAD", "CV-SUBLOT-REJECTED-AFTER-ENTRY", "CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN", "CV-CURRENT-STOP-DEPARTURE-ACCEPTED", "CV-CURRENT-STOP-DEPARTURE-STALE-REVISION", "CV-CURRENT-STOP-DEPARTURE-NOT-ALLOWED", "CV-CURRENT-STOP-DEPARTURE-DUPLICATE-REQUEST"], {
     scope: "STATION_PICKUP_AND_MULTI_SLOT_LOAD",
-    requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED", "EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE"],
-    authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SublotEntryRequested", "SlotOperationCommand", "OperationResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
-    ownerResponsibilities: { controlServer: ["AUTHORIZE_SLOT_SET", "RECONCILE_LOAD_OUTCOME", "HOLD_VEHICLE_ON_UNPROVEN_DOOR"], onboardHmi: ["SUBMIT_SCANNED_SUBLOT", "LOAD_ONLY_AUTHORIZED_SLOTS", "REPORT_UNPROVEN_DOOR_AFTER_EMPTY"] },
+    requiredOutcomes: ["SUBLOT_BOUND_TO_OPERATION_SESSION", "SLOT_SET_AUTHORIZED_ONCE", "CORRECTION_AND_CANCELLATION_AUTHORIZED", "EMPTY_SLOTS_SETTLE_WHILE_UNPROVEN_DOOR_HOLDS_VEHICLE", "STAGING_DEPARTURE_ON_OPERATOR_REQUEST_RELEASES_UNLOADED_DEMANDS"],
+    authorityModel: { controlServerFact: "OperationSession", wireMessages: ["SublotEntryRequested", "SlotOperationCommand", "OperationResult", "CurrentStopDepartureRequested", "CurrentStopDepartureResult"], onboardMode: ["PHYSICAL_EXECUTION_AUTHORITY", "OPERATOR_CONFIRMATION_SOURCE"] },
+    ownerResponsibilities: { controlServer: ["AUTHORIZE_SLOT_SET", "RECONCILE_LOAD_OUTCOME", "HOLD_VEHICLE_ON_UNPROVEN_DOOR", "DECIDE_STAGING_DEPARTURE_ON_REQUEST"], onboardHmi: ["SUBMIT_SCANNED_SUBLOT", "LOAD_ONLY_AUTHORIZED_SLOTS", "REPORT_UNPROVEN_DOOR_AFTER_EMPTY", "REQUEST_STAGING_DEPARTURE_WITH_OPERATOR"] },
   }],
   ["FP-IS-03", 3, ["FP-IS-02"], ["CV-PREDEPARTURE-SAFETY-EXPIRES", "CV-OPERATION-RESULT-UNKNOWN-RECONCILE"], {
     scope: "PREDEPARTURE_SAFETY_AND_RESULT_RECONCILE",
@@ -1283,11 +1392,11 @@ const slices = [
     authorityModel: { controlServerFact: "VehiclePurposeClaim", wireMessages: ["UpcomingStopPlanSnapshot", "VehicleBusinessStateSnapshot"], onboardMode: ["READ_ONLY_COMMITTED_PROJECTION"] },
     ownerResponsibilities: { controlServer: ["CLAIM_AND_RELEASE_WAITING_POINT"], onboardHmi: ["TREAT_WAITING_POINT_AS_NON_BUSINESS_STOP"] },
   }],
-  ["FP-IS-13", 13, ["FP-IS-12"], ["CV-AUTOMATIC-CHARGING-CYCLE", "CV-UNABLE-TO-CHARGE-FIELD-CONFIRMATION", "CV-MANUAL-STATION-CLEARANCE", "CV-MANUAL-CHARGING-RETURN"], {
+  ["FP-IS-13", 13, ["FP-IS-12"], ["CV-AUTOMATIC-CHARGING-CYCLE", "CV-UNABLE-TO-CHARGE-FIELD-CONFIRMATION", "CV-MANUAL-STATION-CLEARANCE", "CV-MANUAL-CHARGING-RETURN", "CV-TRANSPORT-CHARGING-STOP-WITH-CARGO"], {
     scope: "AUTOMATIC_CHARGING_CYCLE_AND_CLEARANCE",
-    requiredOutcomes: ["CHARGING_CLAIMS_THE_VEHICLE", "CHARGING_POLICY_DECIDED_CENTRALLY", "STATION_RELEASED_ONLY_ON_CONFIRMED_CLEARANCE"],
+    requiredOutcomes: ["CHARGING_CLAIMS_THE_VEHICLE", "CHARGING_POLICY_DECIDED_CENTRALLY", "STATION_RELEASED_ONLY_ON_CONFIRMED_CLEARANCE", "STAGING_CARGO_CHARGES_WITHIN_TRANSPORT_JOURNEY"],
     authorityModel: { controlServerFact: "VehiclePurposeClaim", wireMessages: ["UnableToChargeFieldConfirmationRequested", "ManualStationClearanceConfirmationRequested", "VehicleBusinessStateSnapshot"], onboardMode: ["OPERATOR_CONFIRMATION_SOURCE", "READ_ONLY_COMMITTED_PROJECTION"] },
-    ownerResponsibilities: { controlServer: ["DECIDE_CHARGING_POLICY", "RELEASE_STATION_ON_CONFIRMATION"], onboardHmi: ["REPORT_FIELD_OBSERVATION_WITH_OPERATOR", "NEVER_DECIDE_POLICY_LOCALLY"] },
+    ownerResponsibilities: { controlServer: ["DECIDE_CHARGING_POLICY", "RELEASE_STATION_ON_CONFIRMATION", "CHARGE_STAGING_CARGO_WITHIN_TRANSPORT_JOURNEY"], onboardHmi: ["REPORT_FIELD_OBSERVATION_WITH_OPERATOR", "NEVER_DECIDE_POLICY_LOCALLY", "NEVER_OPEN_SLOT_AT_CHARGER_STOP"] },
   }],
   ["FP-IS-14", 14, ["FP-IS-00"], ["CV-SLOT-CONFIGURATION-ACTIVATION"], {
     scope: "SLOT_CONFIGURATION_ACTIVATION",
@@ -1474,20 +1583,12 @@ writeJson("compatibility/report.json", {
   baseRelease: baseReleaseTag,
   classification: "BREAKING_PROTOCOL_VERSION_INCREASE",
   wireCompatibility: "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED",
-  // One sentence per change, in the order of the change table in 8005-agv-program#146. The ticket that
-  // lands a change rewrites its own sentence if the final shape differs; the candidate-package ticket
-  // checks all eight last.
+  // One sentence per change, in the order of protocol#13 (program#185 CP-0012 section 3). The ticket that changes a
+  // shape rewrites its own sentence.
   changeSummary: [
-    "SlotFaultDeclarationCommand carries to the vehicle a slot fault an administrator holding ExceptionRecoveryPermission declared on the control server, the vehicle answers with SlotFaultDeclarationResult, APPLIED or NOT_APPLICABLE with ACTION_NOT_ALLOWED_IN_STATE, and when it applies the declaration reports the slot UNKNOWN in OperationResult itself with error code SLOT_FAULT_DECLARED, and two vectors bound to FP-IS-07 cover it (REQ-0359, ADR-cross-0062).",
-    "CapabilitySnapshot no longer carries supportsBatchUnlock, which one slot door at a time (REQ-0357) left always false, and the FP-IS-04 slice scope drops the word batch.",
-    "ForcedMechanicalRecoveryResult gains a required, nullable demandId copied from its command and a required, nullable cargoHandoff record naming the SUBLOT of the removed cargo, the person it was handed to and when, present exactly when the outcome is MECHANICALLY_ISOLATED on a session with a demand, so the control server settles that demand on a named handoff while electronicEmptyProven and vehicleReadyProven stay false (REQ-0242, whose unidentified-cargo branch this release leaves out because site staff always identify the cargo), and vector CV-FORCED-MECHANICAL-RECOVERY is revised to assert it.",
-    "ExceptionRecoverySessionSnapshot gains a required, nullable closedReason that is null unless the session is CLOSED and is RECOVERY_ACTION_RESULT_NOT_RECONCILED when it closed on a recovery result that did not reconcile, that error code joins the registry narrowed to the snapshot, and vector CV-RECOVERY-SESSION-CLOSED-RESULT-NOT-RECONCILED bound to FP-IS-07 covers it.",
-    "Vector CV-TASK-TYPE-ADMISSION-FAIL-CLOSED and slice FP-IS-10 drop the onboard assertion DISPLAY_ADMISSION_BLOCK_REASON, which contradicts specification 5.3: an admission block reason stays on the control server and its dashboard and is never sent to the vehicle (8005-agv-program#125).",
-    "Error code ONBOARD_FATAL_FAULT_LATCHED states that the onboard HMI has latched a fatal safety fault, which the latch previously expressed by borrowing DEPARTURE_UNSAFE in the safety summary and VEHICLE_NOT_READY on a refused slot.",
-    "CurrentStopWorklistSnapshot gains a required, nullable stopEndedReason, null while the worklist has items and naming why the stop ended once it is empty, so the onboard HMI can tell the operator why the worklist closed instead of only that nothing is pending.",
-    "SublotEntryRequested.expiresOnRevisionChange gains a description of what a revision change is, and its value and type are unchanged (specification 23.5).",
-    "LoadCancellationResult and LoadCompensationResult gain overallOutcome ALL_EMPTY_DOOR_UNPROVEN for slots their light curtains prove empty while a door is not proven locked or its unlock output not proven reset, ALL_EMPTY keeps its meaning of every slot EMPTY, LOCKED and RESET, error code SLOT_DOOR_LOCK_UNPROVEN_AFTER_EMPTY marks such a slot and the vehicle's hold, vectors CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN bound to FP-IS-02 and CV-LOAD-COMPENSATION-EMPTY-DOOR-UNPROVEN bound to FP-IS-07 settle the demand and hold the vehicle, and the new recovery action HARDWARE_REPAIR_RELEASE with vector CV-VEHICLE-HOLD-DOOR-REPAIR-RELEASE bound to FP-IS-07 is the one way out, releasing the vehicle only on a HardwareRecoveryRecord followed by fresh LOCKED, RESET and EMPTY readings and a passed PreDepartureSafetyCheck with checkPurpose HOLD_RELEASE (CP-0009, REQ-0364).",
-    "PreDepartureSafetyCheck and PreDepartureSafetyCheckResult gain a required checkPurpose, and demandId, movementLegId and targetStationId become nullable: DEPARTURE carries all three as before, NON_BUSINESS_MOVE carries the movement leg and the target station without a demand for an idle-return or charging move, and HOLD_RELEASE carries none for releasing a held vehicle, because ADR-cross-0009 asks for a fresh check before every movement request and REQ-0364 for one before a held vehicle takes work again.",
+    "CurrentStopDepartureRequested lets the operator ask to leave the current STAGING_TO_WIRE staging pickup stop now, carrying departureRequestId, a nullable operationSessionId echoing the worklist shown, that worklist's stationId and worklistRevision and the OperatorContext, the control server answers with CurrentStopDepartureResult, ACCEPTED or REJECTED with WORKLIST_REVISION_STALE, STATION_MISMATCH or ACTION_NOT_ALLOWED_IN_STATE, both are RELIABLE so the press and its answer survive a disconnect, and four vectors bound to FP-IS-02 cover acceptance, a stale revision, a state that does not allow it and a duplicate departureRequestId.",
+    "VehicleBusinessStateSnapshot.loadingPhase.closedReason and CurrentStopWorklistSnapshot.stopEndedReason both gain OPERATOR_DEPARTED, for an operator who departed the staging stop, and CHARGING_REQUIRED, for a vehicle that left it below the mandatory charge line to charge with its cargo.",
+    "A TRANSPORT journey may carry one CHARGER stop with legType null between a staging pickup stop and its dropoffs, activePurpose stays TRANSPORT while chargingCycleState runs through that stop, every departure on the journey is a DEPARTURE check on the anchor demand, docs/wire-notes.md states these semantics without a schema change, and vector CV-TRANSPORT-CHARGING-STOP-WITH-CARGO bound to FP-IS-13 covers it.",
   ],
   runtimeRule: "Exact ProtocolVersion and exact materialized ProtocolReleaseIdentity required; no negotiation.",
   optionalFieldPolicy: "No optional payload fields exist in this candidate. Future optional fields require proof that omission and ignore preserve safety and business conclusions.",
@@ -1517,13 +1618,12 @@ writeJson("compatibility/implementation-version-matrix.json", {
 
 writeText("docs/README.md", `# ${profileDisplayName} protocol candidate\n\nThis repository contains an approval-neutral **content snapshot**, not an approved ProtocolRelease. Machine-readable JSON Schema, the content manifest, the external approval attestation, errors, examples, vectors, the governance schemas and the integration-slice index are authoritative. Markdown is explanatory only; \`docs/wire-notes.md\` explains wire semantics the Schema cannot express.\n\nRun \`pnpm install --frozen-lockfile\`, \`pnpm manifest:finalize\` and \`pnpm g1\`. A PASS proves content and attestation consistency and reports their independent hashes. It does not turn a \`PENDING\` attestation into human G0 approval or prove either product implementation, G2/G3, real RIoT, real IO, target hardware or factory qualification.\n`);
 // The ProtocolVersion collisions and release history named below are facts about released identities,
-// so they stay literal: moving the candidate constants must not rewrite them. The one exception is the
-// 3.0.0 sentence, which names this candidate before its release; it is literal so that the next candidate
-// keeps it as history instead of rewriting it.
-writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- ProtocolVersion is scoped to a \`profileId\`: the integer increases monotonically only within one \`profileId\`, and two profiles can carry the same integer. \`WIRE_TO_GATE_MVP\` 0.2.0 and \`AGV_FULL_PRODUCT\` 1.0.0 are both ProtocolVersion 2; \`WIRE_TO_GATE_MVP\` 0.3.0 and \`AGV_FULL_PRODUCT\` 2.0.0 are both ProtocolVersion 3. \`AGV_FULL_PRODUCT\` 3.0.0 is ProtocolVersion 4. Identity is therefore compared only as the complete \`ProtocolReleaseIdentity\`, never by the integer alone, and evidence and logs always write the pair \`(profileId, ProtocolVersion)\`.\n- \`manifest/release.json\` is an approval-neutral content snapshot. It hashes all governed protocol content except itself, \`attestations/\`, \`.git/\`, \`node_modules/\`, generated \`evidence/\` and \`.github/\`.\n- \`attestations/release-approval.template.json\` is a tracked, blank template governed by its JSON Schema and excluded from the content manifest. A completed \`release-approval.json\` must remain external to Git and be uploaded as a GitHub Release Asset. This prevents the approval record from changing either the manifest hash or the commit it approves.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, content manifest hash, approval-attestation hash, schema bundle hash and vectors hash.\n- Exactly one approval of the exact commit and content manifest hash must be recorded in the attestation before an immutable tag/release is created. The approver is the product owner or, since 2026-09-12, an AI agent the product owner has authorized for that release; the attestation records which (\`approverKind\`) and, for an AI agent, who authorized it (\`authorizedBy\`). CI cannot approve.\n- This required **two** distinct product owners until 2026-09-08. The second signature was the counterpart maintainer of the onboard HMI and simulator repositories; that role ended when the project was taken over, and a rule demanding a signature nobody can give is a rule that gets worked around. \`WIRE_TO_GATE_MVP\` releases from 0.2.0 onward and every \`AGV_FULL_PRODUCT\` release carry exactly one approval. On 2026-09-12 the product owner also allowed an AI agent to approve: requiring the owner to perform every release by hand added a step without adding a decision. What still holds: CI cannot approve, and the attestation records who approved — the product owner by name, or an AI agent together with the owner who authorized it — at a stated time.\n- G1 validates the content manifest and attestation independently, verifies an approved attestation points at the current content manifest, requires exactly one approval, and reports both hashes. Candidate G1 uses the tracked blank template. Release G1 sets \`PROTOCOL_APPROVAL_ATTESTATION\` to the external completed asset. The annotated tag message and GitHub release metadata must record both reported hashes.\n- The attestation never contains its own hash. Its SHA-256 is computed from its final bytes and bound externally by the annotated tag and release metadata, avoiding another self-reference.\n- Release order is fixed: freeze and push the content commit; generate the external attestation against that commit and manifest; run G1 with \`PROTOCOL_APPROVAL_ATTESTATION\`; create annotated \`protocol-v<SemVer>\` tag pointing at the frozen content commit with both hashes in its message; then publish the same attestation as a release asset.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- A conformance-index or trajectory correction may use a patch release only when it restores an already approved responsibility boundary, changes no message Schema or wire semantics, and the release approver approves that compatibility classification. It still changes the manifest/vector identity and invalidates affected G1/G2/G3 evidence.\n- Historical red evidence and released identities are immutable.\n`);
+// so they stay literal: moving the candidate constants must not rewrite them. The 4.0.0 sentence names this
+// candidate before its release; it is literal so that the next candidate keeps it as history instead of rewriting it.
+writeText("docs/release-governance.md", `# Release governance\n\n- ProtocolVersion is exactly ${protocolVersion} for this candidate; runtime negotiation is forbidden.\n- ProtocolVersion is scoped to a \`profileId\`: the integer increases monotonically only within one \`profileId\`, and two profiles can carry the same integer. \`WIRE_TO_GATE_MVP\` 0.2.0 and \`AGV_FULL_PRODUCT\` 1.0.0 are both ProtocolVersion 2; \`WIRE_TO_GATE_MVP\` 0.3.0 and \`AGV_FULL_PRODUCT\` 2.0.0 are both ProtocolVersion 3. \`AGV_FULL_PRODUCT\` 3.0.0 is ProtocolVersion 4, and \`AGV_FULL_PRODUCT\` 4.0.0 is ProtocolVersion 5. Identity is therefore compared only as the complete \`ProtocolReleaseIdentity\`, never by the integer alone, and evidence and logs always write the pair \`(profileId, ProtocolVersion)\`.\n- \`manifest/release.json\` is an approval-neutral content snapshot. It hashes all governed protocol content except itself, \`attestations/\`, \`.git/\`, \`node_modules/\`, generated \`evidence/\` and \`.github/\`.\n- \`attestations/release-approval.template.json\` is a tracked, blank template governed by its JSON Schema and excluded from the content manifest. A completed \`release-approval.json\` must remain external to Git and be uploaded as a GitHub Release Asset. This prevents the approval record from changing either the manifest hash or the commit it approves.\n- A formal release requires exact repository, SemVer, annotated tag, full commit, ProtocolVersion, profile, content manifest hash, approval-attestation hash, schema bundle hash and vectors hash.\n- Exactly one approval of the exact commit and content manifest hash must be recorded in the attestation before an immutable tag/release is created. The approver is the product owner or, since 2026-09-12, an AI agent the product owner has authorized for that release; the attestation records which (\`approverKind\`) and, for an AI agent, who authorized it (\`authorizedBy\`). CI cannot approve.\n- This required **two** distinct product owners until 2026-09-08. The second signature was the counterpart maintainer of the onboard HMI and simulator repositories; that role ended when the project was taken over, and a rule demanding a signature nobody can give is a rule that gets worked around. \`WIRE_TO_GATE_MVP\` releases from 0.2.0 onward and every \`AGV_FULL_PRODUCT\` release carry exactly one approval. On 2026-09-12 the product owner also allowed an AI agent to approve: requiring the owner to perform every release by hand added a step without adding a decision. What still holds: CI cannot approve, and the attestation records who approved — the product owner by name, or an AI agent together with the owner who authorized it — at a stated time.\n- G1 validates the content manifest and attestation independently, verifies an approved attestation points at the current content manifest, requires exactly one approval, and reports both hashes. Candidate G1 uses the tracked blank template. Release G1 sets \`PROTOCOL_APPROVAL_ATTESTATION\` to the external completed asset. The annotated tag message and GitHub release metadata must record both reported hashes.\n- The attestation never contains its own hash. Its SHA-256 is computed from its final bytes and bound externally by the annotated tag and release metadata, avoiding another self-reference.\n- Release order is fixed: freeze and push the content commit; generate the external attestation against that commit and manifest; run G1 with \`PROTOCOL_APPROVAL_ATTESTATION\`; create annotated \`protocol-v<SemVer>\` tag pointing at the frozen content commit with both hashes in its message; then publish the same attestation as a release asset.\n- Required/type/enum/meaning/direction/delivery/dedup/persistence/recovery/error/side-effect changes are breaking and require a ProtocolVersion and release-major increase.\n- A conformance-index or trajectory correction may use a patch release only when it restores an already approved responsibility boundary, changes no message Schema or wire semantics, and the release approver approves that compatibility classification. It still changes the manifest/vector identity and invalidates affected G1/G2/G3 evidence.\n- Historical red evidence and released identities are immutable.\n`);
 // Wire semantics JSON Schema cannot carry. Each section is fixed by its source (CP-0005 section 4.1,
 // specification 23.5); a later description keyword on the same field must say the same thing.
-writeText("docs/wire-notes.md", `# Wire notes\n\nExplanatory notes on wire semantics that JSON Schema cannot carry. Machine-readable JSON Schema, errors, examples and vectors remain authoritative: where a note and a Schema disagree, the Schema wins and the note is a defect.\n\n## Alarm code \`SLOT_EXPECTED_ACTION_OVERDUE\`\n\nSource: CP-0005 section 4.1 (REQ-0358).\n\n- \`AlarmEntry.code\` is an open set of strings, not an enum, so registering this code changes no schema.\n- The onboard HMI raises it in \`OnboardAlarmSnapshot\` when the current slot of a slot operation has waited for the operator beyond the configured threshold.\n- \`subjectType\` is \`SLOT\` and \`subjectId\` is the slot number.\n- \`raisedAt\` is the instant the wait crossed the threshold.\n- \`displayMessage\` is the action the vehicle expects.\n- The time already waited is derived from \`raisedAt\` and the threshold. \`OperationProgress\` (\`phase\` \`WAITING_OPERATOR\`, \`activeUnlockSlots\`) may help, but it is \`TELEMETRY\` and can be lost, so it is never the basis.\n- The slot readings (\`lockState\`, \`physicalState\`, \`unlockOutputState\`) are taken from \`SafetyStateSnapshot\`.\n- This alarm is the precondition of \`SlotFaultDeclarationCommand\`: an administrator can declare a fault only on a current slot that has reported it (REQ-0359).\n\n## \`SublotEntryRequested.expiresOnRevisionChange\`\n\nSource: specification 23.5.\n\n- The field stays \`const: true\`; neither its value nor its type changes.\n- ${revisionChangeDefinition}\n- Separately from expiry, a \`LOAD\` \`SlotOperationCommand\` of the same operation session answers the entry request and so ends it.\n`);
+writeText("docs/wire-notes.md", `# Wire notes\n\nExplanatory notes on wire semantics that JSON Schema cannot carry. Machine-readable JSON Schema, errors, examples and vectors remain authoritative: where a note and a Schema disagree, the Schema wins and the note is a defect.\n\n## Alarm code \`SLOT_EXPECTED_ACTION_OVERDUE\`\n\nSource: CP-0005 section 4.1 (REQ-0358).\n\n- \`AlarmEntry.code\` is an open set of strings, not an enum, so registering this code changes no schema.\n- The onboard HMI raises it in \`OnboardAlarmSnapshot\` when the current slot of a slot operation has waited for the operator beyond the configured threshold.\n- \`subjectType\` is \`SLOT\` and \`subjectId\` is the slot number.\n- \`raisedAt\` is the instant the wait crossed the threshold.\n- \`displayMessage\` is the action the vehicle expects.\n- The time already waited is derived from \`raisedAt\` and the threshold. \`OperationProgress\` (\`phase\` \`WAITING_OPERATOR\`, \`activeUnlockSlots\`) may help, but it is \`TELEMETRY\` and can be lost, so it is never the basis.\n- The slot readings (\`lockState\`, \`physicalState\`, \`unlockOutputState\`) are taken from \`SafetyStateSnapshot\`.\n- This alarm is the precondition of \`SlotFaultDeclarationCommand\`: an administrator can declare a fault only on a current slot that has reported it (REQ-0359).\n\n## \`SublotEntryRequested.expiresOnRevisionChange\`\n\nSource: specification 23.5.\n\n- The field stays \`const: true\`; neither its value nor its type changes.\n- ${revisionChangeDefinition}\n- Separately from expiry, a \`LOAD\` \`SlotOperationCommand\` of the same operation session answers the entry request and so ends it.\n\n## \`CurrentStopDepartureRequested\` and \`CurrentStopDepartureResult\`\n\nSource: CP-0012 (program#185), protocol#13.\n\n- The control server accepts a departure request only at a pickup stop at the fixed origin station of \`STAGING_TO_WIRE\`, the staging station. The message itself is not scoped to a task type, and the request is refused elsewhere.\n- The onboard HMI journals the request before it sends it. Each press mints one \`departureRequestId\`; a resubmission of the same press, including after a restart, reuses it.\n- The request echoes the worklist the vehicle shows: its \`stationId\`, \`worklistRevision\` and \`operationSessionId\`. \`operationSessionId\` is \`null\` when that worklist carries none, as every empty worklist does, so a vehicle holding cargo at the staging station with an empty worklist can still depart.\n- The control server answers every request with \`CurrentStopDepartureResult\`. \`REJECTED\` carries a \`Problem\`: \`WORKLIST_REVISION_STALE\` when \`worklistRevision\` is not the current worklist revision of the vehicle's current stop (\`currentWorklistRevision\` names it), \`STATION_MISMATCH\` when \`stationId\` is not the vehicle's current stop, and \`ACTION_NOT_ALLOWED_IN_STATE\` when the stop is not a staging pickup stop or a slot operation runs or a load correction is open. A rejection changes no business state. \`ACCEPTED\` carries no \`Problem\`.\n- After \`ACCEPTED\` the departure travels in the existing snapshots: \`loadingPhase\` \`CLOSED\` with \`closedReason\` \`OPERATOR_DEPARTED\`, the worklist and the plan. Demands not yet loaded are released back to dispatch, never cancelled or suppressed and never counted against the station-timeout release limit. When the stop ends with such demands the empty worklist carries \`stopEndedReason\` \`OPERATOR_DEPARTED\`. Loaded demands stay on the journey and the vehicle leaves through the correction gate and the \`DEPARTURE\` safety check as before. With nothing loaded the journey closes and the vehicle stays where it is.\n- The same \`departureRequestId\` with the same content is answered with the result already given and has no second effect. With different content it is \`BUSINESS_ID_CONTENT_CONFLICT\` and is not applied.\n\n## Charging with cargo within a \`TRANSPORT\` journey\n\nSource: CP-0012 (program#185), protocol#13. No schema changes; both Schemas already allow these values.\n\n- At a staging pickup stop with at least one basket loaded, a vehicle below the mandatory charge line takes its cargo to a charger within the same journey. \`activePurpose\` stays \`TRANSPORT\`; no purpose value is added.\n- \`VehicleBusinessStateSnapshot.chargingCycleState\` is independent of \`activePurpose\`. Under \`TRANSPORT\` it is \`NOT_CHARGING\` unless the journey carries a charging stop, and then runs \`ALLOCATED\`, \`EN_ROUTE\`, \`CHARGING\`, \`COMPLETE\` or ends \`UNABLE_TO_CHARGE\`.\n- \`loadingPhase\` closes with \`closedReason\` \`CHARGING_REQUIRED\`. Demands not yet loaded are released as for a departure, and when the stop ends with such demands the empty worklist carries \`stopEndedReason\` \`CHARGING_REQUIRED\`.\n- \`UpcomingStopPlanSnapshot\` gains one leg with \`stopPurposeCategory\` \`CHARGER\`, \`legType\` \`null\` and \`demandId\` \`null\` between the staging stop and the existing dropoff stops. The onboard HMI opens no entry and no slot at it. After charging the journey continues to its dropoffs and does not return to the staging station.\n- Every departure on a \`TRANSPORT\` journey, to and from the charger included, is a \`PreDepartureSafetyCheck\` with \`checkPurpose\` \`DEPARTURE\` carrying the journey's anchor demand, the leg and its target station. \`NON_BUSINESS_MOVE\` remains for idle return and charging outside a transport journey.\n`);
 writeText("docs/candidate-limitations.md", `# Candidate limitations and release finalization\n\nThe candidate intentionally uses structurally valid synthetic zero hashes inside envelope examples. Examples are schema fixtures, not evidence of a materialized release identity.\n\nThe manifest/approval circularity is resolved by the owner-approved governance separation recorded on 2026-08-25. \`manifest/release.json\` is an approval-neutral content snapshot and excludes \`attestations/\`; a completed external \`release-approval.json\` GitHub Release Asset binds the final immutable candidate commit and content manifest hash. The repository tracks only its blank Schema-governed template. G1 validates both artifacts and reports both hashes for the annotated tag and GitHub release metadata.\n\n**Conformance vectors are a weak binding.** No assertion executor has ever read \`input.ndjson\` or \`expected.json\`: all five were searched and every \`vectorId\` reference is a label written by a human. The \`runner/\` contracts were dropped in 1.0.0 rather than keeping a promise of an executor that does not exist. What replaces them is an architecture test in each implementation repository asserting that every \`vectorId\` has an identically named test. G2's "the vector is the criterion" is consequently a permanent weak binding: what is mechanically guaranteed is that a vector has a corresponding test, not that its bytes were executed.\n\n\`${baseReleaseTag}\` remains immutable. The current \`${candidateVersion}\` candidate is a breaking ProtocolVersion increase to ${protocolVersion} under profile \`${profileId}\`: message payloads, the error registry and the conformance index all change, and no negotiation or downgrade path exists. Its attestation remains \`PENDING\`; its release approval — by the product owner or an AI agent the product owner authorized — must cover the new exact commit, content manifest hash, vectors hash and breaking classification before \`protocol-v${candidateVersion}\` can be created.\n`);
 
 writeJson("package.json", {
