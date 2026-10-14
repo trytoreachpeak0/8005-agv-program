@@ -471,7 +471,12 @@ _Avoid_: 车载本地超时配置、每端独立倒计时、继续等待按钮�
 
 **本站装货完成（CurrentStopLoadingComplete）**:
 当前已通过装货身份核验的操作员确认当前站点不再继续等待其它 Sublot 的站点级结束意图；服务端重新校验操作会话并审计工号、站点、AGV、剩余取消任务数量和时间。它不参与任何单个 LoadBatch 的提交，也不替代装货批次提交闭环；若仍有尚未开始的待装 DemandId，车载端明确提示数量并经二次确认后，由服务端按与 StationDepartureWaitTimeout 相同的整站结束流程取消，没有剩余待装任务时直接结束停靠。
+仅在 STAGING_TO_WIRE 固定起点的取货停靠（待送点取货停靠）上，它落成「出发」：没装的待装 DemandId 放回待派，不取消、不抑制（`CP-0012`）。
 _Avoid_: LoadFinalConfirmation、单个 Sublot 完成、批次提交按钮
+
+**待送点取货停靠（StagingPickupStop）**:
+车辆在 STAGING_TO_WIRE 于该 Map 上绑定的固定起点 FixedTaskStation 上的取货停靠，按停靠站点与任务类型绑定认定，不按车号。它没有站点离站等待期限与持货期限，不提供扫码前取消；装货阶段只在全部分组无空仓、候选全部只因容量装不下、操作员在车载屏点出发、电量达到强制充电线或让站时结束，前两种立即离站；出发与缺电时没装的需求放回待派。缺电而车上有货时在旅程里插入充电停靠，充完直接送货（`CP-0012`、ADR-cross-0065）。
+_Avoid_: 按车号判定（agv02 停靠）、待送点倒计时、待送点取消装货
 
 **PlannedStop（计划停靠项）**:
 后续停靠计划中的一个业务站点及其顺序、停靠目的和任务摘要；它不表示 RIoT 导航使用的路径节点。
@@ -670,7 +675,7 @@ _Avoid_: 瞬间撤回 SlotOperationCommand、只清空所选任务的部分仓�
 _Avoid_: MessageId、TransportDemandKey、跨 Demand 复用、取消中途换范围
 
 **整站结束取消（StopClosureCancellation）**:
-StationDepartureWaiting 中结束本站时，由服务端一次性终结全部尚未开始的待装 DemandId；等待到期记为 `CANCELLED_BY_STATION_TIMEOUT`，操作员确认本站装货完成记为 `CANCELLED_BY_STOP_COMPLETE`。两者均持久抑制对应 TransportDemandKey 再次接入且不影响已经提交的 LoadBatch；同一 SUBLOT 以后命中其它 WorkType 时属于不同业务键。
+StationDepartureWaiting 中结束本站时，由服务端一次性终结全部尚未开始的待装 DemandId；等待到期记为 `CANCELLED_BY_STATION_TIMEOUT`，操作员确认本站装货完成记为 `CANCELLED_BY_STOP_COMPLETE`。两者均持久抑制对应 TransportDemandKey 再次接入且不影响已经提交的 LoadBatch；同一 SUBLOT 以后命中其它 WorkType 时属于不同业务键。待送点取货停靠不发生整站结束取消：它没有等待期限，操作员出发时没装的需求放回待派、不终结（`CP-0012`）。
 _Avoid_: CANCELLED_BY_OPERATOR、LoadTaskCancellation、清空已装仓位、按 SUBLOT 永久拉黑
 
 **整站结束提交（StopClosureCommit）**:

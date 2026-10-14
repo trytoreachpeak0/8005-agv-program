@@ -56,7 +56,7 @@
 | [ADR-cross-0043](cross/0043-server-enforces-global-sublot-reservation.md) | 服务端保证 SUBLOT 的全局唯一占用 |
 | [ADR-cross-0044](cross/0044-baskets-have-no-individual-identity.md) | 花篮没有独立身份，只追踪 SUBLOT 与仓位 |
 | [ADR-cross-0045](cross/0045-load-final-confirmation-and-precommit-correction.md) | 装货正式提交前允许原操作内纠错 |
-| [ADR-cross-0046](cross/0046-load-task-cancellable-until-departure-after-full-clearance.md) | 装货任务离站前可取消，但必须整批清空（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
+| [ADR-cross-0046](cross/0046-load-task-cancellable-until-departure-after-full-clearance.md) | 装货任务离站前可取消，但必须整批清空（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代；待送点取货停靠不提供未装任务的取消、清空取消改为放回，由 ADR-cross-0065 修订） |
 | [ADR-cross-0047](cross/0047-demand-id-identifies-station-task-and-cancellation.md) | DemandId 标识站点任务，TransportDemandKey 负责取消抑制 |
 | [ADR-cross-0048](cross/0048-versioned-current-stop-worklist-snapshot.md) | 当前停靠作业清单使用带版本的完整快照 |
 | [ADR-cross-0049](cross/0049-station-task-type-many-to-many-admission.md) | 站点与任务类型采用多对多准入关系 |
@@ -65,13 +65,14 @@
 | [ADR-cross-0052](cross/0052-onboard-clears-before-server-finalizes-load-cancellation.md) | 车载端清空全部目标仓位后服务端才完成取消（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0053](cross/0053-onboard-upcoming-stop-plan-and-vehicle-overview.md) | 车载端展示后续停靠计划与四维车辆概览 |
 | [ADR-cross-0054](cross/0054-auto-load-commit-with-pre-departure-correction.md) | 装货物理闭环后自动提交，整站结束前仍可纠错 |
-| [ADR-cross-0055](cross/0055-server-owned-station-departure-wait-timeout.md) | 服务端掌握装货站离站等待超时并原子结束本站 |
+| [ADR-cross-0055](cross/0055-server-owned-station-departure-wait-timeout.md) | 服务端掌握装货站离站等待超时并原子结束本站（待送点取货停靠不设期限，由 ADR-cross-0065 修订） |
 | [ADR-cross-0056](cross/0056-dotnet-toolchain-baseline.md) | 四个可写 .NET 仓库统一工具链基线 |
-| [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡（「装满」部分由 ADR-cross-0059 修订；持货期限 2026-10-11 由 30 分钟改为 5 分钟） |
-| [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复 |
+| [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡（「装满」部分由 ADR-cross-0059 修订；持货期限 2026-10-11 由 30 分钟改为 5 分钟；待送点取货停靠不适用持货超时，由 ADR-cross-0065 修订） |
+| [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复（决策 7 在待送点取货停靠不触发，由 ADR-cross-0065 修订） |
 | [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
 | [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除（急停分三类与有货时的受治理解除见 ADR-cross-0064） |
 | [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |
 | [ADR-cross-0062](cross/0062-server-side-slot-fault-declaration-enters-recovery.md) | 仓位卡住但读数有效时，车载端上报超时，由管理员在服务端判为 UNKNOWN 进入恢复 |
 | [ADR-cross-0063](cross/0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) | 光幕证明取空即结清装货侧的货物业务，仓门锁闭证明改为车辆放行条件 |
 | [ADR-cross-0064](cross/0064-emergency-stops-in-three-classes.md) | 急停分三类：8005 下达的三类急停只经 8005 解除，被二类入口解开时重下 |
+| [ADR-cross-0065](cross/0065-staging-pickup-departs-on-full-or-operator-departure.md) | 待送点取货由仓满或客户出发驱动离站：无倒计时、不持货超时，满或全部装不下立即走，缺电带货去充电 |
