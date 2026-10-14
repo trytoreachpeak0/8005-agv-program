@@ -75,4 +75,4 @@
 | [ADR-cross-0062](cross/0062-server-side-slot-fault-declaration-enters-recovery.md) | 仓位卡住但读数有效时，车载端上报超时，由管理员在服务端判为 UNKNOWN 进入恢复 |
 | [ADR-cross-0063](cross/0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) | 光幕证明取空即结清装货侧的货物业务，仓门锁闭证明改为车辆放行条件 |
 | [ADR-cross-0064](cross/0064-emergency-stops-in-three-classes.md) | 急停分三类：8005 下达的三类急停只经 8005 解除，被二类入口解开时重下 |
-| [ADR-cross-0065](cross/0065-staging-pickup-departs-on-full-or-operator-departure.md) | 待送点取货由仓满或客户出发驱动离站：无倒计时、不持货超时，满或全部装不下立即走，缺电带货去充电 |
+| [ADR-cross-0065](cross/0065-staging-pickup-departs-on-full-or-operator-departure.md) | 待送点取货由仓满或客户出发驱动离站：无倒计时、不持货超时，满或全部装不下立即走，缺电带货去充电（`CP-0013` 改为先送货再充电，2026-10-15） |
