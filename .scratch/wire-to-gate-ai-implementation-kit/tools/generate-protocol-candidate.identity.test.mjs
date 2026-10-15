@@ -195,7 +195,7 @@ test("candidate limitations describe the 4.0.0 candidate against protocol-v3.0.0
   assert.doesNotMatch(limitations, /0\.1\.1/);
 });
 
-test("compatibility report is based on protocol-v3.0.0 and summarises the three changes", () => {
+test("compatibility report is based on protocol-v3.0.0 and summarises the four changes", () => {
   const report = readJson("compatibility/report.json");
   assert.equal(report.candidateVersion, "4.0.0");
   assert.equal(report.protocolVersion, 5);
@@ -203,11 +203,14 @@ test("compatibility report is based on protocol-v3.0.0 and summarises the three 
   assert.equal(report.baseRelease, "protocol-v3.0.0");
   assert.equal(report.classification, "BREAKING_PROTOCOL_VERSION_INCREASE");
   assert.equal(report.wireCompatibility, "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED");
-  // The three items of protocol#13 (program#185 CP-0012 section 3), in that order, each named by what it touches.
+  // The three items of protocol#13 (program#185 CP-0012 section 3), in that order, each named by what it touches, then the
+  // staging cargo-holding deadline of protocol#17 (program#191 CP-0014 section 3). The first sentence also carries the
+  // machine pickup departure protocol#17 added.
   const anchors = [
-    /CurrentStopDepartureRequested.*CurrentStopDepartureResult.*FP-IS-02/,
+    /CurrentStopDepartureRequested.*machine pickup stop once its committed loads are complete.*CurrentStopDepartureResult.*FP-IS-02/,
     /closedReason.*stopEndedReason.*OPERATOR_DEPARTED.*CHARGING_REQUIRED/,
     /mandatory charge line.*CHARGING_REQUIRED.*no CHARGER stop.*CV-STAGING-CHARGING-REQUIRED-DEPARTURE-WITH-CARGO/,
+    /staging pickup stop.*cargoHoldingDeadlineAt.*CARGO_HOLDING_TIMEOUT.*DEMAND_RELEASED.*CV-STAGING-CARGO-HOLDING-DEADLINE-MOVED.*CV-STAGING-CARGO-HOLDING-TIMEOUT.*FP-IS-02/,
   ];
   assert.ok(Array.isArray(report.changeSummary), "changeSummary is not a list");
   assert.equal(report.changeSummary.length, anchors.length);
