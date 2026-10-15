@@ -303,6 +303,14 @@ test("a staging cargo-holding deadline is set by the first loaded basket and mov
   for (const assertion of ["SET_STAGING_CARGO_HOLDING_DEADLINE_ON_FIRST_LOADED_BASKET", "MOVE_STAGING_CARGO_HOLDING_DEADLINE_ON_DEMAND_APPENDED_FOR_THE_STATION", "KEEP_STAGING_CARGO_HOLDING_DEADLINE_ON_RELEASE_CANCELLATION_OR_OTHER_WORKLIST_CHANGE", "CLEAR_STAGING_CARGO_HOLDING_DEADLINE_WHEN_NO_CARGO_REMAINS"]) assert.ok(value.productAssertions.controlServer.includes(assertion), assertion);
   for (const effect of ["cargo-holding-deadline-set-with-nothing-loaded", "cargo-holding-deadline-not-moved-on-append", "cargo-holding-deadline-moved-by-release-cancellation-or-other-worklist-change"]) assert.ok(value.forbiddenSideEffects.includes(effect), effect);
   assert.ok(value.productAssertions.onboardHmi.includes("DISPLAY_CARGO_HOLDING_COUNTDOWN_AT_STAGING_PICKUP_STOP"));
+  // protocol#19: the append leaves a demand to load at this station, so the control server sends LOADING with the moved
+  // deadline (LoadingPhaseMachine: pending loads -> LOADING, none -> CARGO_HOLDING_WAIT), not CARGO_HOLDING_WAIT; the
+  // onboard HMI shows the countdown from cargoHoldingDeadlineAt whatever the state.
+  for (const assertion of ["SEND_LOADING_WHILE_A_DEMAND_REMAINS_TO_LOAD_AT_THE_STATION", "SEND_CARGO_HOLDING_DEADLINE_IN_LOADING_AND_CARGO_HOLDING_WAIT"]) assert.ok(value.productAssertions.controlServer.includes(assertion), assertion);
+  assert.ok(value.productAssertions.onboardHmi.includes("DISPLAY_CARGO_HOLDING_COUNTDOWN_FROM_DEADLINE_NOT_FROM_STATE"));
+  assert.ok(value.forbiddenSideEffects.includes("cargo-holding-wait-sent-while-a-demand-remains-to-load"));
+  assert.equal(value.finalState.business, "STAGING_LOADING_WITH_CARGO_HOLDING_DEADLINE_MOVED_TO_APPEND");
+  assert.doesNotMatch(JSON.stringify(value), /STAGING_CARGO_HOLDING_WAIT_DEADLINE_MOVED/);
 });
 
 test("a staging cargo-holding timeout closes with CARGO_HOLDING_TIMEOUT and ends the worklist with DEMAND_RELEASED", () => {
@@ -374,7 +382,14 @@ test("the wire notes give staging pickup stops no station deadline, a cargo-hold
   assert.match(body, /CP-0014 \(program#191\)/);
   assert.match(body, /`CurrentStopWorklistSnapshot\.stationDepartureDeadlineAt` is always `null` at a staging pickup stop/);
   // CP-0014 section 3 item 4, point 3: null only while nothing is loaded, then set, then moved by appended demands.
-  assert.match(body, /`state` `CARGO_HOLDING_WAIT` with `cargoHoldingDeadlineAt` `null` while no basket is loaded/);
+  // protocol#19: the state follows what is left to load, not the station; the deadline is independent of the state.
+  assert.match(body, /`VehicleBusinessStateSnapshot\.loadingPhase\.state` is `LOADING` while a demand of this stop remains to be loaded, and `CARGO_HOLDING_WAIT` once none remains and at least one basket is loaded/);
+  assert.match(body, /`cargoHoldingDeadlineAt` is `null` until a basket is loaded/);
+  assert.match(body, /`cargoHoldingDeadlineAt` may be non-null in either state, `LOADING` or `CARGO_HOLDING_WAIT`: the onboard HMI shows the cargo-holding countdown from `cargoHoldingDeadlineAt` alone, never from `state`/);
+  assert.match(body, /A demand appended for this station opens a new stop at it, so `state` returns to `LOADING`, carrying the moved deadline, until that demand is loaded/);
+  assert.match(body, /At a machine pickup stop likewise, once the first load batch closes safely while loads committed to the stop remain, `state` is `LOADING` with `cargoHoldingDeadlineAt` already set \(ADR-cross-0057\)/);
+  assert.doesNotMatch(body, /`state` `CARGO_HOLDING_WAIT` with `cargoHoldingDeadlineAt` `null` while no basket is loaded/);
+  assert.doesNotMatch(body, /At a staging pickup stop `VehicleBusinessStateSnapshot\.loadingPhase` is `state` `CARGO_HOLDING_WAIT`/);
   assert.match(body, /Once a basket is loaded `cargoHoldingDeadlineAt` is set, counted from the safe closure of the load batch that put cargo on board, with the same duration as at a machine pickup stop/);
   assert.match(body, /Each demand with this station as its pickup station appended to the vehicle afterwards moves it to the time of the append plus that duration; a release, a cancellation or any other worklist change does not move it/);
   assert.match(body, /whose `cargoHoldingDeadlineAt` never moves once given/);
