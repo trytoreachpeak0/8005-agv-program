@@ -372,3 +372,31 @@ protocol#15 把 v4 候选的待送点缺电语义从「带货插充电停靠」�
 `README.md`「Current state」里描述第三项改动的那一句改写（第 6 节第 1 步之后唯一的手工改动），再 finalize、G1。
 G1 **PASS**，manifest `38a5d2d53e1e235f7f844d991c7258ed51910d542f235ebae6768455c5511fc4`，45 条向量；生成器
 `--verify-determinism` 1954 个文件、0 divergent。
+
+---
+
+## 12. v4.0.0 候选改写起点复核（8005-agv-protocol#17）
+
+protocol#17 放开机台取货停靠的出发，并给待送点取货停靠加上装货后的持货倒计时（program#191 CP-0014 第三节第 4 条）。
+改之前先确认 program#189 合入后的生成器就是 `4d67655c` 的机械来源，做法与第 9.1、10、11 节相同。
+
+| 项 | 值 |
+| --- | --- |
+| 复核日期 | 2026-10-15 |
+| 机器 | 控制端 `LAB-WIN-01`，node v24.20.0，pnpm 11.25.0 |
+| 生成器 | `origin/main` `06942274`（program#192 合入）上的 blob `1f518aad`（即第 11 节那一版），模板未改 |
+| 对照 | 协议仓 `4d67655c`（`origin/fp/v2-candidate` 顶端，v4 候选，未打 tag），1962 个跟踪文件 |
+| 放回七个元文件、finalize、G1 之后 | `git status` 为空，**1962／0／0／0** |
+| `pnpm g1` | **PASS**，failures 为空，manifest `38a5d2d5…`（与第 11 节相同） |
+
+**结论：没有差异需要归类，前提成立。**克隆放在 `F:/8005-scratch/p17/proto`（普通克隆，`core.longpaths=true`）。
+`pnpm_config_store_dir` 指向 `%LOCALAPPDATA%\pnpm-store`，克隆里没有生成 `.pnpm-store`。
+
+改写后的候选在另一个普通克隆 `F:/8005-scratch/p17/new` 里重做：删掉全部跟踪文件，用本分支的生成器（blob `08783f6c`）产出，
+从 `4d67655c` 放回七个元文件，`README.md`「Current state」里的「three changes」一段改写为四项（第 6 节第 1 步之后唯一的手工改动），
+再 finalize、G1。G1 **PASS**，manifest `526d9e3e01331a6244defb9faaf079542c3b1a8a7d7a0376f58e1685caea6a29`，50 条向量；
+生成器 `--verify-determinism` 1964 个文件、0 divergent。
+
+审查（经调度 C11 转达）之后按 M1、M2、L1、L2、L4 改了生成器（blob `a9a4ec33`），在同一个克隆里按同样步骤重做：
+生成器测试 171/0，G1 **PASS**，manifest `b85f339ea95db83bdb4ebb31f5c8bbba3276871fcd3c2ff125ff5d9090067b39`，50 条向量；
+`--verify-determinism` 1964 个文件、0 divergent。
