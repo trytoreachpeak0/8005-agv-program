@@ -400,3 +400,23 @@ protocol#17 放开机台取货停靠的出发，并给待送点取货停靠加�
 审查（经调度 C11 转达）之后按 M1、M2、L1、L2、L4 改了生成器（blob `a9a4ec33`），在同一个克隆里按同样步骤重做：
 生成器测试 171/0，G1 **PASS**，manifest `b85f339ea95db83bdb4ebb31f5c8bbba3276871fcd3c2ff125ff5d9090067b39`，50 条向量；
 `--verify-determinism` 1964 个文件、0 divergent。
+
+## 13. v4.0.0 候选措辞更正（8005-agv-protocol#19）
+
+protocol#19 把待送点持货期限的 `loadingPhase` 措辞改成服务端实际的发法。改之前读了服务端代码：control-server#727 分支
+（PR #731，head `42e8783d`）的 `LoadingPhaseMachine.Decide` 最后一步是「有待装 `LOADING`、没有 `CARGO_HOLDING_WAIT`」，
+`Deadline()` 不看阶段；`StagingCargoHoldingDeadlineTests` 里装上第一篮后是 `CARGO_HOLDING_WAIT` 带期限，追加后有待装、回到
+`LOADING` 带后移的期限。只动 wire-notes 待送点一节与向量 `CV-STAGING-CARGO-HOLDING-DEADLINE-MOVED` 的断言与终态，
+不改 schema、消息、错误码与枚举值，消息序列不变。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-10-15 |
+| 机器 | 控制端 `LAB-WIN-01` |
+| 起点复核 | `origin/main` `d305aea8` 上的生成器 blob `a9a4ec33`（第 12 节最后一版），在普通克隆 `F:/8005-scratch/p19/base` 里对协议仓 `83c8f1f` 重产、放回七个元文件、finalize、G1：`git status` 为空，G1 **PASS**，manifest `b85f339e…`（与第 12 节相同） |
+| 改写后 | 本分支生成器 blob `d92a6d0f`，在 `F:/8005-scratch/p19/new` 里同样步骤：只改 `docs/wire-notes.md`、`vectors/CV-STAGING-CARGO-HOLDING-DEADLINE-MOVED/expected.json` 与 manifest、G1 结果；G1 **PASS**，manifest `beca46a7fe98003ce1f21efb88f2c1406f3040883d0b372a51505a843e306f3a`，50 条向量 |
+| 确定性 | `--verify-determinism` 1964 个文件、0 divergent |
+| 生成器测试 | 先加断言确认红 2 条，再改实现；`node --test tools/*.test.mjs` 171 pass／0 fail |
+
+两次 pnpm 都设了 `pnpm_config_store_dir` 与 `npm_config_store_dir`（`%LOCALAPPDATA%\pnpm-store`），克隆里没有生成 `.pnpm-store`。
+时段经调度 C11 放行（10-15 21:06～21:07）。README「Current state」不用改：那一段只列四项改动的名目，不涉及阶段措辞。
