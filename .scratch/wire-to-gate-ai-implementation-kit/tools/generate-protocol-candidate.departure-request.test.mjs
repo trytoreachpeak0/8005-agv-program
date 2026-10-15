@@ -260,6 +260,8 @@ test("a machine pickup stop in cargo-holding wait accepts the departure as the c
   assert.deepEqual(value.orderedExpectedMessages.slice(0, 4), [REQUEST, "DurableAck", RESULT, "DurableAck"]);
   assert.ok(value.orderedExpectedMessages.includes("VehicleBusinessStateSnapshot"), "the closed loading phase is published");
   assert.ok(value.orderedExpectedMessages.includes("UpcomingStopPlanSnapshot"), "the released appended stops leave the plan");
+  // Every committed load of this stop is complete, so nothing at the current stop is released and no empty worklist goes out.
+  assert.ok(!value.orderedExpectedMessages.includes("CurrentStopWorklistSnapshot"), "the current stop sends no worklist");
   assert.deepEqual(value.orderedExpectedMessages.slice(-2), ["PreDepartureSafetyCheck", "PreDepartureSafetyCheckResult"]);
   for (const assertion of ["ACCEPT_DEPARTURE_AT_MACHINE_PICKUP_STOP_ONCE_COMMITTED_LOADS_COMPLETE", "TREAT_DEPARTURE_AS_CARGO_HOLDING_DEADLINE_EXPIRING_NOW", "CLOSE_LOADING_PHASE_WITH_OPERATOR_DEPARTED", "RELEASE_UNLOADED_APPENDED_STOPS_AS_ON_CARGO_HOLDING_TIMEOUT", "KEEP_LOADED_DEMANDS_ON_JOURNEY", "END_STOP_WITHOUT_WAITING_OUT_STATION_DEPARTURE_DEADLINE", "DEPART_THROUGH_CORRECTION_GATE_AND_SAFETY_CHECK"]) assert.ok(value.productAssertions.controlServer.includes(assertion), assertion);
   for (const effect of ["departure-cancels-or-suppresses-unloaded-demand", "departure-counts-against-station-timeout-release-limit", "departure-waits-out-station-departure-deadline", "departure-bypasses-correction-gate-or-safety-check", "loaded-demand-released-on-departure"]) assert.ok(value.forbiddenSideEffects.includes(effect), effect);
@@ -295,7 +297,9 @@ test("a staging cargo-holding deadline is set by the first loaded basket and mov
   const value = expectedOf(STAGING_DEADLINE_MOVED);
   assert.equal(value.stableErrorCode, null);
   assert.equal(value.orderedExpectedMessages.filter((type) => type === "VehicleBusinessStateSnapshot").length, 2, "set, then moved");
-  assert.ok(value.orderedExpectedMessages.includes("CurrentStopWorklistSnapshot"), "the appended demand reaches the worklist");
+  // Review M2: the append opens a new stop at the same station, so it reaches the vehicle in the plan between the two
+  // business snapshots; the current worklist does not change.
+  assert.deepEqual(value.orderedExpectedMessages, ["VehicleBusinessStateSnapshot", "SnapshotAppliedAck", "UpcomingStopPlanSnapshot", "SnapshotAppliedAck", "VehicleBusinessStateSnapshot", "SnapshotAppliedAck"]);
   for (const assertion of ["SET_STAGING_CARGO_HOLDING_DEADLINE_ON_FIRST_LOADED_BASKET", "MOVE_STAGING_CARGO_HOLDING_DEADLINE_ON_DEMAND_APPENDED_FOR_THE_STATION", "KEEP_STAGING_CARGO_HOLDING_DEADLINE_ON_RELEASE_CANCELLATION_OR_OTHER_WORKLIST_CHANGE", "CLEAR_STAGING_CARGO_HOLDING_DEADLINE_WHEN_NO_CARGO_REMAINS"]) assert.ok(value.productAssertions.controlServer.includes(assertion), assertion);
   for (const effect of ["cargo-holding-deadline-set-with-nothing-loaded", "cargo-holding-deadline-not-moved-on-append", "cargo-holding-deadline-moved-by-release-cancellation-or-other-worklist-change"]) assert.ok(value.forbiddenSideEffects.includes(effect), effect);
   assert.ok(value.productAssertions.onboardHmi.includes("DISPLAY_CARGO_HOLDING_COUNTDOWN_AT_STAGING_PICKUP_STOP"));
@@ -376,7 +380,8 @@ test("the wire notes give staging pickup stops no station deadline, a cargo-hold
   assert.match(body, /whose `cargoHoldingDeadlineAt` never moves once given/);
   // Point 4: the expiry uses the released cargo-holding timeout values.
   assert.match(body, /`closedReason` `CARGO_HOLDING_TIMEOUT`/);
-  assert.match(body, /carries `stopEndedReason` `DEMAND_RELEASED`, as at a machine pickup stop/);
+  assert.match(body, /if an empty worklist is sent because of the release, it carries `stopEndedReason` `DEMAND_RELEASED`, as at a machine pickup stop/);
+  assert.doesNotMatch(body, /the empty worklist then carries `stopEndedReason` `DEMAND_RELEASED`/);
   assert.match(body, /The expiry does not interrupt a running slot operation, load correction or cancellation/);
   assert.match(body, /`stopEndedReason` `OPERATOR_DEPARTED` or `CHARGING_REQUIRED`, never `DEMAND_RELEASED` and never a timeout reason/);
   assert.match(body, /When every demand of the stop is loaded the vehicle leaves as before and no empty worklist is sent/);
@@ -391,8 +396,12 @@ test("the wire notes scope the departure to staging and to loaded machine pickup
   assert.doesNotMatch(body, /only at a staging pickup stop/);
   assert.match(body, /CP-0014 \(program#191\)/);
   // CP-0014 section 3 item 4, point 1.
-  assert.match(body, /accepts a departure request at a staging pickup stop, and at a machine pickup stop once every load committed to that stop is complete, at least one basket is loaded and the vehicle has not yet asked to leave, whether `loadingPhase` is still `CARGO_HOLDING_WAIT` or has already ended \(`VEHICLE_FULL` or `CLOSED`\) and only the station departure wait remains/);
-  assert.match(body, /`ACTION_NOT_ALLOWED_IN_STATE` when the stop accepts no departure in its present state: a machine pickup stop whose committed loads are not all complete or that has no basket loaded, a stop that is not a pickup stop, a vehicle that has already asked to leave, a running slot operation or an open load correction/);
+  assert.match(body, /accepts a departure request at a staging pickup stop, and at a machine pickup stop once every load committed to that stop is complete, at least one basket is loaded and the vehicle has not yet asked to leave, whether the vehicle is still in cargo-holding wait or its loading phase has already ended and only the station departure wait remains/);
+  // Review M1: a journey that does not hold cargo never announces the end of its loading phase, so the shown state cannot
+  // be what offers or refuses the departure.
+  assert.match(body, /The `loadingPhase` the vehicle shows does not decide this: on a journey that does not hold cargo, because every zone the vehicle serves forbids en-route appends, it still reads the last `LOADING` sent/);
+  assert.doesNotMatch(body, /\(`VEHICLE_FULL` or `CLOSED`\)/);
+  assert.match(body, /`ACTION_NOT_ALLOWED_IN_STATE` when the stop accepts no departure in its present state: a machine pickup stop whose committed loads are not all complete or that has no basket loaded, a stop that is not a pickup stop, a vehicle that has already asked to leave, a running slot operation, an open load correction or a cancellation in progress/);
   // Point 2.
   assert.match(body, /At a machine pickup stop accepted in `CARGO_HOLDING_WAIT`, the departure counts as the cargo-holding deadline expiring now: `loadingPhase` is `CLOSED` with `closedReason` `OPERATOR_DEPARTED`/);
   assert.match(body, /appended stops not yet loaded are released back to dispatch as on a cargo-holding timeout/);

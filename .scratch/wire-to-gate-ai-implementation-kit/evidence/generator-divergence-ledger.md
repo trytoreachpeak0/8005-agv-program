@@ -396,3 +396,7 @@ protocol#17 放开机台取货停靠的出发，并给待送点取货停靠加�
 从 `4d67655c` 放回七个元文件，`README.md`「Current state」里的「three changes」一段改写为四项（第 6 节第 1 步之后唯一的手工改动），
 再 finalize、G1。G1 **PASS**，manifest `526d9e3e01331a6244defb9faaf079542c3b1a8a7d7a0376f58e1685caea6a29`，50 条向量；
 生成器 `--verify-determinism` 1964 个文件、0 divergent。
+
+审查（经调度 C11 转达）之后按 M1、M2、L1、L2、L4 改了生成器（blob `a9a4ec33`），在同一个克隆里按同样步骤重做：
+生成器测试 171/0，G1 **PASS**，manifest `b85f339ea95db83bdb4ebb31f5c8bbba3276871fcd3c2ff125ff5d9090067b39`，50 条向量；
+`--verify-determinism` 1964 个文件、0 divergent。
