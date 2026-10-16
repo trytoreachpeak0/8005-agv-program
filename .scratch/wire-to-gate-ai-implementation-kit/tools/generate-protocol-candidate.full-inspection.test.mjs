@@ -51,11 +51,14 @@ test("PublicStationFunction keeps exactly the five values protocol-v4.0.0 releas
   assert.deepEqual(defs().PublicStationFunction.enum, V4_PUBLIC_STATION_FUNCTIONS);
 });
 
-test("the worklist item and the clearance confirmation still take their type from TransportTaskType", () => {
+test("the worklist item is the one place a message carries TransportTaskType", () => {
+  // The ticket also named ManualStationClearanceConfirmationRequested; in protocol-v4.0.0 that message, like
+  // UpcomingStopPlanSnapshot, references PublicStationFunction, not TransportTaskType.
   const worklistItem = readJson(`schemas/messages/${WORKLIST}.schema.json`).properties.payload.properties.items.items.properties;
   assert.equal(worklistItem.workType.$ref, `${TYPES}TransportTaskType`);
-  const clearance = JSON.stringify(readJson("schemas/messages/ManualStationClearanceConfirmationRequested.schema.json"));
-  assert.ok(clearance.includes(`"${TYPES}TransportTaskType"`), "ManualStationClearanceConfirmationRequested no longer references TransportTaskType");
+  const carriers = fs.readdirSync(path.join(tree, "schemas/messages"))
+    .filter((file) => read(`schemas/messages/${file}`).includes(`"${TYPES}TransportTaskType"`));
+  assert.deepEqual(carriers, [`${WORKLIST}.schema.json`]);
 });
 
 test(`a valid ${WORKLIST} example carries ${NEW_TYPE} and otherwise matches the minimal example`, () => {
