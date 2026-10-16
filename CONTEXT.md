@@ -294,7 +294,7 @@ _Avoid_: 实现全部长期协议能力、另建专用协议版本、未声明�
 _Note_: 它是 **`WIRE_TO_GATE_MVP` 这个 profileId 的剖面**，定义里的限定词（单 Demand 双移动段）在完整产品下不成立；完整产品由 AgvFullProductProtocolProfile 承载。两者**不是同一个剖面的两个版本**，而是两个剖面，各自在自己的 profileId 内递增 ProtocolVersion，整数可以相同（见 ProtocolVersion）。（2026-09-04，完整产品图票 06；2026-09-15 按 ProtocolVersion 作用域改写，program#90）
 
 **AgvFullProductProtocolProfile（完整产品协议剖面）**:
-为 8005 完整产品明确列出的必需且允许消息集合，覆盖六类运输任务、多车、多 Demand 多停靠、自动充电、等待点、仓位配置激活与告警上报；它复用同一协议外壳和既有语义，剖面外消息在该 release 中必须稳定拒绝。其 profileId 字面值为 `AGV_FULL_PRODUCT`——与 WIRE_TO_GATE_MVP 同构，是阶段名而不带版本号，版本活在 ProtocolVersion 与 ProtocolReleaseVersion 里：1.0.0 为 ProtocolVersion 2，2.0.0 为 ProtocolVersion 3，3.0.0 为 ProtocolVersion 4，4.0.0 为 ProtocolVersion 5，5.0.0 为 ProtocolVersion 6。
+为 8005 完整产品明确列出的必需且允许消息集合，覆盖七类运输任务、多车、多 Demand 多停靠、自动充电、等待点、仓位配置激活与告警上报；它复用同一协议外壳和既有语义，剖面外消息在该 release 中必须稳定拒绝。其 profileId 字面值为 `AGV_FULL_PRODUCT`——与 WIRE_TO_GATE_MVP 同构，是阶段名而不带版本号，版本活在 ProtocolVersion 与 ProtocolReleaseVersion 里：1.0.0 为 ProtocolVersion 2，2.0.0 为 ProtocolVersion 3，3.0.0 为 ProtocolVersion 4，4.0.0 为 ProtocolVersion 5，5.0.0 为 ProtocolVersion 6。
 _Avoid_: WireToGateMvpProtocolProfile、另建第三个协议剖面、把 profileId 当版本号、未声明消息也尽量接受
 
 **MessageId（消息编号）**:
