@@ -145,7 +145,7 @@ requirement-documents/
 - 2026-07-13：新增 `UC-042 处理AGV途中故障并改派或终止关联任务`（放入 `04-transport-task-dispatch/`），解决“AGV 离站在途后报障或离线，车上任务如何安全收尾”的缺口——`UC-006` 覆盖离站前清空并取消，`UC-028` 只覆盖流程步骤层面的通用异常处置。本 UC 当前仅为初稿骨架，TBD 事项较多（故障状态机、终止后产品如何继续送达、应急开锁权限等），需要后续与用户逐项确认。
 - 2026-07-13："服务器/系统重启后，本地任务—AGV绑定—仓位占用—RCS/RIOT在途任务的整体对账恢复"经确认属于可以按 UC 建模的场景（参照 `UC-009` 系统内部过程作为 primary_actor 的先例），但内容涉及面广，经用户确认暂缓，先记录缺口，留待后续与其他子系统设计稳定后再补建 UC。
 - 2026-07-14：将 `mes/AGV系统业务与MES任务模型.md`（及接口确认文档）中已确认的 MES 业务规则正式融入本 vault 追溯体系，不修改 `mes/` 原始文件：
-  - 新增 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]（幂等键、固定延迟轮询、字段冻结、消失对账、`PAUSED_ZERO_DROP`、重启基线、只读安全）、[[br-013-multi-basket-loading|BR-013]]（权威花篮数量、批量开门与 SUBLOT—仓位占用模型）、[[br-014-transport-task-types-and-fixed-stations|BR-014]]（现为六类任务类型与五个固定区域站点）。
+  - 新增 [[br-012-mes-task-idempotency-and-reconciliation|BR-012]]（幂等键、固定延迟轮询、字段冻结、消失对账、`PAUSED_ZERO_DROP`、重启基线、只读安全）、[[br-013-multi-basket-loading|BR-013]]（权威花篮数量、批量开门与 SUBLOT—仓位占用模型）、[[br-014-transport-task-types-and-fixed-stations|BR-014]]（现为七类任务类型与六个固定区域站点，第七类 `WIRE_TO_FULL_INSPECTION` 于 2026-10-16 加入）。
   - 重写 [[uc-007-sync-transport-task-from-mes|UC-007]]，用上述 BR 替换原 TBD；[[uc-001-load-completed-lot-into-slot|UC-001]] 增加备选流程 1.2；[[uc-010-unload-completed-lot-at-destination-station|UC-010]] 关闭“是否回传 MES”TBD 并引用 BR-013/014；[[br-001-dispatch-task-range|BR-001]] 补充复合停靠与上下游等待；[[br-002-agv-allocation-eligibility|BR-002]] / [[uc-023-allocate-transport-tasks-to-agv|UC-023]] 补充第 5 类最高优先级与无响应升级。
   - [[br-003-area-station-mapping|BR-003]] 两表模型已与 mes 文档第 10 节一致，无需结构性改写。
   - 同日新增 `07-customer-deliverables/`，产出面向客户的中文需求讨论稿（Markdown 源 + Word）。
