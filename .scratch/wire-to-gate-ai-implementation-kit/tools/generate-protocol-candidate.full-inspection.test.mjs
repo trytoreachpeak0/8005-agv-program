@@ -46,8 +46,9 @@ test(`TransportTaskType appends ${NEW_TYPE} after the six values protocol-v4.0.0
 });
 
 test("PublicStationFunction keeps exactly the five values protocol-v4.0.0 released", () => {
-  // The user decided on 2026-10-16 not to add FULL_INSPECTION: specification 5.3 no longer maintains the field and the
-  // control server always sends null, so a value would have no sender.
+  // The user decided on 2026-10-16 not to add FULL_INSPECTION: specification 5.3 no longer maintains the field, and the
+  // control server sends a value only on a staging pickup leg, WIRE_STAGING (control-server#713), so FULL_INSPECTION would
+  // have no sender.
   assert.deepEqual(defs().PublicStationFunction.enum, V4_PUBLIC_STATION_FUNCTIONS);
 });
 
@@ -111,4 +112,19 @@ test(`docs/wire-notes.md explains ${NEW_TYPE} and why both implementations chang
   assert.match(section, /4\.0\.0 implementation.*rejects/s);
   assert.match(section, /both implementations.*together/s);
   assert.match(section, /`PublicStationFunction` is unchanged/);
+  // The control server does send one value, WIRE_STAGING on a staging pickup leg (control-server#713); the note must not
+  // claim it always sends null.
+  assert.match(section, /staging pickup leg, where it sends `WIRE_STAGING`/);
+  assert.doesNotMatch(section, /always sends/);
+});
+
+test("candidate limitations describe what 5.0.0 changes and what it carries over", () => {
+  const lastParagraph = read("docs/candidate-limitations.md").trim().split("\n\n").at(-1);
+  assert.match(lastParagraph, new RegExp(`TransportTaskType.*${NEW_TYPE}`));
+  assert.match(lastParagraph, /4\.0\.0 implementation rejects/);
+  assert.match(lastParagraph, /both implementations change together/);
+  assert.match(lastParagraph, /every other schema, the vectors and the integration slices stay as 4\.0\.0 released them/);
+  assert.match(lastParagraph, /the error registry is carried over unchanged/);
+  // The 4.0.0 sentence said the payloads and the conformance index change; in 5.0.0 the vectors hash is 4.0.0's.
+  assert.doesNotMatch(lastParagraph, /conformance index change/);
 });

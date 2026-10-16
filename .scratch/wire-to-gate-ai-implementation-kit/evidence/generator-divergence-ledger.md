@@ -442,3 +442,9 @@ schema `$id` 段 `agv-full-product/v5` → `v6`，`baseRelease` `protocol-v4.0.0
 第 12、13 节一直用普通克隆，所以从前没有暴露。
 
 pnpm 设了 `pnpm_config_store_dir` 与 `npm_config_store_dir`（`%LOCALAPPDATA%\pnpm-store`），克隆里没有生成 `.pnpm-store`。
+
+审查（焊线送全检调度转达，结论可合、无必修）之后改了两处说明文字，同一个克隆里按同样步骤重产：wire-notes 新节不再说「服务端一律发
+`publicStationFunction` 为 null」——服务端在待送点取货腿发 `WIRE_STAGING`（control-server#713，`JourneyPlanBuilder.cs:357`）；
+`docs/candidate-limitations.md` 最后一段改为如实描述 5.0.0 只改 `TransportTaskType` 与身份字段、向量与切片不变。生成器测试 180/0
+（新增两条断言先红再绿），`--verify-determinism` 1967 个文件、0 divergent；重产只改这两个文档与 manifest、G1 结果，
+G1 **PASS**，manifest `743b886d99194038b893e98aed2a1dd01409cd7f80d39c734e02d860e0e5827c`，`vectorsSha256` 仍与 v4 相同。
