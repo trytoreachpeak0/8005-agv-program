@@ -555,8 +555,8 @@ _Avoid_: 忙车专属任务队列、未来车辆预留、等待车辆时暂停�
 _Avoid_: 暂时没空车即结构性阻断、结构性无解仍等待老化阈值、每轮重复新建相同告警、告警后绕过门禁、把所需分组暂时空仓不足当作结构性阻断、把仓位临时禁用造成的不足当作超出分组物理仓位数
 
 **TransportTaskTypePriorityBand（运输任务类型优先级带）**:
-运输任务类型在派车排序中的初始业务层级；`STAGING_TO_WIRE` 单独处于最高带，其余五类任务处于同一普通带，普通带内部不再凭任务类型区分先后。
-_Avoid_: 为其余五类臆造优先顺序、把任务类型优先级折算为可被低层因素抵消的分数
+运输任务类型在派车排序中的初始业务层级；`STAGING_TO_WIRE` 单独处于最高带，其余六类任务处于同一普通带，普通带内部不再凭任务类型区分先后。
+_Avoid_: 为其余六类臆造优先顺序、把任务类型优先级折算为可被低层因素抵消的分数
 
 **DispatchStarvationPromotion（派车防饥饿升级）**:
 TransportDemandWaitingAge 达到批准阈值后进入高于所有未超时任务类型优先级带的排序层；超时任务之间按等待时长排序，升级不改变或绕过任何任务、车辆、站点与安全硬准入。
@@ -1245,7 +1245,7 @@ _Avoid_: MES `DATES`、仅可派时长、门禁阻断时暂停、恢复可派后
 _Avoid_: 永久信任任意同名 SQL、无来源版本、只按文件名识别查询
 
 **MesAreaEndpoint（MES AREA 机台端点）**:
-TransportDemand 中由 `EQP + AREA` 表达的唯一机台端点；TASK_TYPE 决定它的运输方向：`STAGING_TO_WIRE` 中是终点，其余五类任务中是起点。另一端由 FixedTaskStation 提供，不从 MES 推导第二个 AREA。
+TransportDemand 中由 `EQP + AREA` 表达的唯一机台端点；TASK_TYPE 决定它的运输方向：`STAGING_TO_WIRE` 中是终点，其余六类任务中是起点。另一端由 FixedTaskStation 提供，不从 MES 推导第二个 AREA。
 _Avoid_: 两个 MES AREA 端点、只凭 AREA 忽略 EQP、根据 STEP 猜测方向
 
 **EquipmentAreaAssignment（机台区域归属）**:
@@ -1705,12 +1705,16 @@ _Avoid_: 第二次焊线（口语替代正式 step 名）
 _Avoid_: 只按口语“焊线完工”缩窄范围、下游自行重新判定 TASK_TYPE、焊线和键合分为两种本地任务
 
 **StagingToWire**:
-运输任务类型代码 `STAGING_TO_WIRE`：同图固定派工待送站点 → MES 指定的焊线或键合机台，即机台叫料。起终点规则与其余五类相反（起点固定区域，终点取查询 EQP/AREA）。清洗完工送焊线、氮气柜送焊线或键合都属于这一类，不另建任务类型。
+运输任务类型代码 `STAGING_TO_WIRE`：同图固定派工待送站点 → MES 指定的焊线或键合机台，即机台叫料。起终点规则与其余六类相反（起点固定区域，终点取查询 EQP/AREA）。清洗完工送焊线、氮气柜送焊线或键合都属于这一类，不另建任务类型。
 _Avoid_: 清洗送焊线任务、氮气柜送焊线任务、CLEANING_TO_WIRE、按产品实际存放处另选取货站点
 
 **WireToNitrogen**:
 运输任务类型代码 `WIRE_TO_NITROGEN`：WireBond1 机台 → 固定氮气柜站点。起终点规则同 `WIRE_TO_GATE`（起点取查询 EQP/AREA，终点固定区域）。PDA 扫码入柜后该行从 MES 快照消失；之后再上 WireBond2 由既有 `STAGING_TO_WIRE` 覆盖，不另建任务类型。不含键合。
 _Avoid_: WIRE_TO_N2、WIRE1_TO_N2_CABINET、氮气柜任务（无代码名）
+
+**WireToFullInspection**:
+运输任务类型代码 `WIRE_TO_FULL_INSPECTION`：焊线或键合完工机台 → 固定全检区站点；MES 侧取子批当前 step 为 `焊线全检`、来源机台 step 为 `焊线` 或 `键合` 的行。起终点规则同 `WIRE_TO_GATE`（起点取查询 EQP/AREA，终点固定区域）。全检区是公共区域，送到区内即可，不到区内具体机台，与三光区相同。全检区与 WireToGate 的人工质检关卡区是两个地方，不是同一站点的别名。只给 agv01，可与 `WIRE_TO_GATE`、`WIRE_TO_OPTICAL`、`WIRE_TO_NITROGEN` 一趟混装；三者按 MES step 天然不重叠，不设互斥。2026-10-16 加入（program#195）。
+_Avoid_: 全检任务（无代码名）、送全检关卡、把全检区当作 WIRE_TO_GATE 的关卡站点、WIRE_TO_INSPECTION
 
 **8005 项目独占充电桩（ProjectExclusiveChargingStation）**:
 在 8005 独占充电桩名册中以 `RIoT 地图 + 站点标识`登记、经批准限定为只服务 8005 项目车辆的充电站点，是 8005 自动充电与充电失败改派的唯一充电桩类型。
