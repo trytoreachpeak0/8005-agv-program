@@ -1,0 +1,8 @@
+id = "CUSTOMER_BASELINE_WIRE_TO_FULL_INSPECTION"
+title = "客户基线：焊线/键合到全检区"
+sql = "07_WIRE_TO_FULL_INSPECTION.sql"
+readonly = true
+requires_approval = false
+promote_sample = false
+parameters = []
+expected_columns = ["TASK_TYPE", "SUBLOT", "AREA", "EQP", "STEP", "DATES", "PACKAGE"]

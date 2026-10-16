@@ -142,7 +142,7 @@ aliases: ["UC-010"]
 * [[uc-043-verify-identity-and-manage-operation-session|UC-043]]：仅在项目级卸货身份核验策略开启时作为本 UC 前置；8005 当前关闭。
 * [[uc-044-reopen-slot-after-incomplete-retrieval|UC-044]]：本 UC 第 4.1 步/Exception Flow E4.1（关门后光幕检测到残留产品）的具体处理流程已拆分到该 UC，本 UC 只保留触发关系，不重复描述重新打开的细节。
 * [[br-013-multi-basket-loading|BR-013]]：多花篮/多仓位装载明细与开关门确认语义。
-* [[br-014-transport-task-types-and-fixed-stations|BR-014]]：六类任务终点（含固定区域站点）定义。
+* [[br-014-transport-task-types-and-fixed-stations|BR-014]]：七类任务终点（含固定区域站点）定义。
 
 ## 其他信息
 
