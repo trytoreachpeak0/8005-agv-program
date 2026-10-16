@@ -1205,8 +1205,8 @@ _Avoid_: 超时即取消、关空门即放弃、升级即故障、升级即授�
 ### MES 焊线工序与运输任务
 
 **MesTaskUnionRound（MES 联合查询轮次）**:
-对六类运输候选执行一次 MES_TASK_UNION Oracle 语句所得的完整轮次；六个 UNION ALL 分支共享同一语句级一致性快照，结构完整但字段值异常的原始行仍属于 SUCCESS 证据，只有执行或结构契约不能成立的 FAILURE / INCOMPLETE 才保持 Demand 投影不变。
-_Avoid_: 六次独立查询、成功的部分快照、调用方自行声明 snapshotComplete
+对七类运输候选执行一次 MES_TASK_UNION Oracle 语句所得的完整轮次；七个 UNION ALL 分支共享同一语句级一致性快照，结构完整但字段值异常的原始行仍属于 SUCCESS 证据，只有执行或结构契约不能成立的 FAILURE / INCOMPLETE 才保持 Demand 投影不变。
+_Avoid_: 七次独立查询、成功的部分快照、调用方自行声明 snapshotComplete
 
 **MesIngest**:
 MES 任务接入：轮询只读 MES 快照、对账并投影 TransportDemand；GONE 后同一业务键再现时可以产生新的本地投影实例。它不读取调度侧取消抑制，也不决定是否创建业务任务或派车。
@@ -1241,7 +1241,7 @@ _Avoid_: IngestAlert、TransportSelectionAlert、默认花篮容量、报警后�
 _Avoid_: MES `DATES`、仅可派时长、门禁阻断时暂停、恢复可派后重新计时
 
 **FactoryMesTaskQueryVersion（工厂 MES 任务查询版本）**:
-工厂 IT 正式提供、用于形成当前六类候选集合的具体 SQL 版本；每版必须绑定提供方、接收日期与 SHA-256。对当前版本的信任不自动延伸到未知未来版本；任务类型、输出字段或筛选语义变化时必须重新审查。
+工厂 IT 正式提供、用于形成当前七类候选集合的具体 SQL 版本；每版必须绑定提供方、接收日期与 SHA-256。对当前版本的信任不自动延伸到未知未来版本；任务类型、输出字段或筛选语义变化时必须重新审查。
 _Avoid_: 永久信任任意同名 SQL、无来源版本、只按文件名识别查询
 
 **MesAreaEndpoint（MES AREA 机台端点）**:
