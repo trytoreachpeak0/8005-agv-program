@@ -23,6 +23,9 @@
 ### Modified
 
 - `REQ-0354`：机台取货停靠——旅程仍有其它未结 Demand、本停靠的 Demand 均已终结（例如被操作员取消）、本站一篮未装、没有尚待装货或正在装货的 Demand 时，本站离站等待立即结束，下发的站点离站等待期限即为此刻，不出出发入口；车辆不在持货等单的立即离站前往下一停靠，在持货等单的照旧等到装满、持货超时或让站；下一停靠同站时照同站追加的既有做法；仓门未证明锁闭等阻断与一次只开一扇仓门不变。机台出发入口的前提「车上至少有一篮」按实现改正为「本站至少有一篮」，不改行为。由 `CP-0015` 修订项一承载。
+- `REQ-0003`：正式 MES_TASK_UNION 由六类任务、六个分支改为七类、七个分支（2026-10-16 加入 `WIRE_TO_FULL_INSPECTION`），标题行随之改。由 `CP-0015` 修订项二承载。
+- `REQ-0181`：工厂 IT SQL 由全厂六类改为七类，标题行随之改。由 `CP-0015` 修订项三承载。
+- `REQ-0150`：TransportDemandKey 适用的正式 MES 运输任务由六类改为七类，标题行不变。由 `CP-0015` 修订项四承载。
 
 ### Deprecated
 
@@ -146,19 +149,19 @@
 
 ---
 
-### `REQ-0003` — 正式 MES_TASK_UNION 仍是六类任务的开发与发布唯一查询原稿；生产代码不得复制一份会漂移的 SQ…
+### `REQ-0003` — 正式 MES_TASK_UNION 仍是七类任务的开发与发布唯一查询原稿；生产代码不得复制一份会漂移的 SQ…
 
 - Lifecycle: `active`
 - Scope: 8005 MesIngest Windows Service、Host/领域投影、SQL Server、版本化 API/OpenAPI、MesIngestWatch 与外部可读目录
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-正式 MES_TASK_UNION 仍是六类任务的开发与发布唯一查询原稿；生产代码不得复制一份会漂移的 SQL，也不得按六个分支分别查询。
+正式 MES_TASK_UNION 仍是七类任务的开发与发布唯一查询原稿；生产代码不得复制一份会漂移的 SQL，也不得按七个分支分别查询。
 
 #### Verification Method
 
@@ -8677,14 +8680,14 @@ Production UI work must follow the repository Fluent UI rules and golden-rendere
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-当前 MES 业务对账键是 TransportDemandKey，即 TASK_TYPE + SUBLOT。 它适用于当前 8005 正式 MES 六类运输任务。早期 product_lot + machine_no + finish_time 只保留为历史口径；当前统一查询不提供 MES 事务 ID，因此两者均不承担当前对账、唯一性或抑制职责。
+当前 MES 业务对账键是 TransportDemandKey，即 TASK_TYPE + SUBLOT。 它适用于当前 8005 正式 MES 七类运输任务。早期 product_lot + machine_no + finish_time 只保留为历史口径；当前统一查询不提供 MES 事务 ID，因此两者均不承担当前对账、唯一性或抑制职责。
 
 #### Verification Method
 
@@ -10470,19 +10473,19 @@ ChargeHangReassign 与普通待充共用一条候选链。 先限定为该车允
 
 ---
 
-### `REQ-0181` — 工厂 IT SQL 是候选集合边界。 MesIngest 执行工厂 IT 正式提供的全厂六类 MES SQL…
+### `REQ-0181` — 工厂 IT SQL 是候选集合边界。 MesIngest 执行工厂 IT 正式提供的全厂七类 MES SQL…
 
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-工厂 IT SQL 是候选集合边界。 MesIngest 执行工厂 IT 正式提供的全厂六类 MES SQL；SQL 返回集是权威候选集，未返回的记录直接忽略。MesIngest 不重建被内连接或其它 SQL 条件排除的任务，不为设备主资料缺失另建旁路查询或告警。对 SQL 的信任必须逐版本绑定提供方、接收日期与 SHA-256；任务类型、输出字段或筛选语义变化时重新审查，不能把当前信任延伸到未知版本。
+工厂 IT SQL 是候选集合边界。 MesIngest 执行工厂 IT 正式提供的全厂七类 MES SQL；SQL 返回集是权威候选集，未返回的记录直接忽略。MesIngest 不重建被内连接或其它 SQL 条件排除的任务，不为设备主资料缺失另建旁路查询或告警。对 SQL 的信任必须逐版本绑定提供方、接收日期与 SHA-256；任务类型、输出字段或筛选语义变化时重新审查，不能把当前信任延伸到未知版本。
 
 #### Verification Method
 
@@ -21148,7 +21151,7 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - [x] 每个条目均具有唯一规范性的 Current Requirement、Scope、Verification Method 与可复核 Evidence。
 - [x] `REQ-0001`–`REQ-0348` 保留 `v1.0.0` 逐条批准时绑定的规范文本 SHA-256、批准批次、payload、候选总账和 manifest；`REQ-0349`–`REQ-0355` 经 `CP-0002`、`REQ-0356` 经 `CP-0003`、`REQ-0357` 经 `CP-0004`、`REQ-0358`–`REQ-0359` 经 `CP-0005`、`REQ-0360`–`REQ-0363` 经 `CP-0006`、`REQ-0364` 经 `CP-0009` 批准，规范文本 SHA-256 按同一口径（条文 UTF-8、无结尾换行）计算，其余批准工件字段记为 `none（经变更提案流程批准）`。
 - [x] 已知真实冲突均引用已解决决定；未把疑似冲突擅自解释为已解决。
-- [x] 本版本相对 `v1.13.0` 没有新增、没有废弃条目，修订 1 条：`REQ-0354` 只改 Current Requirement、Last Meaning Change In 与 Change Proposal，改动都落在前 54 个字符之后，标题行不变（一处措辞改正、一处插入）；Evidence 与条目批准记录保留原批准时的内容（`CP-0002`），与 `CP-0001`～`CP-0014` 的做法一致。
+- [x] 本版本相对 `v1.13.0` 没有新增、没有废弃条目，修订 4 条：`REQ-0354`、`REQ-0003`、`REQ-0181`、`REQ-0150` 只改 Current Requirement、Last Meaning Change In 与 Change Proposal；`REQ-0354` 与 `REQ-0150` 的改动落在前 54 个字符之后，标题行不变，`REQ-0003` 与 `REQ-0181` 的改动落在前 54 个字符之内，标题行按前 54 个字符加 `…` 的规则随之改；Evidence 与条目批准记录保留原批准时的内容（`REQ-0354` 为 `CP-0002`，其余三条为 `v1.0.0` 逐条批准），与 `CP-0001`～`CP-0014` 的做法一致。
 - [x] 版本号 `v1.14.0` 与「修订既有条目文义 → minor」一致。
 - [x] 本文件由生成脚本从 `v1.13.0` 与 `CP-0015` 机械派生，派生时核对提案所引基线原文与 `v1.13.0` 一致、标题行符合前 54 个字符加 `…` 的规则。
 - [x] 内容 Git commit、Baseline SHA-256 与 annotated tag 记在 `requirements/current-baseline.md`。
