@@ -90,7 +90,8 @@ test("the compatibility report states the one breaking change against protocol-v
   const report = readJson("compatibility/report.json");
   assert.equal(report.baseRelease, "protocol-v4.0.0");
   assert.equal(report.classification, "BREAKING_PROTOCOL_VERSION_INCREASE");
-  assert.equal(report.changeSummary.length, 1);
+  // protocol#23 adds a second sentence (generate-protocol-candidate.stale-departure-revision.test.mjs); this one stays first.
+  assert.equal(report.changeSummary.length, 2);
   const [sentence] = report.changeSummary;
   assert.match(sentence, new RegExp(`TransportTaskType.*${NEW_TYPE}`));
   assert.match(sentence, /PublicStationFunction.*unchanged/);
@@ -123,7 +124,8 @@ test("candidate limitations describe what 5.0.0 changes and what it carries over
   assert.match(lastParagraph, new RegExp(`TransportTaskType.*${NEW_TYPE}`));
   assert.match(lastParagraph, /4\.0\.0 implementation rejects/);
   assert.match(lastParagraph, /both implementations change together/);
-  assert.match(lastParagraph, /every other schema, the vectors and the integration slices stay as 4\.0\.0 released them/);
+  // protocol#23 changed the departure and journey plan vectors and their slices, so only the schemas are carried over.
+  assert.match(lastParagraph, /every other schema stays as 4\.0\.0 released it/);
   assert.match(lastParagraph, /the error registry is carried over unchanged/);
   // The 4.0.0 sentence said the payloads and the conformance index change; in 5.0.0 the vectors hash is 4.0.0's.
   assert.doesNotMatch(lastParagraph, /conformance index change/);
