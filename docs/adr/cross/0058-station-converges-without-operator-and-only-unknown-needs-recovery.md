@@ -158,7 +158,7 @@ ADR-cross-0012 的离站安全约束又不允许车辆带着未闭合的仓门�
 
    *2026-09-12 回写：已随 2026-09-09 的 RC 上线，2026-09-12 在真车上验收。见文末 Verification。*
 
-**Status**: accepted（2026-09-12 由 proposed 转，依据见文末 Verification；决策 7 在 STAGING_TO_WIRE 固定起点的取货停靠不触发，由 [ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md) 修订，2026-10-14 随 `CP-0012` 批准，见文末修订记录）
+**Status**: accepted（2026-09-12 由 proposed 转，依据见文末 Verification；决策 7 在 STAGING_TO_WIRE 固定起点的取货停靠不触发，由 [ADR-cross-0065](0065-staging-pickup-departs-on-full-or-operator-departure.md) 修订，2026-10-14 随 `CP-0012` 批准；v5 起机台取货停靠上决策 7 回到原文，另加人工搬运告警与站点超时抑制清单，随 `CP-0016`（已批准，2026-10-17）；均见文末修订记录）
 
 **Considered Options**:
 - 维持现状，靠 `recoveryResumeEnabled` 打开 HMI 恢复入口（拒绝：把每一次操作员迟疑都升级为需要
@@ -376,7 +376,7 @@ PR #103）：
     改为放回待派、第 3 次起终结并告警（服务端 `StationTimeoutRedispatchLimit = 2`）。本文决策 7 与 `FR-031` AC-5 的正文尚未据此改写；
     `CP-0012` 只为待送点开例外，不替机台那一半改条文。
 
-- **2026-10-17，v5 起机台取货停靠上决策 7 回到原文（`CP-0016`，`REQ-0365`）。**
+- **2026-10-17，v5 起机台取货停靠上决策 7 回到原文（`CP-0016`，program#203，`REQ-0365`，已批准，2026-10-17）。**
   - 用户 10-17 定「现在站点期限到了，不放回，直接抑制」，只在 v5 里改。v5 起站点离站等待期限第一次到期、本站没录入，本停靠尚未开始装货的
     需求就以 `CANCELLED_BY_STATION_TIMEOUT` 终结并按业务键永久抑制，即决策 7 的原文；不放回待派，也不按到期次数再次派车。
   - 比原文多两样，用来守住 control-server#703 要防的「真实 MES 需求静默丢失、无告警」：每条被终结的需求各挂一条人工搬运告警；
