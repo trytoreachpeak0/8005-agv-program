@@ -68,7 +68,7 @@
 | [ADR-cross-0055](cross/0055-server-owned-station-departure-wait-timeout.md) | 服务端掌握装货站离站等待超时并原子结束本站（待送点取货停靠不设期限，由 ADR-cross-0065 修订；`CP-0014` 起机台取货装完后操作员出发可提前结束本站；`CP-0015` 起机台取货取消后本站一篮没装、旅程继续时立即结束本站） |
 | [ADR-cross-0056](cross/0056-dotnet-toolchain-baseline.md) | 四个可写 .NET 仓库统一工具链基线 |
 | [ADR-cross-0057](cross/0057-multi-demand-journey-departs-on-full-or-holding-timeout.md) | 一趟旅程承载多个需求，装满或持货超时才前往关卡（「装满」部分由 ADR-cross-0059 修订；持货期限 2026-10-11 由 30 分钟改为 5 分钟；待送点取货停靠不适用持货超时，由 ADR-cross-0065 修订；`CP-0014` 起机台取货装完后可由操作员出发、待送点有货后设持货期限） |
-| [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复（决策 7 在待送点取货停靠不触发，由 ADR-cross-0065 修订） |
+| [ADR-cross-0058](cross/0058-station-converges-without-operator-and-only-unknown-needs-recovery.md) | 操作员不作为时装卸站自行收敛，只有传感器不可信才进人工恢复（决策 7 在待送点取货停靠不触发，由 ADR-cross-0065 修订；`CP-0016` 起 v5 机台取货停靠上决策 7 回到原文，第一次到期即终结并抑制，另加人工搬运告警与站点超时抑制清单） |
 | [ADR-cross-0059](cross/0059-front-rear-slot-groups-judged-server-side.md) | 前后仓位分侧只在服务端判定，装满按侧计算并原地持货等单 |
 | [ADR-cross-0060](cross/0060-emergency-latch-proves-stop-and-server-releases-on-confirmation.md) | 急停锁住即视为停稳，人员在服务端确认后由服务端解除（急停分三类与有货时的受治理解除见 ADR-cross-0064） |
 | [ADR-cross-0061](cross/0061-one-slot-door-unlocked-at-a-time.md) | 业务仓位操作一次只开一扇仓门，按分组再按仓位号依次打开（光幕证空而锁不能证明的一格由 ADR-cross-0063 取代） |

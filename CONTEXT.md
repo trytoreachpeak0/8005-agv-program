@@ -1746,7 +1746,7 @@ _Avoid_: 各流程分别抢车、结果未知即释放、空闲返回预留车�
 _Avoid_: 完成一步即返回、强制充电车辆先去等待点、有未结订单仍返回、空闲返回压过搬运
 
 **空闲返回承诺（IdleReturnCommit）**:
-服务端基于同一份新鲜资格快照，原子取得车辆的 IDLE_RETURN VehiclePurposeClaim 与一个具体等待点的 WaitingPointExclusiveClaim 后形成的当前用途承诺；承诺形成后不因新到搬运任务或更低电量车辆而抢占，直至到点收敛或按已确认失败规则释放。
+服务端基于同一份新鲜资格快照，原子取得车辆的 IDLE_RETURN VehiclePurposeClaim 与一个具体等待点的 WaitingPointExclusiveClaim 后形成的当前用途承诺；承诺形成后不因新到搬运任务或更低电量车辆而抢占，直至到点收敛或按已确认失败规则释放。例外：车队配置中只承担 STAGING_TO_WIRE 的车辆，返回目标是该任务类型的固定起点，以该起点的单车位预占（REQ-0204）代替等待点独占；已确认失败后本次回落到等待点（REQ-0292，`CP-0016`）。
 _Avoid_: 只选点不占车、只占车不预占点、建单后改去新任务、结果未知时撤销承诺
 
 **等待点独占（WaitingPointExclusiveClaim）**:
