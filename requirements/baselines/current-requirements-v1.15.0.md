@@ -18,14 +18,14 @@
 
 ### Added
 
-- `REQ-0365`：取货停靠的站点离站等待期限到期、本站会话因期限结束时，本停靠尚未开始装货的待装 Demand 以 `CANCELLED_BY_STATION_TIMEOUT` 终结、按业务键抑制，并各形成一条人工搬运告警；不放回待派，也不按到期次数再次派车。ControlServer 看板设站点超时抑制清单，列 SUBLOT、取货站点与终结时刻，告警消除（MES 关单）即移除。持货期限截断时放回待派照旧，不属于本条；待送点取货停靠不适用。由 `CP-0016` 新增项一承载。
+- `REQ-0365`：取货停靠的站点离站等待期限到期、本站会话因期限结束时，本停靠尚未开始装货的待装 Demand 以 `CANCELLED_BY_STATION_TIMEOUT` 终结、按业务键抑制，并各形成一条人工搬运告警；不放回待派，也不按到期次数再次派车。ControlServer 看板设站点超时抑制清单，只列站点期限到期终结的需求（SUBLOT、取货站点与终结时刻），告警消除（MES 关单）即移除；放回次数配置为非 0 不符合本条。持货期限截断时放回待派照旧，不属于本条；待送点取货停靠不适用。由 `CP-0016` 新增项一承载。
 
 ### Modified
 
 - `REQ-0211`：车载端在取货停靠的作业清单上为每条尚未开始装货的 DemandId 各给一个取消入口，不要求先选择再取消，由待送点取货停靠扩到全部取货停靠；装货已经开始或已装上车的不出现这一入口，装货开始后的清空取消仍由作业清单底部的单一入口发起。待送点例外里重复的那句删去，行为不变。由 `CP-0016` 修订项一承载。
 - `REQ-0201`：删去指向 `REQ-0202` 排序例外的半句，「被放回待派同样不重置等待年龄」保留。由 `CP-0016` 修订项二承载。
 - `REQ-0202`：删去 `CP-0015` 加的被站点离站等待期限放回、未装货的需求不进超时层、排在同带之后与看板清单一句，「其余六类」保留。由 `CP-0016` 修订项三承载。
-- `REQ-0292`：车队配置中只承担 STAGING_TO_WIRE 的车辆，空闲返回的目标是同图 STAGING_TO_WIRE 的固定起点，不取得等待点独占，已在该起点时留在原地；充电优先；建单、到点与失败处理照 `REQ-0294`～`REQ-0296` 以固定起点代替预占等待点，`REQ-0293` 不适用；不规定该起点被占用时的处理。由 `CP-0016` 修订项四承载。
+- `REQ-0292`：车队配置中只承担 STAGING_TO_WIRE 的车辆，空闲返回的目标是同图 STAGING_TO_WIRE 的固定起点，以 `REQ-0204` 对该起点的单车位预占代替等待点独占，与车的用途占有原子取得；已在该起点时留在原地；充电优先；建单、到点与失败处理照 `REQ-0294`～`REQ-0296` 以固定起点代替预占等待点，`REQ-0293` 不适用，已确认失败后本次回落到等待点、下一次仍回固定起点；以该起点只由这类车辆使用为前提，不另规定被占用时的处理。由 `CP-0016` 修订项四承载。
 
 ### Deprecated
 
@@ -16923,7 +16923,7 @@ IdleReturnEligibility 是严格兜底资格。 车辆须已结束当前用途、
 
 #### Current Requirement
 
-车辆与等待点必须原子取得后才形成 IdleReturnCommit。 服务端基于同一份新鲜快照同时取得该车的 IDLE_RETURN VehiclePurposeClaim 和具体等待点的 WaitingPointExclusiveClaim；任一取得失败都不形成承诺。形成承诺后，返回成为车辆当前已承诺下一站，沿用 PlannedStopMutationBoundary，不得因后来出现搬运任务或其它车辆优先级变化而取消、换点或抢占；新任务等待本次返回到点收敛后重新派车。仅适用于车队配置中只承担 STAGING_TO_WIRE 的车辆：空闲返回的目标是同图 STAGING_TO_WIRE 的固定起点（REQ-0324），不从 MapWaitingPointPool 选点，也不取得 WaitingPointExclusiveClaim，取得该车的 IDLE_RETURN VehiclePurposeClaim 即形成承诺；车辆已停在该固定起点时不形成返回，留在原地。REQ-0290 的用途顺序不变，车辆达到 MandatoryChargeEntryThreshold 时先进入充电。返回订单的建单、到点确认与失败处理照 REQ-0294～REQ-0296，其中对预占等待点的要求以该固定起点代替；REQ-0293 的等待点独占不适用。该固定起点只由这类车辆使用，本条不规定它被占用时的处理。
+车辆与等待点必须原子取得后才形成 IdleReturnCommit。 服务端基于同一份新鲜快照同时取得该车的 IDLE_RETURN VehiclePurposeClaim 和具体等待点的 WaitingPointExclusiveClaim；任一取得失败都不形成承诺。形成承诺后，返回成为车辆当前已承诺下一站，沿用 PlannedStopMutationBoundary，不得因后来出现搬运任务或其它车辆优先级变化而取消、换点或抢占；新任务等待本次返回到点收敛后重新派车。仅适用于车队配置中只承担 STAGING_TO_WIRE 的车辆：空闲返回的目标是同图 STAGING_TO_WIRE 的固定起点（REQ-0324），不从 MapWaitingPointPool 选点；以 REQ-0204 对该固定起点的单车位预占代替 WaitingPointExclusiveClaim，与该车的 IDLE_RETURN VehiclePurposeClaim 基于同一份新鲜快照原子取得后才形成承诺，任一取得失败都不形成承诺；车辆已停在该固定起点时不形成返回，留在原地。REQ-0290 的用途顺序不变，车辆达到 MandatoryChargeEntryThreshold 时先进入充电。返回订单的建单、到点确认与失败处理照 REQ-0294～REQ-0296，其中对预占等待点的要求以该固定起点代替；REQ-0293 的等待点独占不适用。按 REQ-0296 已确认失败、须排除原失败点重新承诺时，本次返回改为照 REQ-0293～REQ-0296 从 MapWaitingPointPool 选点；下一次空闲返回仍以该固定起点为目标。本条以车队配置中只有这类车辆以该固定起点为空闲返回目标为前提，不另规定该起点已被其它车辆占用或预占时的等待或改去他处。
 
 #### Verification Method
 
@@ -21157,11 +21157,11 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 
 #### Current Requirement
 
-站点离站等待期限到期即终结本停靠尚未开始装货的待装 Demand，不放回待派，并告警人工搬运。 取货停靠的站点离站等待期限（REQ-0355、ADR-cross-0055）到期、本站 OperationSession 因期限结束时，本停靠尚未开始装货的待装 Demand 以 CANCELLED_BY_STATION_TIMEOUT 终结，按 REQ-0156 与终态原子写入 TransportDemandSuppression，并各形成一条人工搬运告警；不放回待派，也不按到期次数再次派车。已装货物照常送达。ControlServer 看板设站点超时抑制清单，列出以 CANCELLED_BY_STATION_TIMEOUT 终结、人工搬运告警尚未消除的需求，每条列 SUBLOT、取货站点与终结时刻；该需求在 MES 侧关单、不再出现在 MesIngest 目录后，告警消除，需求从清单移除。清单只供人员核对与安排人工搬运，不自动处置。持货期限截断时（含机台出发等同持货期限到期，REQ-0354），已追加而尚未开始装货的待装 Demand 放回待派、不写抑制、不计次数，不属于本条。待送点取货停靠没有站点离站等待期限（REQ-0355），本条对它不适用。
+站点离站等待期限到期即终结本停靠尚未开始装货的待装 Demand，不放回待派，并告警人工搬运。 取货停靠的站点离站等待期限（REQ-0355、ADR-cross-0055）到期、本站 OperationSession 因期限结束时，本停靠尚未开始装货的待装 Demand 以 CANCELLED_BY_STATION_TIMEOUT 终结，按 REQ-0156 与终态原子写入 TransportDemandSuppression，并各形成一条人工搬运告警；不放回待派，也不按到期次数再次派车。已装货物照常送达。ControlServer 看板设站点超时抑制清单，只列出因站点离站等待期限到期而以 CANCELLED_BY_STATION_TIMEOUT 终结、人工搬运告警尚未消除的需求，以同一终态码终结的其它情形（如确定的装货失败）不列入，每条列 SUBLOT、取货站点与终结时刻；该需求在 MES 侧关单、不再出现在 MesIngest 目录后，告警消除，需求从清单移除。清单只供人员核对与安排人工搬运，不自动处置。把站点离站等待期限到期后的放回次数配置为非 0、恢复按次数放回，不符合本条。持货期限截断时（含机台出发等同持货期限到期，REQ-0354），已追加而尚未开始装货的待装 Demand 放回待派、不写抑制、不计次数，不属于本条。待送点取货停靠没有站点离站等待期限（REQ-0355），本条对它不适用。
 
 #### Verification Method
 
-按来源决定的可观察状态、审计记录与边界案例形成验收；最终批准批次需补充或确认逐项 Given/When/Then
+以服务端单元测试覆盖：默认配置下站点离站等待期限第一次到期，本停靠尚未开始装货的需求以 CANCELLED_BY_STATION_TIMEOUT 终结、写入抑制、形成人工搬运告警、不进入待派积压；持货期限截断时仍放回待派、不写抑制；站点超时抑制清单在终结后列出该需求、告警消除后移除，确定的装货失败不列入；重启后已终结的需求不被重新受理；放回次数配置为非 0 时部署检查拒绝。以合成 L2 场景验证默认配置下站点离站等待期限第一次到期即告警、不再派车。
 
 #### Evidence
 
@@ -21169,9 +21169,9 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 
 - Source: [requirements/change-proposals/CP-0016.md](../change-proposals/CP-0016.md)
 - Exact Location: 一、修订既有条目与新增条目 > 新增项一：`REQ-0365` 站点离站等待期限到期即终结本停靠未开始装货的需求、按业务键抑制并告警人工搬运，看板设站点超时抑制清单 > 建议条文
-- Verbatim Extract: 站点离站等待期限到期即终结本停靠尚未开始装货的待装 Demand，不放回待派，并告警人工搬运。 取货停靠的站点离站等待期限（REQ-0355、ADR-cross-0055）到期、本站 OperationSession 因期限结束时，本停靠尚未开始装货的待装 Demand 以 CANCELLED_BY_STATION_TIMEOUT 终结，按 REQ-0156 与终态原子写入 TransportDemandSuppression，并各形成一条人工搬运告警；不放回待派，也不按到期次数再次派车。已装货物照常送达。ControlServer 看板设站点超时抑制清单，列出以 CANCELLED_BY_STATION_TIMEOUT 终结、人工搬运告警尚未消除的需求，每条列 SUBLOT、取货站点与终结时刻；该需求在 MES 侧关单、不再出现在 MesIngest 目录后，告警消除，需求从清单移除。清单只供人员核对与安排人工搬运，不自动处置。持货期限截断时（含机台出发等同持货期限到期，REQ-0354），已追加而尚未开始装货的待装 Demand 放回待派、不写抑制、不计次数，不属于本条。待送点取货停靠没有站点离站等待期限（REQ-0355），本条对它不适用。
-- Source Version: `4e53cf16614681199d6ce5349ff34783be78d935`
-- Snapshot SHA-256: `88322338e04cf73582ba322edf81a9dda23884cb191b20d3b8cc02de907372d0`
+- Verbatim Extract: 站点离站等待期限到期即终结本停靠尚未开始装货的待装 Demand，不放回待派，并告警人工搬运。 取货停靠的站点离站等待期限（REQ-0355、ADR-cross-0055）到期、本站 OperationSession 因期限结束时，本停靠尚未开始装货的待装 Demand 以 CANCELLED_BY_STATION_TIMEOUT 终结，按 REQ-0156 与终态原子写入 TransportDemandSuppression，并各形成一条人工搬运告警；不放回待派，也不按到期次数再次派车。已装货物照常送达。ControlServer 看板设站点超时抑制清单，只列出因站点离站等待期限到期而以 CANCELLED_BY_STATION_TIMEOUT 终结、人工搬运告警尚未消除的需求，以同一终态码终结的其它情形（如确定的装货失败）不列入，每条列 SUBLOT、取货站点与终结时刻；该需求在 MES 侧关单、不再出现在 MesIngest 目录后，告警消除，需求从清单移除。清单只供人员核对与安排人工搬运，不自动处置。把站点离站等待期限到期后的放回次数配置为非 0、恢复按次数放回，不符合本条。持货期限截断时（含机台出发等同持货期限到期，REQ-0354），已追加而尚未开始装货的待装 Demand 放回待派、不写抑制、不计次数，不属于本条。待送点取货停靠没有站点离站等待期限（REQ-0355），本条对它不适用。
+- Source Version: `fdd64586981a36f268f9e58348611185c4546f47`
+- Snapshot SHA-256: `f6dce18f2be846a1fa9ed8c1c26323b89b7dd3658eed10017a60d9d649c97336`
 - Source Date: `2026-10-17`
 - Source Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Source Authority: 用户本人；2026-10-17 经焊线送全检调度转达的决定见 CP-0016 第五节
@@ -21193,7 +21193,7 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - Approver: 用户本人（Zhengyu Shao）
 - Approved At: `待批准`（用户批准 CP-0016 后补记批准时间，并重新派生本文件）
 - Approved Scope: 本条 Current Requirement、Scope 与 Verification Method
-- Approved Text Identity: `d96e16066a756dcd1ed71ab14c2200c81dd37c1d782af25ebac038c79efe1ceb`
+- Approved Text Identity: `b9a7d3e734758c368c2ae8647beb54011c8fed75b15bae8d6910ca8c76350ef1`
 - Approval Batch: `none（经变更提案流程批准）`
 - Approval Payload SHA-256: `none（经变更提案流程批准）`
 - Candidate Ledger SHA-256: `none（经变更提案流程批准）`
