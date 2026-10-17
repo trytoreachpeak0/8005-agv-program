@@ -26,6 +26,13 @@
 - `REQ-0003`：正式 MES_TASK_UNION 由六类任务、六个分支改为七类、七个分支（2026-10-16 加入 `WIRE_TO_FULL_INSPECTION`），标题行随之改。由 `CP-0015` 修订项二承载。
 - `REQ-0181`：工厂 IT SQL 由全厂六类改为七类，标题行随之改。由 `CP-0015` 修订项三承载。
 - `REQ-0150`：TransportDemandKey 适用的正式 MES 运输任务由六类改为七类，标题行不变。由 `CP-0015` 修订项四承载。
+- `REQ-0184`：AREA 表示起点的任务由「其余五类」改为「其余六类」。由 `CP-0015` 修订项五承载。
+- `REQ-0196`：途中追加的停靠数上限分为两项——下发给车载端的剩余停靠（车辆所在停靠及其后未完成的停靠）不超过 9，已完成的停靠不再下发、车载端不再显示；整趟旅程的停靠总数受服务端可配置上限约束，默认 20。由 `CP-0015` 修订项六承载。
+- `REQ-0201`：被放回待派不重置等待年龄，并指向 `REQ-0202` 的排序例外。由 `CP-0015` 修订项七承载。
+- `REQ-0202`：普通带由「其余五类」改为「其余六类」；被站点离站等待期限放回且放回时未装货的需求不进入超时层，在所属优先级带内排在从未被这样放回过的需求之后，看板列出疑似陈旧清单。由 `CP-0015` 修订项八承载。
+- `REQ-0352`：受理时只按花篮数预留分组内的仓位数量，扫码通过、开门装货之前按该分组当时编号最小的可用空仓分配具体仓位，分配后不变；被释放或终结的需求不再占用仓位。由 `CP-0015` 修订项九承载。
+- `REQ-0208`：可用仓位按分组内未被预留的数量计，不看具体编号。由 `CP-0015` 修订项十承载。
+- `REQ-0350`：分组版本的冻结时点写作「受理、预留所需分组的仓位数量时」，与修订项九对齐，不改冻结时点。由 `CP-0015` 修订项十一承载。
 
 ### Deprecated
 
@@ -10652,14 +10659,14 @@ ChargeHangReassign 与普通待充共用一条候选链。 先限定为该车允
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-每个 Demand 只有一个 MES AREA 端点。 STAGING_TO_WIRE 中 EQP + AREA 表示终点；其余五类任务中表示起点。另一端由 8005 按 TASK_TYPE 配置为 FixedTaskStation，使用项目站点身份而非 AREA 格式；不得要求两个端点都命中 AREA 名册，也不得根据 STEP 猜测方向。
+每个 Demand 只有一个 MES AREA 端点。 STAGING_TO_WIRE 中 EQP + AREA 表示终点；其余六类任务中表示起点。另一端由 8005 按 TASK_TYPE 配置为 FixedTaskStation，使用项目站点身份而非 AREA 格式；不得要求两个端点都命中 AREA 名册，也不得根据 STEP 猜测方向。
 
 #### Verification Method
 
@@ -11348,14 +11355,14 @@ Map、DispatchZone 与 AREA 形成单一正向执行链。 每个 DispatchZone �
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-执行途中只允许受控追加。 新 TransportDemand 可以在车辆执行中经过完整准入后加入其后的未执行停靠；车辆正在驶向的当前下一站是已承诺停靠，不得因新 Demand 改变。空仓或距离近只是候选事实，不能绕过 Map、分区、车辆任务类型、取货合法性、容量、取消、分区连续性和延迟门禁。
+执行途中只允许受控追加。 新 TransportDemand 可以在车辆执行中经过完整准入后加入其后的未执行停靠；车辆正在驶向的当前下一站是已承诺停靠，不得因新 Demand 改变。空仓或距离近只是候选事实，不能绕过 Map、分区、车辆任务类型、取货合法性、容量、取消、分区连续性和延迟门禁。追加后，车辆所在的停靠（行驶中为正驶向的停靠）及其后尚未完成的停靠合计不得超过下发给车载端的剩余停靠数上限 9；已完成的停靠不再下发给车载端，车载端也不再显示。整趟旅程的停靠总数（含已完成的停靠）另受服务端可配置的上限约束，默认 20。任一上限不满足时不追加。
 
 #### Verification Method
 
@@ -11638,14 +11645,14 @@ Map、DispatchZone 与 AREA 形成单一正向执行链。 每个 DispatchZone �
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-任务年龄只使用本地连续等待时间。 TransportDemandWaitingAge 从本地首次创建 TransportDemand 起持续累积，任何业务门禁、车辆短缺或资源占用都不暂停或重置；门禁不满足时任务仍不能派发，但恢复后携带原等待年龄重新参与。MES DATES 因不同查询来源字段和语义不一致、非单调且存在历史状态长期停留，只保留展示、审计和数据质量调查，不参与自动派车排序。
+任务年龄只使用本地连续等待时间。 TransportDemandWaitingAge 从本地首次创建 TransportDemand 起持续累积，任何业务门禁、车辆短缺或资源占用都不暂停或重置；门禁不满足时任务仍不能派发，但恢复后携带原等待年龄重新参与；被放回待派同样不重置等待年龄，被站点离站等待期限放回且放回时未装货的需求在排序上的例外见 REQ-0202。MES DATES 因不同查询来源字段和语义不一致、非单调且存在历史状态长期停留，只保留展示、审计和数据质量调查，不参与自动派车排序。
 
 #### Verification Method
 
@@ -11691,19 +11698,19 @@ Map、DispatchZone 与 AREA 形成单一正向执行链。 每个 DispatchZone �
 
 ---
 
-### `REQ-0202` — 任务类型使用初始优先级带。 STAGING_TO_WIRE 单独处于最高初始带，其余五类任务同处普通带且不再…
+### `REQ-0202` — 任务类型使用初始优先级带。 STAGING_TO_WIRE 单独处于最高初始带，其余六类任务同处普通带且不再…
 
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.0.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `none（首版恢复）`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-任务类型使用初始优先级带。 STAGING_TO_WIRE 单独处于最高初始带，其余五类任务同处普通带且不再凭类型细分；同层按 TransportDemandWaitingAge 从长到短排序。普通任务达到防饥饿阈值后进入高于所有未超时任务类型带的超时层，因此可以越过尚未超时的 STAGING_TO_WIRE；超时任务之间仍按本地等待时长排序，任何升级均不得绕过硬门禁。
+任务类型使用初始优先级带。 STAGING_TO_WIRE 单独处于最高初始带，其余六类任务同处普通带且不再凭类型细分；同层按 TransportDemandWaitingAge 从长到短排序。普通任务达到防饥饿阈值后进入高于所有未超时任务类型带的超时层，因此可以越过尚未超时的 STAGING_TO_WIRE；超时任务之间仍按本地等待时长排序，任何升级均不得绕过硬门禁。例外：曾因站点离站等待期限到期被放回待派、且放回时该需求未装货的需求（RELEASED_AT_STATION_DEADLINE），不进入超时层，在其所属优先级带内排在从未被这样放回过的需求之后，彼此之间仍按 TransportDemandWaitingAge 从长到短；这类需求在 ControlServer 看板的疑似陈旧清单中列出，供人员核对。
 
 #### Verification Method
 
@@ -12044,14 +12051,14 @@ Map、DispatchZone 与 AREA 形成单一正向执行链。 每个 DispatchZone �
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.2.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `CP-0002`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-电量和仓位首先是硬资格。 车辆预计完成任务后无法保留经批准的最低电量余量，或电量未知时，直接退出候选；通过后电量只作其它选车层全部相同时的末级裁决，具体阈值由后续充电阈值票据治理。可用仓位数量、规格、载重及当前已载任务兼容性不足时同样退出候选，其中可用仓位只计该 Demand 所需 SlotPosition 分组（REQ-0352）内的仓位，其它分组的空仓不计入；通过后不因剩余空仓更多而取得排序优势。
+电量和仓位首先是硬资格。 车辆预计完成任务后无法保留经批准的最低电量余量，或电量未知时，直接退出候选；通过后电量只作其它选车层全部相同时的末级裁决，具体阈值由后续充电阈值票据治理。可用仓位数量、规格、载重及当前已载任务兼容性不足时同样退出候选，其中可用仓位只计该 Demand 所需 SlotPosition 分组（REQ-0352）内的仓位，其它分组的空仓不计入；通过后不因剩余空仓更多而取得排序优势。可用仓位按分组内未被预留的数量计，不看具体仓位编号，具体仓位按 REQ-0352 在扫码后分配。
 
 #### Verification Method
 
@@ -20280,14 +20287,14 @@ TransportDemand 冻结规则、站点和所依赖版本。 新建 TransportDeman
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.2.0`
-- Last Meaning Change In: `v1.2.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none`
 - Deprecated In: `none`
-- Change Proposal: `CP-0002`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效。 维护入口只接受整表原子导入：分组取值不属于当前车型的 SlotPosition 分组、缺少分组、AREA 重复、AREA 格式错误或分区不存在时整份拒绝。每次导入形成新的不可变版本并保留快照与不可改写审计，生效不要求重启服务或车辆空闲；回滚是把旧内容再次导入为新版本。导入预览列出开启分组将随之变化的在途 Demand。Demand 在分配目标仓位时冻结所用版本，其装货与卸货都按冻结版本执行，之后的版本变化不改变已冻结的 Demand。站点删除重建、AREA 换到其它站点或站点改名时指派原样沿用，不触发 REQ-0341 的暂停与现场复核。投运不以逐 AREA 现场停靠核对为前置条件。
+AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效。 维护入口只接受整表原子导入：分组取值不属于当前车型的 SlotPosition 分组、缺少分组、AREA 重复、AREA 格式错误或分区不存在时整份拒绝。每次导入形成新的不可变版本并保留快照与不可改写审计，生效不要求重启服务或车辆空闲；回滚是把旧内容再次导入为新版本。导入预览列出开启分组将随之变化的在途 Demand。Demand 在受理、预留所需分组的仓位数量时冻结所用版本，其装货与卸货都按冻结版本执行，之后的版本变化不改变已冻结的 Demand。站点删除重建、AREA 换到其它站点或站点改名时指派原样沿用，不触发 REQ-0341 的暂停与现场复核。投运不以逐 AREA 现场停靠核对为前置条件。
 
 #### Verification Method
 
@@ -20396,14 +20403,14 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.2.0`
-- Last Meaning Change In: `v1.2.0`
+- Last Meaning Change In: `v1.14.0`
 - Supersedes: `none`
 - Deprecated In: `none`
-- Change Proposal: `CP-0002`
+- Change Proposal: `CP-0015`
 
 #### Current Requirement
 
-一条 Demand 的全部花篮装入其 AREA 端点指派的同一仓位分组。 每条 Demand 按 REQ-0184 唯一的 AREA 端点取得所需 SlotPosition 分组，与该 AREA 是起点还是终点无关；在公共站点装载送往 AREA 机台的 Demand 时，同样装入目的 AREA 的分组。一条 Demand 的全部 ExpectedBasketCount 个花篮必须分配在该分组内，不得跨组拆装，不得先装后调仓，其它分组的空仓不计入该 Demand 的可用仓位。ExpectedBasketCount 超过同图全部车辆整车仓位模板中该分组的物理仓位数时，没有任何车辆能够承载，按 REQ-0210 形成结构性派车阻断，不派车、不部分装入；仓位临时禁用造成的不足不属于此情形。
+一条 Demand 的全部花篮装入其 AREA 端点指派的同一仓位分组。 每条 Demand 按 REQ-0184 唯一的 AREA 端点取得所需 SlotPosition 分组，与该 AREA 是起点还是终点无关；在公共站点装载送往 AREA 机台的 Demand 时，同样装入目的 AREA 的分组。一条 Demand 的全部 ExpectedBasketCount 个花篮必须分配在该分组内，不得跨组拆装，不得先装后调仓，其它分组的空仓不计入该 Demand 的可用仓位。ExpectedBasketCount 超过同图全部车辆整车仓位模板中该分组的物理仓位数时，没有任何车辆能够承载，按 REQ-0210 形成结构性派车阻断，不派车、不部分装入；仓位临时禁用造成的不足不属于此情形。受理时只在该分组内按 ExpectedBasketCount 预留仓位数量，不指定具体仓位；该 Demand 扫码通过、开门装货之前，服务端按该分组当时编号最小的可用空仓（未分配给其它 Demand、未禁用）分配具体目标仓位，分配后不再改变；被释放或终结的 Demand 不再占用任何具体仓位，也不再占用预留数量。
 
 #### Verification Method
 
@@ -20519,7 +20526,7 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 
 #### Current Requirement
 
-多需求装货阶段在车辆装满、持货超时或让站时结束，此前车辆持货等单。 车辆的每个 SlotPosition 分组分别判断是否装满：该分组已无空仓，或存在一条除该分组空仓外其余准入全部通过、只因车上已装或已预留的货物占用该分组仓位而无法整批装入的候选 Demand，即 SlotPositionGroupFull；被其它门禁拒绝、ExpectedBasketCount 超过该分组物理仓位数、或因本车仓位禁用而无法装入的候选不计入。全部分组均装满即 VehicleFull，车辆不再等待新 Demand，完成已承诺的待装 Demand 后前往卸货；判定装满后，直至车辆离开当前计划的最后一个装货停靠之前，出现能够装入的候选仍可追加，追加后重新判断，离开指服务端为离站向 RIoT 请求移动的时刻。尚有分组未装满时，包括该分组暂无候选以及车辆完全没有候选，车辆处于 CargoHoldingWait，能够装入的候选照常追加，直至装满、持货超时或让站（REQ-0355）；持货超时的期限与起算点按 ADR-cross-0057，自第一个 LoadBatch 安全闭环起算，不因新增停靠重置。车辆能够服务的 DispatchZone 均禁止途中追加（REQ-0198）时车辆不持货等单，当前计划的装货完成即结束装货阶段。持货超时或让站之后不再接受新的待装 Demand。车辆在取货停靠完成本停靠已承诺的装货、本站至少有一篮已安全闭环的货物之后，不论处于 CargoHoldingWait，还是装货阶段已结束、只在等待站点离站等待期限（REQ-0355）到期，已核验操作员都可以在车载端请求出发：装货阶段尚未结束的，效果等同持货期限此刻到期，装货阶段结束，尚未开始装货的待装 Demand 按持货超时的同一做法处理，此后不再接受新的待装 Demand；本站 OperationSession 随之结束，车辆不再等待站点离站等待期限的剩余部分，立即请求离站，不另留纠错宽限。本停靠装货完成之前，以及仓位操作进行中、纠错或取消处理中时，不接受出发请求。出发请求所依据的作业清单版本已被更新的版本取代时，若新旧两版在本站已装货物与本停靠待做项上没有实质差别，照样受理；有实质差别时拒绝，并告知最新版本。旅程仍有其它未结 Demand，而取货停靠上本停靠的 Demand 均已终结、本站没有已安全闭环的货物、也没有尚待装货或正在装货的 Demand 时，本站 OperationSession 随即结束，不再等待站点离站等待期限（REQ-0355）的剩余部分，下发给车载端的站点离站等待期限即为此刻；这时不接受出发请求，也无须操作员出发。车辆此时处于 CargoHoldingWait 的，本站 OperationSession 的结束不结束装货阶段，车辆照旧持货等单，直至装满、持货超时或让站；不处于 CargoHoldingWait 的，立即请求离站，前往下一停靠。下一停靠是同一站点的取货停靠时，照同站追加的既有离站做法（ADR-cross-0055）。仓门未能证明锁闭、仓位操作进行中、纠错或取消处理中时照旧不请求移动；业务仓位操作一次只开一扇仓门（REQ-0357）不变。仅适用于 STAGING_TO_WIRE 固定起点（REQ-0324）的取货停靠（下称待送点取货停靠），其余取货停靠照上文：车辆在待送点取货停靠持货等单，不论其能够服务的 DispatchZone 是否允许途中追加；车上没有已装货物时不设持货期限，车上有了已装货物时起设持货期限，自使车上有货的那个 LoadBatch 安全闭环起算，时长与其余取货停靠的持货期限相同；此后每有一条以该站为取货站的待装 Demand 追加给该车辆，持货期限自追加时刻重新起算，Demand 的释放、取消或作业清单的其它变化不重新起算。待送点取货停靠的装货阶段只在以下任一情形结束：车辆全部 SlotPosition 分组均已无空仓；以该站为取货站、除容量外其余准入全部通过的待送候选 Demand 至少有一条，且每一条都只因容量无法整批装入，容量包括其所需 SlotPosition 分组空仓不足（含被本车已装或已预留的货物占用）、一趟旅程的停靠数上限与单个停靠作业清单的条数上限，被其它门禁拒绝的候选不计入，没有这样的候选时不因此结束；已核验操作员在车载端请求出发；持货期限到期；车辆当前电量达到 MandatoryChargeEntryThreshold（REQ-0281）；让站（REQ-0355）。前两种情形成立、且本停靠已承诺的待装 Demand 均已完成装货时，立即结束装货阶段并请求离站，不保留离站纠错宽限，已开始的纠错须先安全收敛；判定后不因候选变化而撤回。持货期限到期不打断进行中的仓位操作、纠错或取消，待其安全收敛后结束装货阶段。操作员出发、持货期限到期或电量结束装货阶段时，本停靠尚未开始装货的待装 Demand 从本旅程释放、放回待派，仍为已受理、不写业务键抑制，已装货物继续送达；出发时车上一篮未装则本旅程结束，车辆留在原地。仓位操作进行中、纠错或取消处理中时不接受出发请求。
+多需求装货阶段在车辆装满、持货超时或让站时结束，此前车辆持货等单。 车辆的每个 SlotPosition 分组分别判断是否装满：该分组已无空仓，或存在一条除该分组空仓外其余准入全部通过、只因车上已装或已预留的货物占用该分组仓位而无法整批装入的候选 Demand，即 SlotPositionGroupFull；被其它门禁拒绝、ExpectedBasketCount 超过该分组物理仓位数、或因本车仓位禁用而无法装入的候选不计入。全部分组均装满即 VehicleFull，车辆不再等待新 Demand，完成已承诺的待装 Demand 后前往卸货；判定装满后，直至车辆离开当前计划的最后一个装货停靠之前，出现能够装入的候选仍可追加，追加后重新判断，离开指服务端为离站向 RIoT 请求移动的时刻。尚有分组未装满时，包括该分组暂无候选以及车辆完全没有候选，车辆处于 CargoHoldingWait，能够装入的候选照常追加，直至装满、持货超时或让站（REQ-0355）；持货超时的期限与起算点按 ADR-cross-0057，自第一个 LoadBatch 安全闭环起算，不因新增停靠重置。车辆能够服务的 DispatchZone 均禁止途中追加（REQ-0198）时车辆不持货等单，当前计划的装货完成即结束装货阶段。持货超时或让站之后不再接受新的待装 Demand。车辆在取货停靠完成本停靠已承诺的装货、本站至少有一篮已安全闭环的货物之后，不论处于 CargoHoldingWait，还是装货阶段已结束、只在等待站点离站等待期限（REQ-0355）到期，已核验操作员都可以在车载端请求出发：装货阶段尚未结束的，效果等同持货期限此刻到期，装货阶段结束，尚未开始装货的待装 Demand 按持货超时的同一做法处理，此后不再接受新的待装 Demand；本站 OperationSession 随之结束，车辆不再等待站点离站等待期限的剩余部分，立即请求离站，不另留纠错宽限。本停靠装货完成之前，以及仓位操作进行中、纠错或取消处理中时，不接受出发请求。出发请求所依据的作业清单版本已被更新的版本取代时，若新旧两版在本站已装货物与本停靠待做项上没有实质差别，照样受理；有实质差别时拒绝，并告知最新版本。旅程仍有其它未结 Demand，而取货停靠上本停靠的 Demand 均已终结、本站没有已安全闭环的货物、也没有尚待装货或正在装货的 Demand 时，本站 OperationSession 随即结束，不再等待站点离站等待期限（REQ-0355）的剩余部分，下发给车载端的站点离站等待期限即为此刻；这时不接受出发请求，也无须操作员出发。车辆此时处于 CargoHoldingWait 的，本站 OperationSession 的结束不结束装货阶段，车辆照旧持货等单，直至装满、持货超时或让站；不处于 CargoHoldingWait 的，立即请求离站，前往下一停靠。下一停靠是同一站点的取货停靠时，照同站追加的既有离站做法（ADR-cross-0055）。仓门未能证明锁闭、仓位操作进行中、纠错或取消处理中时照旧不请求移动；业务仓位操作一次只开一扇仓门（REQ-0357）不变。仅适用于 STAGING_TO_WIRE 固定起点（REQ-0324）的取货停靠（下称待送点取货停靠），其余取货停靠照上文：车辆在待送点取货停靠持货等单，不论其能够服务的 DispatchZone 是否允许途中追加；车上没有已装货物时不设持货期限，车上有了已装货物时起设持货期限，自使车上有货的那个 LoadBatch 安全闭环起算，时长与其余取货停靠的持货期限相同；此后每有一条以该站为取货站的待装 Demand 追加给该车辆，持货期限自追加时刻重新起算，Demand 的释放、取消或作业清单的其它变化不重新起算。待送点取货停靠的装货阶段只在以下任一情形结束：车辆全部 SlotPosition 分组均已无空仓；以该站为取货站、除容量外其余准入全部通过的待送候选 Demand 至少有一条，且每一条都只因容量无法整批装入，容量包括其所需 SlotPosition 分组空仓不足（含被本车已装或已预留的货物占用）、下发给车载端的剩余停靠数上限、整趟旅程的停靠总数上限与单个停靠作业清单的条数上限，被其它门禁拒绝的候选不计入，没有这样的候选时不因此结束；已核验操作员在车载端请求出发；持货期限到期；车辆当前电量达到 MandatoryChargeEntryThreshold（REQ-0281）；让站（REQ-0355）。前两种情形成立、且本停靠已承诺的待装 Demand 均已完成装货时，立即结束装货阶段并请求离站，不保留离站纠错宽限，已开始的纠错须先安全收敛；判定后不因候选变化而撤回。持货期限到期不打断进行中的仓位操作、纠错或取消，待其安全收敛后结束装货阶段。操作员出发、持货期限到期或电量结束装货阶段时，本停靠尚未开始装货的待装 Demand 从本旅程释放、放回待派，仍为已受理、不写业务键抑制，已装货物继续送达；出发时车上一篮未装则本旅程结束，车辆留在原地。仓位操作进行中、纠错或取消处理中时不接受出发请求。
 
 #### Verification Method
 
@@ -21151,7 +21158,7 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - [x] 每个条目均具有唯一规范性的 Current Requirement、Scope、Verification Method 与可复核 Evidence。
 - [x] `REQ-0001`–`REQ-0348` 保留 `v1.0.0` 逐条批准时绑定的规范文本 SHA-256、批准批次、payload、候选总账和 manifest；`REQ-0349`–`REQ-0355` 经 `CP-0002`、`REQ-0356` 经 `CP-0003`、`REQ-0357` 经 `CP-0004`、`REQ-0358`–`REQ-0359` 经 `CP-0005`、`REQ-0360`–`REQ-0363` 经 `CP-0006`、`REQ-0364` 经 `CP-0009` 批准，规范文本 SHA-256 按同一口径（条文 UTF-8、无结尾换行）计算，其余批准工件字段记为 `none（经变更提案流程批准）`。
 - [x] 已知真实冲突均引用已解决决定；未把疑似冲突擅自解释为已解决。
-- [x] 本版本相对 `v1.13.0` 没有新增、没有废弃条目，修订 4 条：`REQ-0354`、`REQ-0003`、`REQ-0181`、`REQ-0150` 只改 Current Requirement、Last Meaning Change In 与 Change Proposal；`REQ-0354` 与 `REQ-0150` 的改动落在前 54 个字符之后，标题行不变，`REQ-0003` 与 `REQ-0181` 的改动落在前 54 个字符之内，标题行按前 54 个字符加 `…` 的规则随之改；Evidence 与条目批准记录保留原批准时的内容（`REQ-0354` 为 `CP-0002`，其余三条为 `v1.0.0` 逐条批准），与 `CP-0001`～`CP-0014` 的做法一致。
+- [x] 本版本相对 `v1.13.0` 没有新增、没有废弃条目，修订 11 条：`REQ-0354`、`REQ-0003`、`REQ-0181`、`REQ-0150`、`REQ-0184`、`REQ-0196`、`REQ-0201`、`REQ-0202`、`REQ-0352`、`REQ-0208`、`REQ-0350` 只改 Current Requirement、Last Meaning Change In 与 Change Proposal；`REQ-0354`、`REQ-0150`、`REQ-0184`、`REQ-0196`、`REQ-0201`、`REQ-0352`、`REQ-0208`、`REQ-0350` 的改动落在前 54 个字符之后，标题行不变，`REQ-0003`、`REQ-0181`、`REQ-0202` 的改动落在前 54 个字符之内，标题行按前 54 个字符加 `…` 的规则随之改；Evidence 与条目批准记录保留原批准时的内容，与 `CP-0001`～`CP-0014` 的做法一致。
 - [x] 版本号 `v1.14.0` 与「修订既有条目文义 → minor」一致。
 - [x] 本文件由生成脚本从 `v1.13.0` 与 `CP-0015` 机械派生，派生时核对提案所引基线原文与 `v1.13.0` 一致、标题行符合前 54 个字符加 `…` 的规则。
 - [x] 内容 Git commit、Baseline SHA-256 与 annotated tag 记在 `requirements/current-baseline.md`。
