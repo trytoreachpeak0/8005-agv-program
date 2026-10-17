@@ -44,7 +44,7 @@ aliases: ["UC-046"]
    3. 操作员按 [[uc-002-confirm-task-completion|UC-002]] 主动结束本站。
 4. 若期限届满且超时提交先于任何装货或纠错请求成功持久化，服务端执行 StopClosureCommit：
    1. 原子终结当前停靠；
-   2. 将全部尚未开始的待装 DemandId 记为 `CANCELLED_BY_STATION_TIMEOUT` 并写入取消抑制和系统审计；
+   2. 将全部尚未开始的待装 DemandId 记为 `CANCELLED_BY_STATION_TIMEOUT` 并写入取消抑制和系统审计；每条被终结的需求形成人工搬运告警，并列入看板站点超时抑制清单；不放回待派（`REQ-0365`，`CP-0016`）；
    3. 结束 OperationSession 并清除 OnboardOperatorContext。
 5. 服务端重新计算并下发 CurrentStopWorklistSnapshot 与 UpcomingStopPlanSnapshot，等待车载端确认采用。
 6. 服务端执行 PreDepartureSafetyCheck；通过后才向 RIoT 下发前往下一 PlannedStop 的移动任务。
