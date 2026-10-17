@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const generatorPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "generate-protocol-candidate.mjs");
-const COMMON = "https://schemas.8005-agv.local/agv-full-product/v5/common/types.schema.json#/$defs/";
+const COMMON = "https://schemas.8005-agv.local/agv-full-product/v6/common/types.schema.json#/$defs/";
 const COMMAND = "SlotFaultDeclarationCommand";
 const RESULT = "SlotFaultDeclarationResult";
 // protocol-v2.0.0 released 58 codes; everything after them is new in 3.0.0.

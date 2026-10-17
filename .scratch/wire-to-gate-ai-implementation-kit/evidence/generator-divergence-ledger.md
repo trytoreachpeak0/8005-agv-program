@@ -420,3 +420,31 @@ protocol#19 把待送点持货期限的 `loadingPhase` 措辞改成服务端实�
 
 两次 pnpm 都设了 `pnpm_config_store_dir` 与 `npm_config_store_dir`（`%LOCALAPPDATA%\pnpm-store`），克隆里没有生成 `.pnpm-store`。
 时段经调度 C11 放行（10-15 21:06～21:07）。README「Current state」不用改：那一段只列四项改动的名目，不涉及阶段措辞。
+
+## 14. v5.0.0 候选：TransportTaskType 加 WIRE_TO_FULL_INSPECTION（8005-agv-protocol#21）
+
+protocol#21 给 `TransportTaskType` 追加第七个值 `WIRE_TO_FULL_INSPECTION`（追踪 program#195，用户 10-16 决定第 6、7 条），
+`PublicStationFunction` 不加值。v4 已发布，所以这是 v5.0.0 候选：`releaseVersion` 4.0.0 → 5.0.0，`ProtocolVersion` 5 → 6，
+schema `$id` 段 `agv-full-product/v5` → `v6`，`baseRelease` `protocol-v4.0.0`，错误码表不变（62 个码，`registryVersion` 1.2.0）。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-10-16 |
+| 机器 | 控制端 `LAB-WIN-01`，node v24.20.0，pnpm 11.25.0 |
+| 起点复核 | `origin/main` `c82ab47e` 上的生成器（即第 13 节那一版），在普通克隆 `F:/8005-scratch/p21/base` 里对协议仓 `3fb214e5`（tag `protocol-v4.0.0`）重产、放回七个元文件、finalize、G1：`git status` 为空，G1 **PASS**，manifest `beca46a7…`（与第 13 节相同） |
+| 改写后 | 本分支生成器，在 `F:/8005-scratch/p21/new` 里同样步骤，`README.md`「Current state」两段改写（唯一的手工改动）；G1 **PASS**：73 schema／67 消息／68 valid／1713 invalid／50 向量／16 切片，manifest `90ebffdbb273f60bbbf9a3bddfe5edcbee5eb32d8f05370f9c2e6d77d8386598`；`vectorsSha256` 与 v4 相同（向量内容不含任务类型与版本号） |
+| 确定性 | `--verify-determinism` 1967 个文件、0 divergent |
+| 生成器测试 | 先提交断言确认红 25 条（179 条中），再改实现；`node --test tools/*.test.mjs` 179 pass／0 fail |
+| G1 取红 | 把新正例的 `workType` 改成 `WIRE_TO_FULL_INSPECTON`，G1 FAIL：`valid example failed … data/payload/items/0/workType must be equal to one of the allowed values` |
+
+**重产必须在普通克隆里做，不能在 git worktree 里做。**worktree 根上的 `.git` 是一个文件而不是目录，finalize 只排除
+`.git` 目录，于是把这个 113 字节的文件算进了文件表，manifest 随之变化（起点复核在 worktree 里第一次跑就是这样差出来的）。
+第 12、13 节一直用普通克隆，所以从前没有暴露。
+
+pnpm 设了 `pnpm_config_store_dir` 与 `npm_config_store_dir`（`%LOCALAPPDATA%\pnpm-store`），克隆里没有生成 `.pnpm-store`。
+
+审查（焊线送全检调度转达，结论可合、无必修）之后改了两处说明文字，同一个克隆里按同样步骤重产：wire-notes 新节不再说「服务端一律发
+`publicStationFunction` 为 null」——服务端在待送点取货腿发 `WIRE_STAGING`（control-server#713，`JourneyPlanBuilder.cs:357`）；
+`docs/candidate-limitations.md` 最后一段改为如实描述 5.0.0 只改 `TransportTaskType` 与身份字段、向量与切片不变。生成器测试 180/0
+（新增两条断言先红再绿），`--verify-determinism` 1967 个文件、0 divergent；重产只改这两个文档与 manifest、G1 结果，
+G1 **PASS**，manifest `743b886d99194038b893e98aed2a1dd01409cd7f80d39c734e02d860e0e5827c`，`vectorsSha256` 仍与 v4 相同。
