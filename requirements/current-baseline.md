@@ -1,11 +1,11 @@
 # 当前需求基线
 
-- Version: `v1.13.0`
-- Baseline: [current-requirements-v1.13.0.md](baselines/current-requirements-v1.13.0.md)
-- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0014.md](change-proposals/CP-0014.md)
-- Baseline SHA-256: `5dbbdd495376a9a35ff7269c3011f3dce0a8378ce8227782c8bfdae3ce154870`
-- Content Git Commit: `e4212fc99acb48319e4fe9d4775b37119b801a66`
-- Annotated Git Tag: `requirements-baseline-v1.13.0`
+- Version: `v1.14.0`
+- Baseline: [current-requirements-v1.14.0.md](baselines/current-requirements-v1.14.0.md)
+- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0015.md](change-proposals/CP-0015.md)
+- Baseline SHA-256: `023f7ba0a3f8f5868debafdadc227ea61b2035cb9217e4dcc27b29867842c721`
+- Content Git Commit: `1c09d310d4cc1f0465062f0378b46767de7361e7`
+- Annotated Git Tag: `requirements-baseline-v1.14.0`
 
 本文件是唯一当前版本指针。候选版本在正式批准、提交并创建发布 tag 前不得替换此指针。
 
@@ -15,6 +15,7 @@
 
 | 版本 | 文件 | Baseline SHA-256 | Content Git Commit | Annotated Tag |
 | --- | --- | --- | --- | --- |
+| `v1.14.0` | [current-requirements-v1.14.0.md](baselines/current-requirements-v1.14.0.md) | `023f7ba0a3f8f5868debafdadc227ea61b2035cb9217e4dcc27b29867842c721` | `1c09d310d4cc1f0465062f0378b46767de7361e7` | `requirements-baseline-v1.14.0` |
 | `v1.13.0` | [current-requirements-v1.13.0.md](baselines/current-requirements-v1.13.0.md) | `5dbbdd495376a9a35ff7269c3011f3dce0a8378ce8227782c8bfdae3ce154870` | `e4212fc99acb48319e4fe9d4775b37119b801a66` | `requirements-baseline-v1.13.0` |
 | `v1.12.0` | [current-requirements-v1.12.0.md](baselines/current-requirements-v1.12.0.md) | `9b8cb74921c971f1e1b8bffc46540116b5ddd337fc3dfc68c551f458af49238f` | `fde35e867c9b106979bae659eb67586665d0df30` | `requirements-baseline-v1.12.0` |
 | `v1.11.0` | [current-requirements-v1.11.0.md](baselines/current-requirements-v1.11.0.md) | `80ec474ee00ebd1865e673b3dca04abe20c9d665fc7ff361a27c31cd54b51dc6` | `20a863547887bf7db5594b4b13213fd9da549e9a` | `requirements-baseline-v1.11.0` |
@@ -42,6 +43,7 @@ git cat-file blob <tag>:requirements/baselines/current-requirements-<版本>.md 
 
 | 版本 | 日期 | 变更提案 | 内容 |
 | --- | --- | --- | --- |
+| `v1.14.0` | 2026-10-17 | [`CP-0015`](change-proposals/CP-0015.md) | 机台取货停靠取消后本站空了立即结束离站等待：修订 `REQ-0354`（旅程仍有其它未结 Demand、本停靠的 Demand 均已终结、本站一篮未装、没有尚待装货或正在装货的 Demand 时，本站离站等待立即结束，下发的站点离站等待期限即为此刻，不出出发入口；不在持货等单的立即离站，持货等单中的照旧等到装满、持货超时或让站；下一停靠同站照同站追加的既有做法；仓门未证明锁闭等阻断与一次只开一扇仓门不变；机台出发请求所带清单版本已过期、但新旧两版在本站已装与待做项上没有实质差别时照样受理；机台出发前提「车上至少有一篮」按实现改正为「本站至少有一篮」）。同时把 `REQ-0003`、`REQ-0181`、`REQ-0150` 的「六类」改为「七类」（2026-10-16 加入 `WIRE_TO_FULL_INSPECTION`），`REQ-0003`、`REQ-0181` 标题行随之改；`REQ-0184`、`REQ-0202` 的「其余五类」改为「其余六类」。修订 `REQ-0196`（下发给车载端的剩余停靠不超过 9、已完成的停靠不再下发也不再显示，整趟停靠总数上限可配、默认 20）、`REQ-0201` 与 `REQ-0202`（被站点离站等待期限放回且未装货的需求不进超时层、排在同带之后，看板列疑似陈旧清单）、`REQ-0352`、`REQ-0208` 与 `REQ-0350`（受理时只按花篮数预留分组内仓位数量，扫码后按同侧编号最小的可用空仓分配具体仓位，分组版本仍在受理时冻结）。`UC-006`、`UC-002`、`FR-031`、`CONTEXT.md` 与全产品实现剖面 TSV 随之改，ADR-cross-0055 加修订记录。共 364 条 |
 | `v1.13.0` | 2026-10-15 | [`CP-0014`](change-proposals/CP-0014.md) | 机台取货装完后可由操作员出发，待送点有货后有持货倒计时、扫码前取消按条提供：修订 `REQ-0354`（机台取货停靠本停靠装货完成、车上至少一篮后，持货等单或只剩站点离站等待时都可由操作员出发，持货等单中等同持货期限此刻到期，本站会话随之结束、不等站点离站等待期限剩余部分，立即离站不留纠错宽限；待送点取货停靠车上有货起设持货期限，时长同机台，派给该车的本站新需求追加时重新起算，到期结束装货阶段、未装的放回待派，零篮不设）、`REQ-0211`（待送点取货停靠未装任务的取消恢复，以 `CANCELLED_BY_OPERATOR` 终结并永久抑制，清单列出全部未装需求、每条各有取消入口；装货中撤销仍放回待派）。`UC-002`、`UC-006`、`FR-031` 与 `CONTEXT.md` 随之改，ADR-cross-0065、0057、0055、0046 加修订记录。共 364 条 |
 | `v1.12.0` | 2026-10-15 | [`CP-0013`](change-proposals/CP-0013.md) | 待送点取货停靠缺电而车上有货时先送货再充电，仅适用于 STAGING_TO_WIRE 固定起点的取货停靠、机台取货不变：修订 `REQ-0281`（车上有货按自动出发离站，未开始装货的需求放回待派，立即请求离站、不留纠错宽限，不插入充电停靠，带货卸完、旅程结束后进入待充电流程）、`REQ-0290`（撤回 `CP-0012` 追加的带货充电停靠一句，恢复 `v1.10.0` 原文）、`REQ-0237`（判定离站后本停靠已装货物不再纠正，判定后追加进同站新停靠的需求装完立即离站）。ADR-cross-0065 加修订记录，`CONTEXT.md` 随之改写。共 364 条 |
 | `v1.11.0` | 2026-10-14 | [`CP-0012`](change-proposals/CP-0012.md) | 待送点取货由仓满或客户出发驱动离站，仅适用于 STAGING_TO_WIRE 固定起点的取货停靠、机台取货不变：修订 `REQ-0354`（不持货超时、恒持货等单；全部分组无空仓或候选全部只因容量装不下（含 9 段、8 条上限）时在已承诺需求装完后立即离站；操作员出发与缺电也结束装货阶段，没装的放回待派）、`REQ-0355`（不设站点离站等待期限）、`REQ-0237`（满或全部装不下时不留纠错宽限）、`REQ-0211`（不提供未装任务的取消，清空取消改为放回待派）、`REQ-0281`（缺电中断装货去充电，有货时插入充电停靠、充完直接送货）、`REQ-0290`（带货充电停靠属于原搬运用途）。`FR-031`、`UC-002`、`UC-006` 与 `CONTEXT.md` 随之改写，新建 ADR-cross-0065。共 364 条 |
