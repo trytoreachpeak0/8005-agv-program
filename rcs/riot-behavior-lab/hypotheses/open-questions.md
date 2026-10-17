@@ -288,6 +288,7 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
     | 开始充电 | 78 | 1 | 0 |
     | 结束充电 | 78 | 2 | 0 |
 - 证据：失败 [`../evidence/rounds/2026-07-21-round-24/`](../evidence/rounds/2026-07-21-round-24/)；成功 [`../evidence/rounds/2026-07-21-round-25/`](../evidence/rounds/2026-07-21-round-25/)
+- 2026-10-17 现场旁证（`BC-ORDER-023`）：「何时离桩：再下订单即可，自动插入结束充电」第一次有了生产 RIoT 的观测。车在 211 充电时收到去 211 的充电单，RIoT 插入 act 78 参数 2（`createType=1`，`failStrategy=FAIL_STRATEGY_RETRY`），车出桩到 212、回 211、重新充电，订单 `SUCCESS`。同一张单在派出前挂了约 30 分钟，什么条件挡住派单仍未知，见 Q-044。
 
 ### Q-034 如何判断车是否处于交管等待（等别的车让路）
 
@@ -444,6 +445,22 @@ P0 目标：指定测试车短距建单与到站观测（mapId=29）——Round 
   1. 其它没有 `upperId` 的订单（不同终态：`SUCCESS`、`CANCELLED`；以及非终态）是不是同样回空串，有没有回 `null` 或缺字段的。
   2. 订单列表 `GET /api/order/v1/orderRecord` 里同一张单的 `upperId` 是什么形状（`ListUnfinishedOrders` 那条路径用的是列表）。
 - 字段语义提醒（`OBSERVED`）：订单记录里的 `startStationNo`／`startStationName` 不是车建单时所在的站，读数与第一段 `move` 的目的站一致（晚段空闲返回单第一段是 act 78，`startStationNo=216` 是其后那段 move 的目的站）。这张网页单记录为 `N1-1 > N1-1`，但建单前后（15:04、15:16:17）agv02 都在站 216，15:16:07 读到 `MT_RUNNING`；晚段充电单 `order-2109203643214462976` 建单前车在 216，记录里 `startStationNo=212`（第一段 `move` 的目的站）。所以它不是一张「目的站就是当前站」的单，这种单在本实验室的样本数是 0。证据：同分支 `evidence/field/20261011-W3-S1-charging/05-after-manual-move-to-216.txt`、`10-car-moving-1516.txt`，`evidence/field/20261011-W3-S1-charging-cs616/01-riot-3cars-before-window.txt`、`14-riot-order-records-charge-idle.txt`。
+- 2026-10-17 补充：「目的站就是当前站」的单已经有样本。`8005-agv-control-server#712` 抽样 5 张（agv02 停在 217 时 v2 建的、目的站 217 的单）：`startStationNo=endStationNo=217`，建单到 `doneTime` 用时 1～5 秒，`orderState=5`，车位读数前后都在 217、车没动（只读取证，结论文件在现场证据目录 `production-20261014/d4/43-cs712-same-station-conclusion.md`，不在本仓库）。对照 `BC-ORDER-023`：车在桩上充电时收到「去本桩充电」的单，车会出桩再回桩，不是立即 SUCCESS。
+
+### Q-044 车在「可接单」状态下，什么条件让 RIoT 不派单；充电中派单时会怎样
+
+- 状态：`OPEN`
+- 来源：`8005-agv-control-server#564` v2 生产切换现场（2026-10-17）。agv03 的充电单 `order-2111339400939044864` 从建单起约 30 分钟没有派单，14:42:15 在充电中派出。事实、时间线与证据见 `BC-ORDER-023`，证据副本在 [`../evidence/field/2026-10-17-agv03-charge-order/`](../evidence/field/2026-10-17-agv03-charge-order/)。
+- 产品负责人现场确认（2026-10-17，看 RIoT 界面）：agv03 处于「可以接单」状态，但车正在充电时，RIoT 不会给它派单。这句话原样记录，**状态不写成已证实**：它与 14:37:49～14:42:08（在 211 充电、有定位）没有派单一致，但与 14:42:15 在充电中派出不一致，而且 14:11～14:20 车不在充电时也没有派单。
+- 要回答：
+  1. **挡住派单的是哪个因素**。这次未派的四段，候选因素各不相同：在 216 空闲、车况 OK、不在充电，但电量 8%～9%、`powerMode=POWER_MODE_NA`、`status=2`；在 216 急停 `CAN_NOT_RECOVER`；丢定位（`currentPosition=0`）且开始充电；在 211 充电、有定位、电量 12%～19%。要在同一辆车上分开「电量」「`powerMode`／`status`」「充电中」「定位」这几个因素。「存在一个可接单的最低电量门槛（约 20%）」只是其中一个候选，依据仅是这次派单时电量恰好在 19%～20%，状态是 `INFERRED`（弱）。
+  2. **14:42:15 的派单是怎么触发的**：是 RIoT 自己的条件满足了（电量、状态变化），还是用户在 RIoT 界面查看接单状态时做过操作。需要用户回忆 14:40～14:42 在 RIoT 上做了什么（经调度会话转问，不由工作会话推断）。
+  3. **充电中不派（如果成立）对哪些订单类型成立**：是所有订单都不派，还是只针对部分类型（例如带 act 78 的充电单、单段 move 单）。
+  4. **充电结束或 `batteryState` 离开 `CHARGING` 之后，挂着的单会不会自动派出**。这次的单是在 `CHARGING` 状态下派出的（60 秒采样内没见到离开 `CHARGING`），所以这个问题没有被回答，反而多了一个问题：如果「充电中不派」成立，这次为什么派了。
+  5. **在 RIoT 上取消后由 v2 自动重建的新单，在同样条件下是否同样不派**。推断（`INFERRED`）：阻挡条件与订单号无关，新单会同样挂着；没有观测。
+  6. **派单前 RIoT 有没有任何可查询的「不派原因」**。Q-040／`BC-ORDER-019` 的 `queryVehicleNotAssignOrder` 诊断这次没有调用；下次遇到时可以只读调用一次，记录原文。
+- 已经回答的部分：充电中被派到本桩的充电单，RIoT 在最前面自动插入「结束充电」（act 78 参数 2，`createType=1`），车出桩到进出点 212、再回 211、重新开始充电，约 47 秒 `SUCCESS`（`OBSERVED`，1 个样本）。它与 Q-033 的「再下订单会在最前面插入结束充电」一致，与 Q-043 补充里「目的站等于当前站的 move 单立即 SUCCESS」不同。
+- 证据：[`../evidence/field/2026-10-17-agv03-charge-order/`](../evidence/field/2026-10-17-agv03-charge-order/)；知识 `BC-ORDER-023`。
 
 ## P2：多仓位与物模型
 
