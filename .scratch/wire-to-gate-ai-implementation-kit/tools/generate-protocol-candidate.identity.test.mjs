@@ -196,7 +196,7 @@ test("candidate limitations describe the 5.0.0 candidate against protocol-v4.0.0
   assert.doesNotMatch(limitations, /0\.1\.1/);
 });
 
-test("compatibility report is based on protocol-v4.0.0 and summarises the one change", () => {
+test("compatibility report is based on protocol-v4.0.0 and summarises its changes", () => {
   const report = readJson("compatibility/report.json");
   assert.equal(report.candidateVersion, "5.0.0");
   assert.equal(report.protocolVersion, 6);
@@ -205,8 +205,9 @@ test("compatibility report is based on protocol-v4.0.0 and summarises the one ch
   assert.equal(report.classification, "BREAKING_PROTOCOL_VERSION_INCREASE");
   assert.equal(report.wireCompatibility, "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED");
   // The 4.0.0 sentences are released history: protocol-v4.0.0 (3fb214e5) carries them. 5.0.0 has the one change of
-  // protocol#21; generate-protocol-candidate.full-inspection.test.mjs checks what that sentence says.
-  const anchors = [/TransportTaskType.*WIRE_TO_FULL_INSPECTION/];
+  // protocol#21 and the candidate revision of protocol#23; generate-protocol-candidate.full-inspection.test.mjs and
+  // generate-protocol-candidate.stale-departure-revision.test.mjs check what those sentences say.
+  const anchors = [/TransportTaskType.*WIRE_TO_FULL_INSPECTION/, /stale worklistRevision.*no material change/];
   assert.ok(Array.isArray(report.changeSummary), "changeSummary is not a list");
   assert.equal(report.changeSummary.length, anchors.length);
   anchors.forEach((anchor, index) => assert.match(report.changeSummary[index], anchor, `item ${index + 1}`));

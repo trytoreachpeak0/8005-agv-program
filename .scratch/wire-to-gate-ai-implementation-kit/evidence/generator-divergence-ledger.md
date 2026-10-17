@@ -448,3 +448,26 @@ pnpm 设了 `pnpm_config_store_dir` 与 `npm_config_store_dir`（`%LOCALAPPDATA%
 `docs/candidate-limitations.md` 最后一段改为如实描述 5.0.0 只改 `TransportTaskType` 与身份字段、向量与切片不变。生成器测试 180/0
 （新增两条断言先红再绿），`--verify-determinism` 1967 个文件、0 divergent；重产只改这两个文档与 manifest、G1 结果，
 G1 **PASS**，manifest `743b886d99194038b893e98aed2a1dd01409cd7f80d39c734e02d860e0e5827c`，`vectorsSha256` 仍与 v4 相同。
+
+## 15. v5.0.0 候选第二次修订：出发请求清单版本过期但无实质差别时受理、旅程计划改称剩余计划（8005-agv-protocol#23）
+
+protocol#23 在同一个 v5.0.0 候选里改写（v5 未打 tag，用户 10-17 定并进 v5，追踪 program#195）：机台取货停靠上，出发请求带的
+`worklistRevision` 过期但两版之间没有实质差别时，不答 `WORKLIST_REVISION_STALE`，按其余条件判定（口径取自 control-server#742、
+焊线送全检调度 10-17 核定的第二版，四条写进 wire-notes）；新向量 `CV-CURRENT-STOP-DEPARTURE-STALE-REVISION-ACCEPTED` 挂 FP-IS-02，
+原 `CV-CURRENT-STOP-DEPARTURE-STALE-REVISION` 的断言与禁止副作用限定为「有实质差别」；`CV-MULTI-STOP-PLAN-NINE-LEGS` 与 FP-IS-08 的
+`DISPLAY_FULL_JOURNEY_PLAN` → `DISPLAY_REMAINING_JOURNEY_PLAN`、`UP_TO_NINE_LEGS_PLANNED` → `UP_TO_NINE_REMAINING_LEGS_PLANNED`，
+wire-notes 新增一节写旅程计划只含当前停靠与其后未完成的停靠。身份不变：release 5.0.0、`ProtocolVersion` 6、`$id` 段 v6、
+`baseRelease` `protocol-v4.0.0`、候选时间戳仍是 2026-10-16（照 v4 候选修订 protocol#15、#17、#19 的先例不动）；schema、消息、
+错误码都不变。G1 模板加一行：新向量必须无错误码且带受理断言，原向量必须是 `WORKLIST_REVISION_STALE` 且带限定后的断言。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-10-17 |
+| 机器 | 控制端 `LAB-WIN-01`，node v24.20.0，pnpm 11.25.0 |
+| 起点复核 | `origin/main` `f955e03b` 上的生成器（产出与第 14 节审查后那一版相同），在普通克隆 `F:/8005-scratch/p23/base` 里对协议仓 `4e9f3df8`（`fp/v2-candidate`）重产、放回七个元文件、finalize、G1：`git status` 为空，G1 **PASS**，manifest `743b886d…`（与第 14 节相同） |
+| 改写后 | 本分支生成器，在 `F:/8005-scratch/p23/new` 里同样步骤，`README.md`「Current state」第二段改写（唯一的手工改动）；G1 **PASS**：73 schema／67 消息／68 valid／1713 invalid／51 向量／16 切片，manifest `128daae52758749d4d6f346231fdb336ca5d1079773bcab5430c20c53ce6b10b`；`vectorsSha256` `24cc3a5e…` → `291311b2…` |
+| 确定性 | `--verify-determinism` 1969 个文件、0 divergent |
+| 生成器测试 | 先提交断言确认红 14 条（192 条中），再改实现；`node --test tools/*.test.mjs` 192 pass／0 fail |
+| G1 取红 | 把新向量 `expected.json` 的 `stableErrorCode` 改成 `WORKLIST_REVISION_STALE`、重新 finalize，G1 FAIL：`stale revision without material change must be accepted`；还原后 manifest 回到 `128daae5…` |
+
+重产仍在普通克隆里做（第 14 节的教训），pnpm store 设在克隆外，克隆里没有 `.pnpm-store`。
