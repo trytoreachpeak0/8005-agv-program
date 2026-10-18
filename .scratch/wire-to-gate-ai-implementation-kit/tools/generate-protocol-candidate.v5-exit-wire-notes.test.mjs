@@ -39,14 +39,19 @@ const departureNotes = () => section("`CurrentStopDepartureRequested` and `Curre
 
 // --- :75, the remaining plan has one exception: a clearance move keeps the charger leg it left ---
 
-test("the remaining plan is the plan of a transport journey", () => {
-  assert.match(planNotes(), /Stops already passed are not sent[^\n]*transport journey/);
+test("the rule holds for every plan but the one exception", () => {
+  // Every plan, not only a transport journey's: a charging or idle-return plan is not left outside the rule.
+  assert.match(planNotes(), /Stops already passed are not sent, and the onboard HMI shows none\. This holds for every plan except one, the clearance move below\./);
+  assert.doesNotMatch(planNotes(), /holds for the plan of a transport journey/);
 });
 
 test("a clearance move keeps the charger leg it left, as COMPLETED, and says why", () => {
   const body = planNotes();
-  const bullet = body.split("\n- ").find((item) => /clearance/.test(item));
+  const bullet = body.split("\n- ").find((item) => /^The one exception/.test(item));
   assert.ok(bullet, "no bullet on the clearance move");
+  // The exception is exactly one plan, named by what the wire shows, and nothing wider.
+  assert.match(bullet, /^The one exception is a clearance move off a charger, the plan sent while `activePurpose` is `CLEARING_MAINTENANCE`:/);
+  assert.match(bullet, /No other plan sends a stop already passed\./);
   assert.match(bullet, /`CHARGER` leg/);
   assert.match(bullet, /`COMPLETED`/);
   assert.match(bullet, /waiting point leg/);
@@ -76,4 +81,7 @@ test("condition (4) lets a control server count every basket no longer loaded as
   assert.match(bullet, /A control server that does not record when a basket left the stop may treat every basket loaded at this stop that is no longer loaded as having left it since the requested revision/);
   // The cost of the allowance, so an implementation reading it knows it is only conservative.
   assert.match(bullet, /`WORKLIST_REVISION_STALE`[^.]*press(es)? again/);
+  // Only ever stricter: the allowance fails (4), it never lets a server pass it more freely.
+  assert.match(bullet, /as having left it since the requested revision, and so fail \(4\); that is only more conservative:/);
+  assert.doesNotMatch(bullet, /as not having left|pass or fail \(4\)/);
 });
