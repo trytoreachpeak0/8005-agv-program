@@ -21209,6 +21209,6 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - [x] 已知真实冲突均引用已解决决定；未把疑似冲突擅自解释为已解决。
 - [x] 本版本相对 `v1.15.0` 没有新增条目，没有废弃条目，修订 2 条：`REQ-0246`、`REQ-0167` 只改 Current Requirement、Last Meaning Change In 与 Change Proposal，改动均落在前 54 个字符之后，标题行不变；Evidence 与条目批准记录保留原批准时的内容，与 `CP-0001`～`CP-0016` 的做法一致。
 - [x] 版本号 `v1.16.0` 与「修订既有条目文义 → minor」一致。
-- [x] 本文件由生成脚本从 `v1.15.0` 与 `CP-0017` 机械派生，派生时核对提案所引基线原文与 `v1.14.0` 一致、标题行符合前 54 个字符加 `…` 的规则。
+- [x] 本文件由生成脚本从 `v1.15.0` 与 `CP-0017` 机械派生，派生时核对提案所引基线原文与 `v1.15.0` 一致、标题行符合前 54 个字符加 `…` 的规则。
 - [x] 内容 Git commit、Baseline SHA-256 与 annotated tag 记在 `requirements/current-baseline.md`。
 - [x] `requirements/current-baseline.md` 在发布提交中唯一指向本版本。
