@@ -1,11 +1,11 @@
 # 当前需求基线
 
-- Version: `v1.15.0`
-- Baseline: [current-requirements-v1.15.0.md](baselines/current-requirements-v1.15.0.md)
-- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0016.md](change-proposals/CP-0016.md)
-- Baseline SHA-256: `d922863f7ecc9bb3957d26fb130ef6ab931990a298579ad3aa20c60bd864b2c9`
-- Content Git Commit: `75ed12d42cc819861d6d6a6aaeca50e6da521351`
-- Annotated Git Tag: `requirements-baseline-v1.15.0`
+- Version: `v1.16.0`
+- Baseline: [current-requirements-v1.16.0.md](baselines/current-requirements-v1.16.0.md)
+- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0017.md](change-proposals/CP-0017.md)
+- Baseline SHA-256: `d5244a341d3409650c3f708fe397506be60d6bdd4a1627d610edc96d1bf65a6e`
+- Content Git Commit: `ca2b2dfeb38ed5d67945e8fde4a390dd90cbe445`
+- Annotated Git Tag: `requirements-baseline-v1.16.0`
 
 本文件是唯一当前版本指针。候选版本在正式批准、提交并创建发布 tag 前不得替换此指针。
 
@@ -15,6 +15,7 @@
 
 | 版本 | 文件 | Baseline SHA-256 | Content Git Commit | Annotated Tag |
 | --- | --- | --- | --- | --- |
+| `v1.16.0` | [current-requirements-v1.16.0.md](baselines/current-requirements-v1.16.0.md) | `d5244a341d3409650c3f708fe397506be60d6bdd4a1627d610edc96d1bf65a6e` | `ca2b2dfeb38ed5d67945e8fde4a390dd90cbe445` | `requirements-baseline-v1.16.0` |
 | `v1.15.0` | [current-requirements-v1.15.0.md](baselines/current-requirements-v1.15.0.md) | `d922863f7ecc9bb3957d26fb130ef6ab931990a298579ad3aa20c60bd864b2c9` | `75ed12d42cc819861d6d6a6aaeca50e6da521351` | `requirements-baseline-v1.15.0` |
 | `v1.14.0` | [current-requirements-v1.14.0.md](baselines/current-requirements-v1.14.0.md) | `023f7ba0a3f8f5868debafdadc227ea61b2035cb9217e4dcc27b29867842c721` | `1c09d310d4cc1f0465062f0378b46767de7361e7` | `requirements-baseline-v1.14.0` |
 | `v1.13.0` | [current-requirements-v1.13.0.md](baselines/current-requirements-v1.13.0.md) | `5dbbdd495376a9a35ff7269c3011f3dce0a8378ce8227782c8bfdae3ce154870` | `e4212fc99acb48319e4fe9d4775b37119b801a66` | `requirements-baseline-v1.13.0` |
@@ -44,6 +45,7 @@ git cat-file blob <tag>:requirements/baselines/current-requirements-<版本>.md 
 
 | 版本 | 日期 | 变更提案 | 内容 |
 | --- | --- | --- | --- |
+| `v1.16.0` | 2026-10-19 | [`CP-0017`](change-proposals/CP-0017.md) | 行驶中门锁读不到先宽限 3 秒、只因读不到引起的门锁急停读数恢复后自动解除：修订 `REQ-0246`（车辆行驶中车载端报告仓位状态未知、且没有任何仓门读到明确未锁闭时，自服务端首次收到起连续不超过 3 秒的只告警、不形成车辆故障、不调用 OrderHold 或 triggerEmergency；读到明确未锁闭或连续未知满 3 秒即立即处理；同一车辆任意 10 分钟内第 3 次起不再宽限；宽限期间仍视为仓门未能证明锁闭）、`REQ-0167`（门锁类三类急停不自动解除的例外收窄到本次故障中读到过仓门明确未锁闭的；只因读不到锁反馈引起的，锁反馈恢复、连续 10 秒读回全部锁闭、车辆停稳且本服务端暂停的订单仍为 HELD 时自动解除，不要求确认门锁已检修，订单仍 HELD、故障阻断保持，由人员经故障恢复继续原订单）。`CP-0011` 停车原因表第一行加部分修订注记。共 365 条 |
 | `v1.15.0` | 2026-10-17 | [`CP-0016`](change-proposals/CP-0016.md) | 机台取货停靠扫码前取消每条各有入口、站点离站等待期限到期即终结不再放回、只做 STAGING_TO_WIRE 的车空闲回固定起点：修订 `REQ-0211`（车载端在取货停靠的作业清单上为每条尚未开始装货的 DemandId 各给一个取消入口、不要求先选择再取消，由待送点扩到全部取货停靠；装货已开始或已装上车的不出现这一入口，装货开始后的清空取消仍由底部单一入口发起）、`REQ-0201` 与 `REQ-0202`（删去 `CP-0015` 加的被站点离站等待期限放回、未装货的需求排序例外与疑似陈旧清单）、`REQ-0292`（车队配置中只承担 STAGING_TO_WIRE 的车辆空闲返回开往同图该任务类型的固定起点，以 `REQ-0204` 对起点的单车位预占代替等待点独占，已在起点时留在原地，充电优先，已确认失败后本次回落到等待点，以车队配置中只有一辆这类车辆为前提、不另规定被占用时的处理）；新增 `REQ-0365`（站点离站等待期限到期时本停靠尚未开始装货的待装 Demand 以 `CANCELLED_BY_STATION_TIMEOUT` 终结、按业务键抑制并告警人工搬运，不放回待派、不按到期次数再次派车；看板设站点超时抑制清单，只收站点期限到期终结的需求，告警消除即移除；放回次数配置为非 0 不符合本条；持货期限截断的放回照旧）。`UC-006`、`UC-046`、`UC-041`、`FR-031` 随之改，ADR-cross-0058 加修订记录，`CONTEXT.md` 词条「空闲返回承诺」加一句例外。共 365 条 |
 | `v1.14.0` | 2026-10-17 | [`CP-0015`](change-proposals/CP-0015.md) | 机台取货停靠取消后本站空了立即结束离站等待：修订 `REQ-0354`（旅程仍有其它未结 Demand、本停靠的 Demand 均已终结、本站一篮未装、没有尚待装货或正在装货的 Demand 时，本站离站等待立即结束，下发的站点离站等待期限即为此刻，不出出发入口；不在持货等单的立即离站，持货等单中的照旧等到装满、持货超时或让站；下一停靠同站照同站追加的既有做法；仓门未证明锁闭等阻断与一次只开一扇仓门不变；机台出发请求所带清单版本已过期、但新旧两版在本站已装与待做项上没有实质差别时照样受理；机台出发前提「车上至少有一篮」按实现改正为「本站至少有一篮」）。同时把 `REQ-0003`、`REQ-0181`、`REQ-0150` 的「六类」改为「七类」（2026-10-16 加入 `WIRE_TO_FULL_INSPECTION`），`REQ-0003`、`REQ-0181` 标题行随之改；`REQ-0184`、`REQ-0202` 的「其余五类」改为「其余六类」。修订 `REQ-0196`（下发给车载端的剩余停靠不超过 9、已完成的停靠不再下发也不再显示，整趟停靠总数上限可配、默认 20）、`REQ-0201` 与 `REQ-0202`（被站点离站等待期限放回且未装货的需求不进超时层、排在同带之后，看板列疑似陈旧清单）、`REQ-0352`、`REQ-0208` 与 `REQ-0350`（受理时只按花篮数预留分组内仓位数量，扫码后按同侧编号最小的可用空仓分配具体仓位，分组版本仍在受理时冻结）。`UC-006`、`UC-002`、`FR-031`、`CONTEXT.md` 与全产品实现剖面 TSV 随之改，ADR-cross-0055 加修订记录。共 364 条 |
 | `v1.13.0` | 2026-10-15 | [`CP-0014`](change-proposals/CP-0014.md) | 机台取货装完后可由操作员出发，待送点有货后有持货倒计时、扫码前取消按条提供：修订 `REQ-0354`（机台取货停靠本停靠装货完成、车上至少一篮后，持货等单或只剩站点离站等待时都可由操作员出发，持货等单中等同持货期限此刻到期，本站会话随之结束、不等站点离站等待期限剩余部分，立即离站不留纠错宽限；待送点取货停靠车上有货起设持货期限，时长同机台，派给该车的本站新需求追加时重新起算，到期结束装货阶段、未装的放回待派，零篮不设）、`REQ-0211`（待送点取货停靠未装任务的取消恢复，以 `CANCELLED_BY_OPERATOR` 终结并永久抑制，清单列出全部未装需求、每条各有取消入口；装货中撤销仍放回待派）。`UC-002`、`UC-006`、`FR-031` 与 `CONTEXT.md` 随之改，ADR-cross-0065、0057、0055、0046 加修订记录。共 364 条 |
