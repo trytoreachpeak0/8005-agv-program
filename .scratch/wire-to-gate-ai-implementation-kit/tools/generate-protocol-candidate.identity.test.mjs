@@ -150,7 +150,7 @@ test("6.0.0 appends exactly its three codes after the 62 protocol-v5.0.0 release
   assert.equal(registry.registryVersion, "1.3.0");
   assert.deepEqual(
     registry.codes.slice(V3_RELEASED_CODE_COUNT).map((entry) => `${entry.code}@${entry.introducedInRelease}`),
-    ["REMAINING_BASKET_SKIPPED@6.0.0", "REMAINING_BASKETS_SKIP_NOTHING_LOADED@6.0.0", "LOAD_CANCELLATION_BASKET_LOADED@6.0.0"],
+    ["REMAINING_BASKETS_SKIPPED@6.0.0", "REMAINING_BASKETS_SKIP_NOTHING_LOADED@6.0.0", "LOAD_CANCELLATION_BASKET_LOADED@6.0.0"],
   );
 });
 

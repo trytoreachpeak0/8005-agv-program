@@ -19,7 +19,7 @@ const RESULT = "RemainingBasketsSkipResult";
 const OPERATION_RESULT = "OperationResult";
 // protocol-v5.0.0 released 62 codes; everything after them is new in 6.0.0.
 const V5_RELEASED_CODE_COUNT = 62;
-const SKIPPED_CODE = "REMAINING_BASKET_SKIPPED";
+const SKIPPED_CODE = "REMAINING_BASKETS_SKIPPED";
 const NOTHING_LOADED_CODE = "REMAINING_BASKETS_SKIP_NOTHING_LOADED";
 const CANCELLATION_CODE = "LOAD_CANCELLATION_BASKET_LOADED";
 const DEFAULT_FORBIDDEN = ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"];
@@ -131,40 +131,46 @@ test(`${RESULT} has a valid example of each outcome and an invalid one on each s
 
 // --- the operation result of a skipped load ---
 
-test(`${OPERATION_RESULT} appends COMPLETED_REMAINING_SKIPPED and carries the skip it was authorized by`, () => {
+test(`${OPERATION_RESULT} appends COMPLETED_REMAINING_SKIPPED and adds no field`, () => {
   const payload = payloadOf(OPERATION_RESULT);
   // Appended, so the released three keep their order; an end that reads only overallOutcome never takes a skipped load for a
   // load of every target slot.
   assert.deepEqual(payload.properties.overallOutcome.enum, ["COMPLETED", "FAILED", "UNKNOWN", "COMPLETED_REMAINING_SKIPPED"]);
-  assert.deepEqual(payload.properties.remainingBasketsSkipRequestId, nullable(ref("Id")));
-  assert.deepEqual(payload.required, ["demandId", "slotOperationAttemptId", "operationType", "overallOutcome", "slotResults", "observedAt", "journalCheckpoint", "resultContentSha256", "remainingBasketsSkipRequestId"]);
-  assert.equal(validOf(OPERATION_RESULT).payload.remainingBasketsSkipRequestId, null);
+  // Review M2: the control server finds the one authorization by (demandId, slotOperationAttemptId), so the result names no
+  // skip request, and an OperationResult built anywhere else on either end keeps the 5.0.0 fields.
+  assert.deepEqual(payload.required, ["demandId", "slotOperationAttemptId", "operationType", "overallOutcome", "slotResults", "observedAt", "journalCheckpoint", "resultContentSha256"]);
+  assert.equal(Object.hasOwn(payload.properties, "remainingBasketsSkipRequestId"), false);
 });
 
 test(`a skipped load reports its k slots COMPLETED and OCCUPIED and every remaining slot NOT_STARTED, EMPTY and ${SKIPPED_CODE}`, () => {
   const { payload } = validOf(OPERATION_RESULT, "REMAINING-BASKETS-SKIPPED-001");
   assert.equal(payload.operationType, "LOAD");
   assert.equal(payload.overallOutcome, "COMPLETED_REMAINING_SKIPPED");
-  assert.equal(typeof payload.remainingBasketsSkipRequestId, "string");
   assert.deepEqual(payload.slotResults, [
     { slotNo: 1, outcome: "COMPLETED", finalPhysicalState: "OCCUPIED", lockState: "LOCKED", unlockOutputState: "RESET", reasonCodes: [] },
     { slotNo: 2, outcome: "NOT_STARTED", finalPhysicalState: "EMPTY", lockState: "LOCKED", unlockOutputState: "RESET", reasonCodes: [SKIPPED_CODE] },
   ]);
 });
 
-test("the skipped outcome, and only it, carries a skip request id, on a LOAD whose every slot is closed and proven", () => {
+test(`the skipped outcome is a LOAD whose every slot is closed and proven, and only its remaining slots carry ${SKIPPED_CODE}`, () => {
   const branches = payloadOf(OPERATION_RESULT).allOf;
   assert.ok(Array.isArray(branches), "OperationResult payload has no allOf");
   const skipped = branches.find((branch) => branch.if?.properties?.overallOutcome?.const === "COMPLETED_REMAINING_SKIPPED");
   assert.ok(skipped, "no branch for COMPLETED_REMAINING_SKIPPED");
-  assert.deepEqual(skipped.else, { properties: { remainingBasketsSkipRequestId: { type: "null" } } });
+  const withoutCode = { reasonCodes: { not: { contains: { const: SKIPPED_CODE } } } };
+  // Review L5: every other result -- COMPLETED, FAILED, UNKNOWN, LOAD or UNLOAD -- never carries the code on any slot.
+  assert.deepEqual(skipped.else, { properties: { slotResults: { items: { properties: withoutCode } } } });
   const then = skipped.then.properties;
-  assert.deepEqual(then.remainingBasketsSkipRequestId, { type: "string" });
+  assert.deepEqual(Object.keys(then).sort(), ["operationType", "slotResults"]);
   assert.deepEqual(then.operationType, { const: "LOAD" });
   const items = then.slotResults.items;
   assert.deepEqual(items.properties.outcome, { enum: ["COMPLETED", "NOT_STARTED"] });
   assert.deepEqual(items.properties.lockState, { const: "LOCKED" });
   assert.deepEqual(items.properties.unlockOutputState, { const: "RESET" });
+  assert.deepEqual(items.allOf, [
+    { if: { properties: { outcome: { const: "COMPLETED" } }, required: ["outcome"] }, then: { properties: { finalPhysicalState: { const: "OCCUPIED" }, ...withoutCode } } },
+    { if: { properties: { outcome: { const: "NOT_STARTED" } }, required: ["outcome"] }, then: { properties: { finalPhysicalState: { const: "EMPTY" }, reasonCodes: { contains: { const: SKIPPED_CODE } } } } },
+  ]);
   // At least one loaded slot (k >= 1) and at least one remaining slot (k < N).
   assert.deepEqual(then.slotResults.allOf, [
     { contains: { properties: { outcome: { const: "COMPLETED" } } }, minContains: 1 },
@@ -174,24 +180,48 @@ test("the skipped outcome, and only it, carries a skip request id, on a LOAD who
 
 test("each way a skipped result can break its shape has its own invalid example", () => {
   const cases = {
-    "IF-THEN-remainingBasketsSkipRequestId-SKIPPED-NULL": "/payload/remainingBasketsSkipRequestId",
-    "IF-THEN-remainingBasketsSkipRequestId-COMPLETED": "/payload/remainingBasketsSkipRequestId",
     "IF-THEN-operationType-SKIPPED-UNLOAD": "/payload/operationType",
     "IF-THEN-slotResults-SKIPPED-NOTHING-LOADED": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-NOTHING-REMAINING": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-UNKNOWN": "/payload/slotResults",
+    "IF-THEN-slotResults-SKIPPED-FAILED": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-UNLOCKED": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-OUTPUT-ACTIVE": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-REMAINING-OCCUPIED": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-REMAINING-WITHOUT-CODE": "/payload/slotResults",
     "IF-THEN-slotResults-SKIPPED-LOADED-EMPTY": "/payload/slotResults",
+    "IF-THEN-slotResults-SKIPPED-LOADED-WITH-CODE": "/payload/slotResults",
+    "IF-THEN-slotResults-COMPLETED-WITH-CODE": "/payload/slotResults",
   };
   for (const [suffix, fieldPath] of Object.entries(cases)) {
     const wrapper = invalidOf(OPERATION_RESULT, suffix);
     assert.deepEqual(wrapper.expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath, rule: "if-then" }, suffix);
   }
-  assert.equal(invalidOf(OPERATION_RESULT, "IF-THEN-remainingBasketsSkipRequestId-SKIPPED-NULL").message.payload.remainingBasketsSkipRequestId, null);
-  assert.equal(invalidOf(OPERATION_RESULT, "IF-THEN-remainingBasketsSkipRequestId-COMPLETED").message.payload.overallOutcome, "COMPLETED");
+  // Review L1: a third slot FAILED, EMPTY, LOCKED and RESET passes every other constraint, so only the outcome enum refuses it.
+  assert.deepEqual(invalidOf(OPERATION_RESULT, "IF-THEN-slotResults-SKIPPED-FAILED").message.payload.slotResults.map((slot) => slot.outcome), ["COMPLETED", "NOT_STARTED", "FAILED"]);
+  assert.deepEqual(invalidOf(OPERATION_RESULT, "IF-THEN-slotResults-SKIPPED-FAILED").message.payload.slotResults[2], { slotNo: 3, outcome: "FAILED", finalPhysicalState: "EMPTY", lockState: "LOCKED", unlockOutputState: "RESET", reasonCodes: [] });
+  const completed = invalidOf(OPERATION_RESULT, "IF-THEN-slotResults-COMPLETED-WITH-CODE").message.payload;
+  assert.equal(completed.overallOutcome, "COMPLETED");
+  assert.deepEqual(completed.slotResults[0].reasonCodes, [SKIPPED_CODE]);
+});
+
+// --- the load cancellation authorization (review M3) ---
+
+test("LoadCancellationAuthorization authorizes only an empty scope and refuses only with a reason", () => {
+  const payload = payloadOf("LoadCancellationAuthorization");
+  assert.deepEqual(payload.if, { properties: { decision: { const: "REJECTED" } }, required: ["decision"] });
+  assert.deepEqual(payload.then, { properties: { problem: { type: "object" } } });
+  assert.deepEqual(payload.else, { properties: { slots: { maxItems: 0 } } });
+  const authorized = validOf("LoadCancellationAuthorization");
+  assert.equal(authorized.payload.decision, "AUTHORIZED");
+  assert.deepEqual(authorized.payload.slots, []);
+  const rejected = validOf("LoadCancellationAuthorization", "REJECTED-001");
+  assert.equal(rejected.payload.decision, "REJECTED");
+  assert.equal(rejected.payload.problem.reasonCode, CANCELLATION_CODE);
+  assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-slots-AUTHORIZED").expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath: "/payload/slots", rule: "if-then" });
+  assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-slots-AUTHORIZED").message.payload.slots, [1]);
+  assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-REJECTED").expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath: "/payload/problem", rule: "if-then" });
+  assert.equal(invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-REJECTED").message.payload.problem, null);
 });
 
 // --- error codes ---
@@ -224,7 +254,7 @@ const vectors = {
     stableErrorCode: SKIPPED_CODE,
     forbidden: ["remaining-baskets-skipped-without-authorization", "slot-opened-while-skip-pending", "skip-settled-as-cancellation-or-suppression", "manual-transport-alarm-on-skip", "skipped-slots-kept-reserved", "loaded-slot-cleared-on-skip"],
     controlServer: ["AUTHORIZE_SKIP_ONLY_WITH_AT_LEAST_ONE_LOADED_AND_ONE_REMAINING_SLOT", "AUTHORIZE_SKIP_ONLY_WITH_ALL_DOORS_LOCKED_OUTPUTS_RESET_AND_NO_UNKNOWN", "COMMIT_AUTHORIZED_LOADED_SLOTS_AS_ONE_LOAD_BATCH", "RELEASE_REMAINING_SLOTS_AND_RESERVATION_ON_SETTLEMENT", "UNLOAD_ONLY_THE_AUTHORIZED_LOADED_SLOTS", "COMPLETE_DEMAND_AS_NORMAL_DELIVERY_WITHOUT_SUPPRESSION_OR_ALARM", "AUDIT_SKIP_N_TO_K_WITH_OPERATOR_WHEN_KNOWN"],
-    onboardHmi: ["OFFER_SKIP_ONLY_WHILE_ITS_CONDITIONS_HOLD", "JOURNAL_SKIP_REQUEST_BEFORE_SENDING", "NEVER_OPEN_A_SLOT_WHILE_SKIP_PENDING", "END_OPERATION_ONLY_ON_AUTHORIZED_SKIP", "REPORT_AUTHORIZED_SLOTS_COMPLETED_AND_REMAINING_SLOTS_SKIPPED", "CARRY_SKIP_REQUEST_ID_IN_OPERATION_RESULT"],
+    onboardHmi: ["OFFER_SKIP_ONLY_WHILE_ITS_CONDITIONS_HOLD", "JOURNAL_SKIP_REQUEST_BEFORE_SENDING", "NEVER_OPEN_A_SLOT_WHILE_SKIP_PENDING", "END_OPERATION_ONLY_ON_AUTHORIZED_SKIP", "REPORT_AUTHORIZED_SLOTS_COMPLETED_AND_REMAINING_SLOTS_SKIPPED", "NEVER_ACT_ON_AN_AUTHORIZATION_AFTER_THE_OPERATION_ENDED_ANOTHER_WAY"],
     finalState: { readiness: "READY", business: "DEMAND_LOADED_WITH_AUTHORIZED_BASKETS_REMAINING_SLOTS_RELEASED", physical: "LOADED_SLOTS_OCCUPIED_REMAINING_SLOTS_EMPTY_ALL_LOCKED_RESET" },
   },
   "CV-REMAINING-BASKETS-SKIP-REJECTED": {
@@ -256,7 +286,7 @@ const vectors = {
     messages: [OPERATION_RESULT, "DurableAck"],
     stableErrorCode: null,
     forbidden: ["remaining-baskets-skipped-without-authorization", "unauthorized-skip-result-settled-as-completed", "skipped-slots-released-without-authorization"],
-    controlServer: ["NEVER_SETTLE_SKIPPED_RESULT_WITHOUT_MATCHING_AUTHORIZATION", "SETTLE_SKIPPED_RESULT_ONLY_ON_THE_AUTHORIZED_LOADED_SLOTS", "BLOCK_JOURNEY_ON_UNRECONCILED_SKIPPED_RESULT"],
+    controlServer: ["NEVER_SETTLE_SKIPPED_RESULT_WITHOUT_MATCHING_AUTHORIZATION", "FIND_THE_AUTHORIZATION_BY_DEMAND_AND_ATTEMPT", "SETTLE_SKIPPED_RESULT_ONLY_ON_THE_AUTHORIZED_LOADED_SLOTS", "BLOCK_JOURNEY_ON_UNRECONCILED_SKIPPED_RESULT"],
     onboardHmi: ["NEVER_REPORT_SKIPPED_RESULT_WITHOUT_AUTHORIZATION"],
     finalState: { readiness: "RECOVERY_REQUIRED", business: "JOURNEY_BLOCKED_DEMAND_NOT_SETTLED", physical: "AS_REPORTED_BY_UNRECONCILED_RESULT" },
   },
@@ -283,6 +313,18 @@ for (const [vectorId, want] of Object.entries(vectors)) {
     assert.deepEqual(steps.map((step) => step.messageType), want.messages);
   });
 }
+
+test("CV-LOAD-CANCELLATION-ALL-EMPTY authorizes an empty scope and opens no slot for the cancellation (review M4)", () => {
+  const expected = readJson("vectors/CV-LOAD-CANCELLATION-ALL-EMPTY/expected.json");
+  assert.deepEqual(expected.orderedExpectedMessages, ["LoadCancellationStartRequested", "LoadCancellationAuthorization", "LoadCancellationResult", "DurableAck"]);
+  assert.deepEqual(expected.forbiddenSideEffects, [...DEFAULT_FORBIDDEN, "business-cancellation-opened-a-slot", "cancellation-authorized-after-a-basket-is-loaded"]);
+  assert.deepEqual(expected.productAssertions, {
+    controlServer: ["AUTHORIZE_CANCELLATION_EXPLICITLY", "AUTHORIZE_ONLY_WITH_EVERY_TARGET_SLOT_EMPTY_LOCKED_AND_RESET", "AUTHORIZE_WITH_AN_EMPTY_SLOT_SCOPE", "RECONCILE_EMPTY_FINAL_STATE"],
+    onboardHmi: ["NEVER_OPEN_A_SLOT_FOR_A_CANCELLATION", "REPORT_ALL_EMPTY_WITHOUT_SLOT_IO", "NEVER_CANCEL_UNILATERALLY"],
+  });
+  // CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN is kept as a defence, unchanged.
+  assert.ok(readJson("integration-slices/index.json").slices.find((slice) => slice.integrationSliceId === "FP-IS-02").vectorIds.includes("CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN"));
+});
 
 test("the authorization reaches the vehicle before the skipped operation result in the authorized trace", () => {
   const messages = readJson("vectors/CV-REMAINING-BASKETS-SKIP-AUTHORIZED/expected.json").orderedExpectedMessages;
@@ -328,7 +370,26 @@ test("the wire notes define the skip, the checks in order, the settlement and th
   assert.match(body, /first check that fails decides/);
   // Settlement only on a matching authorization.
   assert.match(body, /`COMPLETED_REMAINING_SKIPPED`/);
-  assert.match(body, /settles .*only when .*`remainingBasketsSkipRequestId` names a `RemainingBasketsSkipResult` it sent with `outcome` `AUTHORIZED`/s);
+  assert.match(body, /finds the one `RemainingBasketsSkipResult` with `outcome` `AUTHORIZED` it sent for the result's `demandId` and `slotOperationAttemptId`/);
+  assert.doesNotMatch(body, /remainingBasketsSkipRequestId/);
+  // Review M1: every way out of a pending request, a late authorization, and an authorization spent by another result.
+  assert.match(body, /answered with `ProtocolProblem`.*drops the request/s);
+  assert.match(body, /gone to manual recovery.*station departure deadline.*`OperationResult` of the attempt/s);
+  assert.match(body, /An `AUTHORIZED` result that arrives after the operation has ended another way is journaled and not acted on/);
+  assert.match(body, /settles with any result other than `COMPLETED_REMAINING_SKIPPED`, the authorization is spent/);
+  // Review L6: the release happens at settlement.
+  assert.match(body, /released when the control server settles the result/);
+  assert.match(body, /same moment as the immediate release REQ-0367 asks for/);
+  // Review L7: a resubmission is a new message of the same request.
+  assert.match(body, /new `messageId` with the same `skipRequestId` and the same payload/);
+  // Review L2: the order of the cancellation refusals.
+  assert.match(body, /`SLOT_STATE_UNKNOWN`, then `LOAD_CANCELLATION_BASKET_LOADED`, then `LOCK_NOT_CLOSED`, then `UNLOCK_OUTPUT_NOT_RESET`/);
+  // Review M4: the door-unproven cancellation vector is kept only as a defence.
+  assert.match(body, /`CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN` is kept as a defence/);
+  assert.match(body, /never settled as `ALL_EMPTY`/);
+  // Review M2: the upgrade order.
+  assert.match(body, /no rollout of one side first/);
+  assert.match(body, /both outboxes drained/);
   assert.match(body, /never settles it as completed/);
   // Duplicates and conflicts.
   assert.match(body, /same `skipRequestId` with the same content is answered by replaying the stored result/);
@@ -345,7 +406,8 @@ test("the compatibility report states the one 6.0.0 change in one sentence", () 
   assert.deepEqual(rest, []);
   assert.match(sentence, /RemainingBasketsSkipRequested.*RemainingBasketsSkipResult/);
   assert.match(sentence, /COMPLETED_REMAINING_SKIPPED/);
-  assert.match(sentence, /remainingBasketsSkipRequestId/);
+  assert.doesNotMatch(sentence, /remainingBasketsSkipRequestId/);
+  assert.match(sentence, /LoadCancellationAuthorization/);
   assert.match(sentence, new RegExp(CANCELLATION_CODE));
   assert.match(sentence, /5\.0\.0 implementation/);
 });
@@ -354,6 +416,8 @@ test("candidate limitations describe what 6.0.0 changes and what it carries over
   const lastParagraph = read("docs/candidate-limitations.md").trim().split("\n\n").at(-1);
   assert.match(lastParagraph, /RemainingBasketsSkipRequested/);
   assert.match(lastParagraph, /COMPLETED_REMAINING_SKIPPED/);
+  assert.match(lastParagraph, /LoadCancellationAuthorization/);
+  assert.doesNotMatch(lastParagraph, /remainingBasketsSkipRequestId/);
   assert.match(lastParagraph, /three error codes/);
   assert.match(lastParagraph, /every other schema stays as 5\.0\.0 released it/);
 });
