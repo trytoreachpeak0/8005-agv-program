@@ -494,3 +494,25 @@ G1 模板加一行：授权向量里授权先于 `OperationResult`，未经授�
 
 重产仍在普通克隆里做（第 14 节的教训），pnpm store 设在克隆外，克隆里没有 `.pnpm-store`。取红的副本不能 `cp -r` 整个克隆：pnpm 的
 `node_modules` 是链接，复制过去会缺依赖（`Cannot find module 'fast-deep-equal'`），所以副本排除 `node_modules` 后重新 `pnpm install`。
+
+### 16.1 审查返工（Coordinator13 10-21 转来的裁定）
+
+审查结论无必修，生成器可复现、schema 约束都能取红；下列各项并进同一个 6.0.0 候选（打 tag 后再改就要再升大版本）：
+
+- M1：wire-notes 写明在途申请的出口（收到 `ProtocolProblem`、操作已以别的方式结束即放弃，可再按）、迟到的 `AUTHORIZED` 不执行、
+  attempt 以非跳过结果结算后授权作废。
+- M2：去掉 `OperationResult.remainingBasketsSkipRequestId`，只保留 `COMPLETED_REMAINING_SKIPPED`；服务端按
+  (`demandId`, `slotOperationAttemptId`) 找唯一的授权。wire-notes 写升级顺序：精确身份绑定、两端发件箱清空后停服一起换装。
+- M3：`LoadCancellationAuthorization` 加 if/then：`AUTHORIZED` 时 `slots` `maxItems` 0，`REJECTED` 时 `problem` 必须是 object。
+- M4：`CV-LOAD-CANCELLATION-ALL-EMPTY` 改写为空范围授权、不为取消开门（`forbiddenSideEffects` 加 `business-cancellation-opened-a-slot`）；
+  `CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN` 作为防御保留，下个大版本删。
+- L1：三仓反例 `SKIPPED-FAILED` 单独守 outcome 枚举（审查变异 E 原先存活）。L3：`REMAINING_BASKET_SKIPPED` → `REMAINING_BASKETS_SKIPPED`。
+  L5：schema 把这个码限定在跳过结果的剩余仓上（`not`/`contains`），contract-corrections 测试里的小校验器随之补 `not`、`contains`、`minContains`。
+  L2、L6、L7：取消拒绝的检查顺序、释放发生在结算时、重发换新 `messageId` 沿用 `skipRequestId` 与载荷，写进 wire-notes。
+
+| 项 | 值 |
+| --- | --- |
+| 生成器测试 | 返工断言先提交确认红 13 条（217 条中），再改实现；`node --test tools/*.test.mjs` 217 pass／0 fail |
+| 确定性 | `--verify-determinism` 2060 个文件、0 divergent |
+| 重产 | 普通克隆 `C:/work/8005-scratch/p26/new2`，对 `18d4fb34` 同样步骤，README「Current state」改一句（仍是唯一手改）；G1 **PASS**：75 schema／69 消息／73 valid／1785 invalid／57 向量／16 切片，manifest `4363ad969a714220fbe4fce1ee2d746be23865e67bd9de1ecd0eb6cf0cfbb7f3`，`vectorsSha256` `e06ca9ea…` |
+| G1 取红 | 六处各在一份副本里改、重新 finalize，全部 FAIL：删 `OperationResult` 跳过约束（12 条 unexpectedly valid）；授权向量结果在前；未经授权的结果以 `READY` 收尾；删 `LoadCancellationAuthorization` 的 if/then（2 条）；删跳过结果的 outcome 枚举（`SKIPPED-FAILED`）；删 `else` 分支（`COMPLETED-WITH-CODE`） |
