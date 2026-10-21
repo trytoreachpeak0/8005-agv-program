@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const generatorPath = path.join(toolsDirectory, "generate-protocol-candidate.mjs");
-const TYPES = "https://schemas.8005-agv.local/agv-full-product/v6/common/types.schema.json#/$defs/";
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
 
 // The two closed enums as protocol-v4.0.0 released them (schemas/common/types.schema.json at 3fb214e5).
 const V4_TRANSPORT_TASK_TYPES = ["DIE_TO_WIRE_STAGING", "DIE_TO_OVEN", "WIRE_TO_GATE", "WIRE_TO_OPTICAL", "STAGING_TO_WIRE", "WIRE_TO_NITROGEN"];
@@ -86,20 +86,9 @@ for (const [suffix, value] of Object.entries(NEGATIVES)) {
   });
 }
 
-test("the compatibility report states the one breaking change against protocol-v4.0.0", () => {
-  const report = readJson("compatibility/report.json");
-  assert.equal(report.baseRelease, "protocol-v4.0.0");
-  assert.equal(report.classification, "BREAKING_PROTOCOL_VERSION_INCREASE");
-  // protocol#23 adds a second sentence (generate-protocol-candidate.stale-departure-revision.test.mjs); this one stays first.
-  assert.equal(report.changeSummary.length, 2);
-  const [sentence] = report.changeSummary;
-  assert.match(sentence, new RegExp(`TransportTaskType.*${NEW_TYPE}`));
-  assert.match(sentence, /PublicStationFunction.*unchanged/);
-  assert.match(sentence, /4\.0\.0 implementation.*rejects/);
-  assert.match(sentence, /both implementations.*together/);
-  assert.match(sentence, /\.$/);
-  assert.doesNotMatch(sentence, /\. /);
-});
+// The 5.0.0 compatibility report sentence and candidate-limitations paragraph this ticket wrote are released history:
+// protocol-v5.0.0 (18d4fb34) carries them. The 6.0.0 candidate summarises its changes against protocol-v5.0.0 instead, and the
+// identity test anchors those.
 
 test(`docs/wire-notes.md explains ${NEW_TYPE} and why both implementations change together`, () => {
   const notes = read("docs/wire-notes.md");
@@ -119,14 +108,3 @@ test(`docs/wire-notes.md explains ${NEW_TYPE} and why both implementations chang
   assert.doesNotMatch(section, /always sends/);
 });
 
-test("candidate limitations describe what 5.0.0 changes and what it carries over", () => {
-  const lastParagraph = read("docs/candidate-limitations.md").trim().split("\n\n").at(-1);
-  assert.match(lastParagraph, new RegExp(`TransportTaskType.*${NEW_TYPE}`));
-  assert.match(lastParagraph, /4\.0\.0 implementation rejects/);
-  assert.match(lastParagraph, /both implementations change together/);
-  // protocol#23 changed the departure and journey plan vectors and their slices, so only the schemas are carried over.
-  assert.match(lastParagraph, /every other schema stays as 4\.0\.0 released it/);
-  assert.match(lastParagraph, /the error registry is carried over unchanged/);
-  // The 4.0.0 sentence said the payloads and the conformance index change; in 5.0.0 the vectors hash is 4.0.0's.
-  assert.doesNotMatch(lastParagraph, /conformance index change/);
-});

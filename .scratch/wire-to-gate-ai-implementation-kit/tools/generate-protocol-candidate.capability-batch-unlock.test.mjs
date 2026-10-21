@@ -13,7 +13,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const generatorPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "generate-protocol-candidate.mjs");
-const COMMON = "https://schemas.8005-agv.local/agv-full-product/v6/common/types.schema.json#/$defs/";
+const COMMON = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
 const ref = (name) => ({ $ref: `${COMMON}${name}` });
 const DROPPED = "supportsBatchUnlock";
 

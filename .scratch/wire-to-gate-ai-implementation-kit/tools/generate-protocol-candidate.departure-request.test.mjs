@@ -13,7 +13,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const generatorPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "generate-protocol-candidate.mjs");
-const COMMON = "https://schemas.8005-agv.local/agv-full-product/v6/common/types.schema.json#/$defs/";
+const COMMON = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
 const REQUEST = "CurrentStopDepartureRequested";
 const RESULT = "CurrentStopDepartureResult";
 const DEFAULT_SIDE_EFFECTS = ["duplicate-riot-order", "duplicate-slot-unlock", "expanded-active-unlock-set", "duplicate-business-commit", "ready-before-reconciliation", "unknown-as-success"];
@@ -185,7 +185,8 @@ test("a request missing any field is a schema negative, one per field", () => {
 });
 
 test("the departure reuses released error codes and adds none", () => {
-  const codes = readJson("errors/error-codes.json").codes;
+  // The 62 codes protocol-v3.0.0 released and 4.0.0 and 5.0.0 kept; 6.0.0 (protocol#26) appends after them.
+  const codes = readJson("errors/error-codes.json").codes.slice(0, 62);
   assert.equal(codes.length, 62);
   for (const code of ["WORKLIST_REVISION_STALE", "STATION_MISMATCH", "ACTION_NOT_ALLOWED_IN_STATE", "BUSINESS_ID_CONTENT_CONFLICT"]) {
     const entry = codes.find((item) => item.code === code);
@@ -438,11 +439,8 @@ test("the wire notes scope the departure to staging and to loaded machine pickup
   assert.match(body, /answered with `ProtocolProblem` carrying `BUSINESS_ID_CONTENT_CONFLICT`\. No `CurrentStopDepartureResult` is sent/);
 });
 
-test("candidate limitations do not claim the error registry changed", () => {
-  const limitations = read("docs/candidate-limitations.md");
-  assert.match(limitations, /the error registry is carried over unchanged/);
-  assert.doesNotMatch(limitations, /the error registry and the conformance index all change/);
-});
+// "the error registry is carried over unchanged" was true of 4.0.0 and 5.0.0, both released; 6.0.0 appends three codes, and the
+// identity test checks how its candidate limitations say so.
 
 test("the wire notes deliver the cargo before charging and close the loading phase with CHARGING_REQUIRED", () => {
   const body = section("Charging required at a staging pickup stop");

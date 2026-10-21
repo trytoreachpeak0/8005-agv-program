@@ -45,9 +45,10 @@ const codeOf = (code) => {
 };
 
 // The subset of JSON Schema 2020-12 the generated message schemas use, as in the recovery-closure test, plus description,
-// which is an annotation and constrains nothing. A keyword outside the subset throws rather than being skipped. format is
+// which is an annotation and constrains nothing, and not, contains and minContains, which 6.0.0 uses on OperationResult
+// (protocol#26). A keyword outside the subset throws rather than being skipped. format is
 // not checked (G1 runs ajv-formats), so no test here rests on a malformed date-time or uuid.
-const KNOWN_KEYWORDS = new Set(["$ref", "type", "const", "enum", "required", "properties", "additionalProperties", "anyOf", "allOf", "if", "then", "else", "minLength", "pattern", "minimum", "maximum", "items", "minItems", "maxItems", "uniqueItems", "format", "examples", "description", "x-sortedAscending", "x-sortedBy"]);
+const KNOWN_KEYWORDS = new Set(["$ref", "type", "const", "enum", "required", "properties", "additionalProperties", "anyOf", "allOf", "if", "then", "else", "minLength", "pattern", "minimum", "maximum", "items", "minItems", "maxItems", "uniqueItems", "format", "examples", "description", "x-sortedAscending", "x-sortedBy", "not", "contains", "minContains"]);
 let commonDefs;
 const resolve = (schema) => {
   if (!schema.$ref) return schema;
@@ -78,6 +79,7 @@ const valid = (rawSchema, value) => {
     if (schema.maxItems !== undefined && value.length > schema.maxItems) return false;
     if (schema.uniqueItems && new Set(value.map((item) => JSON.stringify(item))).size !== value.length) return false;
     if (schema.items && !value.every((item) => valid(schema.items, item))) return false;
+    if (schema.contains && value.filter((item) => valid(schema.contains, item)).length < (schema.minContains ?? 1)) return false;
   }
   if (typeOf(value) === "object") {
     if (schema.required && !schema.required.every((key) => key in value)) return false;
@@ -86,6 +88,7 @@ const valid = (rawSchema, value) => {
       else if (schema.additionalProperties === false) return false;
     }
   }
+  if (schema.not && valid(schema.not, value)) return false;
   if (schema.anyOf && !schema.anyOf.some((option) => valid(option, value))) return false;
   if (schema.allOf && !schema.allOf.every((option) => valid(option, value))) return false;
   if (schema.if) {
@@ -360,7 +363,7 @@ test(`${RELEASE} is a recovery action a session may offer, select and accept`, (
 
 // The release reuses the hardware recovery record exactly as 2.0.0 released it: both messages are pinned whole, so a field made
 // nullable or dropped on either side turns this red.
-const TYPES = "https://schemas.8005-agv.local/agv-full-product/v6/common/types.schema.json#/$defs/";
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
 const ref = (name) => ({ $ref: `${TYPES}${name}` });
 const nonEmptyStrings = { type: "array", items: { type: "string", minLength: 1 }, minItems: 1 };
 

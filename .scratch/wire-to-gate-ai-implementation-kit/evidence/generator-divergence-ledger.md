@@ -471,3 +471,65 @@ wire-notes 新增一节写旅程计划只含当前停靠与其后未完成的停
 | G1 取红 | 把新向量 `expected.json` 的 `stableErrorCode` 改成 `WORKLIST_REVISION_STALE`、重新 finalize，G1 FAIL：`stale revision without material change must be accepted`；还原后 manifest 回到 `128daae5…` |
 
 重产仍在普通克隆里做（第 14 节的教训），pnpm store 设在克隆外，克隆里没有 `.pnpm-store`。
+
+## 16. v6.0.0 候选：多篮装货「剩下的不装」的减篮申请与授权（8005-agv-protocol#26）
+
+protocol#26 落地 CP-0021（program#213，`REQ-0367` 与修订后的 `REQ-0211`、`REQ-0352`，需求基线 v1.20.0，追踪 program#210）。
+`protocol-v5.0.0` 已打 tag（`18d4fb34`），所以另开大版本：`releaseVersion` 5.0.0 → 6.0.0，`ProtocolVersion` 6 → 7，schema `$id` 段
+`agv-full-product/v6` → `v7`，`baseRelease` `protocol-v5.0.0`，候选时间戳 2026-10-21。新增 `RemainingBasketsSkipRequested`、
+`RemainingBasketsSkipResult` 两条 RELIABLE 消息；`OperationResult` 的 `overallOutcome` 追加 `COMPLETED_REMAINING_SKIPPED`、新增必填可空字段
+`remainingBasketsSkipRequestId`；错误码表在 v5 已发布的 62 个码之后追加 `REMAINING_BASKET_SKIPPED`、`REMAINING_BASKETS_SKIP_NOTHING_LOADED`、
+`LOAD_CANCELLATION_BASKET_LOADED`，`registryVersion` 1.2.0 → 1.3.0；六条向量挂 FP-IS-02（重复申请那条同时挂 FP-IS-05）；wire-notes 新增一节；
+G1 模板加一行：授权向量里授权先于 `OperationResult`，未经授权的结果向量必须以 `RECOVERY_REQUIRED` 收尾并带「绝不结算」的断言。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-10-21 |
+| 机器 | `DESKTOP-S109GB9`（10-20 换的新笔记本），node v24.20.0，pnpm 11.25.0 |
+| 起点复核 | `origin/main` `e0b28f10` 上的生成器，在普通克隆 `C:/work/8005-scratch/p26/base` 里对协议仓 `18d4fb34`（tag `protocol-v5.0.0`）重产、放回七个元文件、finalize、G1：`git status` 为空，G1 **PASS**，manifest `dd973918cc9c4fdf28ee2ad2ec4ad522bdcc6f2b6ecaa4a4fa1c57a29f29f5aa` |
+| 改写后 | 本分支生成器，在 `C:/work/8005-scratch/p26/new` 里同样步骤，`README.md`「Current state」两段改写（唯一的手工改动）；G1 **PASS**：75 schema／69 消息／72 valid／1784 invalid／57 向量／16 切片，manifest `9b4a5c58f443b17f41e3db5441792387b5579c74ae7ff48909541efe8cc4c0a5`；`vectorsSha256` `291311b2…` → `e57e4c75…` |
+| 确定性 | `--verify-determinism` 2058 个文件、0 divergent |
+| 生成器测试 | 先提交断言确认红 44 条（215 条中），再改实现；`node --test tools/*.test.mjs` 215 pass／0 fail |
+| G1 取红 | 在绿树的副本上各改一处、重新 finalize：删掉 `OperationResult` 的 `COMPLETED_REMAINING_SKIPPED` 约束，G1 FAIL 11 条 `schema-invalid example unexpectedly valid …I-OperationResult-IF-THEN-…`；授权向量里把 `OperationResult` 挪到授权之前，G1 FAIL `a remaining-baskets skip settles only after its authorization`；未经授权的结果向量改成以 `READY` 收尾，G1 FAIL `an unauthorized skipped result is never settled` |
+
+重产仍在普通克隆里做（第 14 节的教训），pnpm store 设在克隆外，克隆里没有 `.pnpm-store`。取红的副本不能 `cp -r` 整个克隆：pnpm 的
+`node_modules` 是链接，复制过去会缺依赖（`Cannot find module 'fast-deep-equal'`），所以副本排除 `node_modules` 后重新 `pnpm install`。
+
+### 16.1 审查返工（Coordinator13 10-21 转来的裁定）
+
+审查结论无必修，生成器可复现、schema 约束都能取红；下列各项并进同一个 6.0.0 候选（打 tag 后再改就要再升大版本）：
+
+- M1：wire-notes 写明在途申请的出口（收到 `ProtocolProblem`、操作已以别的方式结束即放弃，可再按）、迟到的 `AUTHORIZED` 不执行、
+  attempt 以非跳过结果结算后授权作废。
+- M2：去掉 `OperationResult.remainingBasketsSkipRequestId`，只保留 `COMPLETED_REMAINING_SKIPPED`；服务端按
+  (`demandId`, `slotOperationAttemptId`) 找唯一的授权。wire-notes 写升级顺序：精确身份绑定、两端发件箱清空后停服一起换装。
+- M3：`LoadCancellationAuthorization` 加 if/then：`AUTHORIZED` 时 `slots` `maxItems` 0，`REJECTED` 时 `problem` 必须是 object。
+- M4：`CV-LOAD-CANCELLATION-ALL-EMPTY` 改写为空范围授权、不为取消开门（`forbiddenSideEffects` 加 `business-cancellation-opened-a-slot`）；
+  `CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN` 作为防御保留，下个大版本删。
+- L1：三仓反例 `SKIPPED-FAILED` 单独守 outcome 枚举（审查变异 E 原先存活）。L3：`REMAINING_BASKET_SKIPPED` → `REMAINING_BASKETS_SKIPPED`。
+  L5：schema 把这个码限定在跳过结果的剩余仓上（`not`/`contains`），contract-corrections 测试里的小校验器随之补 `not`、`contains`、`minContains`。
+  L2、L6、L7：取消拒绝的检查顺序、释放发生在结算时、重发换新 `messageId` 沿用 `skipRequestId` 与载荷，写进 wire-notes。
+
+| 项 | 值 |
+| --- | --- |
+| 生成器测试 | 返工断言先提交确认红 13 条（217 条中），再改实现；`node --test tools/*.test.mjs` 217 pass／0 fail |
+| 确定性 | `--verify-determinism` 2060 个文件、0 divergent |
+| 重产 | 普通克隆 `C:/work/8005-scratch/p26/new2`，对 `18d4fb34` 同样步骤，README「Current state」改一句（仍是唯一手改）；G1 **PASS**：75 schema／69 消息／73 valid／1785 invalid／57 向量／16 切片，manifest `4363ad969a714220fbe4fce1ee2d746be23865e67bd9de1ecd0eb6cf0cfbb7f3`，`vectorsSha256` `e06ca9ea…` |
+| G1 取红 | 六处各在一份副本里改、重新 finalize，全部 FAIL：删 `OperationResult` 跳过约束（12 条 unexpectedly valid）；授权向量结果在前；未经授权的结果以 `READY` 收尾；删 `LoadCancellationAuthorization` 的 if/then（2 条）；删跳过结果的 outcome 枚举（`SKIPPED-FAILED`）；删 `else` 分支（`COMPLETED-WITH-CODE`） |
+
+### 16.2 复核小项（Coordinator13 10-21，复核无 H/M）
+
+- L-c：`LoadCancellationAuthorization` 的 then 加 `slots` `maxItems` 0、else 加 `problem` 为 null，两种决定的 `slots` 都为空。
+- L-b：于是 `slots` 的 `uniqueItems` 已无可测形状（复核变异 T 被 `maxItems` 0 遮住而存活），连同生成的 `UNIQUE-slots` 反例一起去掉。
+- L-a：`LoadCorrectionResult`、`LoadCancellationResult`、`LoadCompensationResult`、`FaultCargoRecoveryResult` 的 payload 加 `allOf`，仓位码禁用
+  `REMAINING_BASKETS_SKIPPED`，各一条 `NOT-slotResults-REMAINING_BASKETS_SKIPPED` 反例；共享的 `SlotResult` 不动。
+- L-d：wire-notes 防御向量一句按向量本身改；candidate-limitations 写明 5.0.0 实现拒收是因为身份与版本不同。
+
+| 项 | 值 |
+| --- | --- |
+| 生成器测试 | 断言先提交红 7 条（221 条中），实现后 221 pass／0 fail |
+| 确定性 | 2065 个文件、0 divergent |
+| 重产 | 普通克隆 `C:/work/8005-scratch/p26/new3`，README 沿用 16.1；G1 **PASS**：75 schema／69 消息／73 valid／1790 invalid／57 向量／16 切片，manifest `a52876be2ddcc9b8cdd1f1e3b7b7ddbe70d31a307f1d3f017d7a1eb95ffd77b1`，`vectorsSha256` 与 16.1 相同 |
+| G1 取红 | 16.1 的六处加三处（删取消授权 else 的 `problem`、删 then 的 `slots`、删 `LoadCorrectionResult` 的 `allOf`），九处全部 FAIL，每份副本只差 1～2 个文件 |
+
+生成器只写不删：在克隆里重产时，生成器已不再产出的 `I-LoadCancellationAuthorization-UNIQUE-slots.json` 会留在原处、照样进 manifest。这次拿重产结果与「生成到空目录」的文件表对比才发现，手工 `git rm` 掉后重新 finalize、G1；其余文件除七个元文件与 `evidence/` 外两边一致。以后去掉样例的改动都要做这一步对比。
