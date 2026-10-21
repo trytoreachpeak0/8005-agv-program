@@ -153,23 +153,6 @@ test("the wire notes say the plan holds the current stop and the stops after it 
   assert.match(body, /`maxItems` 9/);
 });
 
-// --- the candidate describes the revision ---
-
-test("the compatibility report adds one sentence for this revision and keeps the identity of the 5.0.0 candidate", () => {
-  const report = readJson("compatibility/report.json");
-  assert.equal(report.candidateVersion, "5.0.0");
-  assert.equal(report.protocolVersion, 6);
-  assert.equal(report.changeSummary.length, 2);
-  const sentence = report.changeSummary[1];
-  assert.match(sentence, /stale worklistRevision.*no material change/);
-  assert.match(sentence, /remaining plan/);
-  assert.match(sentence, /\.$/);
-  assert.doesNotMatch(sentence, /\. /);
-});
-
-test("candidate limitations no longer claim the vectors and slices stay as 4.0.0 released them", () => {
-  const lastParagraph = read("docs/candidate-limitations.md").trim().split("\n\n").at(-1);
-  assert.doesNotMatch(lastParagraph, /the vectors and the integration slices stay as 4\.0\.0 released them/);
-  assert.match(lastParagraph, /every other schema stays as 4\.0\.0 released it/);
-  assert.match(lastParagraph, /protocol#23/);
-});
+// The 5.0.0 compatibility report sentence and candidate-limitations paragraph this revision wrote are released history:
+// protocol-v5.0.0 (18d4fb34) carries them. The 6.0.0 candidate summarises its changes against protocol-v5.0.0 instead, and the
+// identity test anchors those.

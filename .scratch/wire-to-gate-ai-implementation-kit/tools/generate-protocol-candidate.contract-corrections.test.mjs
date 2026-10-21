@@ -360,7 +360,7 @@ test(`${RELEASE} is a recovery action a session may offer, select and accept`, (
 
 // The release reuses the hardware recovery record exactly as 2.0.0 released it: both messages are pinned whole, so a field made
 // nullable or dropped on either side turns this red.
-const TYPES = "https://schemas.8005-agv.local/agv-full-product/v6/common/types.schema.json#/$defs/";
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
 const ref = (name) => ({ $ref: `${TYPES}${name}` });
 const nonEmptyStrings = { type: "array", items: { type: "string", minLength: 1 }, minItems: 1 };
 
