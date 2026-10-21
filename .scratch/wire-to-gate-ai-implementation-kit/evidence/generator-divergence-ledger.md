@@ -516,3 +516,20 @@ G1 模板加一行：授权向量里授权先于 `OperationResult`，未经授�
 | 确定性 | `--verify-determinism` 2060 个文件、0 divergent |
 | 重产 | 普通克隆 `C:/work/8005-scratch/p26/new2`，对 `18d4fb34` 同样步骤，README「Current state」改一句（仍是唯一手改）；G1 **PASS**：75 schema／69 消息／73 valid／1785 invalid／57 向量／16 切片，manifest `4363ad969a714220fbe4fce1ee2d746be23865e67bd9de1ecd0eb6cf0cfbb7f3`，`vectorsSha256` `e06ca9ea…` |
 | G1 取红 | 六处各在一份副本里改、重新 finalize，全部 FAIL：删 `OperationResult` 跳过约束（12 条 unexpectedly valid）；授权向量结果在前；未经授权的结果以 `READY` 收尾；删 `LoadCancellationAuthorization` 的 if/then（2 条）；删跳过结果的 outcome 枚举（`SKIPPED-FAILED`）；删 `else` 分支（`COMPLETED-WITH-CODE`） |
+
+### 16.2 复核小项（Coordinator13 10-21，复核无 H/M）
+
+- L-c：`LoadCancellationAuthorization` 的 then 加 `slots` `maxItems` 0、else 加 `problem` 为 null，两种决定的 `slots` 都为空。
+- L-b：于是 `slots` 的 `uniqueItems` 已无可测形状（复核变异 T 被 `maxItems` 0 遮住而存活），连同生成的 `UNIQUE-slots` 反例一起去掉。
+- L-a：`LoadCorrectionResult`、`LoadCancellationResult`、`LoadCompensationResult`、`FaultCargoRecoveryResult` 的 payload 加 `allOf`，仓位码禁用
+  `REMAINING_BASKETS_SKIPPED`，各一条 `NOT-slotResults-REMAINING_BASKETS_SKIPPED` 反例；共享的 `SlotResult` 不动。
+- L-d：wire-notes 防御向量一句按向量本身改；candidate-limitations 写明 5.0.0 实现拒收是因为身份与版本不同。
+
+| 项 | 值 |
+| --- | --- |
+| 生成器测试 | 断言先提交红 7 条（221 条中），实现后 221 pass／0 fail |
+| 确定性 | 2065 个文件、0 divergent |
+| 重产 | 普通克隆 `C:/work/8005-scratch/p26/new3`，README 沿用 16.1；G1 **PASS**：75 schema／69 消息／73 valid／1790 invalid／57 向量／16 切片，manifest `a52876be2ddcc9b8cdd1f1e3b7b7ddbe70d31a307f1d3f017d7a1eb95ffd77b1`，`vectorsSha256` 与 16.1 相同 |
+| G1 取红 | 16.1 的六处加三处（删取消授权 else 的 `problem`、删 then 的 `slots`、删 `LoadCorrectionResult` 的 `allOf`），九处全部 FAIL，每份副本只差 1～2 个文件 |
+
+生成器只写不删：在克隆里重产时，生成器已不再产出的 `I-LoadCancellationAuthorization-UNIQUE-slots.json` 会留在原处、照样进 manifest。这次拿重产结果与「生成到空目录」的文件表对比才发现，手工 `git rm` 掉后重新 finalize、G1；其余文件除七个元文件与 `evidence/` 外两边一致。以后去掉样例的改动都要做这一步对比。
