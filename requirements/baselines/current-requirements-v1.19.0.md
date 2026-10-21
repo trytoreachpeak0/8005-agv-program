@@ -22,7 +22,7 @@
 
 ### Modified
 
-- None
+- `REQ-0181`：句末加一句，在工厂 IT 正式提供的版本上，经用户本人批准、只改筛选语义（例如增减取料工序）而不改任务类型与输出字段的版本，以用户本人为该版本的提供方，同样逐版本绑定接收日期与 SHA-256 并重新审查；任务类型或输出字段的变化仍须工厂 IT 正式提供。由 `CP-0020` 修订项一承载。
 
 ### Deprecated
 
@@ -10475,14 +10475,14 @@ ChargeHangReassign 与普通待充共用一条候选链。 先限定为该车允
 - Lifecycle: `active`
 - Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Introduced In: `v1.0.0`
-- Last Meaning Change In: `v1.14.0`
+- Last Meaning Change In: `v1.19.0`
 - Supersedes: `none (no earlier approved baseline)`
 - Deprecated In: `none`
-- Change Proposal: `CP-0015`
+- Change Proposal: `CP-0020`
 
 #### Current Requirement
 
-工厂 IT SQL 是候选集合边界。 MesIngest 执行工厂 IT 正式提供的全厂七类 MES SQL；SQL 返回集是权威候选集，未返回的记录直接忽略。MesIngest 不重建被内连接或其它 SQL 条件排除的任务，不为设备主资料缺失另建旁路查询或告警。对 SQL 的信任必须逐版本绑定提供方、接收日期与 SHA-256；任务类型、输出字段或筛选语义变化时重新审查，不能把当前信任延伸到未知版本。
+工厂 IT SQL 是候选集合边界。 MesIngest 执行工厂 IT 正式提供的全厂七类 MES SQL；SQL 返回集是权威候选集，未返回的记录直接忽略。MesIngest 不重建被内连接或其它 SQL 条件排除的任务，不为设备主资料缺失另建旁路查询或告警。对 SQL 的信任必须逐版本绑定提供方、接收日期与 SHA-256；任务类型、输出字段或筛选语义变化时重新审查，不能把当前信任延伸到未知版本。在工厂 IT 正式提供的版本上，经用户本人批准、只改筛选语义（例如增减取料工序）而不改任务类型与输出字段的版本，以用户本人为该版本的提供方，同样逐版本绑定接收日期与 SHA-256，并按上句重新审查；任务类型或输出字段的变化仍须工厂 IT 正式提供。
 
 #### Verification Method
 
@@ -21225,8 +21225,8 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - Source: [requirements/change-proposals/CP-0020.md](../change-proposals/CP-0020.md)
 - Exact Location: 一、目录时间窗 > 新增项一：`REQ-0366` 目录时间窗准入
 - Verbatim Extract: 8005 v2 派车只派 MesIngest 首次读到不满目录时间窗的未受理需求。 尚未受理的候选 TransportDemand，自 MesIngest 首次创建它的时刻起算（即 REQ-0201 的 TransportDemandWaitingAge），到本轮派车评估时已超过目录时间窗的，不派车、不受理；同一 DemandId 一经超窗，此后不再派车，不因 MES 字段更新而放回。目录时间窗对全部任务类型相同，默认 30 分钟，是投运配置，取值经用户批准后生效。首次创建时刻缺失的候选同样不派车。这两类候选照旧留在 ExternallyReadableDemandCatalog 与 UnassignedDemandBacklog 中，在 ControlServer 看板积压里以各自的原因码列出，与需求离开目录区分，不静默消失；它们不形成 StructuralDispatchBlock，不升级防饥饿告警，不挂人工搬运告警。受理前重读目录时按同一时间窗再判一次，超窗即放弃本次受理。已受理的需求不受时间窗影响，照常送完。MES DATES 照旧不参与派车（REQ-0201）。目录时间窗只在派车准入生效，不改变 MesIngest 的查询、目录成员与出现消失对账，不使任何需求离开目录，因而不触发已受理需求离开目录时的处理。需求离开目录后同键再现、按 REQ-0154 生成新 DemandId 的，以新实例的首次创建时刻重新起算；MesIngest 换库重建后，目录内全部需求的首次创建时刻都是重建时刻，会同时重新落入时间窗。
-- Source Version: `03f2fb9029085aab9d2f5ae0d82563e25366120c`
-- Snapshot SHA-256: `1c7a1a827a7d01631fc77a28cf9bb0523ba186f254555a31129461e95e5ed59f`
+- Source Version: `20b25c16adb94f9909e56cc163302c0156749a05`
+- Snapshot SHA-256: `57c6d4987e76d192a0c689e4332ba8b37ef1071706548f94ae21bbe2d5154f4b`
 - Source Date: `2026-10-21`
 - Source Scope: 8005 多仓位 AGV 项目；更窄边界以本条文本及来源票据为准
 - Source Authority: 用户本人；2026-10-21 经调度会话 Coordinator13 转达的决定见 CP-0020 第五节
@@ -21264,8 +21264,8 @@ AreaSlotPositionAssignment 随 DispatchZoneAreaAssignment 整表受治理生效�
 - [x] 每个条目均具有唯一规范性的 Current Requirement、Scope、Verification Method 与可复核 Evidence。
 - [x] `REQ-0001`–`REQ-0348` 保留 `v1.0.0` 逐条批准时绑定的规范文本 SHA-256、批准批次、payload、候选总账和 manifest；`REQ-0349`–`REQ-0355` 经 `CP-0002`、`REQ-0356` 经 `CP-0003`、`REQ-0357` 经 `CP-0004`、`REQ-0358`–`REQ-0359` 经 `CP-0005`、`REQ-0360`–`REQ-0363` 经 `CP-0006`、`REQ-0364` 经 `CP-0009`、`REQ-0365` 经 `CP-0016`、`REQ-0366` 经 `CP-0020` 批准，规范文本 SHA-256 按同一口径（条文 UTF-8、无结尾换行）计算，其余批准工件字段记为 `none（经变更提案流程批准）`。
 - [x] 已知真实冲突均引用已解决决定；未把疑似冲突擅自解释为已解决。
-- [x] 本版本相对 `v1.18.0` 新增 1 条（`REQ-0366`），没有废弃条目，没有修订既有条目；新增条目的 Evidence 与条目批准记录照 `CP-0002`～`CP-0016` 新增条目的写法，`Approved At` 待用户批准后补记并重新派生。
-- [x] 版本号 `v1.19.0` 与「新增条目 → minor」一致。
+- [x] 本版本相对 `v1.18.0` 新增 1 条（`REQ-0366`），没有废弃条目，修订 1 条：`REQ-0181` 只改 Current Requirement、Last Meaning Change In 与 Change Proposal，改动落在前 54 个字符之后，标题行不变；Evidence 与条目批准记录保留原批准时的内容，与 `CP-0001`～`CP-0019` 的做法一致。新增条目的 Evidence 与条目批准记录照 `CP-0002`～`CP-0016` 新增条目的写法，`Approved At` 待用户批准后补记并重新派生。
+- [x] 版本号 `v1.19.0` 与「新增条目并修订既有条目文义 → minor」一致。
 - [x] 本文件由生成脚本从 `v1.18.0` 与 `CP-0020` 机械派生，派生时核对提案所引基线原文与 `v1.18.0` 一致、标题行符合前 54 个字符加 `…` 的规则。
 - [x] 内容 Git commit、Baseline SHA-256 与 annotated tag 记在 `requirements/current-baseline.md`。
 - [x] `requirements/current-baseline.md` 在发布提交中唯一指向本版本。
