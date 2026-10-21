@@ -210,8 +210,11 @@ test("each way a skipped result can break its shape has its own invalid example"
 test("LoadCancellationAuthorization authorizes only an empty scope and refuses only with a reason", () => {
   const payload = payloadOf("LoadCancellationAuthorization");
   assert.deepEqual(payload.if, { properties: { decision: { const: "REJECTED" } }, required: ["decision"] });
-  assert.deepEqual(payload.then, { properties: { problem: { type: "object" } } });
-  assert.deepEqual(payload.else, { properties: { slots: { maxItems: 0 } } });
+  assert.deepEqual(payload.then, { properties: { problem: { type: "object" }, slots: { maxItems: 0 } } });
+  assert.deepEqual(payload.else, { properties: { problem: { type: "null" }, slots: { maxItems: 0 } } });
+  // Review L-b: both decisions carry empty slots, so uniqueItems has no shape left to test; it goes, and its negative with it.
+  assert.equal(Object.hasOwn(payload.properties.slots, "uniqueItems"), false);
+  assert.equal(fs.existsSync(path.join(tree, "examples/invalid/LoadCancellationAuthorization/I-LoadCancellationAuthorization-UNIQUE-slots.json")), false);
   const authorized = validOf("LoadCancellationAuthorization");
   assert.equal(authorized.payload.decision, "AUTHORIZED");
   assert.deepEqual(authorized.payload.slots, []);
@@ -222,7 +225,27 @@ test("LoadCancellationAuthorization authorizes only an empty scope and refuses o
   assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-slots-AUTHORIZED").message.payload.slots, [1]);
   assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-REJECTED").expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath: "/payload/problem", rule: "if-then" });
   assert.equal(invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-REJECTED").message.payload.problem, null);
+  // Review L-c: an authorization with a problem, and a refusal naming a slot.
+  assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-AUTHORIZED").expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath: "/payload/problem", rule: "if-then" });
+  assert.equal(invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-AUTHORIZED").message.payload.decision, "AUTHORIZED");
+  assert.equal(typeof invalidOf("LoadCancellationAuthorization", "IF-THEN-problem-AUTHORIZED").message.payload.problem, "object");
+  assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-slots-REJECTED").expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath: "/payload/slots", rule: "if-then" });
+  assert.equal(invalidOf("LoadCancellationAuthorization", "IF-THEN-slots-REJECTED").message.payload.decision, "REJECTED");
+  assert.deepEqual(invalidOf("LoadCancellationAuthorization", "IF-THEN-slots-REJECTED").message.payload.slots, [1]);
 });
+
+// --- review L-a: the four other results that carry SlotResult refuse the skip marker ---
+
+for (const messageType of ["LoadCorrectionResult", "LoadCancellationResult", "LoadCompensationResult", "FaultCargoRecoveryResult"]) {
+  test(`${messageType} refuses ${SKIPPED_CODE} on any slot`, () => {
+    const payload = payloadOf(messageType);
+    assert.ok(Array.isArray(payload.allOf), `${messageType} payload has no allOf`);
+    assert.ok(payload.allOf.some((branch) => JSON.stringify(branch) === JSON.stringify({ properties: { slotResults: { items: { properties: { reasonCodes: { not: { contains: { const: SKIPPED_CODE } } } } } } } })), messageType);
+    const wrapper = invalidOf(messageType, "NOT-slotResults-REMAINING_BASKETS_SKIPPED");
+    assert.deepEqual(wrapper.expected, { code: "PROTOCOL_SCHEMA_INVALID", fieldPath: "/payload/slotResults", rule: "not" });
+    assert.deepEqual(wrapper.message.payload.slotResults[0].reasonCodes, [SKIPPED_CODE]);
+  });
+}
 
 // --- error codes ---
 
@@ -386,7 +409,8 @@ test("the wire notes define the skip, the checks in order, the settlement and th
   assert.match(body, /`SLOT_STATE_UNKNOWN`, then `LOAD_CANCELLATION_BASKET_LOADED`, then `LOCK_NOT_CLOSED`, then `UNLOCK_OUTPUT_NOT_RESET`/);
   // Review M4: the door-unproven cancellation vector is kept only as a defence.
   assert.match(body, /`CV-LOAD-CANCELLATION-EMPTY-DOOR-UNPROVEN` is kept as a defence/);
-  assert.match(body, /never settled as `ALL_EMPTY`/);
+  assert.match(body, /this outcome is not settled as `ALL_EMPTY`: the demand ends as that vector sets it, as an all-empty cancellation, and the vehicle is held for repair/);
+  assert.doesNotMatch(body, /never settled as `ALL_EMPTY`/);
   // Review M2: the upgrade order.
   assert.match(body, /no rollout of one side first/);
   assert.match(body, /both outboxes drained/);
@@ -420,4 +444,8 @@ test("candidate limitations describe what 6.0.0 changes and what it carries over
   assert.doesNotMatch(lastParagraph, /remainingBasketsSkipRequestId/);
   assert.match(lastParagraph, /three error codes/);
   assert.match(lastParagraph, /every other schema stays as 5\.0\.0 released it/);
+  // Review L-d: a 5.0.0 implementation refuses a 6.0.0 message for its identity, not for an empty scope.
+  assert.doesNotMatch(lastParagraph, /authorizes only an empty scope, which a 5\.0\.0 implementation rejects/);
+  assert.match(lastParagraph, /refuses every 6\.0\.0 message because its identity and ProtocolVersion differ/);
+  assert.match(lastParagraph, /LoadCorrectionResult.*FaultCargoRecoveryResult.*refuse the new slot marker/);
 });
