@@ -12,7 +12,7 @@ demand `Q26091238-17`。1 号仓开锁脉冲于 10:29:22.986 发出，锁 DI 由
 操作员在 17 秒后才开始动作，其间光幕 DI 反复跳变但仓门始终未闭；10:31:22 车载端 119 秒超时，
 整个 station operation 判为 `LOAD_RESULT_REQUIRES_RECOVERY`，服务端 journey 转 Blocked。
 HMI 显示「1、2 号仓操作失败或状态未知，服务端已收到结果，等待管理员恢复」，而
-`wireToGate.recoveryResumeEnabled` 出厂为 `false`，恢复入口根本不会出现。*（2026-10-21 注，`CP-0022`，待批准：这是 09-08 的事实。恢复改为服务端按车、限时授权后，车载端恢复开关在换装时常开，开会话要维护人员先在控制端为这辆车下授权，见 [ADR-cross-0066](0066-recovery-needs-per-vehicle-time-limited-server-grant.md)。）*唯一出路是从控制端
+`wireToGate.recoveryResumeEnabled` 出厂为 `false`，恢复入口根本不会出现。*（2026-10-21 注，`CP-0022`，已批准，2026-10-21：这是 09-08 的事实。恢复改为服务端按车、限时授权后，车载端恢复开关在换装时常开，开会话要维护人员先在控制端为这辆车下授权，见 [ADR-cross-0066](0066-recovery-needs-per-vehicle-time-limited-server-grant.md)。）*唯一出路是从控制端
 运行 `12-reset-journey-state.ps1` 清空两端状态重跑——那是测试台手段，不是产线出路。
 
 值得注意的是 2 号仓当时**一次都没有打开过**，却和 1 号仓一起被标记为失败：车载端在超时分支里把
@@ -337,7 +337,7 @@ Consequences 说三个期限相互独立，这没有错；但放进同一趟旅�
 
 - `wireToGate.recoveryResumeEnabled` 出厂是 `false`，没有改。验收期间经工作区
   `remote-ops/onboard-hmi/scripts/14-set-recovery-window.ps1` 临时开过，每次都 `-Revert` 关回；2026-09-12
-  在 agv01 上实读为 `false`，`CONTROL_SERVER_RECOVERY_PROOF` 不存在，自动化面关着。*（2026-10-21 注，`CP-0022`，待批准：09-12 的收尾配置。之后改为开关常开、按车限时授权，见 ADR-cross-0066。）*
+  在 agv01 上实读为 `false`，`CONTROL_SERVER_RECOVERY_PROOF` 不存在，自动化面关着。*（2026-10-21 注，`CP-0022`，已批准，2026-10-21：09-12 的收尾配置。之后改为开关常开、按车限时授权，见 ADR-cross-0066。）*
 - agv01 的 IO 仍指向模拟器 `127.0.0.1:1502`。重新部署车载端会把它渲染回真实模块。
 
 ## v2 线：按 program#55 改写决策 1 与决策 5（2026-09-18）
@@ -432,7 +432,7 @@ PR #103）：
   - 决策 5 的 2026-09-18 改写「装货的这一格由操作员按取消收口」：门空关等按键时 k = 0 照旧按取消收口；k ≥ 1 时由「剩下的不装」收口。
   - 不变：只有 `UNKNOWN` 进恢复；不判失败；门空关等按「重新开门」（`CP-0019`）；卸货必须取空。实现票 onboard-hmi#388、onboard-hmi#392、
     control-server#830，协议 protocol#26。
-- **2026-10-21，恢复入口改为服务端按车、限时授权（`CP-0022`，program#217，`REQ-0235`、`REQ-0279`、`REQ-0254`，待批准）。**
+- **2026-10-21，恢复入口改为服务端按车、限时授权（`CP-0022`，program#217，`REQ-0235`、`REQ-0279`、`REQ-0254`，已批准，2026-10-21）。**
   - 第 15 行、第 338 行「`recoveryResumeEnabled` 出厂为 `false`」是 09-08、09-12 的事实陈述，正文不改写，句后加注。新规则写在
     [ADR-cross-0066](0066-recovery-needs-per-vehicle-time-limited-server-grant.md)：车载端恢复开关在换装时常开；开恢复会话要维护人员先在
     控制端为这辆车（及这趟旅程）下限时授权，默认 30 分钟、只放维修后恢复，到期或收回即结束会话。

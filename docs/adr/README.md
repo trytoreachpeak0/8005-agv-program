@@ -76,4 +76,4 @@
 | [ADR-cross-0063](cross/0063-light-curtain-empty-settles-load-side-business-door-proof-gates-release.md) | 光幕证明取空即结清装货侧的货物业务，仓门锁闭证明改为车辆放行条件 |
 | [ADR-cross-0064](cross/0064-emergency-stops-in-three-classes.md) | 急停分三类：8005 下达的三类急停只经 8005 解除，被二类入口解开时重下（`CP-0017` 起门锁类例外只对读到过没锁的成立，只因读不到的读数恢复后自动解除；行驶中仓位未知先宽限 3 秒） |
 | [ADR-cross-0065](cross/0065-staging-pickup-departs-on-full-or-operator-departure.md) | 待送点取货由仓满或客户出发驱动离站：无倒计时、不持货超时，满或全部装不下立即走，缺电带货去充电（`CP-0013` 改为先送货再充电，2026-10-15；`CP-0014` 改为有货后有持货倒计时、扫码前取消按条提供并终结抑制，2026-10-15） |
-| [ADR-cross-0066](cross/0066-recovery-needs-per-vehicle-time-limited-server-grant.md) | 车上恢复会话与控制端故障恢复须有服务端按车、限时授权（`CP-0022`，待批准） |
+| [ADR-cross-0066](cross/0066-recovery-needs-per-vehicle-time-limited-server-grant.md) | 车上恢复会话与控制端故障恢复须有服务端按车、限时授权（`CP-0022`，已批准，2026-10-21） |
