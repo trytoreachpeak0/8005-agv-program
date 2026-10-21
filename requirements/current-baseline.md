@@ -1,11 +1,11 @@
 # 当前需求基线
 
-- Version: `v1.20.0`
-- Baseline: [current-requirements-v1.20.0.md](baselines/current-requirements-v1.20.0.md)
-- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0021.md](change-proposals/CP-0021.md)
-- Baseline SHA-256: `5d39395c4431b804aea4d1a9a4d26e08f62bebeb89628195eb688c4d6c4a6e83`
-- Content Git Commit: `a6d81b94e7503abad282fb11da5202185183ef48`
-- Annotated Git Tag: `requirements-baseline-v1.20.0`
+- Version: `v1.21.0`
+- Baseline: [current-requirements-v1.21.0.md](baselines/current-requirements-v1.21.0.md)
+- Release Record: 本版本经变更提案流程批准，见 [change-proposals/CP-0024.md](change-proposals/CP-0024.md)
+- Baseline SHA-256: `6eb025f5bdc37257432717f564940b9a72b8dadcde0569e0a55f315498322dc9`
+- Content Git Commit: `800e77ae3d2319c750adfcc0e825538bc3f90eba`
+- Annotated Git Tag: `requirements-baseline-v1.21.0`
 
 本文件是唯一当前版本指针。候选版本在正式批准、提交并创建发布 tag 前不得替换此指针。
 
@@ -15,6 +15,7 @@
 
 | 版本 | 文件 | Baseline SHA-256 | Content Git Commit | Annotated Tag |
 | --- | --- | --- | --- | --- |
+| `v1.21.0` | [current-requirements-v1.21.0.md](baselines/current-requirements-v1.21.0.md) | `6eb025f5bdc37257432717f564940b9a72b8dadcde0569e0a55f315498322dc9` | `800e77ae3d2319c750adfcc0e825538bc3f90eba` | `requirements-baseline-v1.21.0` |
 | `v1.20.0` | [current-requirements-v1.20.0.md](baselines/current-requirements-v1.20.0.md) | `5d39395c4431b804aea4d1a9a4d26e08f62bebeb89628195eb688c4d6c4a6e83` | `a6d81b94e7503abad282fb11da5202185183ef48` | `requirements-baseline-v1.20.0` |
 | `v1.19.0` | [current-requirements-v1.19.0.md](baselines/current-requirements-v1.19.0.md) | `1028b87d6bf362093b5a7d071f9aadc44866cabbf62cb6ceca0b9f97dc6b73b3` | `9321cbac470d082f3d309e50ad5571f63898731d` | `requirements-baseline-v1.19.0` |
 | `v1.18.0` | [current-requirements-v1.18.0.md](baselines/current-requirements-v1.18.0.md) | `87e2b3adb428efec44d19eaf95979078e10c6b0fc1964b2768e4bb7abe6f4207` | `19b1e49bdaa9a693779e0517a59f44d716224ca8` | `requirements-baseline-v1.18.0` |
