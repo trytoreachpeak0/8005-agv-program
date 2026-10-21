@@ -471,3 +471,26 @@ wire-notes 新增一节写旅程计划只含当前停靠与其后未完成的停
 | G1 取红 | 把新向量 `expected.json` 的 `stableErrorCode` 改成 `WORKLIST_REVISION_STALE`、重新 finalize，G1 FAIL：`stale revision without material change must be accepted`；还原后 manifest 回到 `128daae5…` |
 
 重产仍在普通克隆里做（第 14 节的教训），pnpm store 设在克隆外，克隆里没有 `.pnpm-store`。
+
+## 16. v6.0.0 候选：多篮装货「剩下的不装」的减篮申请与授权（8005-agv-protocol#26）
+
+protocol#26 落地 CP-0021（program#213，`REQ-0367` 与修订后的 `REQ-0211`、`REQ-0352`，需求基线 v1.20.0，追踪 program#210）。
+`protocol-v5.0.0` 已打 tag（`18d4fb34`），所以另开大版本：`releaseVersion` 5.0.0 → 6.0.0，`ProtocolVersion` 6 → 7，schema `$id` 段
+`agv-full-product/v6` → `v7`，`baseRelease` `protocol-v5.0.0`，候选时间戳 2026-10-21。新增 `RemainingBasketsSkipRequested`、
+`RemainingBasketsSkipResult` 两条 RELIABLE 消息；`OperationResult` 的 `overallOutcome` 追加 `COMPLETED_REMAINING_SKIPPED`、新增必填可空字段
+`remainingBasketsSkipRequestId`；错误码表在 v5 已发布的 62 个码之后追加 `REMAINING_BASKET_SKIPPED`、`REMAINING_BASKETS_SKIP_NOTHING_LOADED`、
+`LOAD_CANCELLATION_BASKET_LOADED`，`registryVersion` 1.2.0 → 1.3.0；六条向量挂 FP-IS-02（重复申请那条同时挂 FP-IS-05）；wire-notes 新增一节；
+G1 模板加一行：授权向量里授权先于 `OperationResult`，未经授权的结果向量必须以 `RECOVERY_REQUIRED` 收尾并带「绝不结算」的断言。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-10-21 |
+| 机器 | `DESKTOP-S109GB9`（10-20 换的新笔记本），node v24.20.0，pnpm 11.25.0 |
+| 起点复核 | `origin/main` `e0b28f10` 上的生成器，在普通克隆 `C:/work/8005-scratch/p26/base` 里对协议仓 `18d4fb34`（tag `protocol-v5.0.0`）重产、放回七个元文件、finalize、G1：`git status` 为空，G1 **PASS**，manifest `dd973918cc9c4fdf28ee2ad2ec4ad522bdcc6f2b6ecaa4a4fa1c57a29f29f5aa` |
+| 改写后 | 本分支生成器，在 `C:/work/8005-scratch/p26/new` 里同样步骤，`README.md`「Current state」两段改写（唯一的手工改动）；G1 **PASS**：75 schema／69 消息／72 valid／1784 invalid／57 向量／16 切片，manifest `9b4a5c58f443b17f41e3db5441792387b5579c74ae7ff48909541efe8cc4c0a5`；`vectorsSha256` `291311b2…` → `e57e4c75…` |
+| 确定性 | `--verify-determinism` 2058 个文件、0 divergent |
+| 生成器测试 | 先提交断言确认红 44 条（215 条中），再改实现；`node --test tools/*.test.mjs` 215 pass／0 fail |
+| G1 取红 | 在绿树的副本上各改一处、重新 finalize：删掉 `OperationResult` 的 `COMPLETED_REMAINING_SKIPPED` 约束，G1 FAIL 11 条 `schema-invalid example unexpectedly valid …I-OperationResult-IF-THEN-…`；授权向量里把 `OperationResult` 挪到授权之前，G1 FAIL `a remaining-baskets skip settles only after its authorization`；未经授权的结果向量改成以 `READY` 收尾，G1 FAIL `an unauthorized skipped result is never settled` |
+
+重产仍在普通克隆里做（第 14 节的教训），pnpm store 设在克隆外，克隆里没有 `.pnpm-store`。取红的副本不能 `cp -r` 整个克隆：pnpm 的
+`node_modules` 是链接，复制过去会缺依赖（`Cannot find module 'fast-deep-equal'`），所以副本排除 `node_modules` 后重新 `pnpm install`。

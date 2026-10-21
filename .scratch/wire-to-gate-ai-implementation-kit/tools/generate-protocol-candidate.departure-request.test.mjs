@@ -185,7 +185,8 @@ test("a request missing any field is a schema negative, one per field", () => {
 });
 
 test("the departure reuses released error codes and adds none", () => {
-  const codes = readJson("errors/error-codes.json").codes;
+  // The 62 codes protocol-v3.0.0 released and 4.0.0 and 5.0.0 kept; 6.0.0 (protocol#26) appends after them.
+  const codes = readJson("errors/error-codes.json").codes.slice(0, 62);
   assert.equal(codes.length, 62);
   for (const code of ["WORKLIST_REVISION_STALE", "STATION_MISMATCH", "ACTION_NOT_ALLOWED_IN_STATE", "BUSINESS_ID_CONTENT_CONFLICT"]) {
     const entry = codes.find((item) => item.code === code);
