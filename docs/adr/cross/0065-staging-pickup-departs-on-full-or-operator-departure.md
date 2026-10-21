@@ -111,7 +111,7 @@ protocol v4 的 `CurrentStopDepartureRequested`／`CurrentStopDepartureResult`�
   - 协议：v4 候选在打 tag 前随 protocol#17 改写 `docs/wire-notes.md`，schema 不变。实现：control-server#727（倒计时）、#726 与
     onboard-hmi#353（按条取消）。
 
-- **2026-10-20，待送点判满只按已装货物，判定每轮重判（`CP-0018`，起草中，待用户批准）。**用户 2026-10-20 定（经 Coordinator13 转达）：
+- **2026-10-20，待送点判满只按已装货物，判定每轮重判（`CP-0018`，2026-10-21 批准，需求基线 `v1.17.0`）。**用户 2026-10-20 定（经 Coordinator13 转达）：
   「待送点判满只看实际已装的篮数，预留不算满（改 CP-0012 R1(a)，出 CP）；判满前后的追加按新口径重判。」
   - 起因：10-20 00:43 agv02 在 217 一篮未装，6 条需求的预留占满两侧 8 个仓，按「已装或已预留」判满并锁住；6 条随后全部取消，
     派车照样又追加 14 条，装货阶段仍是 `VEHICLE_FULL`，车装 3 篮、空 5 仓离站（control-server#800）。
