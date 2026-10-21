@@ -547,7 +547,7 @@ _Avoid_: 单一综合评分、跨层权重抵消、把硬门禁折算为软分�
 _Avoid_: 车辆优先选任务、最近任务优先于任务层级、空闲车辆自行挑单
 
 **目录时间窗（CatalogAgeWindow）**:
-v2 派车准入里的一条规则：尚未受理的 TransportDemand 自 MesIngest 首次读到（等待年龄起点）起超过目录时间窗（默认 30 分钟，全部任务类型同一个值，投运配置）就不派车，同一 DemandId 超窗后不放回；它仍在 MesIngest 目录与 UnassignedDemandBacklog 里，看板以原因码列出。已受理的（含放回待派、仍为已受理的）不受限制。它不在 MesIngest，不改变目录与出现消失对账。见 `REQ-0366`（`CP-0020`，待批准）。
+v2 派车准入里的一条规则：尚未受理的 TransportDemand 自 MesIngest 首次读到（等待年龄起点）起超过目录时间窗（默认 30 分钟，全部任务类型同一个值，投运配置）就不派车，同一 DemandId 超窗后不放回；它仍在 MesIngest 目录与 UnassignedDemandBacklog 里，看板以原因码列出。已受理的（含放回待派、仍为已受理的）不受限制。它不在 MesIngest，不改变目录与出现消失对账。见 `REQ-0366`（`CP-0020`，已批准，2026-10-21）。
 _Avoid_: 在 MesIngest 或 SQL 里按时间过滤、按 MES DATES 判新旧、超窗后从看板静默消失、把已受理的需求撤掉
 
 **UnassignedDemandBacklog（未分配需求积压）**:
