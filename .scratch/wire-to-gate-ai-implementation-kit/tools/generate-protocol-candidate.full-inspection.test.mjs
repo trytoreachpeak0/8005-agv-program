@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const generatorPath = path.join(toolsDirectory, "generate-protocol-candidate.mjs");
-const TYPES = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v8/common/types.schema.json#/$defs/";
 
 // The two closed enums as protocol-v4.0.0 released them (schemas/common/types.schema.json at 3fb214e5).
 const V4_TRANSPORT_TASK_TYPES = ["DIE_TO_WIRE_STAGING", "DIE_TO_OVEN", "WIRE_TO_GATE", "WIRE_TO_OPTICAL", "STAGING_TO_WIRE", "WIRE_TO_NITROGEN"];
