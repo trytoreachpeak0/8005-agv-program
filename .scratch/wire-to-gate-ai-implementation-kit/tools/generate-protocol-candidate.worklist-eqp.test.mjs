@@ -123,11 +123,23 @@ test(`FP-IS-09, the onboard worklist slice, carries ${VECTOR}`, () => {
   assert.deepEqual(carriers, ["FP-IS-09"]);
   const is09 = slices.find((slice) => slice.integrationSliceId === "FP-IS-09");
   assert.ok(is09.definition.authorityModel.wireMessages.includes(WORKLIST));
+  // Review L4: the slice's outcomes name what the vector binds, not only the selection.
+  assert.ok(is09.definition.requiredOutcomes.includes("WORKLIST_EQP_DISPLAY_ONLY"));
 });
 
 test("G1 pins the worklist item with eqp among its required fields", () => {
   const g1 = read("tools/g1-validate.mjs");
   assert.ok(g1.includes(JSON.stringify([...V6_ITEM_FIELDS, "eqp"]).replaceAll(" ", "")), "G1 does not pin eqp");
+});
+
+test("G1 refuses a tree that drops the display-only binding, the null example or the slice of the eqp vector", () => {
+  // Review L1: removing NEVER_DECIDE_BY_WORKLIST_EQP from either side, the EQP-NULL example or the vector's place in FP-IS-09
+  // left G1 green; each now has a G1 check of its own, as protocol#26 did for the remaining-baskets skip.
+  const g1 = read("tools/g1-validate.mjs");
+  assert.match(g1, new RegExp(VECTOR));
+  assert.match(g1, /worklist eqp is display-only on both ends/);
+  assert.match(g1, /a valid worklist carries a null eqp/);
+  assert.match(g1, /FP-IS-09 carries the worklist eqp vector/);
 });
 
 // --- prose ---
@@ -153,6 +165,12 @@ test("the wire notes say eqp is display-only, why it is required and nullable, a
   assert.match(body, /`additionalProperties: false`/);
   assert.match(body, /6\.0\.0 implementation rejects/);
   assert.match(body, /together/);
+  // Review M1: an applied worklist is kept by revision, so the switch happens with no vehicle holding a non-empty one.
+  assert.match(body, /dispatch gate closed/);
+  assert.match(body, /every journey `Completed`/);
+  assert.match(body, /non-empty worklist/);
+  assert.match(body, /same `worklistRevision`/);
+  assert.match(body, /`SNAPSHOT_REVISION_CONTENT_CONFLICT`/);
 });
 
 test("the compatibility report states the one 7.0.0 change in one sentence", () => {
