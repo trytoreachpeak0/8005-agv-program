@@ -178,7 +178,7 @@ const V2_ITEM_FIELDS = ["demandId", "transportDemandKey", "sublot", "workType", 
 const worklist = (items, reason) => ({ ...validOf(WORKLIST).payload, items, [REASON]: reason });
 const oneItem = () => validOf(WORKLIST).payload.items;
 
-test(`${WORKLIST} adds a required nullable ${REASON} after items and leaves the item shape of 2.0.0 alone`, () => {
+test(`${WORKLIST} adds a required nullable ${REASON} after items and leaves the item shape of 2.0.0 alone until 7.0.0 appends eqp`, () => {
   const payload = payloadSchemaOf(WORKLIST);
   assert.deepEqual(payload.required, ["stationId", "worklistRevision", "operationSessionId", "stationDepartureDeadlineAt", "items", REASON]);
   assert.deepEqual(Object.keys(payload.properties), payload.required);
@@ -187,8 +187,9 @@ test(`${WORKLIST} adds a required nullable ${REASON} after items and leaves the 
   const items = payload.properties.items;
   assert.equal(items.maxItems, 8);
   assert.equal(items.minItems, undefined, "items gained a lower bound");
-  assert.deepEqual(items.items.required, V2_ITEM_FIELDS);
-  assert.deepEqual(Object.keys(items.items.properties), V2_ITEM_FIELDS);
+  // 7.0.0 (protocol#29) appends eqp and nothing else; generate-protocol-candidate.worklist-eqp.test.mjs checks its shape.
+  assert.deepEqual(items.items.required, [...V2_ITEM_FIELDS, "eqp"]);
+  assert.deepEqual(Object.keys(items.items.properties), [...V2_ITEM_FIELDS, "eqp"]);
 });
 
 test(`${REASON} is null while the worklist has items and names a reason once it is empty`, () => {
@@ -363,7 +364,7 @@ test(`${RELEASE} is a recovery action a session may offer, select and accept`, (
 
 // The release reuses the hardware recovery record exactly as 2.0.0 released it: both messages are pinned whole, so a field made
 // nullable or dropped on either side turns this red.
-const TYPES = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
+const TYPES = "https://schemas.8005-agv.local/agv-full-product/v8/common/types.schema.json#/$defs/";
 const ref = (name) => ({ $ref: `${TYPES}${name}` });
 const nonEmptyStrings = { type: "array", items: { type: "string", minLength: 1 }, minItems: 1 };
 

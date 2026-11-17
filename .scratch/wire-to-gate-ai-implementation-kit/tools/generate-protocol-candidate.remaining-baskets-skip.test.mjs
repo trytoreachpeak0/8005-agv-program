@@ -13,7 +13,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const generatorPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "generate-protocol-candidate.mjs");
-const COMMON = "https://schemas.8005-agv.local/agv-full-product/v7/common/types.schema.json#/$defs/";
+const COMMON = "https://schemas.8005-agv.local/agv-full-product/v8/common/types.schema.json#/$defs/";
 const REQUEST = "RemainingBasketsSkipRequested";
 const RESULT = "RemainingBasketsSkipResult";
 const OPERATION_RESULT = "OperationResult";
@@ -425,27 +425,6 @@ test("the wire notes define the skip, the checks in order, the settlement and th
   assert.match(body, new RegExp(`\`${CANCELLATION_CODE}\``));
 });
 
-test("the compatibility report states the one 6.0.0 change in one sentence", () => {
-  const [sentence, ...rest] = readJson("compatibility/report.json").changeSummary;
-  assert.deepEqual(rest, []);
-  assert.match(sentence, /RemainingBasketsSkipRequested.*RemainingBasketsSkipResult/);
-  assert.match(sentence, /COMPLETED_REMAINING_SKIPPED/);
-  assert.doesNotMatch(sentence, /remainingBasketsSkipRequestId/);
-  assert.match(sentence, /LoadCancellationAuthorization/);
-  assert.match(sentence, new RegExp(CANCELLATION_CODE));
-  assert.match(sentence, /5\.0\.0 implementation/);
-});
-
-test("candidate limitations describe what 6.0.0 changes and what it carries over", () => {
-  const lastParagraph = read("docs/candidate-limitations.md").trim().split("\n\n").at(-1);
-  assert.match(lastParagraph, /RemainingBasketsSkipRequested/);
-  assert.match(lastParagraph, /COMPLETED_REMAINING_SKIPPED/);
-  assert.match(lastParagraph, /LoadCancellationAuthorization/);
-  assert.doesNotMatch(lastParagraph, /remainingBasketsSkipRequestId/);
-  assert.match(lastParagraph, /three error codes/);
-  assert.match(lastParagraph, /every other schema stays as 5\.0\.0 released it/);
-  // Review L-d: a 5.0.0 implementation refuses a 6.0.0 message for its identity, not for an empty scope.
-  assert.doesNotMatch(lastParagraph, /authorizes only an empty scope, which a 5\.0\.0 implementation rejects/);
-  assert.match(lastParagraph, /refuses every 6\.0\.0 message because its identity and ProtocolVersion differ/);
-  assert.match(lastParagraph, /LoadCorrectionResult.*FaultCargoRecoveryResult.*refuse the new slot marker/);
-});
+// The 6.0.0 compatibility report sentence and candidate-limitations paragraph this ticket wrote are released history:
+// protocol-v6.0.0 (98f17264) carries them. The 7.0.0 candidate summarises its changes against protocol-v6.0.0 instead, and the
+// identity test anchors those.

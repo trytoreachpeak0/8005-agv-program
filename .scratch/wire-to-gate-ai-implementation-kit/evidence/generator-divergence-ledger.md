@@ -533,3 +533,45 @@ G1 模板加一行：授权向量里授权先于 `OperationResult`，未经授�
 | G1 取红 | 16.1 的六处加三处（删取消授权 else 的 `problem`、删 then 的 `slots`、删 `LoadCorrectionResult` 的 `allOf`），九处全部 FAIL，每份副本只差 1～2 个文件 |
 
 生成器只写不删：在克隆里重产时，生成器已不再产出的 `I-LoadCancellationAuthorization-UNIQUE-slots.json` 会留在原处、照样进 manifest。这次拿重产结果与「生成到空目录」的文件表对比才发现，手工 `git rm` 掉后重新 finalize、G1；其余文件除七个元文件与 `evidence/` 外两边一致。以后去掉样例的改动都要做这一步对比。
+
+## 17. v7.0.0 候选：站点任务清单每条加机台号 eqp（8005-agv-protocol#29）
+
+protocol#29 落地用户 2026-11-11 的裁定（追踪 program#210）：车载屏在取货扫码清单与卸货清单的每条 sublot 旁显示机台号，就用 MES 的 `EQP`、只这两处。
+`protocol-v6.0.0` 已打 tag（`98f17264`），所以另开大版本：`releaseVersion` 6.0.0 → 7.0.0，`ProtocolVersion` 7 → 8，schema `$id` 段
+`agv-full-product/v7` → `v8`，`baseRelease` `protocol-v6.0.0`，候选时间戳 2026-11-16。`CurrentStopWorklistSnapshot` 的条目在 v6 已发布的六个字段后
+追加 `eqp`（必填、可为 null、非空字符串，不设格式）；条目仍闭合，所以 v6 实现会拒收。错误码表不变（`registryVersion` 仍为 1.3.0）。新增合法样例
+`V-CurrentStopWorklistSnapshot-EQP-NULL-001`、非法样例 `REQUIRED-items-eqp`、`TYPE-items-eqp`、`MIN-LENGTH-items-eqp`；新增向量
+`CV-WORKLIST-EQP-DISPLAY-ONLY` 挂 FP-IS-09；wire-notes 新增一节；G1 模板里 FP-IS-01 钉死的条目必填字段加上 `eqp`。
+
+为什么必填可空而不是可选：`null` 表示服务端对这条需求没有 EQP，缺字段是坏消息，车载端分得清「没有」和「忘了填」；候选一直声明没有可选字段
+（`compatibility/report.json` 的 `optionalFieldPolicy`）。为什么允许 null：`RequiredMesFactsCriterion` 一般会挡下缺 MES 事实的需求，但协议不假设
+每条已受理的需求都有 EQP。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-11-16 |
+| 机器 | `FORGE-01`，node v24.20.0，pnpm 11.25.0 |
+| 起点复核 | `origin/main` `68e43c8a` 上的生成器，在普通克隆 `C:/work/8005-scratch/p29/base` 里对协议仓 `98f17264`（tag `protocol-v6.0.0`）原地重产、finalize、G1：`git status` 为空，G1 **PASS**，manifest `a52876be2ddcc9b8cdd1f1e3b7b7ddbe70d31a307f1d3f017d7a1eb95ffd77b1`（与第 16 节最后一次相同），`vectorsSha256` `e06ca9ea…` |
+| 改写后 | 本分支生成器，在普通克隆 `C:/work/8005-scratch/p29/new` 里同样步骤，`README.md`「Current state」两段改写（唯一的手工改动）；G1 **PASS**：75 schema／69 消息／74 valid／1793 invalid／58 向量／16 切片，manifest `0c0ee573c4d41cf4db25cd1466c35b2f7be3f43ee4c888ec24137e691ba9c3bc`，`vectorsSha256` `6295840e…` |
+| 只写不删 | 克隆里重产的文件表与「生成到空目录」逐文件逐字节比对：生成的 2071 个文件全部一致；克隆里多出的只有生成器不管的 `.gitattributes`、`.gitignore`、`.github/workflows/g1.yml`、`CLAUDE.md`、`README.md`、`THIRD-PARTY-NOTICES.md`、`pnpm-lock.yaml`、`evidence/g1-result.json`，没有残留旧样例 |
+| 确定性 | `--verify-determinism` 2071 个文件、0 divergent |
+| 生成器测试 | 先提交断言确认红 34 条（232 条中），再改实现；实现时另补一条「G1 钉住含 eqp 的条目必填字段」，把 G1 模板改回旧值时它红、改好后绿；`contract-corrections` 里 3.0.0 时代「条目形状停在 2.0.0」的断言改为六个字段加 `eqp`；`node --test tools/*.test.mjs` 233 pass／0 fail |
+| G1 取红 | 在绿树的副本上各改一处、重新 finalize：从条目 `required` 删掉 `eqp`，G1 FAIL `schema-invalid example unexpectedly valid …I-CurrentStopWorklistSnapshot-REQUIRED-items-eqp.json` 与 `FP-IS-01 worklist Demand representation`；删掉 `eqp` 的 `minLength`，G1 FAIL `…I-CurrentStopWorklistSnapshot-MIN-LENGTH-items-eqp.json` |
+
+第 14 节的坑这次又踩了一次：先在协议仓的 git worktree 里 finalize，manifest 文件表把 worktree 根上 102 字节的 `.git` 文件算了进去
+（G1 照样 PASS，看不出来）。发现后改在普通克隆里重产、finalize、G1，再把克隆里的文件逐字节搬回 worktree 提交，worktree 里不再 finalize。
+
+### 17.1 审查返工（protocol#29 审查，Coordinator14 转达，无 H）
+
+审查四项裁定：M1 wire-notes eqp 节补升级前提；L1 G1 自己守住只显示的语义；L2 两处过时注释；L4 FP-IS-09 加 `WORKLIST_EQP_DISPLAY_ONLY`。L3（只含空白的 `eqp` 能过 schema）与 finalize 只排 `.git/` 的旧坑不改。
+
+- M1：车载端按 `MessageType` 存已应用的快照，同一 revision 内容不同即判 `SNAPSHOT_REVISION_CONTENT_CONFLICT`，表不分协议身份。切换时若有车停站持有非空清单，升级后服务端以同一 `worklistRevision` 重发、多了 `eqp`，车就会卡站。wire-notes 补一句：切换须关闸、所有旅程 `Completed`，没有车持有非空清单，并写明原因。两端实际行为由调度加到 cs#896、hmi#417 票面。
+- L1：G1 模板加一行（照第 16 节的做法）：向量两端都带 `NEVER_DECIDE_BY_WORKLIST_EQP` 且 `forbiddenSideEffects` 带 `decision-taken-on-worklist-eqp`；`examples/valid/CurrentStopWorklistSnapshot` 里至少一条清单有 `eqp` 为 null 的条目；FP-IS-09 挂着这条向量并带 `WORKLIST_EQP_DISPLAY_ONLY`。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-11-16 |
+| 生成器测试 | 先提交断言确认红 3 条（worklist-eqp 15 条中），再改实现；`node --test tools/*.test.mjs` 234 pass／0 fail |
+| 确定性 | 2071 个文件、0 divergent |
+| 重产 | 普通克隆 `C:/work/8005-scratch/p29r/new`，检出协议仓 `77768cbc` 原地重产，与空目录生成逐字节一致；变化的只有 `docs/wire-notes.md`、`integration-slices/index.json`、`tools/g1-validate.mjs`、`manifest/release.json`、`evidence/g1-result.json`。G1 **PASS**：75 schema／69 消息／74 valid／1793 invalid／58 向量／16 切片，manifest `44fa0b273810fb2d5326068c03f9647bfd8fdc1c5f01e27a5177b0e0473fe7cb`，`vectorsSha256` 不变（`6295840e…`） |
+| G1 取红 | 每份副本只改一处、重新 finalize：M4 向量移出 FP-IS-09 → FAIL `FP-IS-09 carries the worklist eqp vector`；M5 分两次删服务端、车载端的 `NEVER_DECIDE_BY_WORKLIST_EQP` → 都 FAIL `worklist eqp is display-only on both ends`；M6 删 `EQP-NULL` 合法样例 → FAIL `a valid worklist carries a null eqp`；删 FP-IS-09 的 `WORKLIST_EQP_DISPLAY_ONLY` → FAIL `FP-IS-09 carries the worklist eqp vector`；M7 删 wire-notes eqp 节 → 仍 PASS（Markdown 只是说明，不是权威内容，这项只由生成器测试守） |

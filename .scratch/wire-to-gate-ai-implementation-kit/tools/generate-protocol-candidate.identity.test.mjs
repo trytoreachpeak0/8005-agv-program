@@ -1,9 +1,9 @@
-// Acceptance checks for the protocol 6.0.0 candidate identity (8005-agv-protocol#26; 5.0.0 was 8005-agv-protocol#21,
+// Acceptance checks for the protocol 7.0.0 candidate identity (8005-agv-protocol#29; 6.0.0 was 8005-agv-protocol#26, 5.0.0 was 8005-agv-protocol#21,
 // 4.0.0 was 8005-agv-protocol#13, 3.0.0 was 8005-agv-program#146, 2.0.0 was #90).
 // Run: node --test .scratch/wire-to-gate-ai-implementation-kit/tools/generate-protocol-candidate.identity.test.mjs
 // The seam is the generator's command line: every check generates a tree and reads what was written,
 // never the generator's internals. Expected values come from the ticket, specification 6.2 and the
-// released protocol-v5.0.0 tree, not from the generator's constants.
+// released protocol-v6.0.0 tree, not from the generator's constants.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
@@ -17,7 +17,7 @@ const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const generatorPath = path.join(toolsDirectory, "generate-protocol-candidate.mjs");
 const contextPath = path.resolve(toolsDirectory, "../../../CONTEXT.md");
 
-const V7_BASE = "https://schemas.8005-agv.local/agv-full-product/v7/";
+const V8_BASE = "https://schemas.8005-agv.local/agv-full-product/v8/";
 const PROFILE_ID = "AGV_FULL_PRODUCT";
 // The 54 codes protocol-v1.0.0 released, anchored at both ends of that registry.
 const RELEASED_CODE_COUNT = 54;
@@ -53,7 +53,7 @@ const read = (relative, root = tree) => fs.readFileSync(path.join(root, relative
 const readJson = (relative, root = tree) => JSON.parse(read(relative, root));
 const payloadOf = (messageType) => readJson(`schemas/messages/${messageType}.schema.json`).properties.payload.properties;
 
-test("every schema $id and $ref sits under agv-full-product/v7 and no v2, v3, v4, v5 or v6 URI remains", () => {
+test("every schema $id and $ref sits under agv-full-product/v8 and no v2, v3, v4, v5, v6 or v7 URI remains", () => {
   const uris = [];
   const collect = (value) => {
     if (Array.isArray(value)) return value.forEach(collect);
@@ -66,43 +66,43 @@ test("every schema $id and $ref sits under agv-full-product/v7 and no v2, v3, v4
   const files = walk(tree);
   files.filter((file) => file.endsWith(".json")).forEach((file) => collect(JSON.parse(fs.readFileSync(file, "utf8"))));
   assert.ok(uris.length > 0, "no $id or $ref found");
-  assert.deepEqual(uris.filter((uri) => !uri.startsWith(V7_BASE)), []);
+  assert.deepEqual(uris.filter((uri) => !uri.startsWith(V8_BASE)), []);
   // No file mentions an earlier segment at all, prose included.
-  for (const earlier of ["agv-full-product/v2", "agv-full-product/v3", "agv-full-product/v4", "agv-full-product/v5", "agv-full-product/v6"]) {
+  for (const earlier of ["agv-full-product/v2", "agv-full-product/v3", "agv-full-product/v4", "agv-full-product/v5", "agv-full-product/v6", "agv-full-product/v7"]) {
     const hits = files.filter((file) => fs.readFileSync(file, "utf8").includes(earlier));
     assert.deepEqual(hits.map((file) => path.relative(tree, file)), [], earlier);
   }
 });
 
-test("ProtocolVersion is 7 wherever the wire pins it, under an unchanged profileId", () => {
+test("ProtocolVersion is 8 wherever the wire pins it, under an unchanged profileId", () => {
   const envelope = readJson("schemas/envelope.schema.json");
-  assert.equal(envelope.properties.protocolVersion.const, 7);
+  assert.equal(envelope.properties.protocolVersion.const, 8);
   assert.equal(envelope.properties.profileId.const, PROFILE_ID);
   const messageFiles = fs.readdirSync(path.join(tree, "schemas/messages"));
   assert.ok(messageFiles.length > 0);
   for (const file of messageFiles) {
     const schema = readJson(`schemas/messages/${file}`);
-    assert.equal(schema.properties.protocolVersion.const, 7, file);
+    assert.equal(schema.properties.protocolVersion.const, 8, file);
     assert.equal(schema.properties.profileId.const, PROFILE_ID, file);
   }
-  assert.equal(payloadOf("SessionHello").supportedProtocolVersion.const, 7);
+  assert.equal(payloadOf("SessionHello").supportedProtocolVersion.const, 8);
   assert.equal(payloadOf("SessionHello").profileId.const, PROFILE_ID);
-  assert.equal(payloadOf("SessionRejected").expectedProtocolVersion.const, 7);
-  assert.equal(payloadOf("ProtocolProblem").expectedProtocolVersion.const, 7);
+  assert.equal(payloadOf("SessionRejected").expectedProtocolVersion.const, 8);
+  assert.equal(payloadOf("ProtocolProblem").expectedProtocolVersion.const, 8);
   assert.equal(payloadOf("ProtocolProblem").expectedProfileId.const, PROFILE_ID);
   const identity = readJson("schemas/common/types.schema.json").$defs.ProtocolReleaseIdentity.properties;
-  assert.equal(identity.protocolVersion.const, 7);
+  assert.equal(identity.protocolVersion.const, 8);
   assert.equal(identity.profileId.const, PROFILE_ID);
 });
 
-test("release version is 6.0.0 in the package, the seed manifest and a still-pending attestation template", () => {
-  assert.equal(readJson("package.json").version, "6.0.0");
+test("release version is 7.0.0 in the package, the seed manifest and a still-pending attestation template", () => {
+  assert.equal(readJson("package.json").version, "7.0.0");
   const manifest = readJson("manifest/release.json");
-  assert.equal(manifest.releaseVersion, "6.0.0");
-  assert.equal(manifest.protocolVersion, 7);
+  assert.equal(manifest.releaseVersion, "7.0.0");
+  assert.equal(manifest.protocolVersion, 8);
   assert.equal(manifest.profileId, PROFILE_ID);
   const template = readJson("attestations/release-approval.template.json");
-  assert.equal(template.candidateVersion, "6.0.0");
+  assert.equal(template.candidateVersion, "7.0.0");
   assert.equal(template.status, "PENDING");
 });
 
@@ -143,7 +143,7 @@ test("the 62 codes released in 3.0.0 stay byte-for-byte at the head of the regis
   assert.equal(crypto.createHash("sha256").update(JSON.stringify(codes.slice(0, V3_RELEASED_CODE_COUNT))).digest("hex"), V3_RELEASED_CODES_SHA256);
 });
 
-test("6.0.0 appends exactly its three codes after the 62 protocol-v5.0.0 released, under registry version 1.3.0", () => {
+test("6.0.0 appended exactly its three codes after the 62 protocol-v5.0.0 released, and 7.0.0 adds none under registry version 1.3.0", () => {
   // 8005-agv-protocol#26 (CP-0021): the skipped-slot marker, the skip refused with nothing loaded, and the cancellation refused
   // once a basket is loaded. generate-protocol-candidate.remaining-baskets-skip.test.mjs checks what each of them says.
   const registry = readJson("errors/error-codes.json");
@@ -154,11 +154,11 @@ test("6.0.0 appends exactly its three codes after the 62 protocol-v5.0.0 release
   );
 });
 
-test("the rendered finalize tool stamps the content snapshot with the 6.0.0 identity", () => {
+test("the rendered finalize tool stamps the content snapshot with the 7.0.0 identity", () => {
   // finalize-manifest.mjs is rendered from a template; the snapshot it writes is what G1 and both products
   // compare, so its identity is checked where it is rendered, not in the template.
   const finalize = read("tools/finalize-manifest.mjs");
-  assert.match(finalize, /releaseVersion:"6\.0\.0",protocolVersion:7,profileId:"AGV_FULL_PRODUCT"/);
+  assert.match(finalize, /releaseVersion:"7\.0\.0",protocolVersion:8,profileId:"AGV_FULL_PRODUCT"/);
   assert.doesNotMatch(finalize, /__[A-Z0-9_]+__/);
 });
 
@@ -183,7 +183,7 @@ test("an introducedInRelease override on an existing code reaches the registry",
 
 test("release governance scopes ProtocolVersion to a profileId", () => {
   const governance = read("docs/release-governance.md");
-  assert.match(governance, /ProtocolVersion is exactly 7 for this candidate/);
+  assert.match(governance, /ProtocolVersion is exactly 8 for this candidate/);
   assert.match(governance, /increases monotonically only within one `profileId`/);
   assert.match(governance, /`WIRE_TO_GATE_MVP` 0\.2\.0 and `AGV_FULL_PRODUCT` 1\.0\.0 are both ProtocolVersion 2/);
   assert.match(governance, /`WIRE_TO_GATE_MVP` 0\.3\.0 and `AGV_FULL_PRODUCT` 2\.0\.0 are both ProtocolVersion 3/);
@@ -191,33 +191,34 @@ test("release governance scopes ProtocolVersion to a profileId", () => {
   assert.match(governance, /`AGV_FULL_PRODUCT` 4\.0\.0 is ProtocolVersion 5/);
   assert.match(governance, /`AGV_FULL_PRODUCT` 5\.0\.0 is ProtocolVersion 6/);
   assert.match(governance, /`AGV_FULL_PRODUCT` 6\.0\.0 is ProtocolVersion 7/);
+  assert.match(governance, /`AGV_FULL_PRODUCT` 7\.0\.0 is ProtocolVersion 8/);
   assert.match(governance, /complete `ProtocolReleaseIdentity`/);
   assert.match(governance, /`\(profileId, ProtocolVersion\)`/);
   assert.doesNotMatch(governance, /branched before that change reached/);
 });
 
-test("candidate limitations describe the 6.0.0 candidate against protocol-v5.0.0", () => {
+test("candidate limitations describe the 7.0.0 candidate against protocol-v6.0.0", () => {
   const limitations = read("docs/candidate-limitations.md");
   const lastParagraph = limitations.trim().split("\n\n").at(-1);
-  assert.match(lastParagraph, /`protocol-v5\.0\.0` remains immutable/);
-  assert.match(lastParagraph, /`6\.0\.0` candidate/);
-  assert.match(lastParagraph, /ProtocolVersion increase to 7/);
-  assert.match(lastParagraph, /`protocol-v6\.0\.0`/);
-  assert.doesNotMatch(limitations, /`5\.0\.0` candidate|`4\.0\.0` candidate|`3\.0\.0` candidate|`2\.0\.0` candidate|protocol-v1\.0\.0|protocol-v2\.0\.0/);
+  assert.match(lastParagraph, /`protocol-v6\.0\.0` remains immutable/);
+  assert.match(lastParagraph, /`7\.0\.0` candidate/);
+  assert.match(lastParagraph, /ProtocolVersion increase to 8/);
+  assert.match(lastParagraph, /`protocol-v7\.0\.0`/);
+  assert.doesNotMatch(limitations, /`6\.0\.0` candidate|`5\.0\.0` candidate|`4\.0\.0` candidate|`3\.0\.0` candidate|`2\.0\.0` candidate|protocol-v1\.0\.0|protocol-v2\.0\.0/);
   assert.doesNotMatch(limitations, /0\.1\.1/);
 });
 
-test("compatibility report is based on protocol-v5.0.0 and summarises its changes", () => {
+test("compatibility report is based on protocol-v6.0.0 and summarises its changes", () => {
   const report = readJson("compatibility/report.json");
-  assert.equal(report.candidateVersion, "6.0.0");
-  assert.equal(report.protocolVersion, 7);
+  assert.equal(report.candidateVersion, "7.0.0");
+  assert.equal(report.protocolVersion, 8);
   assert.equal(report.profileId, PROFILE_ID);
-  assert.equal(report.baseRelease, "protocol-v5.0.0");
+  assert.equal(report.baseRelease, "protocol-v6.0.0");
   assert.equal(report.classification, "BREAKING_PROTOCOL_VERSION_INCREASE");
   assert.equal(report.wireCompatibility, "INCOMPATIBLE_EXACT_IDENTITY_REQUIRED");
-  // The 5.0.0 sentences are released history: protocol-v5.0.0 (18d4fb34) carries them. 6.0.0 has the one change of
-  // protocol#26; generate-protocol-candidate.remaining-baskets-skip.test.mjs checks what that sentence says.
-  const anchors = [/RemainingBasketsSkipRequested.*RemainingBasketsSkipResult/];
+  // The 6.0.0 sentence is released history: protocol-v6.0.0 (98f17264) carries it. 7.0.0 has the one change of
+  // protocol#29; generate-protocol-candidate.worklist-eqp.test.mjs checks what that sentence says.
+  const anchors = [/CurrentStopWorklistSnapshot.*eqp/];
   assert.ok(Array.isArray(report.changeSummary), "changeSummary is not a list");
   assert.equal(report.changeSummary.length, anchors.length);
   anchors.forEach((anchor, index) => assert.match(report.changeSummary[index], anchor, `item ${index + 1}`));
@@ -241,7 +242,7 @@ test("CONTEXT.md scopes ProtocolVersion to a profileId and no profile entry bind
   assert.match(protocolVersion, /同一 `?profileId`? 内/);
   assert.match(protocolVersion, /WIRE_TO_GATE_MVP.*0\.2\.0.*AGV_FULL_PRODUCT.*1\.0\.0/s);
   assert.match(protocolVersion, /WIRE_TO_GATE_MVP.*0\.3\.0.*AGV_FULL_PRODUCT.*2\.0\.0/s);
-  assert.match(protocolVersion, /`AGV_FULL_PRODUCT` 3\.0\.0 为 4，4\.0\.0 为 5，5\.0\.0 为 6，6\.0\.0 为 7/);
+  assert.match(protocolVersion, /`AGV_FULL_PRODUCT` 3\.0\.0 为 4，4\.0\.0 为 5，5\.0\.0 为 6，6\.0\.0 为 7，7\.0\.0 为 8/);
   assert.match(protocolVersion, /ProtocolReleaseIdentity/);
   assert.match(protocolVersion, /\(profileId, ProtocolVersion\)/);
   assert.match(protocolVersion, /破坏性变更都?必须升级版本/);
@@ -250,5 +251,5 @@ test("CONTEXT.md scopes ProtocolVersion to a profileId and no profile entry bind
   const fullProductProfile = entry("AgvFullProductProtocolProfile（完整产品协议剖面）");
   assert.doesNotMatch(fullProductProfile, /ProtocolVersion 2 中为/);
   assert.match(fullProductProfile, /1\.0\.0.*2.*2\.0\.0.*3/s);
-  assert.match(fullProductProfile, /3\.0\.0 为 ProtocolVersion 4，4\.0\.0 为 ProtocolVersion 5，5\.0\.0 为 ProtocolVersion 6，6\.0\.0 为 ProtocolVersion 7/);
+  assert.match(fullProductProfile, /3\.0\.0 为 ProtocolVersion 4，4\.0\.0 为 ProtocolVersion 5，5\.0\.0 为 ProtocolVersion 6，6\.0\.0 为 ProtocolVersion 7，7\.0\.0 为 ProtocolVersion 8/);
 });
