@@ -125,6 +125,11 @@ test(`FP-IS-09, the onboard worklist slice, carries ${VECTOR}`, () => {
   assert.ok(is09.definition.authorityModel.wireMessages.includes(WORKLIST));
 });
 
+test("G1 pins the worklist item with eqp among its required fields", () => {
+  const g1 = read("tools/g1-validate.mjs");
+  assert.ok(g1.includes(JSON.stringify([...V6_ITEM_FIELDS, "eqp"]).replaceAll(" ", "")), "G1 does not pin eqp");
+});
+
 // --- prose ---
 
 test("the wire notes say eqp is display-only, why it is required and nullable, and that both implementations change together", () => {
