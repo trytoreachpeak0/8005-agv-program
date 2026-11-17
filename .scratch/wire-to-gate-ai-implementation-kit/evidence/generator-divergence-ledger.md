@@ -560,3 +560,18 @@ protocol#29 落地用户 2026-11-11 的裁定（追踪 program#210）：车载�
 
 第 14 节的坑这次又踩了一次：先在协议仓的 git worktree 里 finalize，manifest 文件表把 worktree 根上 102 字节的 `.git` 文件算了进去
 （G1 照样 PASS，看不出来）。发现后改在普通克隆里重产、finalize、G1，再把克隆里的文件逐字节搬回 worktree 提交，worktree 里不再 finalize。
+
+### 17.1 审查返工（protocol#29 审查，Coordinator14 转达，无 H）
+
+审查四项裁定：M1 wire-notes eqp 节补升级前提；L1 G1 自己守住只显示的语义；L2 两处过时注释；L4 FP-IS-09 加 `WORKLIST_EQP_DISPLAY_ONLY`。L3（只含空白的 `eqp` 能过 schema）与 finalize 只排 `.git/` 的旧坑不改。
+
+- M1：车载端按 `MessageType` 存已应用的快照，同一 revision 内容不同即判 `SNAPSHOT_REVISION_CONTENT_CONFLICT`，表不分协议身份。切换时若有车停站持有非空清单，升级后服务端以同一 `worklistRevision` 重发、多了 `eqp`，车就会卡站。wire-notes 补一句：切换须关闸、所有旅程 `Completed`，没有车持有非空清单，并写明原因。两端实际行为由调度加到 cs#896、hmi#417 票面。
+- L1：G1 模板加一行（照第 16 节的做法）：向量两端都带 `NEVER_DECIDE_BY_WORKLIST_EQP` 且 `forbiddenSideEffects` 带 `decision-taken-on-worklist-eqp`；`examples/valid/CurrentStopWorklistSnapshot` 里至少一条清单有 `eqp` 为 null 的条目；FP-IS-09 挂着这条向量并带 `WORKLIST_EQP_DISPLAY_ONLY`。
+
+| 项 | 值 |
+| --- | --- |
+| 日期 | 2026-11-16 |
+| 生成器测试 | 先提交断言确认红 3 条（worklist-eqp 15 条中），再改实现；`node --test tools/*.test.mjs` 234 pass／0 fail |
+| 确定性 | 2071 个文件、0 divergent |
+| 重产 | 普通克隆 `C:/work/8005-scratch/p29r/new`，检出协议仓 `77768cbc` 原地重产，与空目录生成逐字节一致；变化的只有 `docs/wire-notes.md`、`integration-slices/index.json`、`tools/g1-validate.mjs`、`manifest/release.json`、`evidence/g1-result.json`。G1 **PASS**：75 schema／69 消息／74 valid／1793 invalid／58 向量／16 切片，manifest `44fa0b273810fb2d5326068c03f9647bfd8fdc1c5f01e27a5177b0e0473fe7cb`，`vectorsSha256` 不变（`6295840e…`） |
+| G1 取红 | 每份副本只改一处、重新 finalize：M4 向量移出 FP-IS-09 → FAIL `FP-IS-09 carries the worklist eqp vector`；M5 分两次删服务端、车载端的 `NEVER_DECIDE_BY_WORKLIST_EQP` → 都 FAIL `worklist eqp is display-only on both ends`；M6 删 `EQP-NULL` 合法样例 → FAIL `a valid worklist carries a null eqp`；删 FP-IS-09 的 `WORKLIST_EQP_DISPLAY_ONLY` → FAIL `FP-IS-09 carries the worklist eqp vector`；M7 删 wire-notes eqp 节 → 仍 PASS（Markdown 只是说明，不是权威内容，这项只由生成器测试守） |
