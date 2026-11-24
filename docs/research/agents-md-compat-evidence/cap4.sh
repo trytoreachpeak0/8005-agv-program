@@ -8,6 +8,6 @@ for v in $(env | grep -oE '^CLAUDE[A-Z_]*'); do unset "$v"; done
 unset AI_AGENT
 [ -n "$CFG" ] && export CLAUDE_CONFIG_DIR="$CFG"
 export CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1
-export ANTHROPIC_BASE_URL=http://127.0.0.1:18765 ANTHROPIC_API_KEY=sk-ant-dummy-local-capture CLAUDE_CODE_MAX_RETRIES=0
+export ANTHROPIC_BASE_URL=http://127.0.0.1:18765 ANTHROPIC_API_KEY=local-capture-placeholder CLAUDE_CODE_MAX_RETRIES=0
 "$CC" -p --model haiku --tools "" --debug-file "$root/logs/$tag.debug.log" "$@" -- "PROBE-$tag" < /dev/null > "$root/logs/$tag.out" 2>&1
 echo "exit=$?"

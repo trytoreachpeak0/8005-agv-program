@@ -1,0 +1,20 @@
+v-C      files=['\\s\\C\\CLAUDE.md', '\\s\\C\\AGENTS.md']  markers={'MARKER-C-CLAUDE-ONLY': 1, 'MARKER-C-AGENTS': 1}
+v-C2     files=['\\s\\C\\CLAUDE.md', '\\s\\C\\AGENTS.md']  markers={'MARKER-C-CLAUDE-ONLY': 1, 'MARKER-C-AGENTS': 1}
+v-C3     files=['\\s\\C\\CLAUDE.md', '\\s\\C\\AGENTS.md']  markers={'MARKER-C-CLAUDE-ONLY': 1, 'MARKER-C-AGENTS': 1}
+v-F      files=['\\s\\F\\CLAUDE.md']  markers={'MARKER-F-PARENT-CLAUDE': 1}
+v-H      files=['\\s\\H\\proj\\CLAUDE.md']  markers={'MARKER-H-PROJ-CLAUDE': 1}
+v-Hok    files=['\\s\\H\\proj\\CLAUDE.md', '\\s\\H\\shared\\CLAUDE.md']  markers={'MARKER-H-PROJ-CLAUDE': 1, 'MARKER-H-SHARED-CLAUDE': 1}
+v-N3     files=['\\s\\N3\\CLAUDE.md', '\\s\\N3\\AGENTS.md']  markers={'MARKER-N3-SAME': 2}
+v-N4     files=['\\s\\N4\\CLAUDE.md']  markers={'MARKER-N4-SAME': 1}
+v-N5     files=['\\s\\N5\\CLAUDE.md', '\\s\\N5\\AGENTS.md']  markers={'MARKER-N5-SAME': 2}
+v-Q      files=['\\s\\Q\\CLAUDE.md', '\\s\\Q\\repos\\r\\CLAUDE.md']  markers={'MARKER-Q-ROOT': 1, 'MARKER-Q-REPO': 1}
+v-Qsub   files=['\\s\\Q\\CLAUDE.md']  markers={'MARKER-Q-ROOT': 1}
+v-QsubOk files=['\\s\\Q\\CLAUDE.md', '\\s\\Q\\repos\\r\\CLAUDE.md']  markers={'MARKER-Q-ROOT': 1, 'MARKER-Q-REPO': 1}
+v-QsubRootOk files=['\\s\\Q\\CLAUDE.md']  markers={'MARKER-Q-ROOT': 1}
+v-X1     files=['\\s\\X\\p1\\CLAUDE.md']  markers={'MARKER-X-P1': 1}
+v-X1ok   files=['\\s\\X\\p1\\CLAUDE.md', '\\s\\X\\p1\\link\\CLAUDE.md']  markers={'MARKER-X-P1': 1, 'MARKER-X-SHARED-CLAUDE': 1}
+v-X4     files=['\\s\\X\\p4\\CLAUDE.md', '\\s\\X\\p4\\ws\\CLAUDE.md']  markers={'MARKER-X-P4': 1, 'MARKER-X-P4-WS-CLONE': 1}
+v-X4c    files=['\\s\\X\\p4c\\CLAUDE.md', '\\s\\X\\p4c\\ws\\CLAUDE.md']  markers={'MARKER-X4C': 1, 'MARKER-X4C-WS': 1}
+v-X4d    files=['\\s\\X\\p4d\\CLAUDE.md', '\\s\\X\\p4d\\ws\\CLAUDE.md', '\\s\\X\\p4d\\ws\\repos\\test-lab\\CLAUDE.md']  markers={'MARKER-X4D': 1, 'MARKER-X4D-WS': 1, 'MARKER-X4D-FILE-RELATIVE-TARGET': 1}
+v0-warm  files=[]  markers={}
+v0-warm2 files=[]  markers={}

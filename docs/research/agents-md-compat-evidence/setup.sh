@@ -38,8 +38,14 @@ mkdir Jsrc && ( cd Jsrc && git init -q && printf '# J\nMARKER-J-AGENTS\n' > AGEN
   && git update-index --add --cacheinfo 120000,"$(printf 'AGENTS.md' | git hash-object -w --stdin)",CLAUDE.md \
   && git -c user.name=t -c user.email=t@t commit -qm init )
 git -c core.symlinks=false clone -q Jsrc J-nosym   # CLAUDE.md becomes a 9-byte text file "AGENTS.md"
-git -c core.symlinks=true  clone -q Jsrc J-sym || true  # without Developer Mode: "unable to create symlink CLAUDE.md: Permission denied"
+git -c core.symlinks=true  clone -q Jsrc J-sym 2>&1 | tee ../logs/J-sym.clone.txt || true  # recorded in results.txt
 mkdir -p ../proj-settings/.claude && cp B/*.md ../proj-settings/ && cp ../both.settings.json ../proj-settings/.claude/settings.json
+# config dirs for the approval / user-level runs (H approved, L, M)
+mkdir -p ../cfgH && printf '{"projects":{"C:/work/8005-scratch/agents-md-compat/s/H/proj":{"hasClaudeMdExternalIncludesApproved":true,"hasClaudeMdExternalIncludesWarningShown":true},"C:/work/8005-scratch/agents-md-compat/s/H/proj2":{"hasClaudeMdExternalIncludesApproved":true,"hasClaudeMdExternalIncludesWarningShown":true}}}
+' > ../cfgH/.claude.json
+# L/M use CFG=s/L/cfg (no .claude.json needed: it only holds the user-level CLAUDE.md and AGENTS.md)
+# runs: CFG=cfgH cap2.sh H/proj r2-H; CFG=cfgH cap2.sh H/proj2 r2-H2; CFG=s/L/cfg cap2.sh L/proj r2-L; CFG=s/L/cfg cap2.sh M r2-M
+# r3-WSV2: cap.sh C:/work/8005-workspace-v2 r3-WSV2, then: python -I heads.py r3-WSV2 'A workspace of independent git repositories, not a monorepo'
 echo setup-ok
 # X: ways around the external-import approval (section 4 of the report)
 mkdir -p X/shared X/p1 X/p2/.claude X/p3/.claude X/p4/ws X/p5

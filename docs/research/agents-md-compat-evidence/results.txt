@@ -27,10 +27,12 @@ r5-N3    files=['/s/N3/CLAUDE.md', '/s/N3/AGENTS.md']  markers={'MARKER-N3-SAME'
 r3-WSV2  (cwd C:/work/8005-workspace-v2, real ~/.claude.json) files=['~/.claude/CLAUDE.md', 'C:/work/8005-workspace-v2/CLAUDE.md', '<auto memory>/MEMORY.md']  literal '@../8005-workspace/CLAUDE.md' present=True  first sentence of ../8005-workspace/CLAUDE.md present=False
 r6-X1    files=['/s/X/p1/CLAUDE.md']  markers={'MARKER-X-P1': 1}
 r6-X2    files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
-r6-X2b   files=['/s/X/p5/CLAUDE.md']  markers={'MARKER-X-P5': 1} (invalid run: cap.sh strips CLAUDE* env vars, so the variable never reached the CLI; redone as r7-X2c)
+r6-X2b   files=['/s/X/p5/CLAUDE.md']  markers={'MARKER-X-P5': 1} (--add-dir without CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD: cap.sh strips CLAUDE* env vars, so this is the default case; the variable set is r7-X2c)
 r6-X3    files=['/s/X/p3/CLAUDE.md']  markers={'MARKER-X-P3': 1, 'MARKER-X-SHARED-CLAUDE': 1}
 r6-X4    files=['/s/X/p4/CLAUDE.md', '/s/X/p4/ws/CLAUDE.md']  markers={'MARKER-X-P4': 1, 'MARKER-X-P4-WS-CLONE': 1}
 r7-X2c   files=['/s/X/p5/CLAUDE.md', '/s/X/shared/CLAUDE.md']  markers={'MARKER-X-P5': 1, 'MARKER-X-SHARED-CLAUDE': 1}
 r7-X2d   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
 r8-X2e   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
 r9-X2f   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+J-sym    git -c core.symlinks=true clone: error: unable to create symlink CLAUDE.md: Permission denied / fatal: unable to checkout working tree (no Developer Mode)
+# r3-WSV2 line produced with heads.py (analyze.py filters to the scratch tree); review re-runs incl. Q/N4/N5/X1ok/X4c/X4d/C3: review-probe-results.txt
