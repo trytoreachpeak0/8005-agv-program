@@ -1,34 +1,18 @@
 # Shared workspace rules
 
-Rules both 8005 workspaces follow: `8005-workspace` (v1, a git repository) and
-`8005-workspace-v2` (not a git repository). Each workspace root `CLAUDE.md`
-imports this file as `@repos/8005-agv-program/docs/agents/workspace-rules.md`
-and keeps only what is specific to that workspace. This file is the authority on
-write access, language, the scripting baseline, CI runners and shared-resource
-rules, including the agv02/agv03 isolation for v2 vehicle work. Where a
-repository restates any of it, this file wins.
-
-**The content is moved unchanged from `8005-workspace@727b52a`. Where a rule here
-conflicts with an override sentence in a workspace's own `CLAUDE.md` (a later,
-dated decision of the user), that override sentence wins for that workspace.**
-This file was a move, not a revision: rules that have gone stale are corrected
-by a separate decision of the user, not in passing.
-
-Moved here from the v1 workspace `CLAUDE.md` (at `727b52a`) by
-trytoreachpeak0/8005-agv-program#228, so that both workspaces read one
-versioned copy: the v2 import of `../8005-workspace/CLAUDE.md` had been silently
-dropped as an unapproved external import (`docs/research/agents-md-compat.md`,
-section 4). The text below is moved as it was, apart from paths, which were
-relative to the v1 workspace root and now name their repository. Sections that
-concern only the v1 workspace (runner network diagnosis, the CD sections, its
-directory layout, the lab VMs) stayed in the v1 `CLAUDE.md`.
-
-Paths below: `<repository>/<path>` means that path inside that repository's
-clone; `docs/…` without a repository means this repository.
-
 A workspace of independent git repositories, not a monorepo. Each subdirectory
 is its own clone with its own remote — stage, commit, and push one repository at
 a time, and never assume a change in one is visible to another.
+
+Each repository carries its own `CLAUDE.md` with the rules for working inside
+it, and Claude Code loads those only once it reads a file in that directory.
+
+This file is the authority on write access and applies from the start of every
+session. Where a repository restates any of it, this file wins.
+
+The content is moved unchanged from `8005-workspace@727b52a`. Where a rule here
+conflicts with an override sentence in a workspace's own `CLAUDE.md`, that
+override sentence wins for that workspace.
 
 ## Repository write authority
 
@@ -142,7 +126,7 @@ restrictions override Wayfinder routing, execution authorization in map Notes,
 and general requests to fix, document, commit, or push. Only a later explicit
 user instruction changing this standing policy may alter the list above.
 
-`w2g-rc-*/` are release-candidate artifact snapshots, not working trees. Read
+`8005-workspace/w2g-rc-*/` are release-candidate artifact snapshots, not working trees. Read
 them for reference; never develop in them.
 
 ## Scripting baseline
