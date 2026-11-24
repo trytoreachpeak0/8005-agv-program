@@ -32,11 +32,6 @@ ask.
 
 ### Fast mode
 
-Matt Pocock's skills ship as the `mattpocock-skills` plugin and are
-explicit-only. Use one only when the user names it directly (for example,
-`/mattpocock-skills:diagnosing-bugs`, `/mattpocock-skills:implement`, or "use
-the prototype skill"). Ordinary requests should be handled directly.
-
 When the user says "fast", "quick", "直接做", or "快速处理":
 
 - Do not create issues, specs, ADRs, research notes, handoff documents, or
