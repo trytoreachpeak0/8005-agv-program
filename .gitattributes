@@ -11,3 +11,9 @@ mes/queries/sublot-box-count/query.sql -text -diff
 
 # 候选工具模板会被逐字写进协议仓的 tools/，行尾漂移会让模板与生成输出出现假差异。
 .scratch/wire-to-gate-ai-implementation-kit/tools/templates/*.mjs text eol=lf
+
+# The agent instruction pair is pinned together, so both files have the same
+# bytes on every checkout, Windows clones included. CLAUDE.md imports AGENTS.md
+# on its first line (program#230).
+AGENTS.md text eol=lf
+CLAUDE.md text eol=lf
