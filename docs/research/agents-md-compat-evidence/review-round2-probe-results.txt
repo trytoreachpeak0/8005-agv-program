@@ -1,0 +1,23 @@
+== z0warm 1 requests
+   req-0.json first  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1}
+== z1 2 requests
+   req-1.json first  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1}
+   req-2.json tool_result  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1, 'MARKER-W-SUB': 1}
+== z2 2 requests
+   req-3.json first  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1}
+   req-4.json tool_result  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1}
+== z3 2 requests
+   req-5.json first  ['\\s\\R\\CLAUDE.md', '\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1, 'MARKER-R-REPO': 1}
+   req-6.json tool_result  ['\\s\\R\\CLAUDE.md', '\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1, 'MARKER-R-REPO': 1}
+== z4 2 requests
+   req-7.json first  ['\\s\\Wa\\CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+   req-8.json tool_result  ['\\s\\Wa\\CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+== z5 2 requests
+   req-9.json first  ['\\s\\Wa\\CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+   req-10.json tool_result  ['\\s\\Wa\\CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+== z6 2 requests
+   req-11.json first  ['\\s\\Wr\\CLAUDE.md'] {'MARKER-WR-ROOT': 1}
+   req-12.json tool_result  ['\\s\\Wr\\CLAUDE.md'] {'MARKER-WR-ROOT': 1}
+== z7 2 requests
+   req-13.json first  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1}
+   req-14.json tool_result  ['\\s\\W\\CLAUDE.md'] {'MARKER-W-ROOT': 1}

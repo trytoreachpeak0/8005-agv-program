@@ -1,0 +1,38 @@
+# claude 2.1.330, captured 2026-11-24 02:07-02:11 UTC; first request body of each run, project instruction files and MARKER counts
+r1-A     files=['/s/A/AGENTS.md']  markers={'MARKER-A-AGENTS': 1}
+r1-A3    files=[]  markers={}
+r1-B     files=['/s/B/CLAUDE.md']  markers={'MARKER-B-CLAUDE': 1}
+r1-B2    files=['/s/B/CLAUDE.md', '/s/B/AGENTS.md']  markers={'MARKER-B-CLAUDE': 1, 'MARKER-B-AGENTS': 1}
+r1-C     files=['/s/C/CLAUDE.md', '/s/C/AGENTS.md']  markers={'MARKER-C-CLAUDE-ONLY': 1, 'MARKER-C-AGENTS': 1}
+r1-C2    files=['/s/C/CLAUDE.md', '/s/C/AGENTS.md']  markers={'MARKER-C-CLAUDE-ONLY': 1, 'MARKER-C-AGENTS': 1}
+r1-D     files=['/s/D/CLAUDE.local.md']  markers={'MARKER-D-LOCAL': 1}
+r1-D2    files=['/s/D/CLAUDE.local.md', '/s/D/AGENTS.md']  markers={'MARKER-D-LOCAL': 1, 'MARKER-D-AGENTS': 1}
+r1-E     files=['/s/E/.claude/AGENTS.md']  markers={'MARKER-E-DOTCLAUDE-AGENTS': 1}
+r1-F     files=['/s/F/CLAUDE.md']  markers={'MARKER-F-PARENT-CLAUDE': 1}
+r1-F2    files=['/s/F/CLAUDE.md', '/s/F/sub/AGENTS.md']  markers={'MARKER-F-PARENT-CLAUDE': 1, 'MARKER-F-SUB-AGENTS': 1}
+r1-G     files=['/s/G/AGENTS.md', '/s/G/sub/AGENTS.md']  markers={'MARKER-G-PARENT-AGENTS': 1, 'MARKER-G-SUB-AGENTS': 1}
+r1-H     files=['/s/H/proj/CLAUDE.md']  markers={'MARKER-H-PROJ-CLAUDE': 1}
+r1-H2    files=['/s/H/proj2/AGENTS.md']  markers={'MARKER-H-PROJ2-AGENTS': 1}
+r1-I     files=['/s/I/AGENTS.md', '/s/I/extra.md']  markers={'MARKER-I-AGENTS': 1, 'MARKER-I-IMPORTED-BY-AGENTS': 1}
+r1-J     files=['/s/J-nosym/CLAUDE.md']  markers={}
+r1-K     files=['/s/K/AGENTS.md']  markers={'MARKER-K-AGENTS': 1}
+r1-P     files=['/proj-settings/CLAUDE.md']  markers={'MARKER-B-CLAUDE': 1}
+r2-H     files=['/s/H/proj/CLAUDE.md', '/s/H/shared/CLAUDE.md']  markers={'MARKER-H-PROJ-CLAUDE': 1, 'MARKER-H-SHARED-CLAUDE': 1}
+r2-H2    files=['/s/H/proj2/AGENTS.md', '/s/H/shared/AGENTS.md']  markers={'MARKER-H-PROJ2-AGENTS': 1, 'MARKER-H-SHARED-AGENTS': 1}
+r2-L     files=['/s/L/cfg/CLAUDE.md', '/s/L/proj/AGENTS.md']  markers={'MARKER-L-USER-LEVEL-CLAUDE': 1, 'MARKER-L-PROJ-AGENTS': 1}
+r2-M     files=['/s/L/cfg/CLAUDE.md']  markers={'MARKER-L-USER-LEVEL-CLAUDE': 1}
+r4-N     files=['/s/N/CLAUDE.md']  markers={'MARKER-N-SAME-CONTENT': 1}
+r4-N2    files=['/s/N/CLAUDE.md']  markers={'MARKER-N-SAME-CONTENT': 1}
+r5-N3    files=['/s/N3/CLAUDE.md', '/s/N3/AGENTS.md']  markers={'MARKER-N3-SAME': 2}
+r3-WSV2  (cwd C:/work/8005-workspace-v2, real ~/.claude.json) files=['~/.claude/CLAUDE.md', 'C:/work/8005-workspace-v2/CLAUDE.md', '<auto memory>/MEMORY.md']  literal '@../8005-workspace/CLAUDE.md' present=True  first sentence of ../8005-workspace/CLAUDE.md present=False
+r6-X1    files=['/s/X/p1/CLAUDE.md']  markers={'MARKER-X-P1': 1}
+r6-X2    files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+r6-X2b   files=['/s/X/p5/CLAUDE.md']  markers={'MARKER-X-P5': 1} (--add-dir without CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD: cap.sh strips CLAUDE* env vars, so this is the default case; the variable set is r7-X2c)
+r6-X3    files=['/s/X/p3/CLAUDE.md']  markers={'MARKER-X-P3': 1, 'MARKER-X-SHARED-CLAUDE': 1}
+r6-X4    files=['/s/X/p4/CLAUDE.md', '/s/X/p4/ws/CLAUDE.md']  markers={'MARKER-X-P4': 1, 'MARKER-X-P4-WS-CLONE': 1}
+r7-X2c   files=['/s/X/p5/CLAUDE.md', '/s/X/shared/CLAUDE.md']  markers={'MARKER-X-P5': 1, 'MARKER-X-SHARED-CLAUDE': 1}
+r7-X2d   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+r8-X2e   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+r9-X2f   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+J-sym    git -c core.symlinks=true clone: error: unable to create symlink CLAUDE.md: Permission denied / fatal: unable to checkout working tree (no Developer Mode)
+# r3-WSV2 line produced with heads.py (analyze.py filters to the scratch tree); review re-runs incl. Q/N4/N5/X1ok/X4c/X4d/C3: review-probe-results.txt
