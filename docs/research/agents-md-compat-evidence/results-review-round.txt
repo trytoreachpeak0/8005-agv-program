@@ -1,0 +1,36 @@
+# claude 2.1.330; bin2/run.sh + sink2.py (fake API answers one Read tool_use when the prompt carries READ=<path>); look.py output
+== q-N4 1 requests
+   req-6.json first  ['/s/N4/CLAUDE.md'] {'MARKER-N4-SAME': 1}
+== q-N5 1 requests
+   req-7.json first  ['/s/N5/AGENTS.md', '/s/N5/CLAUDE.md'] {'MARKER-N5-SAME': 2}
+== q-Q 1 requests
+   req-0.json first  ['/s/Q/CLAUDE.md', '/s/Q/repos/r/CLAUDE.md'] {'MARKER-Q-ROOT': 1, 'MARKER-Q-REPO': 1}
+== q-Qgsub 1 requests
+   req-4.json first  ['/s/Qg/CLAUDE.md'] {'MARKER-QG-ROOT': 1}
+== q-QgsubRootOk 1 requests
+   req-5.json first  ['/s/Qg/CLAUDE.md', '/s/Qg/repos/r/CLAUDE.md'] {'MARKER-QG-ROOT': 1, 'MARKER-QG-REPO': 1}
+== q-Qsub 1 requests
+   req-1.json first  ['/s/Q/CLAUDE.md'] {'MARKER-Q-ROOT': 1}
+== q-QsubOk 1 requests
+   req-2.json first  ['/s/Q/CLAUDE.md', '/s/Q/repos/r/CLAUDE.md'] {'MARKER-Q-ROOT': 1, 'MARKER-Q-REPO': 1}
+== q-QsubRootOk 1 requests
+   req-3.json first  ['/s/Q/CLAUDE.md'] {'MARKER-Q-ROOT': 1}
+== q-X4c 1 requests
+   req-8.json first  ['/s/X/p4c/CLAUDE.md', '/s/X/p4c/ws/CLAUDE.md'] {'MARKER-X4C': 1, 'MARKER-X4C-WS': 1}
+== q-X4d 1 requests
+   req-9.json first  ['/s/X/p4d/CLAUDE.md', '/s/X/p4d/ws/CLAUDE.md', '/s/X/p4d/ws/repos/test-lab/CLAUDE.md'] {'MARKER-X4D': 1, 'MARKER-X4D-WS': 1, 'MARKER-X4D-FILE-RELATIVE-TARGET': 1}
+== q-z1 2 requests
+   req-10.json first  ['/s/W/CLAUDE.md'] {'MARKER-W-ROOT': 1}
+   req-11.json tool_result  ['/s/W/CLAUDE.md'] {'MARKER-W-ROOT': 1, 'MARKER-W-SUB': 1}
+== q-z2 2 requests
+   req-12.json first  ['/s/W/CLAUDE.md'] {'MARKER-W-ROOT': 1}
+   req-13.json tool_result  ['/s/W/CLAUDE.md'] {'MARKER-W-ROOT': 1}
+== q-z3 2 requests
+   req-14.json first  ['/s/R/CLAUDE.md', '/s/W/CLAUDE.md'] {'MARKER-W-ROOT': 1, 'MARKER-R-REPO': 1}
+   req-15.json tool_result  ['/s/R/CLAUDE.md', '/s/W/CLAUDE.md'] {'MARKER-W-ROOT': 1, 'MARKER-R-REPO': 1}
+== q-z4 2 requests
+   req-16.json first  ['/s/Wa/CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+   req-17.json tool_result  ['/s/Wa/CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+== q-z5 2 requests
+   req-18.json first  ['/s/Wa/CLAUDE.md'] {'MARKER-WA-ROOT': 1}
+   req-19.json tool_result  ['/s/Wa/CLAUDE.md'] {'MARKER-WA-ROOT': 1}
