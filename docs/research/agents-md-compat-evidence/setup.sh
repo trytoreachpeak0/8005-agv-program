@@ -41,3 +41,18 @@ git -c core.symlinks=false clone -q Jsrc J-nosym   # CLAUDE.md becomes a 9-byte 
 git -c core.symlinks=true  clone -q Jsrc J-sym || true  # without Developer Mode: "unable to create symlink CLAUDE.md: Permission denied"
 mkdir -p ../proj-settings/.claude && cp B/*.md ../proj-settings/ && cp ../both.settings.json ../proj-settings/.claude/settings.json
 echo setup-ok
+# X: ways around the external-import approval (section 4 of the report)
+mkdir -p X/shared X/p1 X/p2/.claude X/p3/.claude X/p4/ws X/p5
+printf 'MARKER-X-SHARED-CLAUDE\n' > X/shared/CLAUDE.md
+printf '@link/CLAUDE.md\n\nMARKER-X-P1\n' > X/p1/CLAUDE.md
+cmd //c mklink //J "$(cygpath -w "$PWD/X/p1/link")" "$(cygpath -w "$PWD/X/shared")"   # directory junction, no admin needed
+printf 'MARKER-X-P2\n' > X/p2/CLAUDE.md
+printf '{"permissions":{"additionalDirectories":["../shared"]},"env":{"CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD":"1"}}\n' > X/p2/.claude/settings.json
+printf 'MARKER-X-P3\n' > X/p3/CLAUDE.md
+printf '{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"cat ../shared/CLAUDE.md"}]}]}}\n' > X/p3/.claude/settings.json
+printf '@ws/CLAUDE.md\n\nMARKER-X-P4\n' > X/p4/CLAUDE.md
+printf '@repos/test-lab/CLAUDE.md\n\nMARKER-X-P4-WS-CLONE\n' > X/p4/ws/CLAUDE.md   # nested import whose target does not exist in the clone
+printf 'MARKER-X-P5\n' > X/p5/CLAUDE.md
+mkdir -p ../cfgT && printf '{"projects":{"C:/work/8005-scratch/agents-md-compat/s/X/p2":{"hasTrustDialogAccepted":true}}}\n' > ../cfgT/.claude.json
+# runs: cap.sh X/p1 r6-X1; cap.sh X/p2 r6-X2; cap.sh X/p3 r6-X3; cap.sh X/p4 r6-X4;
+#       cap3.sh X/p5 r7-X2c --add-dir ../shared; CFG=cfgT cap2.sh X/p2 r8-X2e; CFG=cfgT cap4.sh X/p2 r9-X2f

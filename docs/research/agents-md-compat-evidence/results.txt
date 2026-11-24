@@ -25,3 +25,12 @@ r4-N     files=['/s/N/CLAUDE.md']  markers={'MARKER-N-SAME-CONTENT': 1}
 r4-N2    files=['/s/N/CLAUDE.md']  markers={'MARKER-N-SAME-CONTENT': 1}
 r5-N3    files=['/s/N3/CLAUDE.md', '/s/N3/AGENTS.md']  markers={'MARKER-N3-SAME': 2}
 r3-WSV2  (cwd C:/work/8005-workspace-v2, real ~/.claude.json) files=['~/.claude/CLAUDE.md', 'C:/work/8005-workspace-v2/CLAUDE.md', '<auto memory>/MEMORY.md']  literal '@../8005-workspace/CLAUDE.md' present=True  first sentence of ../8005-workspace/CLAUDE.md present=False
+r6-X1    files=['/s/X/p1/CLAUDE.md']  markers={'MARKER-X-P1': 1}
+r6-X2    files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+r6-X2b   files=['/s/X/p5/CLAUDE.md']  markers={'MARKER-X-P5': 1} (invalid run: cap.sh strips CLAUDE* env vars, so the variable never reached the CLI; redone as r7-X2c)
+r6-X3    files=['/s/X/p3/CLAUDE.md']  markers={'MARKER-X-P3': 1, 'MARKER-X-SHARED-CLAUDE': 1}
+r6-X4    files=['/s/X/p4/CLAUDE.md', '/s/X/p4/ws/CLAUDE.md']  markers={'MARKER-X-P4': 1, 'MARKER-X-P4-WS-CLONE': 1}
+r7-X2c   files=['/s/X/p5/CLAUDE.md', '/s/X/shared/CLAUDE.md']  markers={'MARKER-X-P5': 1, 'MARKER-X-SHARED-CLAUDE': 1}
+r7-X2d   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+r8-X2e   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
+r9-X2f   files=['/s/X/p2/CLAUDE.md']  markers={'MARKER-X-P2': 1}
